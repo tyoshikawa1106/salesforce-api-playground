@@ -1,4 +1,11 @@
 import { NextResponse } from "next/server";
+import {
+  buildSalesforceApiUrl,
+  extractSalesforceErrorMessage,
+  tokenResponseToRefreshedSession,
+  tokenResponseToSession
+} from "./client-core";
+import type { TokenResponse } from "./client-core";
 import { getSalesforceConfig } from "./config";
 import {
   SalesforceSession,
@@ -6,11 +13,7 @@ import {
   setSessionCookie
 } from "./session";
 
-export type SalesforceErrorPayload = {
-  message?: string;
-  errorCode?: string;
-  fields?: string[];
-};
+export type { SalesforceErrorPayload, TokenResponse } from "./client-core";
 
 export type SalesforceQueryResponse<T> = {
   totalSize: number;
@@ -44,14 +47,6 @@ export type ContactRecord = {
   LastModifiedDate?: string;
 };
 
-type TokenResponse = {
-  access_token: string;
-  refresh_token?: string;
-  instance_url: string;
-  id?: string;
-  issued_at?: string;
-};
-
 export class SalesforceApiError extends Error {
   constructor(
     message: string,
@@ -64,7 +59,7 @@ export class SalesforceApiError extends Error {
 
 function buildApiUrl(session: SalesforceSession, path: string): string {
   const { apiVersion } = getSalesforceConfig();
-  return `${session.instanceUrl}/services/data/${apiVersion}${path}`;
+  return buildSalesforceApiUrl(session, apiVersion, path);
 }
 
 async function parseSalesforceError(response: Response): Promise<SalesforceApiError> {
@@ -75,9 +70,7 @@ async function parseSalesforceError(response: Response): Promise<SalesforceApiEr
     details = await response.text();
   }
 
-  const message = Array.isArray(details)
-    ? details.map((item: SalesforceErrorPayload) => item.message).filter(Boolean).join(" ")
-    : response.statusText;
+  const message = extractSalesforceErrorMessage(details, response.statusText);
 
   return new SalesforceApiError(message || "Salesforce API request failed.", response.status, details);
 }
@@ -106,13 +99,7 @@ export async function exchangeCodeForToken(code: string): Promise<SalesforceSess
   }
 
   const token = (await response.json()) as TokenResponse;
-  return {
-    accessToken: token.access_token,
-    refreshToken: token.refresh_token,
-    instanceUrl: token.instance_url,
-    issuedAt: token.issued_at ? Number(token.issued_at) : Date.now(),
-    userId: token.id?.split("/").at(-1)
-  };
+  return tokenResponseToSession(token);
 }
 
 export async function revokeSalesforceSession(session: SalesforceSession): Promise<void> {
@@ -160,12 +147,7 @@ async function refreshAccessToken(session: SalesforceSession): Promise<Salesforc
   }
 
   const token = (await response.json()) as TokenResponse;
-  return {
-    ...session,
-    accessToken: token.access_token,
-    instanceUrl: token.instance_url ?? session.instanceUrl,
-    issuedAt: token.issued_at ? Number(token.issued_at) : Date.now()
-  };
+  return tokenResponseToRefreshedSession(session, token);
 }
 
 export async function salesforceFetch<T>(
