@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import {
+  buildAuthenticatedSalesforceRequestInit,
   buildSalesforceApiUrl,
   extractSalesforceErrorMessage,
+  readSalesforceErrorDetails,
+  readSalesforceResponseData,
   tokenResponseToRefreshedSession,
   tokenResponseToSession
 } from "./client-core";
@@ -62,17 +65,44 @@ function buildApiUrl(session: SalesforceSession, path: string): string {
   return buildSalesforceApiUrl(session, apiVersion, path);
 }
 
-async function parseSalesforceError(response: Response): Promise<SalesforceApiError> {
-  let details: unknown;
-  try {
-    details = await response.json();
-  } catch {
-    details = await response.text();
-  }
-
+export async function salesforceApiErrorFromResponse(response: Response): Promise<SalesforceApiError> {
+  const details = await readSalesforceErrorDetails(response);
   const message = extractSalesforceErrorMessage(details, response.statusText);
 
   return new SalesforceApiError(message || "Salesforce API request failed.", response.status, details);
+}
+
+async function fetchWithSession(
+  session: SalesforceSession,
+  path: string,
+  init: RequestInit
+): Promise<Response> {
+  return fetch(buildApiUrl(session, path), buildAuthenticatedSalesforceRequestInit(session, init));
+}
+
+async function refreshAndRetrySalesforceFetch(
+  session: SalesforceSession,
+  path: string,
+  init: RequestInit
+): Promise<{ response: Response; session: SalesforceSession }> {
+  const refreshedSession = await refreshAccessToken(session);
+  const response = await fetchWithSession(refreshedSession, path, init);
+
+  return { response, session: refreshedSession };
+}
+
+async function fetchSalesforceWithRefresh(
+  session: SalesforceSession,
+  path: string,
+  init: RequestInit
+): Promise<{ response: Response; session: SalesforceSession }> {
+  const response = await fetchWithSession(session, path, init);
+
+  if (response.status !== 401) {
+    return { response, session };
+  }
+
+  return refreshAndRetrySalesforceFetch(session, path, init);
 }
 
 export async function exchangeCodeForToken(code: string): Promise<SalesforceSession> {
@@ -95,7 +125,7 @@ export async function exchangeCodeForToken(code: string): Promise<SalesforceSess
   });
 
   if (!response.ok) {
-    throw await parseSalesforceError(response);
+    throw await salesforceApiErrorFromResponse(response);
   }
 
   const token = (await response.json()) as TokenResponse;
@@ -116,7 +146,7 @@ export async function revokeSalesforceSession(session: SalesforceSession): Promi
   });
 
   if (!response.ok) {
-    throw await parseSalesforceError(response);
+    throw await salesforceApiErrorFromResponse(response);
   }
 }
 
@@ -143,7 +173,7 @@ async function refreshAccessToken(session: SalesforceSession): Promise<Salesforc
   });
 
   if (!response.ok) {
-    throw await parseSalesforceError(response);
+    throw await salesforceApiErrorFromResponse(response);
   }
 
   const token = (await response.json()) as TokenResponse;
@@ -154,40 +184,19 @@ export async function salesforceFetch<T>(
   path: string,
   init: RequestInit = {}
 ): Promise<{ data: T; session: SalesforceSession }> {
-  let session = getSession();
+  const session = getSession();
   if (!session) {
     throw new SalesforceApiError("Not connected to Salesforce.", 401);
   }
 
-  let response = await fetch(buildApiUrl(session, path), {
-    ...init,
-    headers: {
-      authorization: `Bearer ${session.accessToken}`,
-      "content-type": "application/json",
-      ...(init.headers ?? {})
-    },
-    cache: "no-store"
-  });
+  const result = await fetchSalesforceWithRefresh(session, path, init);
 
-  if (response.status === 401) {
-    session = await refreshAccessToken(session);
-    response = await fetch(buildApiUrl(session, path), {
-      ...init,
-      headers: {
-        authorization: `Bearer ${session.accessToken}`,
-        "content-type": "application/json",
-        ...(init.headers ?? {})
-      },
-      cache: "no-store"
-    });
+  if (!result.response.ok) {
+    throw await salesforceApiErrorFromResponse(result.response);
   }
 
-  if (!response.ok) {
-    throw await parseSalesforceError(response);
-  }
-
-  const data = response.status === 204 ? ({} as T) : ((await response.json()) as T);
-  return { data, session };
+  const data = await readSalesforceResponseData<T>(result.response);
+  return { data, session: result.session };
 }
 
 export function jsonWithSession<T>(data: T, session: SalesforceSession, status = 200): NextResponse {

@@ -1,11 +1,59 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildAuthenticatedSalesforceRequestInit,
   buildSalesforceApiUrl,
   extractSalesforceErrorMessage,
+  readSalesforceErrorDetails,
+  readSalesforceResponseData,
   tokenResponseToRefreshedSession,
   tokenResponseToSession
 } from "./client-core";
 import type { SalesforceSession } from "./session";
+
+describe("buildAuthenticatedSalesforceRequestInit", () => {
+  it("adds Salesforce auth headers and disables caching", () => {
+    expect(
+      buildAuthenticatedSalesforceRequestInit(
+        { accessToken: "access-token" },
+        {
+          method: "PATCH",
+          body: JSON.stringify({ Name: "Acme" })
+        }
+      )
+    ).toEqual({
+      method: "PATCH",
+      body: JSON.stringify({ Name: "Acme" }),
+      headers: {
+        authorization: "Bearer access-token",
+        "content-type": "application/json"
+      },
+      cache: "no-store"
+    });
+  });
+
+  it("keeps the existing header override order", () => {
+    expect(
+      buildAuthenticatedSalesforceRequestInit(
+        { accessToken: "access-token" },
+        {
+          headers: {
+            authorization: "Bearer caller-token",
+            "content-type": "application/merge-patch+json",
+            "if-match": "etag"
+          },
+          cache: "reload"
+        }
+      )
+    ).toMatchObject({
+      headers: {
+        authorization: "Bearer caller-token",
+        "content-type": "application/merge-patch+json",
+        "if-match": "etag"
+      },
+      cache: "no-store"
+    });
+  });
+});
 
 describe("buildSalesforceApiUrl", () => {
   it("builds a Salesforce REST API URL from session, version, and path", () => {
@@ -38,6 +86,44 @@ describe("extractSalesforceErrorMessage", () => {
     expect(extractSalesforceErrorMessage("not json", "Internal Server Error")).toBe(
       "Internal Server Error"
     );
+  });
+});
+
+describe("readSalesforceErrorDetails", () => {
+  it("reads JSON error details when the response body is JSON", async () => {
+    const response = Response.json(
+      [{ message: "Invalid field", errorCode: "INVALID_FIELD" }],
+      { status: 400, statusText: "Bad Request" }
+    );
+
+    await expect(readSalesforceErrorDetails(response)).resolves.toEqual([
+      { message: "Invalid field", errorCode: "INVALID_FIELD" }
+    ]);
+  });
+
+  it("falls back to text when the response body is not JSON", async () => {
+    const response = new Response("service unavailable", {
+      status: 503,
+      statusText: "Service Unavailable"
+    });
+
+    await expect(readSalesforceErrorDetails(response)).resolves.toBe("service unavailable");
+  });
+});
+
+describe("readSalesforceResponseData", () => {
+  it("returns an empty object for 204 responses", async () => {
+    const response = new Response(null, { status: 204 });
+
+    await expect(readSalesforceResponseData(response)).resolves.toEqual({});
+  });
+
+  it("reads JSON data for non-204 responses", async () => {
+    const response = Response.json({ id: "001xx000003DGbY" });
+
+    await expect(readSalesforceResponseData(response)).resolves.toEqual({
+      id: "001xx000003DGbY"
+    });
   });
 });
 
