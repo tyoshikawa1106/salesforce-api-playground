@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSalesforceConfig } from "@/lib/salesforce/config";
 import { createOauthState, setStateCookie } from "@/lib/salesforce/session";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const config = getSalesforceConfig();

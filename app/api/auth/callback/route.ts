@@ -7,6 +7,8 @@ import {
   setSessionCookie
 } from "@/lib/salesforce/session";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
