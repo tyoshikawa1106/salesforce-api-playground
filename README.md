@@ -128,5 +128,6 @@ npm run start
 - Client Secret、Access Token、Refresh Token はブラウザへ返しません。
 - Salesforce 接続情報は暗号化した HttpOnly Cookie に保持します。
 - refresh token は DB やファイルへ永続保存しません。
+- Disconnect 時は Salesforce の revoke endpoint を呼び、refresh token と関連する access token の無効化を試みます。
 - `.env.example` 以外の `.env*` は `.gitignore` で除外しています。
 - README やコメントに実在の Salesforce 組織 ID、ユーザー ID、顧客データ、実データのスクリーンショットを含めないでください。
