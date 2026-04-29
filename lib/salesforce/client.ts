@@ -115,6 +115,24 @@ export async function exchangeCodeForToken(code: string): Promise<SalesforceSess
   };
 }
 
+export async function revokeSalesforceSession(session: SalesforceSession): Promise<void> {
+  const token = session.refreshToken ?? session.accessToken;
+  const params = new URLSearchParams({ token });
+
+  const response = await fetch(`${session.instanceUrl}/services/oauth2/revoke`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded"
+    },
+    body: params.toString(),
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw await parseSalesforceError(response);
+  }
+}
+
 async function refreshAccessToken(session: SalesforceSession): Promise<SalesforceSession> {
   if (!session.refreshToken) {
     throw new SalesforceApiError("Salesforce session expired. Please connect again.", 401);
