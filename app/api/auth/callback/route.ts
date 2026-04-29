@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { exchangeCodeForToken, salesforceErrorResponse } from "@/lib/salesforce/client";
+import { getConfiguredAppOrigin } from "@/lib/salesforce/urls";
 import {
   STATE_COOKIE,
   clearStateCookie,
@@ -16,14 +17,14 @@ export async function GET(request: NextRequest) {
   const expectedState = cookies().get(STATE_COOKIE)?.value;
 
   if (!code || !state || !expectedState || state !== expectedState) {
-    const response = NextResponse.redirect(new URL("/?auth=state_error", request.url));
+    const response = NextResponse.redirect(new URL("/?auth=state_error", getConfiguredAppOrigin()));
     clearStateCookie(response);
     return response;
   }
 
   try {
     const session = await exchangeCodeForToken(code);
-    const response = NextResponse.redirect(new URL("/?auth=connected", request.url));
+    const response = NextResponse.redirect(new URL("/?auth=connected", getConfiguredAppOrigin()));
     clearStateCookie(response);
     setSessionCookie(response, session);
     return response;
