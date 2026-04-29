@@ -14,6 +14,21 @@ export type TokenResponse = {
   issued_at?: string;
 };
 
+export function buildAuthenticatedSalesforceRequestInit(
+  session: Pick<SalesforceSession, "accessToken">,
+  init: RequestInit = {}
+): RequestInit {
+  return {
+    ...init,
+    headers: {
+      authorization: `Bearer ${session.accessToken}`,
+      "content-type": "application/json",
+      ...(init.headers ?? {})
+    },
+    cache: "no-store"
+  };
+}
+
 export function buildSalesforceApiUrl(
   session: Pick<SalesforceSession, "instanceUrl">,
   apiVersion: string,
@@ -34,6 +49,18 @@ export function extractSalesforceErrorMessage(
     .map((item: SalesforceErrorPayload) => item.message)
     .filter(Boolean)
     .join(" ");
+}
+
+export async function readSalesforceErrorDetails(response: Response): Promise<unknown> {
+  try {
+    return await response.clone().json();
+  } catch {
+    return await response.text();
+  }
+}
+
+export async function readSalesforceResponseData<T>(response: Response): Promise<T> {
+  return response.status === 204 ? ({} as T) : ((await response.json()) as T);
 }
 
 export function tokenResponseToSession(
