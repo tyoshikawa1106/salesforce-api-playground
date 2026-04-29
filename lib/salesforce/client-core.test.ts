@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   buildAuthenticatedSalesforceRequestInit,
+  buildAuthorizationCodeTokenEndpointUrl,
+  buildAuthorizationCodeTokenParams,
+  buildRefreshTokenEndpointUrl,
+  buildRefreshTokenParams,
   buildSalesforceApiUrl,
+  buildTokenRequestInit,
   extractSalesforceErrorMessage,
   readSalesforceErrorDetails,
   readSalesforceResponseData,
@@ -9,6 +14,82 @@ import {
   tokenResponseToSession
 } from "./client-core";
 import type { SalesforceSession } from "./session";
+
+const salesforceConfig = {
+  clientId: "client-id",
+  clientSecret: "client-secret",
+  loginUrl: "https://login.salesforce.com",
+  redirectUri: "https://app.example.test/api/auth/callback",
+  apiVersion: "v62.0",
+  sessionSecret: "session-secret"
+};
+
+describe("buildAuthorizationCodeTokenEndpointUrl", () => {
+  it("builds the token endpoint URL for authorization code exchange", () => {
+    expect(buildAuthorizationCodeTokenEndpointUrl(salesforceConfig)).toBe(
+      "https://login.salesforce.com/services/oauth2/token"
+    );
+  });
+});
+
+describe("buildAuthorizationCodeTokenParams", () => {
+  it("builds form params for authorization code exchange", () => {
+    const params = buildAuthorizationCodeTokenParams(salesforceConfig, "auth-code");
+
+    expect(Object.fromEntries(params)).toEqual({
+      grant_type: "authorization_code",
+      code: "auth-code",
+      client_id: "client-id",
+      client_secret: "client-secret",
+      redirect_uri: "https://app.example.test/api/auth/callback"
+    });
+    expect(params.toString()).toBe(
+      "grant_type=authorization_code&code=auth-code&client_id=client-id&client_secret=client-secret&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback"
+    );
+  });
+});
+
+describe("buildRefreshTokenEndpointUrl", () => {
+  it("builds the token endpoint URL for refresh token requests", () => {
+    expect(buildRefreshTokenEndpointUrl(salesforceConfig)).toBe(
+      "https://login.salesforce.com/services/oauth2/token"
+    );
+  });
+});
+
+describe("buildRefreshTokenParams", () => {
+  it("builds form params for refresh token requests", () => {
+    const params = buildRefreshTokenParams(salesforceConfig, "refresh-token");
+
+    expect(Object.fromEntries(params)).toEqual({
+      grant_type: "refresh_token",
+      refresh_token: "refresh-token",
+      client_id: "client-id",
+      client_secret: "client-secret"
+    });
+    expect(params.toString()).toBe(
+      "grant_type=refresh_token&refresh_token=refresh-token&client_id=client-id&client_secret=client-secret"
+    );
+  });
+});
+
+describe("buildTokenRequestInit", () => {
+  it("builds a form-encoded POST request init without caching", () => {
+    const params = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: "refresh-token"
+    });
+
+    expect(buildTokenRequestInit(params)).toEqual({
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      body: "grant_type=refresh_token&refresh_token=refresh-token",
+      cache: "no-store"
+    });
+  });
+});
 
 describe("buildAuthenticatedSalesforceRequestInit", () => {
   it("adds Salesforce auth headers and disables caching", () => {

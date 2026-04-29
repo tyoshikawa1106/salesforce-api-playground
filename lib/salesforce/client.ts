@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import {
   buildAuthenticatedSalesforceRequestInit,
+  buildAuthorizationCodeTokenEndpointUrl,
+  buildAuthorizationCodeTokenParams,
+  buildRefreshTokenEndpointUrl,
+  buildRefreshTokenParams,
   buildSalesforceApiUrl,
+  buildTokenRequestInit,
   extractSalesforceErrorMessage,
   readSalesforceErrorDetails,
   readSalesforceResponseData,
@@ -107,22 +112,11 @@ async function fetchSalesforceWithRefresh(
 
 export async function exchangeCodeForToken(code: string): Promise<SalesforceSession> {
   const config = getSalesforceConfig();
-  const params = new URLSearchParams({
-    grant_type: "authorization_code",
-    code,
-    client_id: config.clientId,
-    client_secret: config.clientSecret,
-    redirect_uri: config.redirectUri
-  });
-
-  const response = await fetch(`${config.loginUrl}/services/oauth2/token`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/x-www-form-urlencoded"
-    },
-    body: params.toString(),
-    cache: "no-store"
-  });
+  const params = buildAuthorizationCodeTokenParams(config, code);
+  const response = await fetch(
+    buildAuthorizationCodeTokenEndpointUrl(config),
+    buildTokenRequestInit(params)
+  );
 
   if (!response.ok) {
     throw await salesforceApiErrorFromResponse(response);
@@ -156,21 +150,11 @@ async function refreshAccessToken(session: SalesforceSession): Promise<Salesforc
   }
 
   const config = getSalesforceConfig();
-  const params = new URLSearchParams({
-    grant_type: "refresh_token",
-    refresh_token: session.refreshToken,
-    client_id: config.clientId,
-    client_secret: config.clientSecret
-  });
-
-  const response = await fetch(`${config.loginUrl}/services/oauth2/token`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/x-www-form-urlencoded"
-    },
-    body: params.toString(),
-    cache: "no-store"
-  });
+  const params = buildRefreshTokenParams(config, session.refreshToken);
+  const response = await fetch(
+    buildRefreshTokenEndpointUrl(config),
+    buildTokenRequestInit(params)
+  );
 
   if (!response.ok) {
     throw await salesforceApiErrorFromResponse(response);

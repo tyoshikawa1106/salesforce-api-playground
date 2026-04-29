@@ -14,6 +14,71 @@ export type TokenResponse = {
   issued_at?: string;
 };
 
+type TokenEndpointConfig = {
+  loginUrl: string;
+};
+
+type AuthorizationCodeTokenParamsConfig = {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+};
+
+type RefreshTokenParamsConfig = {
+  clientId: string;
+  clientSecret: string;
+};
+
+function buildSalesforceTokenEndpointUrl(config: TokenEndpointConfig): string {
+  return `${config.loginUrl}/services/oauth2/token`;
+}
+
+export function buildAuthorizationCodeTokenEndpointUrl(
+  config: TokenEndpointConfig
+): string {
+  return buildSalesforceTokenEndpointUrl(config);
+}
+
+export function buildAuthorizationCodeTokenParams(
+  config: AuthorizationCodeTokenParamsConfig,
+  code: string
+): URLSearchParams {
+  return new URLSearchParams({
+    grant_type: "authorization_code",
+    code,
+    client_id: config.clientId,
+    client_secret: config.clientSecret,
+    redirect_uri: config.redirectUri
+  });
+}
+
+export function buildRefreshTokenEndpointUrl(config: TokenEndpointConfig): string {
+  return buildSalesforceTokenEndpointUrl(config);
+}
+
+export function buildRefreshTokenParams(
+  config: RefreshTokenParamsConfig,
+  refreshToken: string
+): URLSearchParams {
+  return new URLSearchParams({
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+    client_id: config.clientId,
+    client_secret: config.clientSecret
+  });
+}
+
+export function buildTokenRequestInit(params: URLSearchParams): RequestInit {
+  return {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded"
+    },
+    body: params.toString(),
+    cache: "no-store"
+  };
+}
+
 export function buildAuthenticatedSalesforceRequestInit(
   session: Pick<SalesforceSession, "accessToken">,
   init: RequestInit = {}
