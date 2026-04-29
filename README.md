@@ -123,6 +123,18 @@ npm run build
 npm run start
 ```
 
+## GitHub Actions CI
+
+`.github/workflows/ci.yml` で CI を設定しています。Pull Request と `main` ブランチへの push で実行され、Node.js 20 で依存関係を `npm ci` でインストールしたあと、以下を順番に確認します。
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
+
+CI では Salesforce や Heroku の秘密情報、実 URL は使いません。OAuth 接続が必要な動作確認はローカル環境または Heroku の Config Vars を設定した環境で行います。
+
 ## セキュリティメモ
 
 - Client Secret、Access Token、Refresh Token はブラウザへ返しません。
