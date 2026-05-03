@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { buildAuthorizationUrl } from "@/lib/salesforce/client-core";
 import { getSalesforceConfig } from "@/lib/salesforce/config";
 import { createOauthState, setStateCookie } from "@/lib/salesforce/session";
 
@@ -8,12 +9,7 @@ export async function GET() {
   try {
     const config = getSalesforceConfig();
     const state = createOauthState();
-    const authorizeUrl = new URL(`${config.loginUrl}/services/oauth2/authorize`);
-    authorizeUrl.searchParams.set("response_type", "code");
-    authorizeUrl.searchParams.set("client_id", config.clientId);
-    authorizeUrl.searchParams.set("redirect_uri", config.redirectUri);
-    authorizeUrl.searchParams.set("scope", "api refresh_token");
-    authorizeUrl.searchParams.set("state", state);
+    const authorizeUrl = buildAuthorizationUrl(config, state);
 
     const response = NextResponse.redirect(authorizeUrl);
     setStateCookie(response, state);

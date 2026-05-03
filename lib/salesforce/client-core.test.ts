@@ -3,6 +3,9 @@ import {
   buildAuthenticatedSalesforceRequestInit,
   buildAuthorizationCodeTokenEndpointUrl,
   buildAuthorizationCodeTokenParams,
+  buildAuthorizationEndpointUrl,
+  buildAuthorizationUrl,
+  buildAuthorizationUrlParams,
   buildRefreshTokenEndpointUrl,
   buildRefreshTokenParams,
   buildSalesforceApiUrl,
@@ -23,6 +26,39 @@ const salesforceConfig = {
   apiVersion: "v62.0",
   sessionSecret: "session-secret"
 };
+
+describe("buildAuthorizationEndpointUrl", () => {
+  it("builds the OAuth authorization endpoint URL", () => {
+    expect(buildAuthorizationEndpointUrl(salesforceConfig)).toBe(
+      "https://login.salesforce.com/services/oauth2/authorize"
+    );
+  });
+});
+
+describe("buildAuthorizationUrlParams", () => {
+  it("builds query params for starting the OAuth authorization flow", () => {
+    const params = buildAuthorizationUrlParams(salesforceConfig, "oauth-state");
+
+    expect(Object.fromEntries(params)).toEqual({
+      response_type: "code",
+      client_id: "client-id",
+      redirect_uri: "https://app.example.test/api/auth/callback",
+      scope: "api refresh_token",
+      state: "oauth-state"
+    });
+    expect(params.toString()).toBe(
+      "response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api+refresh_token&state=oauth-state"
+    );
+  });
+});
+
+describe("buildAuthorizationUrl", () => {
+  it("builds the final OAuth authorization URL", () => {
+    expect(buildAuthorizationUrl(salesforceConfig, "oauth-state")).toBe(
+      "https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api+refresh_token&state=oauth-state"
+    );
+  });
+});
 
 describe("buildAuthorizationCodeTokenEndpointUrl", () => {
   it("builds the token endpoint URL for authorization code exchange", () => {
