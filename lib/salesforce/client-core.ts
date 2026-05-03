@@ -38,6 +38,10 @@ type RefreshTokenParamsConfig = {
   clientSecret: string;
 };
 
+type RevokeEndpointConfig = {
+  instanceUrl: string;
+};
+
 function buildSalesforceTokenEndpointUrl(config: TokenEndpointConfig): string {
   return `${config.loginUrl}/services/oauth2/token`;
 }
@@ -104,6 +108,31 @@ export function buildRefreshTokenParams(
     client_id: config.clientId,
     client_secret: config.clientSecret
   });
+}
+
+export function buildRevokeEndpointUrl(config: RevokeEndpointConfig): string {
+  return `${config.instanceUrl}/services/oauth2/revoke`;
+}
+
+export function selectRevokeToken(
+  session: Pick<SalesforceSession, "accessToken" | "refreshToken">
+): string {
+  return session.refreshToken ?? session.accessToken;
+}
+
+export function buildRevokeParams(token: string): URLSearchParams {
+  return new URLSearchParams({ token });
+}
+
+export function buildRevokeRequestInit(params: URLSearchParams): RequestInit {
+  return {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded"
+    },
+    body: params.toString(),
+    cache: "no-store"
+  };
 }
 
 export function buildTokenRequestInit(params: URLSearchParams): RequestInit {
