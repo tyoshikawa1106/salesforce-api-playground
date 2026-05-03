@@ -18,6 +18,15 @@ type TokenEndpointConfig = {
   loginUrl: string;
 };
 
+type AuthorizationEndpointConfig = {
+  loginUrl: string;
+};
+
+type AuthorizationUrlParamsConfig = {
+  clientId: string;
+  redirectUri: string;
+};
+
 type AuthorizationCodeTokenParamsConfig = {
   clientId: string;
   clientSecret: string;
@@ -31,6 +40,35 @@ type RefreshTokenParamsConfig = {
 
 function buildSalesforceTokenEndpointUrl(config: TokenEndpointConfig): string {
   return `${config.loginUrl}/services/oauth2/token`;
+}
+
+export function buildAuthorizationEndpointUrl(
+  config: AuthorizationEndpointConfig
+): string {
+  return `${config.loginUrl}/services/oauth2/authorize`;
+}
+
+export function buildAuthorizationUrlParams(
+  config: AuthorizationUrlParamsConfig,
+  state: string
+): URLSearchParams {
+  return new URLSearchParams({
+    response_type: "code",
+    client_id: config.clientId,
+    redirect_uri: config.redirectUri,
+    scope: "api refresh_token",
+    state
+  });
+}
+
+export function buildAuthorizationUrl(
+  config: AuthorizationEndpointConfig & AuthorizationUrlParamsConfig,
+  state: string
+): string {
+  const authorizeUrl = new URL(buildAuthorizationEndpointUrl(config));
+  authorizeUrl.search = buildAuthorizationUrlParams(config, state).toString();
+
+  return authorizeUrl.toString();
 }
 
 export function buildAuthorizationCodeTokenEndpointUrl(
