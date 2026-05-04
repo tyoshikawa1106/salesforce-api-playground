@@ -8,11 +8,15 @@ import {
   buildAuthorizationUrlParams,
   buildRefreshTokenEndpointUrl,
   buildRefreshTokenParams,
+  buildRevokeEndpointUrl,
+  buildRevokeParams,
+  buildRevokeRequestInit,
   buildSalesforceApiUrl,
   buildTokenRequestInit,
   extractSalesforceErrorMessage,
   readSalesforceErrorDetails,
   readSalesforceResponseData,
+  selectRevokeToken,
   tokenResponseToRefreshedSession,
   tokenResponseToSession
 } from "./client-core";
@@ -106,6 +110,63 @@ describe("buildRefreshTokenParams", () => {
     expect(params.toString()).toBe(
       "grant_type=refresh_token&refresh_token=refresh-token&client_id=client-id&client_secret=client-secret"
     );
+  });
+});
+
+describe("buildRevokeEndpointUrl", () => {
+  it("builds the OAuth revoke endpoint URL", () => {
+    expect(
+      buildRevokeEndpointUrl({
+        instanceUrl: "https://example.my.salesforce.com"
+      })
+    ).toBe("https://example.my.salesforce.com/services/oauth2/revoke");
+  });
+});
+
+describe("selectRevokeToken", () => {
+  it("prefers the refresh token when the session has one", () => {
+    expect(
+      selectRevokeToken({
+        accessToken: "access-token",
+        refreshToken: "refresh-token"
+      })
+    ).toBe("refresh-token");
+  });
+
+  it("falls back to the access token when the session has no refresh token", () => {
+    expect(
+      selectRevokeToken({
+        accessToken: "access-token"
+      })
+    ).toBe("access-token");
+  });
+});
+
+describe("buildRevokeParams", () => {
+  it("builds form params for revoke requests", () => {
+    const params = buildRevokeParams("refresh-token");
+
+    expect(Object.fromEntries(params)).toEqual({
+      token: "refresh-token"
+    });
+    expect(params.toString()).toBe("token=refresh-token");
+  });
+});
+
+describe("buildRevokeRequestInit", () => {
+  it("builds a form-encoded POST request init without caching", () => {
+    const params = new URLSearchParams({
+      token: "refresh-token"
+    });
+
+    expect(buildRevokeRequestInit(params)).toEqual({
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      body: "token=refresh-token",
+      cache: "no-store"
+    });
   });
 });
 
