@@ -5,6 +5,11 @@ import {
   salesforceErrorResponse,
   salesforceFetch
 } from "@/lib/salesforce/client";
+import {
+  buildSalesforceQueryPath,
+  buildSalesforceRequestInit,
+  buildSalesforceSObjectCollectionPath
+} from "@/lib/salesforce/client-core";
 
 type ContactInput = {
   FirstName?: string;
@@ -24,7 +29,7 @@ export async function GET() {
       "LIMIT 100"
     ].join(" ");
     const { data, session } = await salesforceFetch<SalesforceQueryResponse<ContactRecord>>(
-      `/query?q=${encodeURIComponent(query)}`
+      buildSalesforceQueryPath(query)
     );
     return jsonWithSession({ contacts: data.records }, session);
   } catch (error) {
@@ -36,11 +41,8 @@ export async function POST(request: Request) {
   try {
     const input = (await request.json()) as ContactInput;
     const { data, session } = await salesforceFetch<{ id: string; success: boolean }>(
-      "/sobjects/Contact",
-      {
-        method: "POST",
-        body: JSON.stringify(input)
-      }
+      buildSalesforceSObjectCollectionPath("Contact"),
+      buildSalesforceRequestInit("POST", input)
     );
     return jsonWithSession(data, session, 201);
   } catch (error) {
