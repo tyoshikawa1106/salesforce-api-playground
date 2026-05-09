@@ -8,9 +8,11 @@ import {
   buildAuthorizationUrlParams,
   buildRefreshTokenEndpointUrl,
   buildRefreshTokenParams,
+  buildRefreshTokenRequest,
   buildRevokeEndpointUrl,
   buildRevokeParams,
   buildRevokeRequestInit,
+  buildSalesforceApiRequest,
   buildSalesforceApiUrl,
   buildTokenRequestInit,
   extractSalesforceErrorMessage,
@@ -110,6 +112,22 @@ describe("buildRefreshTokenParams", () => {
     expect(params.toString()).toBe(
       "grant_type=refresh_token&refresh_token=refresh-token&client_id=client-id&client_secret=client-secret"
     );
+  });
+});
+
+describe("buildRefreshTokenRequest", () => {
+  it("builds the refresh token endpoint and form-encoded request init together", () => {
+    expect(buildRefreshTokenRequest(salesforceConfig, "refresh-token")).toEqual({
+      url: "https://login.salesforce.com/services/oauth2/token",
+      init: {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        body: "grant_type=refresh_token&refresh_token=refresh-token&client_id=client-id&client_secret=client-secret",
+        cache: "no-store"
+      }
+    });
   });
 });
 
@@ -244,6 +262,36 @@ describe("buildSalesforceApiUrl", () => {
     ).toBe(
       "https://example.my.salesforce.com/services/data/v62.0/query?q=SELECT+Id+FROM+Account"
     );
+  });
+});
+
+describe("buildSalesforceApiRequest", () => {
+  it("builds the Salesforce API URL and authenticated request init together", () => {
+    expect(
+      buildSalesforceApiRequest(
+        {
+          accessToken: "access-token",
+          instanceUrl: "https://example.my.salesforce.com"
+        },
+        "v62.0",
+        "/sobjects/Account/001xx000003DGbY",
+        {
+          method: "PATCH",
+          body: JSON.stringify({ Name: "Acme" })
+        }
+      )
+    ).toEqual({
+      url: "https://example.my.salesforce.com/services/data/v62.0/sobjects/Account/001xx000003DGbY",
+      init: {
+        method: "PATCH",
+        body: JSON.stringify({ Name: "Acme" }),
+        headers: {
+          authorization: "Bearer access-token",
+          "content-type": "application/json"
+        },
+        cache: "no-store"
+      }
+    });
   });
 });
 
