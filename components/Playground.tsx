@@ -1,38 +1,22 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  buildPlaygroundApiRequest,
+  compactPayload,
+  playgroundApiPaths
+} from "@/lib/playground-api";
+import type {
+  PlaygroundApiRequest,
+  SessionInfo
+} from "@/lib/playground-api";
+import type {
+  AccountRecord,
+  ContactRecord
+} from "@/lib/salesforce/records";
 
-type SessionInfo = {
-  connected: boolean;
-  instanceUrl?: string;
-  issuedAt?: number;
-};
-
-type Account = {
-  Id: string;
-  Name: string;
-  Phone?: string;
-  Website?: string;
-  Industry?: string;
-  Type?: string;
-  BillingCity?: string;
-  BillingCountry?: string;
-  LastModifiedDate?: string;
-};
-
-type Contact = {
-  Id: string;
-  FirstName?: string;
-  LastName: string;
-  Email?: string;
-  Phone?: string;
-  Title?: string;
-  AccountId?: string;
-  Account?: {
-    Name?: string;
-  };
-  LastModifiedDate?: string;
-};
+type Account = AccountRecord;
+type Contact = ContactRecord;
 
 type AccountForm = {
   Name: string;
@@ -87,26 +71,8 @@ const blankContact: ContactForm = {
   AccountId: ""
 };
 
-function compactPayload<T extends Record<string, string>>(
-  form: T,
-  options: { emptyAsNull?: boolean } = {}
-): Partial<Record<keyof T, string | null>> {
-  return Object.fromEntries(
-    Object.entries(form).map(([key, value]) => {
-      const trimmed = value.trim();
-      return [key, trimmed || (options.emptyAsNull ? null : undefined)];
-    })
-  ) as Partial<Record<keyof T, string | null>>;
-}
-
-async function apiRequest<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    ...init,
-    headers: {
-      "content-type": "application/json",
-      ...(init?.headers ?? {})
-    }
-  });
+async function apiRequest<T>({ url, init }: PlaygroundApiRequest): Promise<T> {
+  const response = await fetch(url, init);
   const data = response.status === 204 ? null : await response.json();
 
   if (!response.ok) {
@@ -152,7 +118,9 @@ export default function Playground() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const nextSession = await apiRequest<SessionInfo>("/api/session");
+      const nextSession = await apiRequest<SessionInfo>(
+        buildPlaygroundApiRequest(playgroundApiPaths.session)
+      );
       setSession(nextSession);
       if (!nextSession.connected) {
         setAccounts([]);
@@ -161,8 +129,12 @@ export default function Playground() {
       }
 
       const [accountResult, contactResult] = await Promise.all([
-        apiRequest<{ accounts: Account[] }>("/api/accounts"),
-        apiRequest<{ contacts: Contact[] }>("/api/contacts")
+        apiRequest<{ accounts: Account[] }>(
+          buildPlaygroundApiRequest(playgroundApiPaths.accounts)
+        ),
+        apiRequest<{ contacts: Contact[] }>(
+          buildPlaygroundApiRequest(playgroundApiPaths.contacts)
+        )
       ]);
       setAccounts(accountResult.accounts);
       setContacts(contactResult.contacts);
@@ -224,17 +196,21 @@ export default function Playground() {
     try {
       if (modal?.type === "account" && modal.mode === "edit") {
         const payload = compactPayload(accountForm, { emptyAsNull: true });
-        await apiRequest(`/api/accounts/${modal.record.Id}`, {
-          method: "PATCH",
-          body: JSON.stringify(payload)
-        });
+        await apiRequest(
+          buildPlaygroundApiRequest(playgroundApiPaths.record("accounts", modal.record.Id), {
+            method: "PATCH",
+            body: payload
+          })
+        );
         showNotice({ tone: "success", message: "Account was updated." });
       } else {
         const payload = compactPayload(accountForm);
-        await apiRequest("/api/accounts", {
-          method: "POST",
-          body: JSON.stringify(payload)
-        });
+        await apiRequest(
+          buildPlaygroundApiRequest(playgroundApiPaths.accounts, {
+            method: "POST",
+            body: payload
+          })
+        );
         showNotice({ tone: "success", message: "Account was created." });
       }
       setModal(null);
@@ -257,17 +233,21 @@ export default function Playground() {
     try {
       if (modal?.type === "contact" && modal.mode === "edit") {
         const payload = compactPayload(contactForm, { emptyAsNull: true });
-        await apiRequest(`/api/contacts/${modal.record.Id}`, {
-          method: "PATCH",
-          body: JSON.stringify(payload)
-        });
+        await apiRequest(
+          buildPlaygroundApiRequest(playgroundApiPaths.record("contacts", modal.record.Id), {
+            method: "PATCH",
+            body: payload
+          })
+        );
         showNotice({ tone: "success", message: "Contact was updated." });
       } else {
         const payload = compactPayload(contactForm);
-        await apiRequest("/api/contacts", {
-          method: "POST",
-          body: JSON.stringify(payload)
-        });
+        await apiRequest(
+          buildPlaygroundApiRequest(playgroundApiPaths.contacts, {
+            method: "POST",
+            body: payload
+          })
+        );
         showNotice({ tone: "success", message: "Contact was created." });
       }
       setModal(null);
@@ -286,9 +266,12 @@ export default function Playground() {
 
     setSaving(true);
     try {
-      await apiRequest(`/api/${deleteState.type === "account" ? "accounts" : "contacts"}/${deleteState.id}`, {
-        method: "DELETE"
-      });
+      const resource = deleteState.type === "account" ? "accounts" : "contacts";
+      await apiRequest(
+        buildPlaygroundApiRequest(playgroundApiPaths.record(resource, deleteState.id), {
+          method: "DELETE"
+        })
+      );
       showNotice({ tone: "success", message: `${deleteState.label} was deleted.` });
       setDeleteState(null);
       await loadAll();
