@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
 import {
-  buildAuthenticatedSalesforceRequestInit,
   buildAuthorizationCodeTokenEndpointUrl,
   buildAuthorizationCodeTokenParams,
-  buildRefreshTokenEndpointUrl,
-  buildRefreshTokenParams,
+  buildRefreshTokenRequest,
   buildRevokeEndpointUrl,
   buildRevokeParams,
   buildRevokeRequestInit,
-  buildSalesforceApiUrl,
+  buildSalesforceApiRequest,
   buildTokenRequestInit,
   extractSalesforceErrorMessage,
   readSalesforceErrorDetails,
@@ -69,11 +67,6 @@ export class SalesforceApiError extends Error {
   }
 }
 
-function buildApiUrl(session: SalesforceSession, path: string): string {
-  const { apiVersion } = getSalesforceConfig();
-  return buildSalesforceApiUrl(session, apiVersion, path);
-}
-
 export async function salesforceApiErrorFromResponse(response: Response): Promise<SalesforceApiError> {
   const details = await readSalesforceErrorDetails(response);
   const message = extractSalesforceErrorMessage(details, response.statusText);
@@ -86,7 +79,10 @@ async function fetchWithSession(
   path: string,
   init: RequestInit
 ): Promise<Response> {
-  return fetch(buildApiUrl(session, path), buildAuthenticatedSalesforceRequestInit(session, init));
+  const { apiVersion } = getSalesforceConfig();
+  const request = buildSalesforceApiRequest(session, apiVersion, path, init);
+
+  return fetch(request.url, request.init);
 }
 
 async function refreshAndRetrySalesforceFetch(
@@ -148,11 +144,8 @@ async function refreshAccessToken(session: SalesforceSession): Promise<Salesforc
   }
 
   const config = getSalesforceConfig();
-  const params = buildRefreshTokenParams(config, session.refreshToken);
-  const response = await fetch(
-    buildRefreshTokenEndpointUrl(config),
-    buildTokenRequestInit(params)
-  );
+  const request = buildRefreshTokenRequest(config, session.refreshToken);
+  const response = await fetch(request.url, request.init);
 
   if (!response.ok) {
     throw await salesforceApiErrorFromResponse(response);

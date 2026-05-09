@@ -42,6 +42,11 @@ type RevokeEndpointConfig = {
   instanceUrl: string;
 };
 
+export type SalesforceRequest = {
+  url: string;
+  init: RequestInit;
+};
+
 function buildSalesforceTokenEndpointUrl(config: TokenEndpointConfig): string {
   return `${config.loginUrl}/services/oauth2/token`;
 }
@@ -110,6 +115,18 @@ export function buildRefreshTokenParams(
   });
 }
 
+export function buildRefreshTokenRequest(
+  config: TokenEndpointConfig & RefreshTokenParamsConfig,
+  refreshToken: string
+): SalesforceRequest {
+  const params = buildRefreshTokenParams(config, refreshToken);
+
+  return {
+    url: buildRefreshTokenEndpointUrl(config),
+    init: buildTokenRequestInit(params)
+  };
+}
+
 export function buildRevokeEndpointUrl(config: RevokeEndpointConfig): string {
   return `${config.instanceUrl}/services/oauth2/revoke`;
 }
@@ -167,6 +184,18 @@ export function buildSalesforceApiUrl(
   path: string
 ): string {
   return `${session.instanceUrl}/services/data/${apiVersion}${path}`;
+}
+
+export function buildSalesforceApiRequest(
+  session: Pick<SalesforceSession, "accessToken" | "instanceUrl">,
+  apiVersion: string,
+  path: string,
+  init: RequestInit = {}
+): SalesforceRequest {
+  return {
+    url: buildSalesforceApiUrl(session, apiVersion, path),
+    init: buildAuthenticatedSalesforceRequestInit(session, init)
+  };
 }
 
 export function extractSalesforceErrorMessage(
