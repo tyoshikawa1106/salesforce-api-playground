@@ -47,6 +47,8 @@ export type SalesforceRequest = {
   init: RequestInit;
 };
 
+export type SalesforceApiMethod = "POST" | "PATCH" | "DELETE";
+
 function buildSalesforceTokenEndpointUrl(config: TokenEndpointConfig): string {
   return `${config.loginUrl}/services/oauth2/token`;
 }
@@ -175,6 +177,28 @@ export function buildAuthenticatedSalesforceRequestInit(
       ...(init.headers ?? {})
     },
     cache: "no-store"
+  };
+}
+
+export function buildSalesforceQueryPath(query: string): string {
+  return `/query?q=${encodeURIComponent(query)}`;
+}
+
+export function buildSalesforceSObjectCollectionPath(objectName: string): string {
+  return `/sobjects/${objectName}`;
+}
+
+export function buildSalesforceSObjectRecordPath(objectName: string, id: string): string {
+  return `/sobjects/${objectName}/${encodeURIComponent(id)}`;
+}
+
+export function buildSalesforceRequestInit(
+  method: SalesforceApiMethod,
+  body?: unknown
+): RequestInit {
+  return {
+    method,
+    ...(body === undefined ? {} : { body: JSON.stringify(body) })
   };
 }
 

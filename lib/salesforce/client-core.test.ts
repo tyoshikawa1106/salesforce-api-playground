@@ -14,6 +14,10 @@ import {
   buildRevokeRequestInit,
   buildSalesforceApiRequest,
   buildSalesforceApiUrl,
+  buildSalesforceQueryPath,
+  buildSalesforceRequestInit,
+  buildSalesforceSObjectCollectionPath,
+  buildSalesforceSObjectRecordPath,
   buildTokenRequestInit,
   extractSalesforceErrorMessage,
   readSalesforceErrorDetails,
@@ -247,6 +251,50 @@ describe("buildAuthenticatedSalesforceRequestInit", () => {
         "if-match": "etag"
       },
       cache: "no-store"
+    });
+  });
+});
+
+describe("buildSalesforceQueryPath", () => {
+  it("builds a Salesforce query API path with an encoded SOQL query", () => {
+    const query = [
+      "SELECT Id, Name",
+      "FROM Account",
+      "ORDER BY LastModifiedDate DESC",
+      "LIMIT 100"
+    ].join(" ");
+
+    expect(buildSalesforceQueryPath(query)).toBe(
+      "/query?q=SELECT%20Id%2C%20Name%20FROM%20Account%20ORDER%20BY%20LastModifiedDate%20DESC%20LIMIT%20100"
+    );
+  });
+});
+
+describe("buildSalesforceSObjectCollectionPath", () => {
+  it("builds a Salesforce sObject collection API path", () => {
+    expect(buildSalesforceSObjectCollectionPath("Account")).toBe("/sobjects/Account");
+  });
+});
+
+describe("buildSalesforceSObjectRecordPath", () => {
+  it("builds a Salesforce sObject record API path with an encoded id", () => {
+    expect(buildSalesforceSObjectRecordPath("Contact", "003xx00000a/b")).toBe(
+      "/sobjects/Contact/003xx00000a%2Fb"
+    );
+  });
+});
+
+describe("buildSalesforceRequestInit", () => {
+  it("builds a method-only Salesforce request init", () => {
+    expect(buildSalesforceRequestInit("DELETE")).toEqual({
+      method: "DELETE"
+    });
+  });
+
+  it("builds a Salesforce request init with a JSON string body", () => {
+    expect(buildSalesforceRequestInit("PATCH", { Name: "Acme" })).toEqual({
+      method: "PATCH",
+      body: JSON.stringify({ Name: "Acme" })
     });
   });
 });

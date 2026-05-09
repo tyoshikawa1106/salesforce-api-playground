@@ -3,6 +3,10 @@ import {
   salesforceErrorResponse,
   salesforceFetch
 } from "@/lib/salesforce/client";
+import {
+  buildSalesforceRequestInit,
+  buildSalesforceSObjectRecordPath
+} from "@/lib/salesforce/client-core";
 
 type Params = {
   params: {
@@ -14,11 +18,8 @@ export async function PATCH(request: Request, { params }: Params) {
   try {
     const input = await request.json();
     const { data, session } = await salesforceFetch<Record<string, never>>(
-      `/sobjects/Contact/${encodeURIComponent(params.id)}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(input)
-      }
+      buildSalesforceSObjectRecordPath("Contact", params.id),
+      buildSalesforceRequestInit("PATCH", input)
     );
     return jsonWithSession(data, session);
   } catch (error) {
@@ -29,10 +30,8 @@ export async function PATCH(request: Request, { params }: Params) {
 export async function DELETE(_request: Request, { params }: Params) {
   try {
     const { data, session } = await salesforceFetch<Record<string, never>>(
-      `/sobjects/Contact/${encodeURIComponent(params.id)}`,
-      {
-        method: "DELETE"
-      }
+      buildSalesforceSObjectRecordPath("Contact", params.id),
+      buildSalesforceRequestInit("DELETE")
     );
     return jsonWithSession(data, session);
   } catch (error) {
