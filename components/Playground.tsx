@@ -68,6 +68,20 @@ async function apiRequest<T>({ url, init }: PlaygroundApiRequest): Promise<T> {
   return data as T;
 }
 
+async function saveRecord(
+  runMutation: () => Promise<string>,
+  fallbackErrorMessage: string
+): Promise<Notice> {
+  try {
+    return { tone: "success", message: await runMutation() };
+  } catch (error) {
+    return {
+      tone: "error",
+      message: error instanceof Error ? error.message : fallbackErrorMessage
+    };
+  }
+}
+
 function formatDate(value?: string): string {
   if (!value) {
     return "-";
@@ -180,29 +194,35 @@ export default function Playground() {
 
     setSaving(true);
     try {
-      if (modal?.type === "account" && modal.mode === "edit") {
-        const payload = buildAccountUpdatePayload(accountForm);
-        await apiRequest(
-          buildPlaygroundApiRequest(playgroundApiPaths.record("accounts", modal.record.Id), {
-            method: "PATCH",
-            body: payload
-          })
-        );
-        showNotice({ tone: "success", message: "Account was updated." });
-      } else {
-        const payload = buildAccountCreatePayload(accountForm);
-        await apiRequest(
-          buildPlaygroundApiRequest(playgroundApiPaths.accounts, {
-            method: "POST",
-            body: payload
-          })
-        );
-        showNotice({ tone: "success", message: "Account was created." });
+      const saveNotice = await saveRecord(
+        async () => {
+          if (modal?.type === "account" && modal.mode === "edit") {
+            const payload = buildAccountUpdatePayload(accountForm);
+            await apiRequest(
+              buildPlaygroundApiRequest(playgroundApiPaths.record("accounts", modal.record.Id), {
+                method: "PATCH",
+                body: payload
+              })
+            );
+            return "Account was updated.";
+          }
+
+          const payload = buildAccountCreatePayload(accountForm);
+          await apiRequest(
+            buildPlaygroundApiRequest(playgroundApiPaths.accounts, {
+              method: "POST",
+              body: payload
+            })
+          );
+          return "Account was created.";
+        },
+        "Account save failed."
+      );
+      showNotice(saveNotice);
+      if (saveNotice.tone === "success") {
+        setModal(null);
+        await loadAll();
       }
-      setModal(null);
-      await loadAll();
-    } catch (error) {
-      showNotice({ tone: "error", message: error instanceof Error ? error.message : "Account save failed." });
     } finally {
       setSaving(false);
     }
@@ -217,29 +237,35 @@ export default function Playground() {
 
     setSaving(true);
     try {
-      if (modal?.type === "contact" && modal.mode === "edit") {
-        const payload = buildContactUpdatePayload(contactForm);
-        await apiRequest(
-          buildPlaygroundApiRequest(playgroundApiPaths.record("contacts", modal.record.Id), {
-            method: "PATCH",
-            body: payload
-          })
-        );
-        showNotice({ tone: "success", message: "Contact was updated." });
-      } else {
-        const payload = buildContactCreatePayload(contactForm);
-        await apiRequest(
-          buildPlaygroundApiRequest(playgroundApiPaths.contacts, {
-            method: "POST",
-            body: payload
-          })
-        );
-        showNotice({ tone: "success", message: "Contact was created." });
+      const saveNotice = await saveRecord(
+        async () => {
+          if (modal?.type === "contact" && modal.mode === "edit") {
+            const payload = buildContactUpdatePayload(contactForm);
+            await apiRequest(
+              buildPlaygroundApiRequest(playgroundApiPaths.record("contacts", modal.record.Id), {
+                method: "PATCH",
+                body: payload
+              })
+            );
+            return "Contact was updated.";
+          }
+
+          const payload = buildContactCreatePayload(contactForm);
+          await apiRequest(
+            buildPlaygroundApiRequest(playgroundApiPaths.contacts, {
+              method: "POST",
+              body: payload
+            })
+          );
+          return "Contact was created.";
+        },
+        "Contact save failed."
+      );
+      showNotice(saveNotice);
+      if (saveNotice.tone === "success") {
+        setModal(null);
+        await loadAll();
       }
-      setModal(null);
-      await loadAll();
-    } catch (error) {
-      showNotice({ tone: "error", message: error instanceof Error ? error.message : "Contact save failed." });
     } finally {
       setSaving(false);
     }
