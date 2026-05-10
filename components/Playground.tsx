@@ -2,8 +2,11 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
+  buildAccountCreatePayload,
+  buildAccountUpdatePayload,
+  buildContactCreatePayload,
+  buildContactUpdatePayload,
   buildPlaygroundApiRequest,
-  compactPayload,
   playgroundApiPaths
 } from "@/lib/playground-api";
 import type {
@@ -11,31 +14,14 @@ import type {
   SessionInfo
 } from "@/lib/playground-api";
 import type {
+  AccountForm,
   AccountRecord,
+  ContactForm,
   ContactRecord
 } from "@/lib/salesforce/records";
 
 type Account = AccountRecord;
 type Contact = ContactRecord;
-
-type AccountForm = {
-  Name: string;
-  Phone: string;
-  Website: string;
-  Industry: string;
-  Type: string;
-  BillingCity: string;
-  BillingCountry: string;
-};
-
-type ContactForm = {
-  FirstName: string;
-  LastName: string;
-  Email: string;
-  Phone: string;
-  Title: string;
-  AccountId: string;
-};
 
 type ModalState =
   | { type: "account"; mode: "create"; record?: undefined }
@@ -195,7 +181,7 @@ export default function Playground() {
     setSaving(true);
     try {
       if (modal?.type === "account" && modal.mode === "edit") {
-        const payload = compactPayload(accountForm, { emptyAsNull: true });
+        const payload = buildAccountUpdatePayload(accountForm);
         await apiRequest(
           buildPlaygroundApiRequest(playgroundApiPaths.record("accounts", modal.record.Id), {
             method: "PATCH",
@@ -204,7 +190,7 @@ export default function Playground() {
         );
         showNotice({ tone: "success", message: "Account was updated." });
       } else {
-        const payload = compactPayload(accountForm);
+        const payload = buildAccountCreatePayload(accountForm);
         await apiRequest(
           buildPlaygroundApiRequest(playgroundApiPaths.accounts, {
             method: "POST",
@@ -232,7 +218,7 @@ export default function Playground() {
     setSaving(true);
     try {
       if (modal?.type === "contact" && modal.mode === "edit") {
-        const payload = compactPayload(contactForm, { emptyAsNull: true });
+        const payload = buildContactUpdatePayload(contactForm);
         await apiRequest(
           buildPlaygroundApiRequest(playgroundApiPaths.record("contacts", modal.record.Id), {
             method: "PATCH",
@@ -241,7 +227,7 @@ export default function Playground() {
         );
         showNotice({ tone: "success", message: "Contact was updated." });
       } else {
-        const payload = compactPayload(contactForm);
+        const payload = buildContactCreatePayload(contactForm);
         await apiRequest(
           buildPlaygroundApiRequest(playgroundApiPaths.contacts, {
             method: "POST",
