@@ -1,4 +1,5 @@
 import {
+  AccountInput,
   AccountRecord,
   SalesforceQueryResponse,
   jsonWithSession,
@@ -10,16 +11,6 @@ import {
   buildSalesforceRequestInit,
   buildSalesforceSObjectCollectionPath
 } from "@/lib/salesforce/client-core";
-
-type AccountInput = {
-  Name: string;
-  Phone?: string;
-  Website?: string;
-  Industry?: string;
-  Type?: string;
-  BillingCity?: string;
-  BillingCountry?: string;
-};
 
 export async function GET() {
   try {

@@ -1,4 +1,5 @@
 import {
+  ContactInput,
   ContactRecord,
   SalesforceQueryResponse,
   jsonWithSession,
@@ -10,15 +11,6 @@ import {
   buildSalesforceRequestInit,
   buildSalesforceSObjectCollectionPath
 } from "@/lib/salesforce/client-core";
-
-type ContactInput = {
-  FirstName?: string;
-  LastName: string;
-  Email?: string;
-  Phone?: string;
-  Title?: string;
-  AccountId?: string;
-};
 
 export async function GET() {
   try {

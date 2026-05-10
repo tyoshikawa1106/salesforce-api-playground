@@ -1,4 +1,5 @@
 import {
+  AccountUpdateInput,
   jsonWithSession,
   salesforceErrorResponse,
   salesforceFetch
@@ -16,7 +17,7 @@ type Params = {
 
 export async function PATCH(request: Request, { params }: Params) {
   try {
-    const input = await request.json();
+    const input = (await request.json()) as AccountUpdateInput;
     const { data, session } = await salesforceFetch<Record<string, never>>(
       buildSalesforceSObjectRecordPath("Account", params.id),
       buildSalesforceRequestInit("PATCH", input)

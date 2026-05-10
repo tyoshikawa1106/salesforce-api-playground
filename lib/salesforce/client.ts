@@ -24,7 +24,15 @@ import {
 } from "./session";
 
 export type { SalesforceErrorPayload, TokenResponse } from "./client-core";
-export type { AccountRecord, ContactRecord, SalesforceQueryResponse } from "./records";
+export type {
+  AccountInput,
+  AccountRecord,
+  AccountUpdateInput,
+  ContactInput,
+  ContactRecord,
+  ContactUpdateInput,
+  SalesforceQueryResponse
+} from "./records";
 
 export class SalesforceApiError extends Error {
   constructor(
