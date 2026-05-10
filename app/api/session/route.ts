@@ -9,6 +9,7 @@ export async function GET() {
   return NextResponse.json({
     connected: Boolean(session),
     instanceUrl: session?.instanceUrl,
-    issuedAt: session?.issuedAt
+    issuedAt: session?.issuedAt,
+    userId: session?.userId
   });
 }
