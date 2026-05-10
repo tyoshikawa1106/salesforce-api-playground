@@ -1,5 +1,4 @@
 import {
-  ContactUpdateInput,
   jsonWithSession,
   salesforceErrorResponse,
   salesforceFetch
@@ -8,6 +7,7 @@ import {
   buildSalesforceRequestInit,
   buildSalesforceSObjectRecordPath
 } from "@/lib/salesforce/client-core";
+import { readContactUpdatePayload } from "@/lib/salesforce/request-payloads";
 
 type Params = {
   params: {
@@ -17,7 +17,7 @@ type Params = {
 
 export async function PATCH(request: Request, { params }: Params) {
   try {
-    const input = (await request.json()) as ContactUpdateInput;
+    const input = await readContactUpdatePayload(request);
     const { data, session } = await salesforceFetch<Record<string, never>>(
       buildSalesforceSObjectRecordPath("Contact", params.id),
       buildSalesforceRequestInit("PATCH", input)

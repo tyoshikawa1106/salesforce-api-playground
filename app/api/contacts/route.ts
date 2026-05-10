@@ -1,5 +1,4 @@
 import {
-  ContactInput,
   ContactRecord,
   SalesforceQueryResponse,
   jsonWithSession,
@@ -11,6 +10,7 @@ import {
   buildSalesforceRequestInit,
   buildSalesforceSObjectCollectionPath
 } from "@/lib/salesforce/client-core";
+import { readContactCreatePayload } from "@/lib/salesforce/request-payloads";
 
 export async function GET() {
   try {
@@ -31,7 +31,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const input = (await request.json()) as ContactInput;
+    const input = await readContactCreatePayload(request);
     const { data, session } = await salesforceFetch<{ id: string; success: boolean }>(
       buildSalesforceSObjectCollectionPath("Contact"),
       buildSalesforceRequestInit("POST", input)
