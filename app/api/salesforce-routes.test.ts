@@ -14,6 +14,7 @@ import {
   readContactCreatePayload,
   readContactUpdatePayload
 } from "@/lib/salesforce/request-payloads";
+import { dummySalesforceSession, expectJson, jsonRequest } from "./test-helpers";
 
 vi.mock("@/lib/salesforce/client", () => ({
   jsonWithSession: vi.fn((data: unknown, _session: unknown, status = 200) =>
@@ -43,18 +44,7 @@ const readAccountUpdatePayloadMock = vi.mocked(readAccountUpdatePayload);
 const readContactCreatePayloadMock = vi.mocked(readContactCreatePayload);
 const readContactUpdatePayloadMock = vi.mocked(readContactUpdatePayload);
 
-const session = {
-  accessToken: "unused",
-  instanceUrl: "https://example.test",
-  issuedAt: 100
-};
-
-function jsonRequest(body: unknown, method = "POST"): Request {
-  return new Request("https://app.example.test/api", {
-    method,
-    body: JSON.stringify(body)
-  });
-}
+const session = dummySalesforceSession;
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -78,7 +68,7 @@ describe("Account API route", () => {
       )}`
     );
     expect(jsonWithSessionMock).toHaveBeenCalledWith({ accounts: records }, session);
-    await expect(response.json()).resolves.toEqual({ accounts: records });
+    await expectJson(response, { accounts: records });
   });
 
   it("creates an account with the request payload and keeps status 201", async () => {
@@ -97,7 +87,7 @@ describe("Account API route", () => {
     });
     expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session, 201);
     expect(response.status).toBe(201);
-    await expect(response.json()).resolves.toEqual(data);
+    await expectJson(response, data);
   });
 
   it("updates an account with PATCH /sobjects/Account/{id}", async () => {
@@ -116,7 +106,7 @@ describe("Account API route", () => {
       method: "PATCH",
       body: JSON.stringify(payload)
     });
-    await expect(response.json()).resolves.toEqual(data);
+    await expectJson(response, data);
   });
 
   it("deletes an account with DELETE /sobjects/Account/{id} and no body", async () => {
@@ -133,7 +123,7 @@ describe("Account API route", () => {
     expect(salesforceFetchMock).toHaveBeenCalledWith("/sobjects/Account/001xx000003DGbY", {
       method: "DELETE"
     });
-    await expect(response.json()).resolves.toEqual(data);
+    await expectJson(response, data);
   });
 });
 
@@ -155,7 +145,7 @@ describe("Contact API route", () => {
       )}`
     );
     expect(jsonWithSessionMock).toHaveBeenCalledWith({ contacts: records }, session);
-    await expect(response.json()).resolves.toEqual({ contacts: records });
+    await expectJson(response, { contacts: records });
   });
 
   it("creates a contact with the request payload and keeps status 201", async () => {
@@ -174,7 +164,7 @@ describe("Contact API route", () => {
     });
     expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session, 201);
     expect(response.status).toBe(201);
-    await expect(response.json()).resolves.toEqual(data);
+    await expectJson(response, data);
   });
 
   it("updates a contact with PATCH /sobjects/Contact/{id}", async () => {
@@ -193,7 +183,7 @@ describe("Contact API route", () => {
       method: "PATCH",
       body: JSON.stringify(payload)
     });
-    await expect(response.json()).resolves.toEqual(data);
+    await expectJson(response, data);
   });
 
   it("deletes a contact with DELETE /sobjects/Contact/{id} and no body", async () => {
@@ -210,7 +200,7 @@ describe("Contact API route", () => {
     expect(salesforceFetchMock).toHaveBeenCalledWith("/sobjects/Contact/003xx000004TmiQ", {
       method: "DELETE"
     });
-    await expect(response.json()).resolves.toEqual(data);
+    await expectJson(response, data);
   });
 });
 
@@ -222,7 +212,7 @@ describe("Salesforce API route error handling", () => {
     const response = await accountRoute.GET();
 
     expect(salesforceErrorResponseMock).toHaveBeenCalledWith(error);
-    await expect(response.json()).resolves.toEqual({ error: "Salesforce failed" });
+    await expectJson(response, { error: "Salesforce failed" });
   });
 
   it("delegates contact record route errors to salesforceErrorResponse", async () => {
@@ -235,6 +225,6 @@ describe("Salesforce API route error handling", () => {
     });
 
     expect(salesforceErrorResponseMock).toHaveBeenCalledWith(error);
-    await expect(response.json()).resolves.toEqual({ error: "Salesforce failed" });
+    await expectJson(response, { error: "Salesforce failed" });
   });
 });

@@ -7,7 +7,6 @@ import { exchangeCodeForToken, revokeSalesforceSession, salesforceErrorResponse 
 import { buildAuthorizationUrl } from "@/lib/salesforce/client-core";
 import { getSalesforceConfig } from "@/lib/salesforce/config";
 import { getConfiguredAppOrigin, getRequestOrigin } from "@/lib/salesforce/urls";
-import { NextRequest } from "next/server";
 import {
   SESSION_COOKIE,
   STATE_COOKIE,
@@ -19,6 +18,13 @@ import {
   setStateCookie
 } from "@/lib/salesforce/session";
 import { cookies } from "next/headers";
+import {
+  dummySalesforceConfig,
+  dummySalesforceSession,
+  expectJson,
+  mockOauthStateCookie,
+  nextRequest
+} from "./test-helpers";
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn()
@@ -59,36 +65,38 @@ vi.mock("@/lib/salesforce/urls", () => ({
   getRequestOrigin: vi.fn(() => "https://app.example.test")
 }));
 
-vi.mock("@/lib/salesforce/session", () => ({
-  SESSION_COOKIE: "sf_playground_session",
-  STATE_COOKIE: "sf_playground_oauth_state",
-  clearSessionCookie: vi.fn((response: Response) => {
-    response.headers.append(
-      "set-cookie",
-      "sf_playground_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0"
-    );
-  }),
-  clearStateCookie: vi.fn((response: Response) => {
-    response.headers.append(
-      "set-cookie",
-      "sf_playground_oauth_state=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0"
-    );
-  }),
-  createOauthState: vi.fn(),
-  getSession: vi.fn(),
-  setSessionCookie: vi.fn((response: Response) => {
-    response.headers.append(
-      "set-cookie",
-      "sf_playground_session=encrypted-session; Path=/; HttpOnly; SameSite=Lax"
-    );
-  }),
-  setStateCookie: vi.fn((response: Response, state: string) => {
-    response.headers.append(
-      "set-cookie",
-      `sf_playground_oauth_state=${state}; Path=/; HttpOnly; SameSite=Lax`
-    );
-  })
-}));
+vi.mock("@/lib/salesforce/session", () => {
+  const sessionCookie = "sf_playground_session";
+  const stateCookie = "sf_playground_oauth_state";
+  const appendCookie = (response: Response, name: string, value: string, maxAge?: number) => {
+    const attributes = ["Path=/", "HttpOnly", "SameSite=Lax"];
+
+    if (maxAge !== undefined) {
+      attributes.push(`Max-Age=${maxAge}`);
+    }
+
+    response.headers.append("set-cookie", `${name}=${value}; ${attributes.join("; ")}`);
+  };
+
+  return {
+    SESSION_COOKIE: sessionCookie,
+    STATE_COOKIE: stateCookie,
+    clearSessionCookie: vi.fn((response: Response) => {
+      appendCookie(response, sessionCookie, "", 0);
+    }),
+    clearStateCookie: vi.fn((response: Response) => {
+      appendCookie(response, stateCookie, "", 0);
+    }),
+    createOauthState: vi.fn(),
+    getSession: vi.fn(),
+    setSessionCookie: vi.fn((response: Response) => {
+      appendCookie(response, sessionCookie, "encrypted-session");
+    }),
+    setStateCookie: vi.fn((response: Response, state: string) => {
+      appendCookie(response, stateCookie, state);
+    })
+  };
+});
 
 const cookiesMock = vi.mocked(cookies);
 const exchangeCodeForTokenMock = vi.mocked(exchangeCodeForToken);
@@ -105,43 +113,16 @@ const getSessionMock = vi.mocked(getSession);
 const setSessionCookieMock = vi.mocked(setSessionCookie);
 const setStateCookieMock = vi.mocked(setStateCookie);
 
-const config = {
-  clientId: "test-client-id",
-  clientSecret: "test-client-secret",
-  redirectUri: "https://app.example.test/api/auth/callback",
-  loginUrl: "https://login.example.test",
-  apiVersion: "v60.0",
-  sessionSecret: "test-session-secret-with-32-chars"
-};
-
-const session = {
-  accessToken: "test-access-token",
-  refreshToken: "test-refresh-token",
-  instanceUrl: "https://example.my.salesforce.test",
-  issuedAt: 1710000000000,
-  userId: "005xx0000012345"
-};
-
 function setOauthStateCookie(value?: string) {
-  cookiesMock.mockReturnValue({
-    get: vi.fn((name: string) => (name === STATE_COOKIE && value ? { value } : undefined))
-  } as unknown as ReturnType<typeof cookies>);
+  mockOauthStateCookie(cookiesMock, STATE_COOKIE, value);
 }
 
 function setDefaultMocks() {
-  getSalesforceConfigMock.mockReturnValue(config);
+  getSalesforceConfigMock.mockReturnValue(dummySalesforceConfig);
   createOauthStateMock.mockReturnValue("generated-state");
   getConfiguredAppOriginMock.mockReturnValue("https://app.example.test");
   getRequestOriginMock.mockReturnValue("https://app.example.test");
   setOauthStateCookie("generated-state");
-}
-
-function nextRequest(url: string, init?: ConstructorParameters<typeof NextRequest>[1]): NextRequest {
-  return new NextRequest(url, init);
-}
-
-async function expectJson(response: Response, expected: unknown) {
-  await expect(response.json()).resolves.toEqual(expected);
 }
 
 afterEach(() => {
@@ -158,20 +139,20 @@ describe("Session API route", () => {
   });
 
   it("returns connected session metadata without secrets", async () => {
-    getSessionMock.mockReturnValue(session);
+    getSessionMock.mockReturnValue(dummySalesforceSession);
 
     const response = await sessionRoute.GET();
     const body = await response.json();
 
     expect(body).toEqual({
       connected: true,
-      instanceUrl: session.instanceUrl,
-      issuedAt: session.issuedAt,
-      userId: session.userId
+      instanceUrl: dummySalesforceSession.instanceUrl,
+      issuedAt: dummySalesforceSession.issuedAt,
+      userId: dummySalesforceSession.userId
     });
-    expect(JSON.stringify(body)).not.toContain(session.accessToken);
-    expect(JSON.stringify(body)).not.toContain(session.refreshToken);
-    expect(JSON.stringify(body)).not.toContain(config.clientSecret);
+    expect(JSON.stringify(body)).not.toContain(dummySalesforceSession.accessToken);
+    expect(JSON.stringify(body)).not.toContain(dummySalesforceSession.refreshToken);
+    expect(JSON.stringify(body)).not.toContain(dummySalesforceConfig.clientSecret);
   });
 });
 
@@ -186,12 +167,12 @@ describe("Login API route", () => {
     expect(response.status).toBe(307);
     expect(getSalesforceConfigMock).toHaveBeenCalled();
     expect(createOauthStateMock).toHaveBeenCalled();
-    expect(buildAuthorizationUrlMock).toHaveBeenCalledWith(config, "generated-state");
+    expect(buildAuthorizationUrlMock).toHaveBeenCalledWith(dummySalesforceConfig, "generated-state");
     expect(setStateCookieMock).toHaveBeenCalledWith(response, "generated-state");
     expect(authorizeUrl.origin).toBe("https://login.example.test");
     expect(authorizeUrl.searchParams.get("response_type")).toBe("code");
-    expect(authorizeUrl.searchParams.get("client_id")).toBe(config.clientId);
-    expect(authorizeUrl.searchParams.get("redirect_uri")).toBe(config.redirectUri);
+    expect(authorizeUrl.searchParams.get("client_id")).toBe(dummySalesforceConfig.clientId);
+    expect(authorizeUrl.searchParams.get("redirect_uri")).toBe(dummySalesforceConfig.redirectUri);
     expect(authorizeUrl.searchParams.get("scope")).toBe("api refresh_token");
     expect(authorizeUrl.searchParams.get("state")).toBe("generated-state");
   });
@@ -205,23 +186,23 @@ describe("Login API route", () => {
       response.headers.get("set-cookie")
     ].join("\n");
 
-    expect(exposed).not.toContain(config.clientSecret);
-    expect(exposed).not.toContain(session.accessToken);
-    expect(exposed).not.toContain(session.refreshToken);
+    expect(exposed).not.toContain(dummySalesforceConfig.clientSecret);
+    expect(exposed).not.toContain(dummySalesforceSession.accessToken);
+    expect(exposed).not.toContain(dummySalesforceSession.refreshToken);
   });
 });
 
 describe("Callback API route", () => {
   it("exchanges a valid code and state, sets the session cookie, and redirects home", async () => {
     setDefaultMocks();
-    exchangeCodeForTokenMock.mockResolvedValue(session);
+    exchangeCodeForTokenMock.mockResolvedValue(dummySalesforceSession);
     const request = nextRequest("https://app.example.test/api/auth/callback?code=valid-code&state=generated-state");
 
     const response = await callbackRoute.GET(request);
 
     expect(exchangeCodeForTokenMock).toHaveBeenCalledWith("valid-code");
     expect(clearStateCookieMock).toHaveBeenCalledWith(response);
-    expect(setSessionCookieMock).toHaveBeenCalledWith(response, session);
+    expect(setSessionCookieMock).toHaveBeenCalledWith(response, dummySalesforceSession);
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://app.example.test/?auth=connected");
     expect(response.headers.get("set-cookie")).toContain(SESSION_COOKIE);
@@ -266,12 +247,12 @@ describe("Callback API route", () => {
 describe("Logout API route", () => {
   it("revokes the current session, clears cookies, and redirects home", async () => {
     setDefaultMocks();
-    getSessionMock.mockReturnValue(session);
+    getSessionMock.mockReturnValue(dummySalesforceSession);
     const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });
 
     const response = await logoutRoute.POST(request);
 
-    expect(revokeSalesforceSessionMock).toHaveBeenCalledWith(session);
+    expect(revokeSalesforceSessionMock).toHaveBeenCalledWith(dummySalesforceSession);
     expect(clearSessionCookieMock).toHaveBeenCalledWith(response);
     expect(clearStateCookieMock).toHaveBeenCalledWith(response);
     expect(response.status).toBe(307);
@@ -295,7 +276,7 @@ describe("Logout API route", () => {
 
   it("delegates revoke errors to salesforceErrorResponse", async () => {
     setDefaultMocks();
-    getSessionMock.mockReturnValue(session);
+    getSessionMock.mockReturnValue(dummySalesforceSession);
     const error = new Error("Revoke failed");
     revokeSalesforceSessionMock.mockRejectedValue(error);
     const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });
