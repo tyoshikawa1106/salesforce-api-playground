@@ -11,6 +11,7 @@ export type SessionInfo = {
   connected: boolean;
   instanceUrl?: string;
   issuedAt?: number;
+  userId?: string;
 };
 
 export type PlaygroundApiResource = "accounts" | "contacts";
