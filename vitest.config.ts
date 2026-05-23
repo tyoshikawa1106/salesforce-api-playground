@@ -8,6 +8,12 @@ export default defineConfig({
     }
   },
   test: {
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+      include: ["app/api/**/*.ts", "lib/**/*.ts"],
+      exclude: ["**/*.test.ts", "app/api/test-helpers.ts"]
+    },
     environment: "node"
   }
 });
