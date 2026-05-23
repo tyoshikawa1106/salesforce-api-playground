@@ -1,10 +1,25 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { NextResponse } from "next/server";
 import {
+  SESSION_COOKIE,
+  STATE_COOKIE,
   SalesforceSession,
+  clearSessionCookie,
+  clearStateCookie,
   createOauthState,
   decryptSession,
-  encryptSession
+  encryptSession,
+  getSession,
+  setSessionCookie,
+  setStateCookie
 } from "./session";
+import { cookies } from "next/headers";
+
+vi.mock("next/headers", () => ({
+  cookies: vi.fn()
+}));
+
+const cookiesMock = vi.mocked(cookies);
 
 const sessionSecret = "test-session-secret-with-32-chars";
 
@@ -18,6 +33,7 @@ function setSessionSecret() {
 }
 
 afterEach(() => {
+  vi.clearAllMocks();
   vi.unstubAllEnvs();
 });
 
@@ -45,6 +61,15 @@ describe("session encryption", () => {
 
     expect(decryptSession("not-a-session")).toBeNull();
   });
+
+  it("returns null when the session cookie cannot be decrypted", () => {
+    setSessionSecret();
+    cookiesMock.mockReturnValue({
+      get: vi.fn((name: string) => (name === SESSION_COOKIE ? { value: "not-a-session" } : undefined))
+    } as unknown as ReturnType<typeof cookies>);
+
+    expect(getSession()).toBeNull();
+  });
 });
 
 describe("createOauthState", () => {
@@ -53,5 +78,67 @@ describe("createOauthState", () => {
 
     expect(state).toMatch(/^[A-Za-z0-9_-]+$/);
     expect(state).toHaveLength(32);
+  });
+});
+
+describe("session cookies", () => {
+  const session: SalesforceSession = {
+    accessToken: "access-token",
+    refreshToken: "refresh-token",
+    instanceUrl: "https://example.my.salesforce.com",
+    issuedAt: 1710000000000
+  };
+
+  it("sets an encrypted session cookie without exposing tokens", () => {
+    setSessionSecret();
+    const response = NextResponse.json({ ok: true });
+
+    setSessionCookie(response, session);
+
+    const setCookie = response.headers.get("set-cookie") ?? "";
+    expect(setCookie).toContain(`${SESSION_COOKIE}=`);
+    expect(setCookie).toContain("HttpOnly");
+    expect(setCookie).toContain("SameSite=lax");
+    expect(setCookie).toContain("Path=/");
+    expect(setCookie).toContain("Max-Age=28800");
+    expect(setCookie).not.toContain(session.accessToken);
+    expect(setCookie).not.toContain(session.refreshToken ?? "");
+  });
+
+  it("clears the session cookie", () => {
+    const response = NextResponse.json({ ok: true });
+
+    clearSessionCookie(response);
+
+    const setCookie = response.headers.get("set-cookie") ?? "";
+    expect(setCookie).toContain(`${SESSION_COOKIE}=`);
+    expect(setCookie).toContain("Max-Age=0");
+    expect(setCookie).toContain("HttpOnly");
+  });
+
+  it("sets and clears the OAuth state cookie", () => {
+    const setResponse = NextResponse.json({ ok: true });
+    const clearResponse = NextResponse.json({ ok: true });
+
+    setStateCookie(setResponse, "oauth-state");
+    clearStateCookie(clearResponse);
+
+    expect(setResponse.headers.get("set-cookie")).toContain(`${STATE_COOKIE}=oauth-state`);
+    expect(setResponse.headers.get("set-cookie")).toContain("Max-Age=600");
+    expect(clearResponse.headers.get("set-cookie")).toContain(`${STATE_COOKIE}=`);
+    expect(clearResponse.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+
+  it("marks session and state cookies secure in production", () => {
+    setSessionSecret();
+    vi.stubEnv("NODE_ENV", "production");
+    const sessionResponse = NextResponse.json({ ok: true });
+    const stateResponse = NextResponse.json({ ok: true });
+
+    setSessionCookie(sessionResponse, session);
+    setStateCookie(stateResponse, "oauth-state");
+
+    expect(sessionResponse.headers.get("set-cookie")).toContain("Secure");
+    expect(stateResponse.headers.get("set-cookie")).toContain("Secure");
   });
 });
