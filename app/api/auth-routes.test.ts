@@ -190,6 +190,19 @@ describe("Login API route", () => {
     expect(exposed).not.toContain(dummySalesforceSession.accessToken);
     expect(exposed).not.toContain(dummySalesforceSession.refreshToken);
   });
+
+  it("returns a safe error response when OAuth startup fails", async () => {
+    setDefaultMocks();
+    getSalesforceConfigMock.mockImplementation(() => {
+      throw new Error("Missing Salesforce configuration");
+    });
+
+    const response = await loginRoute.GET();
+
+    expect(response.status).toBe(500);
+    await expectJson(response, { error: "Missing Salesforce configuration" });
+    expect(setStateCookieMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("Callback API route", () => {
