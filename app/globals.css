@@ -2,13 +2,17 @@
 
 :root {
   color-scheme: light;
-  --app-bg: #f3f7fb;
-  --app-ink: #181818;
-  --app-muted: #5c5c62;
-  --app-border: #c9c9c9;
-  --app-brand: #0176d3;
-  --app-success: #2e844a;
-  --app-danger: #ba0517;
+  --app-bg: var(--slds-g-color-neutral-base-95, #f3f3f3);
+  --app-surface: var(--slds-g-color-neutral-base-100, #fff);
+  --app-surface-alt: var(--slds-g-color-brand-base-95, #eef4ff);
+  --app-ink: var(--slds-g-color-neutral-base-10, #181818);
+  --app-muted: var(--slds-g-color-neutral-base-40, #5c5c5c);
+  --app-border: var(--slds-g-color-border-base-1, #c9c9c9);
+  --app-brand: var(--slds-g-color-brand-base-50, #0176d3);
+  --app-brand-strong: var(--slds-g-color-brand-base-30, #014486);
+  --app-success: var(--slds-g-color-success-base-50, #2e844a);
+  --app-danger: var(--slds-g-color-error-base-40, #ba0517);
+  --app-shadow: 0 2px 10px rgba(24, 24, 24, 0.08);
 }
 
 * {
@@ -20,6 +24,7 @@ body {
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--app-ink);
+  font-family: var(--lwc-fontFamily, "Salesforce Sans", Arial, sans-serif);
 }
 
 button,
@@ -31,13 +36,14 @@ select {
 .app-shell {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(1, 118, 211, 0.11), rgba(243, 247, 251, 0) 300px),
+    linear-gradient(180deg, rgba(27, 150, 255, 0.12), rgba(243, 243, 243, 0) 320px),
     var(--app-bg);
 }
 
 .app-header {
-  border-bottom: 1px solid rgba(1, 118, 211, 0.18);
-  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(1, 68, 134, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1px 0 rgba(24, 24, 24, 0.03);
 }
 
 .app-header__inner,
@@ -48,26 +54,42 @@ select {
 
 .app-header__inner {
   display: flex;
-  min-height: 76px;
+  min-height: 92px;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
 
+.app-page-header {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
 .brand-mark {
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   place-items: center;
   border-radius: 8px;
-  background: var(--app-brand);
+  background: linear-gradient(135deg, var(--app-brand), var(--app-brand-strong));
   color: #fff;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.app-kicker {
+  color: var(--app-brand-strong);
   font-weight: 700;
 }
 
 .app-title {
   margin: 0;
-  font-size: 1.25rem;
+  color: var(--app-ink);
+  font-size: 1.35rem;
   line-height: 1.25;
 }
 
@@ -77,7 +99,7 @@ select {
 }
 
 .app-main {
-  padding: 28px 0 48px;
+  padding: 24px 0 48px;
 }
 
 .status-bar {
@@ -86,10 +108,72 @@ select {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 20px;
-  padding: 14px 16px;
+  padding: 16px;
   border: 1px solid var(--app-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+}
+
+.connection-summary {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-indicator {
+  display: grid;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--slds-g-color-neutral-base-90, #e5e5e5);
+}
+
+.status-indicator span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--slds-g-color-neutral-base-60, #939393);
+  box-shadow: 0 0 0 4px var(--app-surface);
+}
+
+.status-indicator_connected {
+  background: var(--slds-g-color-success-base-90, #cdefc4);
+}
+
+.status-indicator_connected span {
+  background: var(--app-success);
+}
+
+.metrics-strip {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.metric-pill {
+  min-width: 112px;
+  padding: 8px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface-alt);
+}
+
+.metric-pill__value {
+  display: block;
+  color: var(--app-brand-strong);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.metric-pill__label {
+  color: var(--app-muted);
+  font-size: 0.75rem;
 }
 
 .toolbar {
@@ -102,7 +186,12 @@ select {
   overflow: hidden;
   border: 1px solid var(--app-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+}
+
+.app-tabs {
+  border-bottom: 1px solid var(--app-border);
 }
 
 .section-header {
@@ -111,21 +200,45 @@ select {
   justify-content: space-between;
   gap: 16px;
   padding: 16px;
-  border-bottom: 1px solid #dddbda;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
 }
 
 .table-wrap {
   overflow-x: auto;
+  background: var(--app-surface);
 }
 
 .data-table {
   min-width: 880px;
 }
 
+.data-table th,
+.data-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .empty-state {
-  padding: 44px 20px;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  padding: 48px 20px;
   text-align: center;
   color: var(--app-muted);
+}
+
+.empty-state__mark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid var(--app-border);
+  border-radius: 50%;
+  background: var(--app-surface-alt);
+  color: var(--app-brand-strong);
+  font-weight: 700;
 }
 
 .form-grid {
@@ -153,7 +266,7 @@ select {
   max-height: calc(100vh - 40px);
   overflow: auto;
   border-radius: 8px;
-  background: #fff;
+  background: var(--app-surface);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
 }
 
@@ -166,8 +279,8 @@ select {
   justify-content: flex-end;
   gap: 8px;
   padding: 14px 18px;
-  border-top: 1px solid #dddbda;
-  background: #f3f3f3;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-bg);
 }
 
 .toast-stack {
@@ -193,6 +306,20 @@ select {
   .section-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .connection-summary,
+  .metrics-strip {
+    width: 100%;
+  }
+
+  .metrics-strip {
+    justify-content: stretch;
+  }
+
+  .metric-pill {
+    flex: 1;
+    min-width: 0;
   }
 
   .app-header__inner,
