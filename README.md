@@ -141,6 +141,8 @@ open coverage/index.html
 
 `coverage/` は `.gitignore` で除外しているため、生成してもコミット対象にはなりません。
 
+GitHub Actions では、カバレッジの summary とファイル別の詳細を workflow run の `Summary` に表示します。GitHub Pages への公開や HTML artifact の保存は行いません。
+
 ## GitHub Actions CI
 
 `.github/workflows/ci.yml` で CI を設定しています。Pull Request と `main` ブランチへの push で実行され、Node.js 20 で依存関係を `npm ci` でインストールしたあと、以下を順番に確認します。
@@ -148,8 +150,10 @@ open coverage/index.html
 ```bash
 npm run lint
 npm run typecheck
-npm run test
+npm run test:coverage
 npm run build
 ```
+
+CI の coverage は GitHub Actions の `Summary` で確認します。HTML レポートを見たい場合は、ローカルで `npm run test:coverage` を実行して `coverage/index.html` を開きます。
 
 CI では Salesforce や Heroku の秘密情報、実 URL は使いません。OAuth 接続が必要な動作確認はローカル環境または Heroku の Config Vars を設定した環境で行います。
