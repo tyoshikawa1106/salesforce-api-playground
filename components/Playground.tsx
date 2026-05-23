@@ -299,13 +299,20 @@ export default function Playground() {
       {notice ? <NoticeBanner notice={notice} /> : null}
       <header className="app-header">
         <div className="app-header__inner">
-          <div className="slds-media slds-media_center">
-            <div className="slds-media__figure">
-              <div className="brand-mark">SF</div>
-            </div>
-            <div className="slds-media__body">
-              <h1 className="app-title">salesforce-api-playground</h1>
-              <p className="app-subtitle">OAuth と REST API で Account / Contact を直接操作する学習アプリ</p>
+          <div className="slds-page-header app-page-header">
+            <div className="slds-page-header__row">
+              <div className="slds-page-header__col-title">
+                <div className="slds-media slds-media_center">
+                  <div className="slds-media__figure">
+                    <div className="brand-mark" aria-hidden="true">SF</div>
+                  </div>
+                  <div className="slds-media__body">
+                    <p className="slds-text-title_caps app-kicker">Salesforce REST API Playground</p>
+                    <h1 className="slds-page-header__title app-title">salesforce-api-playground</h1>
+                    <p className="app-subtitle">OAuth と REST API で Account / Contact を直接操作する学習アプリ</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div className="toolbar">
@@ -325,14 +332,19 @@ export default function Playground() {
       </header>
 
       <main className="app-main">
-        <section className="status-bar" aria-live="polite">
-          <div>
-            <span className={`slds-badge ${session.connected ? "slds-theme_success" : ""}`}>
-              {session.connected ? "Connected" : "Not connected"}
-            </span>
-            <p className="slds-m-top_x-small muted">
-              {session.connected ? session.instanceUrl : "Salesforce OAuth connection is required."}
-            </p>
+        <section className="status-bar slds-card" aria-live="polite">
+          <div className="connection-summary">
+            <StatusIndicator connected={session.connected} />
+            <div>
+              <p className="slds-text-heading_small">{session.connected ? "Salesforce connected" : "Connection required"}</p>
+              <p className="slds-text-body_small muted">
+                {session.connected ? session.instanceUrl : "Salesforce OAuth connection is required."}
+              </p>
+            </div>
+          </div>
+          <div className="metrics-strip" aria-label="Loaded record counts">
+            <MetricPill label="Accounts" value={accounts.length} />
+            <MetricPill label="Contacts" value={contacts.length} />
           </div>
           <div className="toolbar">
             <button className="slds-button slds-button_neutral" type="button" onClick={loadAll} disabled={loading}>
@@ -341,8 +353,8 @@ export default function Playground() {
           </div>
         </section>
 
-        <section className="tabs-panel">
-          <div className="slds-tabs_default">
+        <section className="tabs-panel slds-card">
+          <div className="slds-tabs_default app-tabs">
             <ul className="slds-tabs_default__nav" role="tablist">
               <TabButton active={activeTab === "accounts"} onClick={() => setActiveTab("accounts")}>
                 Accounts
@@ -420,6 +432,23 @@ export default function Playground() {
   );
 }
 
+function StatusIndicator({ connected }: { connected: boolean }) {
+  return (
+    <span className={`status-indicator ${connected ? "status-indicator_connected" : ""}`} aria-hidden="true">
+      <span />
+    </span>
+  );
+}
+
+function MetricPill({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="metric-pill">
+      <span className="metric-pill__value">{value}</span>
+      <span className="metric-pill__label">{label}</span>
+    </div>
+  );
+}
+
 function NoticeBanner({ notice }: { notice: Notice }) {
   const theme = notice.tone === "success" ? "slds-theme_success" : notice.tone === "error" ? "slds-theme_error" : "slds-theme_info";
   return (
@@ -481,7 +510,7 @@ function AccountPanel({
       {!loading && accounts.length === 0 ? <EmptyState message={connected ? "No Accounts found." : "Connect Salesforce to load Accounts."} /> : null}
       {!loading && accounts.length > 0 ? (
         <div className="table-wrap">
-          <table className="slds-table slds-table_cell-buffer slds-table_bordered data-table">
+          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout data-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -552,7 +581,7 @@ function ContactPanel({
       {!loading && contacts.length === 0 ? <EmptyState message={connected ? "No Contacts found." : "Connect Salesforce to load Contacts."} /> : null}
       {!loading && contacts.length > 0 ? (
         <div className="table-wrap">
-          <table className="slds-table slds-table_cell-buffer slds-table_bordered data-table">
+          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout data-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -594,7 +623,12 @@ function ContactPanel({
 }
 
 function EmptyState({ message }: { message: string }) {
-  return <div className="empty-state">{message}</div>;
+  return (
+    <div className="empty-state">
+      <div className="empty-state__mark" aria-hidden="true">i</div>
+      <p>{message}</p>
+    </div>
+  );
 }
 
 function Modal({
@@ -610,12 +644,12 @@ function Modal({
 }) {
   return (
     <div className="modal-backdrop" role="presentation">
-      <section className="modal-panel" role="dialog" aria-modal="true" aria-label={title} style={narrow ? { maxWidth: 480 } : undefined}>
-        <header className="section-header">
-          <h2 className="slds-text-heading_medium">{title}</h2>
+      <section className="slds-modal slds-fade-in-open modal-panel" role="dialog" aria-modal="true" aria-label={title} style={narrow ? { maxWidth: 480 } : undefined}>
+        <header className="slds-modal__header">
           <button className="slds-button slds-button_icon slds-modal__close" type="button" onClick={onClose} aria-label="Close">
-            <span aria-hidden="true">x</span>
+            <span aria-hidden="true">×</span>
           </button>
+          <h2 className="slds-modal__title slds-hyphenate">{title}</h2>
         </header>
         {children}
       </section>
