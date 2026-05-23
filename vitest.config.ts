@@ -10,7 +10,7 @@ export default defineConfig({
   test: {
     coverage: {
       provider: "v8",
-      reporter: ["text", "html"],
+      reporter: ["text", "html", "json-summary"],
       include: ["app/api/**/*.ts", "lib/**/*.ts"],
       exclude: ["**/*.test.ts", "app/api/test-helpers.ts"]
     },

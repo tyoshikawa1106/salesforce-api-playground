@@ -33,8 +33,12 @@ jobs:
       - name: Run typecheck
         run: npm run typecheck
 
-      - name: Run unit tests
-        run: npm run test
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+
+      - name: Add coverage summary
+        if: always() && hashFiles('coverage/coverage-summary.json') != ''
+        run: node .github/scripts/write-coverage-summary.mjs
 
       - name: Build application
         run: npm run build
