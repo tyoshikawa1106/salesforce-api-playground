@@ -2,9 +2,40 @@
 
 :root {
   color-scheme: light;
+  --heroku-purple: #5a1ba9;
+  --heroku-purple-dark: #300b60;
+  --heroku-purple-light: #d7bff2;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+}
+
+.heroku-brand-logo {
+  background: var(--heroku-purple);
+  --slds-c-avatar-radius-border: var(--slds-g-radius-border-2, 0.25rem);
+}
+
+.heroku-brand-logo__initials {
+  color: var(--slds-g-color-neutral-base-100, #fff);
+}
+
+.heroku-context-bar {
+  border-bottom-color: var(--heroku-purple);
+}
+
+.heroku-context-bar__item_active:before {
+  background: var(--heroku-purple);
+}
+
+.heroku-app-icon {
+  --slds-c-icon-color-background: var(--heroku-purple);
+}
+
+.heroku-brand-action {
+  --slds-c-button-brand-color-background: var(--heroku-purple);
+  --slds-c-button-brand-color-background-hover: var(--heroku-purple-dark);
+  --slds-c-button-brand-color-border: var(--heroku-purple);
+  --slds-c-button-brand-color-border-hover: var(--heroku-purple-dark);
 }

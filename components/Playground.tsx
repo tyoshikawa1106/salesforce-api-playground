@@ -411,9 +411,10 @@ function GlobalHeader({ connected }: { connected: boolean }) {
   return (
     <header className="slds-global-header slds-grid slds-grid_align-spread">
         <div className="slds-global-header__item">
-          <div className="slds-global-header__logo">
-            <span className="slds-assistive-text">Salesforce</span>
-          </div>
+          <span className="slds-avatar slds-avatar_medium heroku-brand-logo" aria-hidden="true">
+            <span className="slds-avatar__initials heroku-brand-logo__initials">H</span>
+          </span>
+          <span className="slds-assistive-text">Heroku</span>
         </div>
         <div className="slds-global-header__item slds-global-header__item_search slds-show_medium">
           <div className="slds-form-element">
@@ -433,7 +434,7 @@ function GlobalHeader({ connected }: { connected: boolean }) {
               </button>
             </form>
           ) : (
-            <a className="slds-button slds-button_brand" href="/api/auth/login">
+            <a className="slds-button slds-button_brand heroku-brand-action" href="/api/auth/login">
               Connect Salesforce
             </a>
           )}
@@ -452,12 +453,12 @@ function AppNavigation({
   onChange: (tab: ActiveTab) => void;
 }) {
   return (
-    <div className="slds-context-bar">
+    <div className="slds-context-bar heroku-context-bar">
       <div className="slds-context-bar__primary">
         <div className="slds-context-bar__item slds-no-hover">
           <span className="slds-context-bar__label-action">
-            <span className="slds-truncate" title="Salesforce API Playground">
-              Salesforce API Playground
+            <span className="slds-truncate" title="Heroku">
+              Heroku
             </span>
           </span>
         </div>
@@ -475,7 +476,7 @@ function AppNavigation({
 
 function NavigationItem({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
   return (
-    <li className={`slds-context-bar__item ${active ? "slds-is-active" : ""}`}>
+    <li className={`slds-context-bar__item ${active ? "slds-is-active heroku-context-bar__item_active" : ""}`}>
       <button className="slds-button_reset slds-context-bar__label-action" type="button" onClick={onClick}>
         <span className="slds-truncate" title={label}>
           {label}
@@ -542,11 +543,11 @@ function ObjectHomeHeader({
             </div>
             <div className="slds-page-header__control">
               {connected ? (
-                <button className="slds-button slds-button_brand" type="button" onClick={onCreate}>
+                <button className="slds-button slds-button_brand heroku-brand-action" type="button" onClick={onCreate}>
                   New {activeTab === "accounts" ? "Account" : "Contact"}
                 </button>
               ) : (
-                <a className="slds-button slds-button_brand" href="/api/auth/login">
+                <a className="slds-button slds-button_brand heroku-brand-action" href="/api/auth/login">
                   Connect Salesforce
                 </a>
               )}
@@ -590,7 +591,7 @@ function HomePanel({
           <div className="slds-page-header__col-title">
             <div className="slds-media">
               <div className="slds-media__figure">
-                <span className="slds-icon_container slds-page-header__icon slds-icon-standard-home" aria-hidden="true">
+                <span className="slds-icon_container slds-page-header__icon slds-icon-standard-home heroku-app-icon" aria-hidden="true">
                   <span className="slds-assistive-text">Home</span>
                 </span>
               </div>
@@ -624,7 +625,7 @@ function HomePanel({
                     </button>
                   </form>
                 ) : (
-                  <a className="slds-button slds-button_brand" href="/api/auth/login">
+                  <a className="slds-button slds-button_brand heroku-brand-action" href="/api/auth/login">
                     Connect Salesforce
                   </a>
                 )}
@@ -896,7 +897,7 @@ function ModalFooter({ saving, onCancel }: { saving: boolean; onCancel: () => vo
       <button className="slds-button slds-button_neutral" type="button" onClick={onCancel}>
         Cancel
       </button>
-      <button className="slds-button slds-button_brand" type="submit" disabled={saving}>
+      <button className="slds-button slds-button_brand heroku-brand-action" type="submit" disabled={saving}>
         {saving ? "Saving..." : "Save"}
       </button>
     </div>
