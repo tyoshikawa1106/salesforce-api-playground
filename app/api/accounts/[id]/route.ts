@@ -1,13 +1,9 @@
 import {
   jsonWithSession,
-  salesforceErrorResponse,
-  salesforceFetch
+  salesforceErrorResponse
 } from "@/lib/salesforce/client";
-import {
-  buildSalesforceRequestInit,
-  buildSalesforceSObjectRecordPath
-} from "@/lib/salesforce/client-core";
 import { readAccountUpdatePayload } from "@/lib/salesforce/request-payloads";
+import { deleteAccount, updateAccount } from "@/services/salesforce/records";
 
 type Params = {
   params: {
@@ -18,10 +14,7 @@ type Params = {
 export async function PATCH(request: Request, { params }: Params) {
   try {
     const input = await readAccountUpdatePayload(request);
-    const { data, session } = await salesforceFetch<Record<string, never>>(
-      buildSalesforceSObjectRecordPath("Account", params.id),
-      buildSalesforceRequestInit("PATCH", input)
-    );
+    const { data, session } = await updateAccount(params.id, input);
     return jsonWithSession(data, session);
   } catch (error) {
     return salesforceErrorResponse(error);
@@ -30,10 +23,7 @@ export async function PATCH(request: Request, { params }: Params) {
 
 export async function DELETE(_request: Request, { params }: Params) {
   try {
-    const { data, session } = await salesforceFetch<Record<string, never>>(
-      buildSalesforceSObjectRecordPath("Account", params.id),
-      buildSalesforceRequestInit("DELETE")
-    );
+    const { data, session } = await deleteAccount(params.id);
     return jsonWithSession(data, session);
   } catch (error) {
     return salesforceErrorResponse(error);
