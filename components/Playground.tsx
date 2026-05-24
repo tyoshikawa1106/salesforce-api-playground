@@ -38,6 +38,8 @@ type Notice = {
   message: string;
 };
 
+type ActiveTab = "home" | "accounts" | "contacts";
+
 const blankAccount: AccountForm = {
   Name: "",
   Phone: "",
@@ -96,7 +98,7 @@ export default function Playground() {
   const [session, setSession] = useState<SessionInfo>({ connected: false });
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [activeTab, setActiveTab] = useState<"accounts" | "contacts">("accounts");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("home");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -125,6 +127,7 @@ export default function Playground() {
       if (!nextSession.connected) {
         setAccounts([]);
         setContacts([]);
+        setActiveTab("home");
         return;
       }
 
@@ -298,22 +301,33 @@ export default function Playground() {
     <div>
       {notice ? <NoticeBanner notice={notice} /> : null}
       <GlobalHeader connected={session.connected} />
-      <AppNavigation activeTab={activeTab} onChange={setActiveTab} />
+      <AppNavigation activeTab={activeTab} connected={session.connected} onChange={setActiveTab} />
 
       <main className="slds-template_default">
         <section className="slds-card">
-          <ObjectHomeHeader
-            activeTab={activeTab}
-            accountsCount={accounts.length}
-            contactsCount={contacts.length}
-            connected={session.connected}
-            instanceUrl={session.instanceUrl}
-            loading={loading}
-            onCreate={activeTab === "accounts" ? () => openAccountModal() : () => openContactModal()}
-            onRefresh={loadAll}
-          />
+          {activeTab === "home" ? (
+            <HomePanel
+              accountsCount={accounts.length}
+              contactsCount={contacts.length}
+              connected={session.connected}
+              instanceUrl={session.instanceUrl}
+              loading={loading}
+              onRefresh={loadAll}
+            />
+          ) : null}
 
-          {activeTab === "accounts" ? (
+          {activeTab === "accounts" && session.connected ? (
+            <>
+              <ObjectHomeHeader
+                activeTab="accounts"
+                accountsCount={accounts.length}
+                contactsCount={contacts.length}
+                connected={session.connected}
+                instanceUrl={session.instanceUrl}
+                loading={loading}
+                onCreate={() => openAccountModal()}
+                onRefresh={loadAll}
+              />
             <AccountPanel
               accounts={accounts}
               loading={loading}
@@ -321,7 +335,21 @@ export default function Playground() {
               onEdit={openAccountModal}
               onDelete={(record) => setDeleteState({ type: "account", id: record.Id, label: record.Name })}
             />
-          ) : (
+            </>
+          ) : null}
+
+          {activeTab === "contacts" && session.connected ? (
+            <>
+              <ObjectHomeHeader
+                activeTab="contacts"
+                accountsCount={accounts.length}
+                contactsCount={contacts.length}
+                connected={session.connected}
+                instanceUrl={session.instanceUrl}
+                loading={loading}
+                onCreate={() => openContactModal()}
+                onRefresh={loadAll}
+              />
             <ContactPanel
               contacts={contacts}
               loading={loading}
@@ -331,7 +359,8 @@ export default function Playground() {
                 setDeleteState({ type: "contact", id: record.Id, label: `${record.FirstName ?? ""} ${record.LastName}`.trim() })
               }
             />
-          )}
+            </>
+          ) : null}
         </section>
       </main>
 
@@ -415,10 +444,12 @@ function GlobalHeader({ connected }: { connected: boolean }) {
 
 function AppNavigation({
   activeTab,
+  connected,
   onChange
 }: {
-  activeTab: "accounts" | "contacts";
-  onChange: (tab: "accounts" | "contacts") => void;
+  activeTab: ActiveTab;
+  connected: boolean;
+  onChange: (tab: ActiveTab) => void;
 }) {
   return (
     <div className="slds-context-bar">
@@ -433,8 +464,9 @@ function AppNavigation({
       </div>
       <nav className="slds-context-bar__secondary" aria-label="Primary">
         <ul className="slds-grid">
-          <NavigationItem active={activeTab === "accounts"} label="Accounts" onClick={() => onChange("accounts")} />
-          <NavigationItem active={activeTab === "contacts"} label="Contacts" onClick={() => onChange("contacts")} />
+          <NavigationItem active={activeTab === "home"} label="Home" onClick={() => onChange("home")} />
+          {connected ? <NavigationItem active={activeTab === "accounts"} label="Accounts" onClick={() => onChange("accounts")} /> : null}
+          {connected ? <NavigationItem active={activeTab === "contacts"} label="Contacts" onClick={() => onChange("contacts")} /> : null}
         </ul>
       </nav>
     </div>
@@ -536,6 +568,109 @@ function ObjectHomeHeader({
   );
 }
 
+function HomePanel({
+  accountsCount,
+  contactsCount,
+  connected,
+  instanceUrl,
+  loading,
+  onRefresh
+}: {
+  accountsCount: number;
+  contactsCount: number;
+  connected: boolean;
+  instanceUrl?: string;
+  loading: boolean;
+  onRefresh: () => void;
+}) {
+  return (
+    <>
+      <div className="slds-page-header slds-page-header_joined">
+        <div className="slds-page-header__row">
+          <div className="slds-page-header__col-title">
+            <div className="slds-media">
+              <div className="slds-media__figure">
+                <span className="slds-icon_container slds-page-header__icon slds-icon-standard-home" aria-hidden="true">
+                  <span className="slds-assistive-text">Home</span>
+                </span>
+              </div>
+              <div className="slds-media__body">
+                <div className="slds-page-header__name">
+                  <div className="slds-page-header__name-title">
+                    <p className="slds-text-title_caps">App</p>
+                    <h1>
+                      <span className="slds-page-header__title slds-truncate" title="Salesforce API Playground">
+                        Salesforce API Playground
+                      </span>
+                    </h1>
+                  </div>
+                </div>
+                <p className="slds-page-header__name-meta">OAuth と REST API で Account / Contact を直接操作する学習アプリ</p>
+              </div>
+            </div>
+          </div>
+          <div className="slds-page-header__col-actions">
+            <div className="slds-page-header__controls">
+              <div className="slds-page-header__control">
+                <button className="slds-button slds-button_neutral" type="button" onClick={onRefresh} disabled={loading}>
+                  Refresh
+                </button>
+              </div>
+              <div className="slds-page-header__control">
+                {connected ? (
+                  <form action="/api/auth/logout" method="post">
+                    <button className="slds-button slds-button_neutral" type="submit">
+                      Disconnect
+                    </button>
+                  </form>
+                ) : (
+                  <a className="slds-button slds-button_brand" href="/api/auth/login">
+                    Connect Salesforce
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="slds-p-around_medium">
+        <div className="slds-grid slds-wrap slds-gutters">
+          <StatusSummary label="Connection" value={connected ? "Connected" : "Not connected"} tone={connected ? "success" : "default"} />
+          <StatusSummary label="Accounts" value={String(accountsCount)} />
+          <StatusSummary label="Contacts" value={String(contactsCount)} />
+          <StatusSummary label="Instance" value={connected ? instanceUrl ?? "-" : "OAuth required"} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function StatusSummary({
+  label,
+  value,
+  tone = "default"
+}: {
+  label: string;
+  value: string;
+  tone?: "default" | "success";
+}) {
+  return (
+    <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4">
+      <article className={`slds-tile slds-box slds-box_x-small ${tone === "success" ? "slds-theme_success" : "slds-theme_default"}`}>
+        <h2 className="slds-tile__title slds-truncate" title={label}>
+          {label}
+        </h2>
+        <div className="slds-tile__detail">
+          <p className="slds-truncate" title={value}>
+            {value}
+          </p>
+        </div>
+      </article>
+    </div>
+  );
+}
+
 function DetailBlock({ label, value }: { label: string; value: string }) {
   return (
     <li className="slds-page-header__detail-block">
@@ -559,24 +694,6 @@ function NoticeBanner({ notice }: { notice: Notice }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function TabButton({
-  active,
-  onClick,
-  children
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <li className={`slds-tabs_default__item ${active ? "slds-is-active" : ""}`} role="presentation">
-      <button className="slds-button_reset slds-tabs_default__link" type="button" role="tab" aria-selected={active} onClick={onClick}>
-        {children}
-      </button>
-    </li>
   );
 }
 
