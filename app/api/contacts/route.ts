@@ -1,29 +1,14 @@
 import {
-  ContactRecord,
-  SalesforceQueryResponse,
   jsonWithSession,
-  salesforceErrorResponse,
-  salesforceFetch
+  salesforceErrorResponse
 } from "@/lib/salesforce/client";
-import {
-  buildSalesforceQueryPath,
-  buildSalesforceRequestInit,
-  buildSalesforceSObjectCollectionPath
-} from "@/lib/salesforce/client-core";
 import { readContactCreatePayload } from "@/lib/salesforce/request-payloads";
+import { createContact, listContacts } from "@/services/salesforce/records";
 
 export async function GET() {
   try {
-    const query = [
-      "SELECT Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate",
-      "FROM Contact",
-      "ORDER BY LastModifiedDate DESC",
-      "LIMIT 100"
-    ].join(" ");
-    const { data, session } = await salesforceFetch<SalesforceQueryResponse<ContactRecord>>(
-      buildSalesforceQueryPath(query)
-    );
-    return jsonWithSession({ contacts: data.records }, session);
+    const { data, session } = await listContacts();
+    return jsonWithSession(data, session);
   } catch (error) {
     return salesforceErrorResponse(error);
   }
@@ -32,10 +17,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const input = await readContactCreatePayload(request);
-    const { data, session } = await salesforceFetch<{ id: string; success: boolean }>(
-      buildSalesforceSObjectCollectionPath("Contact"),
-      buildSalesforceRequestInit("POST", input)
-    );
+    const { data, session } = await createContact(input);
     return jsonWithSession(data, session, 201);
   } catch (error) {
     return salesforceErrorResponse(error);

@@ -115,7 +115,7 @@ export async function revokeSalesforceSession(session: SalesforceSession): Promi
     }
 }
 
-async function refreshAccessToken(session: SalesforceSession): Promise<SalesforceSession> {
+export async function refreshAccessToken(session: SalesforceSession): Promise<SalesforceSession> {
     if (!session.refreshToken) {
         throw new SalesforceApiError("Salesforce session expired. Please connect again.", 401);
     }

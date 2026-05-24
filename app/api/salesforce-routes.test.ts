@@ -5,8 +5,7 @@ import * as contactRoute from "./contacts/route";
 import * as contactRecordRoute from "./contacts/[id]/route";
 import {
     jsonWithSession,
-    salesforceErrorResponse,
-    salesforceFetch
+    salesforceErrorResponse
 } from "@/lib/salesforce/client";
 import {
     readAccountCreatePayload,
@@ -14,6 +13,16 @@ import {
     readContactCreatePayload,
     readContactUpdatePayload
 } from "@/lib/salesforce/request-payloads";
+import {
+    createAccount,
+    createContact,
+    deleteAccount,
+    deleteContact,
+    listAccounts,
+    listContacts,
+    updateAccount,
+    updateContact
+} from "@/services/salesforce/records";
 import { dummySalesforceSession, expectJson, jsonRequest } from "./test-helpers";
 
 vi.mock("@/lib/salesforce/client", () => ({
@@ -25,8 +34,7 @@ vi.mock("@/lib/salesforce/client", () => ({
             { error: error instanceof Error ? error.message : "Unexpected server error." },
             { status: 500 }
         )
-    ),
-    salesforceFetch: vi.fn()
+    )
 }));
 
 vi.mock("@/lib/salesforce/request-payloads", () => ({
@@ -36,13 +44,31 @@ vi.mock("@/lib/salesforce/request-payloads", () => ({
     readContactUpdatePayload: vi.fn()
 }));
 
-const salesforceFetchMock = vi.mocked(salesforceFetch);
+vi.mock("@/services/salesforce/records", () => ({
+    createAccount: vi.fn(),
+    createContact: vi.fn(),
+    deleteAccount: vi.fn(),
+    deleteContact: vi.fn(),
+    listAccounts: vi.fn(),
+    listContacts: vi.fn(),
+    updateAccount: vi.fn(),
+    updateContact: vi.fn()
+}));
+
 const jsonWithSessionMock = vi.mocked(jsonWithSession);
 const salesforceErrorResponseMock = vi.mocked(salesforceErrorResponse);
 const readAccountCreatePayloadMock = vi.mocked(readAccountCreatePayload);
 const readAccountUpdatePayloadMock = vi.mocked(readAccountUpdatePayload);
 const readContactCreatePayloadMock = vi.mocked(readContactCreatePayload);
 const readContactUpdatePayloadMock = vi.mocked(readContactUpdatePayload);
+const createAccountMock = vi.mocked(createAccount);
+const createContactMock = vi.mocked(createContact);
+const deleteAccountMock = vi.mocked(deleteAccount);
+const deleteContactMock = vi.mocked(deleteContact);
+const listAccountsMock = vi.mocked(listAccounts);
+const listContactsMock = vi.mocked(listContacts);
+const updateAccountMock = vi.mocked(updateAccount);
+const updateContactMock = vi.mocked(updateContact);
 
 const session = dummySalesforceSession;
 
@@ -51,22 +77,13 @@ afterEach(() => {
 });
 
 describe("Account API route", () => {
-    it("fetches accounts with the expected SOQL query and response shape", async () => {
+    it("fetches accounts through the Salesforce service", async () => {
         const records = [{ Id: "001xx000003DGbY", Name: "Acme" }];
-        salesforceFetchMock.mockResolvedValue({ data: { records }, session });
+        listAccountsMock.mockResolvedValue({ data: { accounts: records }, session });
 
         const response = await accountRoute.GET();
 
-        expect(salesforceFetchMock).toHaveBeenCalledWith(
-            `/query?q=${encodeURIComponent(
-                [
-                    "SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate",
-                    "FROM Account",
-                    "ORDER BY LastModifiedDate DESC",
-                    "LIMIT 100"
-                ].join(" ")
-            )}`
-        );
+        expect(listAccountsMock).toHaveBeenCalledWith();
         expect(jsonWithSessionMock).toHaveBeenCalledWith({ accounts: records }, session);
         await expectJson(response, { accounts: records });
     });
@@ -76,15 +93,12 @@ describe("Account API route", () => {
         const payload = { Name: "Acme" };
         const data = { id: "001xx000003DGbY", success: true };
         readAccountCreatePayloadMock.mockResolvedValue(payload);
-        salesforceFetchMock.mockResolvedValue({ data, session });
+        createAccountMock.mockResolvedValue({ data, session });
 
         const response = await accountRoute.POST(request);
 
         expect(readAccountCreatePayloadMock).toHaveBeenCalledWith(request);
-        expect(salesforceFetchMock).toHaveBeenCalledWith("/sobjects/Account", {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
+        expect(createAccountMock).toHaveBeenCalledWith(payload);
         expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session, 201);
         expect(response.status).toBe(201);
         await expectJson(response, data);
@@ -95,17 +109,14 @@ describe("Account API route", () => {
         const payload = { Phone: "03-1234-5678" };
         const data = {};
         readAccountUpdatePayloadMock.mockResolvedValue(payload);
-        salesforceFetchMock.mockResolvedValue({ data, session });
+        updateAccountMock.mockResolvedValue({ data, session });
 
         const response = await accountRecordRoute.PATCH(request, {
             params: { id: "001xx000003DGbY" }
         });
 
         expect(readAccountUpdatePayloadMock).toHaveBeenCalledWith(request);
-        expect(salesforceFetchMock).toHaveBeenCalledWith("/sobjects/Account/001xx000003DGbY", {
-            method: "PATCH",
-            body: JSON.stringify(payload)
-        });
+        expect(updateAccountMock).toHaveBeenCalledWith("001xx000003DGbY", payload);
         await expectJson(response, data);
     });
 
@@ -114,36 +125,25 @@ describe("Account API route", () => {
             method: "DELETE"
         });
         const data = {};
-        salesforceFetchMock.mockResolvedValue({ data, session });
+        deleteAccountMock.mockResolvedValue({ data, session });
 
         const response = await accountRecordRoute.DELETE(request, {
             params: { id: "001xx000003DGbY" }
         });
 
-        expect(salesforceFetchMock).toHaveBeenCalledWith("/sobjects/Account/001xx000003DGbY", {
-            method: "DELETE"
-        });
+        expect(deleteAccountMock).toHaveBeenCalledWith("001xx000003DGbY");
         await expectJson(response, data);
     });
 });
 
 describe("Contact API route", () => {
-    it("fetches contacts with the expected SOQL query and response shape", async () => {
+    it("fetches contacts through the Salesforce service", async () => {
         const records = [{ Id: "003xx000004TmiQ", LastName: "Yamada" }];
-        salesforceFetchMock.mockResolvedValue({ data: { records }, session });
+        listContactsMock.mockResolvedValue({ data: { contacts: records }, session });
 
         const response = await contactRoute.GET();
 
-        expect(salesforceFetchMock).toHaveBeenCalledWith(
-            `/query?q=${encodeURIComponent(
-                [
-                    "SELECT Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate",
-                    "FROM Contact",
-                    "ORDER BY LastModifiedDate DESC",
-                    "LIMIT 100"
-                ].join(" ")
-            )}`
-        );
+        expect(listContactsMock).toHaveBeenCalledWith();
         expect(jsonWithSessionMock).toHaveBeenCalledWith({ contacts: records }, session);
         await expectJson(response, { contacts: records });
     });
@@ -153,15 +153,12 @@ describe("Contact API route", () => {
         const payload = { LastName: "Yamada" };
         const data = { id: "003xx000004TmiQ", success: true };
         readContactCreatePayloadMock.mockResolvedValue(payload);
-        salesforceFetchMock.mockResolvedValue({ data, session });
+        createContactMock.mockResolvedValue({ data, session });
 
         const response = await contactRoute.POST(request);
 
         expect(readContactCreatePayloadMock).toHaveBeenCalledWith(request);
-        expect(salesforceFetchMock).toHaveBeenCalledWith("/sobjects/Contact", {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
+        expect(createContactMock).toHaveBeenCalledWith(payload);
         expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session, 201);
         expect(response.status).toBe(201);
         await expectJson(response, data);
@@ -172,17 +169,14 @@ describe("Contact API route", () => {
         const payload = { Title: "Manager" };
         const data = {};
         readContactUpdatePayloadMock.mockResolvedValue(payload);
-        salesforceFetchMock.mockResolvedValue({ data, session });
+        updateContactMock.mockResolvedValue({ data, session });
 
         const response = await contactRecordRoute.PATCH(request, {
             params: { id: "003xx000004TmiQ" }
         });
 
         expect(readContactUpdatePayloadMock).toHaveBeenCalledWith(request);
-        expect(salesforceFetchMock).toHaveBeenCalledWith("/sobjects/Contact/003xx000004TmiQ", {
-            method: "PATCH",
-            body: JSON.stringify(payload)
-        });
+        expect(updateContactMock).toHaveBeenCalledWith("003xx000004TmiQ", payload);
         await expectJson(response, data);
     });
 
@@ -191,15 +185,13 @@ describe("Contact API route", () => {
             method: "DELETE"
         });
         const data = {};
-        salesforceFetchMock.mockResolvedValue({ data, session });
+        deleteContactMock.mockResolvedValue({ data, session });
 
         const response = await contactRecordRoute.DELETE(request, {
             params: { id: "003xx000004TmiQ" }
         });
 
-        expect(salesforceFetchMock).toHaveBeenCalledWith("/sobjects/Contact/003xx000004TmiQ", {
-            method: "DELETE"
-        });
+        expect(deleteContactMock).toHaveBeenCalledWith("003xx000004TmiQ");
         await expectJson(response, data);
     });
 });
@@ -207,7 +199,7 @@ describe("Contact API route", () => {
 describe("Salesforce API route error handling", () => {
     it("delegates account route errors to salesforceErrorResponse", async () => {
         const error = new Error("Salesforce failed");
-        salesforceFetchMock.mockRejectedValue(error);
+        listAccountsMock.mockRejectedValue(error);
 
         const response = await accountRoute.GET();
 
@@ -218,7 +210,7 @@ describe("Salesforce API route error handling", () => {
     it("delegates contact record route errors to salesforceErrorResponse", async () => {
         const error = new Error("Salesforce failed");
         readContactUpdatePayloadMock.mockResolvedValue({ Title: "Manager" });
-        salesforceFetchMock.mockRejectedValue(error);
+        updateContactMock.mockRejectedValue(error);
 
         const response = await contactRecordRoute.PATCH(jsonRequest({ Title: "Manager" }, "PATCH"), {
             params: { id: "003xx000004TmiQ" }
