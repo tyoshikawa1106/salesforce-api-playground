@@ -295,94 +295,29 @@ export default function Playground() {
   }
 
   return (
-    <div className="slds-brand-band slds-brand-band_large">
+    <div>
       {notice ? <NoticeBanner notice={notice} /> : null}
-      <header className="slds-p-around_medium">
-        <div className="slds-container_x-large slds-container_center">
-          <div className="slds-page-header">
-            <div className="slds-page-header__row">
-              <div className="slds-page-header__col-title">
-                <div className="slds-media slds-media_center">
-                  <div className="slds-media__figure">
-                    <span className="slds-avatar slds-avatar_medium slds-avatar_circle" aria-hidden="true">
-                      <span className="slds-avatar__initials slds-icon-standard-account">SF</span>
-                    </span>
-                  </div>
-                  <div className="slds-media__body">
-                    <p className="slds-text-title_caps">Salesforce REST API Playground</p>
-                    <h1 className="slds-page-header__title slds-truncate">salesforce-api-playground</h1>
-                    <p className="slds-text-body_small slds-m-top_xx-small">
-                      OAuth と REST API で Account / Contact を直接操作する学習アプリ
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="slds-page-header__col-actions">
-                {session.connected ? (
-                  <form action="/api/auth/logout" method="post">
-                    <button className="slds-button slds-button_neutral" type="submit">
-                      Disconnect
-                    </button>
-                  </form>
-                ) : (
-                  <a className="slds-button slds-button_brand" href="/api/auth/login">
-                    Connect Salesforce
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <GlobalHeader connected={session.connected} />
+      <AppNavigation activeTab={activeTab} onChange={setActiveTab} />
 
-      <main className="slds-container_x-large slds-container_center slds-p-horizontal_medium slds-p-bottom_x-large">
-        <section className="slds-card slds-m-bottom_medium" aria-live="polite">
-          <div className="slds-card__body slds-card__body_inner">
-            <div className="slds-grid slds-wrap slds-grid_vertical-align-center slds-grid_align-spread slds-gutters_small">
-              <div className="slds-col slds-size_1-of-1 slds-large-size_6-of-12">
-                <span className={`slds-badge ${session.connected ? "slds-theme_success" : ""}`}>
-                  {session.connected ? "Connected" : "Not connected"}
-                </span>
-                <p className="slds-text-heading_small slds-m-top_x-small">
-                  {session.connected ? "Salesforce connected" : "Connection required"}
-                </p>
-                <p className="slds-text-body_small slds-text-color_weak">
-                  {session.connected ? session.instanceUrl : "Salesforce OAuth connection is required."}
-                </p>
-              </div>
-              <div className="slds-col slds-size_1-of-1 slds-large-size_4-of-12">
-                <div className="slds-grid slds-gutters_x-small">
-                  <MetricBox label="Accounts" value={accounts.length} />
-                  <MetricBox label="Contacts" value={contacts.length} />
-                </div>
-              </div>
-              <div className="slds-col slds-size_1-of-1 slds-large-size_2-of-12 slds-text-align_right">
-                <button className="slds-button slds-button_neutral" type="button" onClick={loadAll} disabled={loading}>
-                  Refresh
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
+      <main className="slds-template_default">
         <section className="slds-card">
-          <div className="slds-tabs_default">
-            <ul className="slds-tabs_default__nav" role="tablist">
-              <TabButton active={activeTab === "accounts"} onClick={() => setActiveTab("accounts")}>
-                Accounts
-              </TabButton>
-              <TabButton active={activeTab === "contacts"} onClick={() => setActiveTab("contacts")}>
-                Contacts
-              </TabButton>
-            </ul>
-          </div>
+          <ObjectHomeHeader
+            activeTab={activeTab}
+            accountsCount={accounts.length}
+            contactsCount={contacts.length}
+            connected={session.connected}
+            instanceUrl={session.instanceUrl}
+            loading={loading}
+            onCreate={activeTab === "accounts" ? () => openAccountModal() : () => openContactModal()}
+            onRefresh={loadAll}
+          />
 
           {activeTab === "accounts" ? (
             <AccountPanel
               accounts={accounts}
               loading={loading}
               connected={session.connected}
-              onCreate={() => openAccountModal()}
               onEdit={openAccountModal}
               onDelete={(record) => setDeleteState({ type: "account", id: record.Id, label: record.Name })}
             />
@@ -391,7 +326,6 @@ export default function Playground() {
               contacts={contacts}
               loading={loading}
               connected={session.connected}
-              onCreate={() => openContactModal()}
               onEdit={openContactModal}
               onDelete={(record) =>
                 setDeleteState({ type: "contact", id: record.Id, label: `${record.FirstName ?? ""} ${record.LastName}`.trim() })
@@ -444,14 +378,174 @@ export default function Playground() {
   );
 }
 
-function MetricBox({ label, value }: { label: string; value: number }) {
+function GlobalHeader({ connected }: { connected: boolean }) {
   return (
-    <div className="slds-col slds-size_1-of-2">
-      <div className="slds-box slds-box_x-small slds-theme_shade">
-        <p className="slds-text-heading_medium">{value}</p>
-        <p className="slds-text-title">{label}</p>
+    <header className="slds-global-header slds-grid slds-grid_align-spread">
+        <div className="slds-global-header__item">
+          <div className="slds-global-header__logo">
+            <span className="slds-assistive-text">Salesforce</span>
+          </div>
+        </div>
+        <div className="slds-global-header__item slds-global-header__item_search slds-show_medium">
+          <div className="slds-form-element">
+            <label className="slds-assistive-text" htmlFor="global-search">
+              Search
+            </label>
+            <div className="slds-form-element__control">
+              <input id="global-search" className="slds-input" type="search" placeholder="Search Salesforce" />
+            </div>
+          </div>
+        </div>
+        <div className="slds-global-header__item">
+          {connected ? (
+            <form action="/api/auth/logout" method="post">
+              <button className="slds-button slds-button_neutral" type="submit">
+                Disconnect
+              </button>
+            </form>
+          ) : (
+            <a className="slds-button slds-button_brand" href="/api/auth/login">
+              Connect Salesforce
+            </a>
+          )}
+        </div>
+    </header>
+  );
+}
+
+function AppNavigation({
+  activeTab,
+  onChange
+}: {
+  activeTab: "accounts" | "contacts";
+  onChange: (tab: "accounts" | "contacts") => void;
+}) {
+  return (
+    <div className="slds-context-bar">
+      <div className="slds-context-bar__primary">
+        <div className="slds-context-bar__item slds-no-hover">
+          <span className="slds-context-bar__label-action">
+            <span className="slds-truncate" title="Salesforce API Playground">
+              Salesforce API Playground
+            </span>
+          </span>
+        </div>
+      </div>
+      <nav className="slds-context-bar__secondary" aria-label="Primary">
+        <ul className="slds-grid">
+          <NavigationItem active={activeTab === "accounts"} label="Accounts" onClick={() => onChange("accounts")} />
+          <NavigationItem active={activeTab === "contacts"} label="Contacts" onClick={() => onChange("contacts")} />
+        </ul>
+      </nav>
+    </div>
+  );
+}
+
+function NavigationItem({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
+  return (
+    <li className={`slds-context-bar__item ${active ? "slds-is-active" : ""}`}>
+      <button className="slds-button_reset slds-context-bar__label-action" type="button" onClick={onClick}>
+        <span className="slds-truncate" title={label}>
+          {label}
+        </span>
+      </button>
+    </li>
+  );
+}
+
+function ObjectHomeHeader({
+  activeTab,
+  accountsCount,
+  contactsCount,
+  connected,
+  instanceUrl,
+  loading,
+  onCreate,
+  onRefresh
+}: {
+  activeTab: "accounts" | "contacts";
+  accountsCount: number;
+  contactsCount: number;
+  connected: boolean;
+  instanceUrl?: string;
+  loading: boolean;
+  onCreate: () => void;
+  onRefresh: () => void;
+}) {
+  const objectLabel = activeTab === "accounts" ? "Accounts" : "Contacts";
+  const recordCount = activeTab === "accounts" ? accountsCount : contactsCount;
+  const iconClass = activeTab === "accounts" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
+
+  return (
+    <div className="slds-page-header slds-page-header_object-home slds-page-header_joined">
+      <div className="slds-page-header__row">
+        <div className="slds-page-header__col-title">
+          <div className="slds-media">
+            <div className="slds-media__figure">
+              <span className={`slds-icon_container slds-page-header__icon ${iconClass}`} aria-hidden="true">
+                <span className="slds-assistive-text">{objectLabel}</span>
+              </span>
+            </div>
+            <div className="slds-media__body">
+              <div className="slds-page-header__name">
+                <div className="slds-page-header__name-title">
+                  <p className="slds-text-title_caps">Object</p>
+                  <h1>
+                    <span className="slds-page-header__title slds-truncate" title={objectLabel}>
+                      {objectLabel}
+                    </span>
+                  </h1>
+                </div>
+              </div>
+              <p className="slds-page-header__name-meta">{recordCount} records from Salesforce</p>
+            </div>
+          </div>
+        </div>
+        <div className="slds-page-header__col-actions">
+          <div className="slds-page-header__controls">
+            <div className="slds-page-header__control">
+              <button className="slds-button slds-button_neutral" type="button" onClick={onRefresh} disabled={loading}>
+                Refresh
+              </button>
+            </div>
+            <div className="slds-page-header__control">
+              {connected ? (
+                <button className="slds-button slds-button_brand" type="button" onClick={onCreate}>
+                  New {activeTab === "accounts" ? "Account" : "Contact"}
+                </button>
+              ) : (
+                <a className="slds-button slds-button_brand" href="/api/auth/login">
+                  Connect Salesforce
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="slds-page-header__row slds-page-header__row_gutters">
+        <div className="slds-page-header__col-details">
+          <ul className="slds-page-header__detail-row">
+            <DetailBlock label="Connection" value={connected ? "Connected" : "Not connected"} />
+            <DetailBlock label="Accounts" value={String(accountsCount)} />
+            <DetailBlock label="Contacts" value={String(contactsCount)} />
+            <DetailBlock label="Instance" value={connected ? instanceUrl ?? "-" : "OAuth required"} />
+          </ul>
+        </div>
       </div>
     </div>
+  );
+}
+
+function DetailBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <li className="slds-page-header__detail-block">
+      <p className="slds-text-title slds-truncate" title={label}>
+        {label}
+      </p>
+      <p className="slds-truncate" title={value}>
+        {value}
+      </p>
+    </li>
   );
 }
 
@@ -490,33 +584,29 @@ function AccountPanel({
   accounts,
   loading,
   connected,
-  onCreate,
   onEdit,
   onDelete
 }: {
   accounts: Account[];
   loading: boolean;
   connected: boolean;
-  onCreate: () => void;
   onEdit: (record: Account) => void;
   onDelete: (record: Account) => void;
 }) {
   return (
     <div>
-      <div className="slds-card__header slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+      <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small slds-border_bottom">
         <div className="slds-media__body">
-          <h2 className="slds-text-heading_medium">Accounts</h2>
-          <p className="slds-text-body_small slds-text-color_weak">{accounts.length} records from Salesforce</p>
+          <h2 className="slds-text-heading_small">Recently Viewed</h2>
+          <p className="slds-text-body_small slds-text-color_weak">Sorted by last modified date</p>
         </div>
-        <button className="slds-button slds-button_brand" type="button" onClick={onCreate} disabled={!connected}>
-          New Account
-        </button>
+        <span className="slds-badge">{accounts.length} items</span>
       </div>
       {loading ? <EmptyState message="Loading Accounts..." /> : null}
       {!loading && accounts.length === 0 ? <EmptyState message={connected ? "No Accounts found." : "Connect Salesforce to load Accounts."} /> : null}
       {!loading && accounts.length > 0 ? (
         <div className="slds-scrollable_x">
-          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
+          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
             <thead>
               <tr>
                 <th>Name</th>
@@ -530,13 +620,17 @@ function AccountPanel({
             </thead>
             <tbody>
               {accounts.map((account) => (
-                <tr key={account.Id}>
-                  <th scope="row">{account.Name}</th>
-                  <td>{account.Phone || "-"}</td>
-                  <td>{account.Website || "-"}</td>
-                  <td>{account.Industry || "-"}</td>
-                  <td>{[account.BillingCity, account.BillingCountry].filter(Boolean).join(", ") || "-"}</td>
-                  <td>{formatDate(account.LastModifiedDate)}</td>
+                <tr className="slds-hint-parent" key={account.Id}>
+                  <th scope="row">
+                    <div className="slds-truncate" title={account.Name}>
+                      {account.Name}
+                    </div>
+                  </th>
+                  <TableCell value={account.Phone} />
+                  <TableCell value={account.Website} />
+                  <TableCell value={account.Industry} />
+                  <TableCell value={[account.BillingCity, account.BillingCountry].filter(Boolean).join(", ")} />
+                  <TableCell value={formatDate(account.LastModifiedDate)} />
                   <td>
                     <div className="slds-button-group" role="group">
                       <button className="slds-button slds-button_neutral" type="button" onClick={() => onEdit(account)}>
@@ -561,33 +655,29 @@ function ContactPanel({
   contacts,
   loading,
   connected,
-  onCreate,
   onEdit,
   onDelete
 }: {
   contacts: Contact[];
   loading: boolean;
   connected: boolean;
-  onCreate: () => void;
   onEdit: (record: Contact) => void;
   onDelete: (record: Contact) => void;
 }) {
   return (
     <div>
-      <div className="slds-card__header slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+      <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small slds-border_bottom">
         <div className="slds-media__body">
-          <h2 className="slds-text-heading_medium">Contacts</h2>
-          <p className="slds-text-body_small slds-text-color_weak">{contacts.length} records from Salesforce</p>
+          <h2 className="slds-text-heading_small">Recently Viewed</h2>
+          <p className="slds-text-body_small slds-text-color_weak">Sorted by last modified date</p>
         </div>
-        <button className="slds-button slds-button_brand" type="button" onClick={onCreate} disabled={!connected}>
-          New Contact
-        </button>
+        <span className="slds-badge">{contacts.length} items</span>
       </div>
       {loading ? <EmptyState message="Loading Contacts..." /> : null}
       {!loading && contacts.length === 0 ? <EmptyState message={connected ? "No Contacts found." : "Connect Salesforce to load Contacts."} /> : null}
       {!loading && contacts.length > 0 ? (
         <div className="slds-scrollable_x">
-          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
+          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
             <thead>
               <tr>
                 <th>Name</th>
@@ -601,13 +691,17 @@ function ContactPanel({
             </thead>
             <tbody>
               {contacts.map((contact) => (
-                <tr key={contact.Id}>
-                  <th scope="row">{`${contact.FirstName ?? ""} ${contact.LastName}`.trim()}</th>
-                  <td>{contact.Account?.Name || "-"}</td>
-                  <td>{contact.Email || "-"}</td>
-                  <td>{contact.Phone || "-"}</td>
-                  <td>{contact.Title || "-"}</td>
-                  <td>{formatDate(contact.LastModifiedDate)}</td>
+                <tr className="slds-hint-parent" key={contact.Id}>
+                  <th scope="row">
+                    <div className="slds-truncate" title={`${contact.FirstName ?? ""} ${contact.LastName}`.trim()}>
+                      {`${contact.FirstName ?? ""} ${contact.LastName}`.trim()}
+                    </div>
+                  </th>
+                  <TableCell value={contact.Account?.Name} />
+                  <TableCell value={contact.Email} />
+                  <TableCell value={contact.Phone} />
+                  <TableCell value={contact.Title} />
+                  <TableCell value={formatDate(contact.LastModifiedDate)} />
                   <td>
                     <div className="slds-button-group" role="group">
                       <button className="slds-button slds-button_neutral" type="button" onClick={() => onEdit(contact)}>
@@ -625,6 +719,17 @@ function ContactPanel({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function TableCell({ value }: { value?: string }) {
+  const displayValue = value || "-";
+  return (
+    <td>
+      <div className="slds-truncate" title={displayValue}>
+        {displayValue}
+      </div>
+    </td>
   );
 }
 
