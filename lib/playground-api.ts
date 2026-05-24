@@ -1,17 +1,17 @@
 import type {
-  AccountForm,
-  AccountInput,
-  AccountUpdateInput,
-  ContactForm,
-  ContactInput,
-  ContactUpdateInput
+    AccountForm,
+    AccountInput,
+    AccountUpdateInput,
+    ContactForm,
+    ContactInput,
+    ContactUpdateInput
 } from "./salesforce/records";
 
 export type SessionInfo = {
-  connected: boolean;
-  instanceUrl?: string;
-  issuedAt?: number;
-  userId?: string;
+    connected: boolean;
+    instanceUrl?: string;
+    issuedAt?: number;
+    userId?: string;
 };
 
 export type PlaygroundApiResource = "accounts" | "contacts";
@@ -19,79 +19,79 @@ export type PlaygroundApiResource = "accounts" | "contacts";
 export type PlaygroundApiMethod = "POST" | "PATCH" | "DELETE";
 
 export type PlaygroundApiRequest = {
-  url: string;
-  init: RequestInit;
+    url: string;
+    init: RequestInit;
 };
 
 type PlaygroundApiRequestOptions = {
-  method?: PlaygroundApiMethod;
-  body?: unknown;
+    method?: PlaygroundApiMethod;
+    body?: unknown;
 };
 
 export type CreatePayload<T extends Record<string, string>> = Partial<{
-  [K in keyof T]: string | undefined;
+    [K in keyof T]: string | undefined;
 }>;
 
 export type UpdatePayload<T extends Record<string, string>> = Partial<{
-  [K in keyof T]: string | null;
+    [K in keyof T]: string | null;
 }>;
 
 export const playgroundApiPaths = {
-  session: "/api/session",
-  accounts: "/api/accounts",
-  contacts: "/api/contacts",
-  record(resource: PlaygroundApiResource, id: string): string {
-    return `/api/${resource}/${id}`;
-  }
+    session: "/api/session",
+    accounts: "/api/accounts",
+    contacts: "/api/contacts",
+    record(resource: PlaygroundApiResource, id: string): string {
+        return `/api/${resource}/${id}`;
+    }
 } as const;
 
 export function buildPlaygroundApiRequest(
-  url: string,
-  options: PlaygroundApiRequestOptions = {}
+    url: string,
+    options: PlaygroundApiRequestOptions = {}
 ): PlaygroundApiRequest {
-  return {
-    url,
-    init: {
-      headers: {
-        "content-type": "application/json"
-      },
-      ...(options.method ? { method: options.method } : {}),
-      ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) })
-    }
-  };
+    return {
+        url,
+        init: {
+            headers: {
+                "content-type": "application/json"
+            },
+            ...(options.method ? { method: options.method } : {}),
+            ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) })
+        }
+    };
 }
 
 export function compactPayload<T extends Record<string, string>>(
-  form: T
+    form: T
 ): CreatePayload<T>;
 export function compactPayload<T extends Record<string, string>>(
-  form: T,
-  options: { emptyAsNull: true }
+    form: T,
+    options: { emptyAsNull: true }
 ): UpdatePayload<T>;
 export function compactPayload<T extends Record<string, string>>(
-  form: T,
-  options: { emptyAsNull?: boolean } = {}
+    form: T,
+    options: { emptyAsNull?: boolean } = {}
 ): CreatePayload<T> | UpdatePayload<T> {
-  return Object.fromEntries(
-    Object.entries(form).map(([key, value]) => {
-      const trimmed = value.trim();
-      return [key, trimmed || (options.emptyAsNull ? null : undefined)];
-    })
-  ) as CreatePayload<T> | UpdatePayload<T>;
+    return Object.fromEntries(
+        Object.entries(form).map(([key, value]) => {
+            const trimmed = value.trim();
+            return [key, trimmed || (options.emptyAsNull ? null : undefined)];
+        })
+    ) as CreatePayload<T> | UpdatePayload<T>;
 }
 
 export function buildAccountCreatePayload(form: AccountForm): AccountInput {
-  return compactPayload(form) as AccountInput;
+    return compactPayload(form) as AccountInput;
 }
 
 export function buildAccountUpdatePayload(form: AccountForm): AccountUpdateInput {
-  return compactPayload(form, { emptyAsNull: true });
+    return compactPayload(form, { emptyAsNull: true });
 }
 
 export function buildContactCreatePayload(form: ContactForm): ContactInput {
-  return compactPayload(form) as ContactInput;
+    return compactPayload(form) as ContactInput;
 }
 
 export function buildContactUpdatePayload(form: ContactForm): ContactUpdateInput {
-  return compactPayload(form, { emptyAsNull: true });
+    return compactPayload(form, { emptyAsNull: true });
 }
