@@ -24,7 +24,7 @@ body {
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--app-ink);
-  font-family: var(--lwc-fontFamily, "Salesforce Sans", Arial, sans-serif);
+  font-family: var(--slds-g-font-family-base, var(--lwc-fontFamily, "Salesforce Sans", Arial, sans-serif));
 }
 
 button,

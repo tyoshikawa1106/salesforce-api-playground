@@ -11,6 +11,8 @@
     "build": "next build",
     "start": "next start -p ${PORT:-3000}",
     "lint": "next lint",
+    "slds:lint": "slds-linter lint . --config-eslint slds-linter.eslint.config.mjs",
+    "slds:lint:fix": "slds-linter lint . --fix --config-eslint slds-linter.eslint.config.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
@@ -22,6 +24,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@salesforce-ux/slds-linter": "^1.2.1",
     "@types/node": "^20.17.16",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
