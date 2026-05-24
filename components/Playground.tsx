@@ -295,66 +295,78 @@ export default function Playground() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="slds-brand-band slds-brand-band_large">
       {notice ? <NoticeBanner notice={notice} /> : null}
-      <header className="app-header">
-        <div className="app-header__inner">
-          <div className="slds-page-header app-page-header">
+      <header className="slds-p-around_medium">
+        <div className="slds-container_x-large slds-container_center">
+          <div className="slds-page-header">
             <div className="slds-page-header__row">
               <div className="slds-page-header__col-title">
                 <div className="slds-media slds-media_center">
                   <div className="slds-media__figure">
-                    <div className="brand-mark" aria-hidden="true">SF</div>
+                    <span className="slds-avatar slds-avatar_medium slds-avatar_circle" aria-hidden="true">
+                      <span className="slds-avatar__initials slds-icon-standard-account">SF</span>
+                    </span>
                   </div>
                   <div className="slds-media__body">
-                    <p className="slds-text-title_caps app-kicker">Salesforce REST API Playground</p>
-                    <h1 className="slds-page-header__title app-title">salesforce-api-playground</h1>
-                    <p className="app-subtitle">OAuth と REST API で Account / Contact を直接操作する学習アプリ</p>
+                    <p className="slds-text-title_caps">Salesforce REST API Playground</p>
+                    <h1 className="slds-page-header__title slds-truncate">salesforce-api-playground</h1>
+                    <p className="slds-text-body_small slds-m-top_xx-small">
+                      OAuth と REST API で Account / Contact を直接操作する学習アプリ
+                    </p>
                   </div>
                 </div>
               </div>
+              <div className="slds-page-header__col-actions">
+                {session.connected ? (
+                  <form action="/api/auth/logout" method="post">
+                    <button className="slds-button slds-button_neutral" type="submit">
+                      Disconnect
+                    </button>
+                  </form>
+                ) : (
+                  <a className="slds-button slds-button_brand" href="/api/auth/login">
+                    Connect Salesforce
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="toolbar">
-            {session.connected ? (
-              <form action="/api/auth/logout" method="post">
-                <button className="slds-button slds-button_neutral" type="submit">
-                  Disconnect
-                </button>
-              </form>
-            ) : (
-              <a className="slds-button slds-button_brand" href="/api/auth/login">
-                Connect Salesforce
-              </a>
-            )}
           </div>
         </div>
       </header>
 
-      <main className="app-main">
-        <section className="status-bar slds-card" aria-live="polite">
-          <div className="connection-summary">
-            <StatusIndicator connected={session.connected} />
-            <div>
-              <p className="slds-text-heading_small">{session.connected ? "Salesforce connected" : "Connection required"}</p>
-              <p className="slds-text-body_small muted">
-                {session.connected ? session.instanceUrl : "Salesforce OAuth connection is required."}
-              </p>
+      <main className="slds-container_x-large slds-container_center slds-p-horizontal_medium slds-p-bottom_x-large">
+        <section className="slds-card slds-m-bottom_medium" aria-live="polite">
+          <div className="slds-card__body slds-card__body_inner">
+            <div className="slds-grid slds-wrap slds-grid_vertical-align-center slds-grid_align-spread slds-gutters_small">
+              <div className="slds-col slds-size_1-of-1 slds-large-size_6-of-12">
+                <span className={`slds-badge ${session.connected ? "slds-theme_success" : ""}`}>
+                  {session.connected ? "Connected" : "Not connected"}
+                </span>
+                <p className="slds-text-heading_small slds-m-top_x-small">
+                  {session.connected ? "Salesforce connected" : "Connection required"}
+                </p>
+                <p className="slds-text-body_small slds-text-color_weak">
+                  {session.connected ? session.instanceUrl : "Salesforce OAuth connection is required."}
+                </p>
+              </div>
+              <div className="slds-col slds-size_1-of-1 slds-large-size_4-of-12">
+                <div className="slds-grid slds-gutters_x-small">
+                  <MetricBox label="Accounts" value={accounts.length} />
+                  <MetricBox label="Contacts" value={contacts.length} />
+                </div>
+              </div>
+              <div className="slds-col slds-size_1-of-1 slds-large-size_2-of-12 slds-text-align_right">
+                <button className="slds-button slds-button_neutral" type="button" onClick={loadAll} disabled={loading}>
+                  Refresh
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="metrics-strip" aria-label="Loaded record counts">
-            <MetricPill label="Accounts" value={accounts.length} />
-            <MetricPill label="Contacts" value={contacts.length} />
-          </div>
-          <div className="toolbar">
-            <button className="slds-button slds-button_neutral" type="button" onClick={loadAll} disabled={loading}>
-              Refresh
-            </button>
           </div>
         </section>
 
-        <section className="tabs-panel slds-card">
-          <div className="slds-tabs_default app-tabs">
+        <section className="slds-card">
+          <div className="slds-tabs_default">
             <ul className="slds-tabs_default__nav" role="tablist">
               <TabButton active={activeTab === "accounts"} onClick={() => setActiveTab("accounts")}>
                 Accounts
@@ -392,7 +404,7 @@ export default function Playground() {
       {modal?.type === "account" ? (
         <Modal title={modal.mode === "create" ? "New Account" : "Edit Account"} onClose={() => setModal(null)}>
           <form onSubmit={saveAccount}>
-            <div className="modal-body">
+            <div className="slds-modal__content slds-p-around_medium">
               <AccountFormFields value={accountForm} onChange={setAccountForm} />
             </div>
             <ModalFooter saving={saving} onCancel={() => setModal(null)} />
@@ -403,7 +415,7 @@ export default function Playground() {
       {modal?.type === "contact" ? (
         <Modal title={modal.mode === "create" ? "New Contact" : "Edit Contact"} onClose={() => setModal(null)}>
           <form onSubmit={saveContact}>
-            <div className="modal-body">
+            <div className="slds-modal__content slds-p-around_medium">
               <ContactFormFields value={contactForm} accounts={accountOptions} onChange={setContactForm} />
             </div>
             <ModalFooter saving={saving} onCancel={() => setModal(null)} />
@@ -413,12 +425,12 @@ export default function Playground() {
 
       {deleteState ? (
         <Modal title="Confirm Delete" onClose={() => setDeleteState(null)} narrow>
-          <div className="modal-body">
+          <div className="slds-modal__content slds-p-around_medium">
             <p>
               Delete <strong>{deleteState.label}</strong>? This directly removes the record from Salesforce.
             </p>
           </div>
-          <div className="modal-footer">
+          <div className="slds-modal__footer">
             <button className="slds-button slds-button_neutral" type="button" onClick={() => setDeleteState(null)}>
               Cancel
             </button>
@@ -432,19 +444,13 @@ export default function Playground() {
   );
 }
 
-function StatusIndicator({ connected }: { connected: boolean }) {
+function MetricBox({ label, value }: { label: string; value: number }) {
   return (
-    <span className={`status-indicator ${connected ? "status-indicator_connected" : ""}`} aria-hidden="true">
-      <span />
-    </span>
-  );
-}
-
-function MetricPill({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="metric-pill">
-      <span className="metric-pill__value">{value}</span>
-      <span className="metric-pill__label">{label}</span>
+    <div className="slds-col slds-size_1-of-2">
+      <div className="slds-box slds-box_x-small slds-theme_shade">
+        <p className="slds-text-heading_medium">{value}</p>
+        <p className="slds-text-title">{label}</p>
+      </div>
     </div>
   );
 }
@@ -452,7 +458,7 @@ function MetricPill({ label, value }: { label: string; value: number }) {
 function NoticeBanner({ notice }: { notice: Notice }) {
   const theme = notice.tone === "success" ? "slds-theme_success" : notice.tone === "error" ? "slds-theme_error" : "slds-theme_info";
   return (
-    <div className="toast-stack">
+    <div className="slds-notify_container">
       <div className={`slds-notify slds-notify_toast ${theme}`} role="status">
         <div className="slds-notify__content">
           <h2 className="slds-text-heading_small">{notice.message}</h2>
@@ -473,7 +479,7 @@ function TabButton({
 }) {
   return (
     <li className={`slds-tabs_default__item ${active ? "slds-is-active" : ""}`} role="presentation">
-      <button className="slds-tabs_default__link" type="button" role="tab" aria-selected={active} onClick={onClick}>
+      <button className="slds-button_reset slds-tabs_default__link" type="button" role="tab" aria-selected={active} onClick={onClick}>
         {children}
       </button>
     </li>
@@ -497,10 +503,10 @@ function AccountPanel({
 }) {
   return (
     <div>
-      <div className="section-header">
-        <div>
+      <div className="slds-card__header slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+        <div className="slds-media__body">
           <h2 className="slds-text-heading_medium">Accounts</h2>
-          <p className="muted">{accounts.length} records from Salesforce</p>
+          <p className="slds-text-body_small slds-text-color_weak">{accounts.length} records from Salesforce</p>
         </div>
         <button className="slds-button slds-button_brand" type="button" onClick={onCreate} disabled={!connected}>
           New Account
@@ -509,8 +515,8 @@ function AccountPanel({
       {loading ? <EmptyState message="Loading Accounts..." /> : null}
       {!loading && accounts.length === 0 ? <EmptyState message={connected ? "No Accounts found." : "Connect Salesforce to load Accounts."} /> : null}
       {!loading && accounts.length > 0 ? (
-        <div className="table-wrap">
-          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout data-table">
+        <div className="slds-scrollable_x">
+          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
             <thead>
               <tr>
                 <th>Name</th>
@@ -532,7 +538,7 @@ function AccountPanel({
                   <td>{[account.BillingCity, account.BillingCountry].filter(Boolean).join(", ") || "-"}</td>
                   <td>{formatDate(account.LastModifiedDate)}</td>
                   <td>
-                    <div className="record-actions">
+                    <div className="slds-button-group" role="group">
                       <button className="slds-button slds-button_neutral" type="button" onClick={() => onEdit(account)}>
                         Edit
                       </button>
@@ -568,10 +574,10 @@ function ContactPanel({
 }) {
   return (
     <div>
-      <div className="section-header">
-        <div>
+      <div className="slds-card__header slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+        <div className="slds-media__body">
           <h2 className="slds-text-heading_medium">Contacts</h2>
-          <p className="muted">{contacts.length} records from Salesforce</p>
+          <p className="slds-text-body_small slds-text-color_weak">{contacts.length} records from Salesforce</p>
         </div>
         <button className="slds-button slds-button_brand" type="button" onClick={onCreate} disabled={!connected}>
           New Contact
@@ -580,8 +586,8 @@ function ContactPanel({
       {loading ? <EmptyState message="Loading Contacts..." /> : null}
       {!loading && contacts.length === 0 ? <EmptyState message={connected ? "No Contacts found." : "Connect Salesforce to load Contacts."} /> : null}
       {!loading && contacts.length > 0 ? (
-        <div className="table-wrap">
-          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout data-table">
+        <div className="slds-scrollable_x">
+          <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
             <thead>
               <tr>
                 <th>Name</th>
@@ -603,7 +609,7 @@ function ContactPanel({
                   <td>{contact.Title || "-"}</td>
                   <td>{formatDate(contact.LastModifiedDate)}</td>
                   <td>
-                    <div className="record-actions">
+                    <div className="slds-button-group" role="group">
                       <button className="slds-button slds-button_neutral" type="button" onClick={() => onEdit(contact)}>
                         Edit
                       </button>
@@ -624,8 +630,10 @@ function ContactPanel({
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="empty-state">
-      <div className="empty-state__mark" aria-hidden="true">i</div>
+    <div className="slds-text-align_center slds-p-around_xx-large">
+      <span className="slds-icon_container slds-icon-utility-info slds-m-bottom_small" aria-hidden="true">
+        <span className="slds-assistive-text">Info</span>
+      </span>
       <p>{message}</p>
     </div>
   );
@@ -643,23 +651,26 @@ function Modal({
   children: React.ReactNode;
 }) {
   return (
-    <div className="modal-backdrop" role="presentation">
-      <section className="slds-modal slds-fade-in-open modal-panel" role="dialog" aria-modal="true" aria-label={title} style={narrow ? { maxWidth: 480 } : undefined}>
-        <header className="slds-modal__header">
-          <button className="slds-button slds-button_icon slds-modal__close" type="button" onClick={onClose} aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-          <h2 className="slds-modal__title slds-hyphenate">{title}</h2>
-        </header>
-        {children}
+    <>
+      <section className={`slds-modal slds-fade-in-open ${narrow ? "slds-modal_small" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
+        <div className="slds-modal__container">
+          <header className="slds-modal__header">
+            <button className="slds-button slds-button_icon slds-modal__close" type="button" onClick={onClose} aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+            <h2 className="slds-modal__title slds-hyphenate">{title}</h2>
+          </header>
+          {children}
+        </div>
       </section>
-    </div>
+      <div className="slds-backdrop slds-backdrop_open" />
+    </>
   );
 }
 
 function ModalFooter({ saving, onCancel }: { saving: boolean; onCancel: () => void }) {
   return (
-    <div className="modal-footer">
+    <div className="slds-modal__footer">
       <button className="slds-button slds-button_neutral" type="button" onClick={onCancel}>
         Cancel
       </button>
@@ -678,7 +689,7 @@ function AccountFormFields({
   onChange: (value: AccountForm) => void;
 }) {
   return (
-    <div className="form-grid">
+    <div className="slds-grid slds-wrap slds-gutters">
       <TextField label="Account Name" required value={value.Name} onChange={(Name) => onChange({ ...value, Name })} />
       <TextField label="Phone" value={value.Phone} onChange={(Phone) => onChange({ ...value, Phone })} />
       <TextField label="Website" value={value.Website} onChange={(Website) => onChange({ ...value, Website })} />
@@ -700,13 +711,13 @@ function ContactFormFields({
   onChange: (value: ContactForm) => void;
 }) {
   return (
-    <div className="form-grid">
+    <div className="slds-grid slds-wrap slds-gutters">
       <TextField label="First Name" value={value.FirstName} onChange={(FirstName) => onChange({ ...value, FirstName })} />
       <TextField label="Last Name" required value={value.LastName} onChange={(LastName) => onChange({ ...value, LastName })} />
       <TextField label="Email" type="email" value={value.Email} onChange={(Email) => onChange({ ...value, Email })} />
       <TextField label="Phone" value={value.Phone} onChange={(Phone) => onChange({ ...value, Phone })} />
       <TextField label="Title" value={value.Title} onChange={(Title) => onChange({ ...value, Title })} />
-      <div className="slds-form-element">
+      <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
         <label className="slds-form-element__label" htmlFor="contact-account">
           Account
         </label>
@@ -745,7 +756,7 @@ function TextField({
 }) {
   const id = label.toLowerCase().replaceAll(" ", "-");
   return (
-    <div className="slds-form-element">
+    <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
       <label className="slds-form-element__label" htmlFor={id}>
         {required ? <abbr className="slds-required" title="required">*</abbr> : null}
         {label}

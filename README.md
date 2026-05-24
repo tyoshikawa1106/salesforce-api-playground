@@ -128,11 +128,15 @@ npm run build
 npm run start
 ```
 
-## SLDS 2 開発
+## SLDS 開発
 
 SLDS の CSS と assets は `@salesforce-ux/design-system` を npm dependency として管理し、アプリでは `app/globals.css` から読み込みます。公式リソースを手作業でコピーして固定化しないでください。
 
-SLDS 2 に向けた互換性チェックと修正支援には `@salesforce-ux/slds-linter` を使います。
+このプロジェクトでは外部 Web アプリ向けに公開されている SLDS の CSS framework と blueprints を使い、SLDS 1 の見た目・構造に沿って開発します。Salesforce Cosmos Theme / SLDS 2 風に独自テーマで寄せることは目的に含めません。
+
+画面実装では `slds-button` / `slds-card` / `slds-grid` / `slds-form-element` / `slds-table` / `slds-modal` などの標準 SLDS クラスを優先します。SLDS クラスの直接上書きや `!important` は避け、画面専用の独自 CSS は最小限にしてください。
+
+SLDS の互換性チェックと修正支援には `@salesforce-ux/slds-linter` を使います。SLDS 2 / Cosmos 風の独自テーマ化は行わず、指摘内容はこのプロジェクトの SLDS 1 方針に合うものだけを採用します。
 
 ```bash
 npm run slds:lint
