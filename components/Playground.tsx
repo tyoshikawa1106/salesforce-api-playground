@@ -470,8 +470,14 @@ function AppNavigation({
     return (
         <div className="slds-context-bar heroku-context-bar">
             <div className="slds-context-bar__primary">
-                <div className="slds-context-bar__item slds-no-hover">
-                    <span className="slds-context-bar__label-action">
+                <div className="slds-context-bar__item slds-context-bar__dropdown-trigger slds-dropdown-trigger slds-dropdown-trigger_click slds-no-hover">
+                    <div className="slds-context-bar__icon-action">
+                        <button className="slds-button slds-icon-waffle_container slds-context-bar__button" type="button" title="Open App Launcher">
+                            <AppLauncherIcon />
+                            <span className="slds-assistive-text">Open App Launcher</span>
+                        </button>
+                    </div>
+                    <span className="slds-context-bar__label-action slds-context-bar__app-name">
                         <span className="slds-truncate" title="Heroku">
                             Heroku
                         </span>
@@ -486,6 +492,22 @@ function AppNavigation({
                 </ul>
             </nav>
         </div>
+    );
+}
+
+function AppLauncherIcon() {
+    return (
+        <span className="slds-icon-waffle" aria-hidden="true">
+            <span className="slds-r1" />
+            <span className="slds-r2" />
+            <span className="slds-r3" />
+            <span className="slds-r4" />
+            <span className="slds-r5" />
+            <span className="slds-r6" />
+            <span className="slds-r7" />
+            <span className="slds-r8" />
+            <span className="slds-r9" />
+        </span>
     );
 }
 
