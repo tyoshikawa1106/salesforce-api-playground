@@ -340,7 +340,7 @@ export default function Playground() {
             <AppNavigation activeTab={activeTab} connected={session.connected} onChange={setActiveTab} />
 
             <main className="slds-template_default">
-                <section className={activeTab === "home" ? "slds-card" : "playground-workspace"}>
+                <section className={activeTab === "home" ? "slds-card" : "slds-theme_shade slds-p-around_small playground-workspace"}>
                     {activeTab === "home" ? (
                         <HomePanel
                             accountsCount={accounts.length}
@@ -789,7 +789,7 @@ function ListViewToolbar({
     onRefresh: () => void;
 }) {
     return (
-        <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_medium slds-p-vertical_x-small slds-border_bottom playground-list-toolbar">
+        <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_medium slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
             <div className="slds-text-title_bold">
                 {count} {count === 1 ? "item" : "items"} - View: My {objectLabel}
             </div>
@@ -851,19 +851,19 @@ function AccountPanel({
     onRefresh: () => void;
 }) {
     return (
-        <div className="playground-list-view">
+        <div className="slds-theme_default">
             <ListViewToolbar count={accounts.length} loading={loading} objectLabel="Accounts" onRefresh={onRefresh} />
             {loading ? <EmptyState message="Loading Accounts..." /> : null}
             {!loading && accounts.length === 0 ? <EmptyState message={connected ? "No Accounts found." : "Connect Salesforce to load Accounts."} /> : null}
             {!loading && accounts.length > 0 ? (
                 <div className="slds-scrollable_x">
-                    <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols playground-data-table">
+                    <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
                         <thead>
                             <tr>
-                                <th className="playground-row-number" scope="col">
+                                <th className="slds-cell-shrink slds-text-align_center" scope="col">
                                     <span className="slds-assistive-text">Row number</span>
                                 </th>
-                                <th className="playground-checkbox-cell" scope="col">
+                                <th className="slds-cell-shrink slds-text-align_center" scope="col">
                                     <label className="slds-checkbox">
                                         <input type="checkbox" aria-label="Select all Accounts" />
                                         <span className="slds-checkbox_faux" />
@@ -881,8 +881,8 @@ function AccountPanel({
                         <tbody>
                             {accounts.map((account, index) => (
                                 <tr className="slds-hint-parent" key={account.Id}>
-                                    <td className="playground-row-number">{index + 1}</td>
-                                    <td className="playground-checkbox-cell">
+                                    <td className="slds-cell-shrink slds-text-align_center">{index + 1}</td>
+                                    <td className="slds-cell-shrink slds-text-align_center">
                                         <label className="slds-checkbox">
                                             <input type="checkbox" aria-label={`Select ${account.Name}`} />
                                             <span className="slds-checkbox_faux" />
@@ -938,19 +938,19 @@ function ContactPanel({
     onRefresh: () => void;
 }) {
     return (
-        <div className="playground-list-view">
+        <div className="slds-theme_default">
             <ListViewToolbar count={contacts.length} loading={loading} objectLabel="Contacts" onRefresh={onRefresh} />
             {loading ? <EmptyState message="Loading Contacts..." /> : null}
             {!loading && contacts.length === 0 ? <EmptyState message={connected ? "No Contacts found." : "Connect Salesforce to load Contacts."} /> : null}
             {!loading && contacts.length > 0 ? (
                 <div className="slds-scrollable_x">
-                    <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols playground-data-table">
+                    <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
                         <thead>
                             <tr>
-                                <th className="playground-row-number" scope="col">
+                                <th className="slds-cell-shrink slds-text-align_center" scope="col">
                                     <span className="slds-assistive-text">Row number</span>
                                 </th>
-                                <th className="playground-checkbox-cell" scope="col">
+                                <th className="slds-cell-shrink slds-text-align_center" scope="col">
                                     <label className="slds-checkbox">
                                         <input type="checkbox" aria-label="Select all Contacts" />
                                         <span className="slds-checkbox_faux" />
@@ -968,8 +968,8 @@ function ContactPanel({
                         <tbody>
                             {contacts.map((contact, index) => (
                                 <tr className="slds-hint-parent" key={contact.Id}>
-                                    <td className="playground-row-number">{index + 1}</td>
-                                    <td className="playground-checkbox-cell">
+                                    <td className="slds-cell-shrink slds-text-align_center">{index + 1}</td>
+                                    <td className="slds-cell-shrink slds-text-align_center">
                                         <label className="slds-checkbox">
                                             <input type="checkbox" aria-label={`Select ${getContactName(contact)}`} />
                                             <span className="slds-checkbox_faux" />
@@ -1025,7 +1025,7 @@ function AccountRecordPage({
     onRefresh: () => void;
 }) {
     return (
-        <div className="playground-record-page">
+        <div>
             <RecordPageHeader
                 tab="accounts"
                 objectLabel="Account"
@@ -1093,7 +1093,7 @@ function ContactRecordPage({
     onRefresh: () => void;
 }) {
     return (
-        <div className="playground-record-page">
+        <div>
             <RecordPageHeader
                 tab="contacts"
                 objectLabel="Contact"
@@ -1237,11 +1237,11 @@ function RecordMainTabs({
     const [activeRecordTab, setActiveRecordTab] = useState<"related" | "details">("related");
 
     return (
-        <div className="slds-tabs_default playground-record-tabs">
-            <ul className="slds-tabs_default__nav" role="tablist">
+        <div className="slds-tabs_default slds-tabs_card">
+            <ul className="slds-tabs_default__nav slds-p-left_medium" role="tablist">
                 <li className={`slds-tabs_default__item ${activeRecordTab === "related" ? "slds-is-active" : ""}`} role="presentation">
                     <button
-                        className="slds-tabs_default__link playground-tab-button"
+                        className="slds-tabs_default__link slds-button_reset"
                         type="button"
                         role="tab"
                         aria-selected={activeRecordTab === "related"}
@@ -1252,7 +1252,7 @@ function RecordMainTabs({
                 </li>
                 <li className={`slds-tabs_default__item ${activeRecordTab === "details" ? "slds-is-active" : ""}`} role="presentation">
                     <button
-                        className="slds-tabs_default__link playground-tab-button"
+                        className="slds-tabs_default__link slds-button_reset"
                         type="button"
                         role="tab"
                         aria-selected={activeRecordTab === "details"}
@@ -1262,7 +1262,7 @@ function RecordMainTabs({
                     </button>
                 </li>
             </ul>
-            <div className="slds-tabs_default__content slds-show" role="tabpanel">
+            <div className="slds-tabs_default__content slds-show slds-p-around_medium" role="tabpanel">
                 {activeRecordTab === "related" ? relatedContent : detailContent}
             </div>
         </div>
@@ -1376,7 +1376,7 @@ function RecordFieldGrid({ fields }: { fields: Array<[string, string | undefined
 
 function ActivityCard() {
     return (
-        <section className="slds-card slds-card_boundary playground-activity-card">
+        <section className="slds-card slds-card_boundary">
             <div className="slds-card__header slds-grid">
                 <header className="slds-media slds-media_center slds-has-flexi-truncate">
                     <div className="slds-media__body">
