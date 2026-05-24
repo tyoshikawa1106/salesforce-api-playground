@@ -25,8 +25,14 @@ body {
   border-bottom-color: var(--heroku-purple);
 }
 
-.heroku-context-bar__item_active:before {
+.heroku-context-bar__item_active.heroku-context-bar__item_active:before {
   background: var(--heroku-purple);
+}
+
+.heroku-context-bar__label-action_active,
+.heroku-context-bar__label-action_active:focus,
+.heroku-context-bar__label-action_active:hover {
+  color: var(--heroku-purple);
 }
 
 .heroku-app-icon {
