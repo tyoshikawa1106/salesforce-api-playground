@@ -570,15 +570,9 @@ function ObjectHomeHeader({
                             </button>
                         </div>
                         <div className="slds-page-header__control">
-                            {connected ? (
-                                <button className="slds-button slds-button_brand heroku-brand-action" type="button" onClick={onCreate}>
-                                    New {activeTab === "accounts" ? "Account" : "Contact"}
-                                </button>
-                            ) : (
-                                <a className="slds-button slds-button_brand heroku-brand-action" href="/api/auth/login">
-                                    Connect Salesforce
-                                </a>
-                            )}
+                            <button className="slds-button slds-button_brand heroku-brand-action" type="button" onClick={onCreate}>
+                                New {activeTab === "accounts" ? "Account" : "Contact"}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -642,19 +636,6 @@ function HomePanel({
                                 <button className="slds-button slds-button_neutral" type="button" onClick={onRefresh} disabled={loading}>
                                     Refresh
                                 </button>
-                            </div>
-                            <div className="slds-page-header__control">
-                                {connected ? (
-                                    <form action="/api/auth/logout" method="post">
-                                        <button className="slds-button slds-button_neutral" type="submit">
-                                            Disconnect
-                                        </button>
-                                    </form>
-                                ) : (
-                                    <a className="slds-button slds-button_brand heroku-brand-action" href="/api/auth/login">
-                                        Connect Salesforce
-                                    </a>
-                                )}
                             </div>
                         </div>
                     </div>
