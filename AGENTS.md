@@ -20,6 +20,9 @@
 
 - 秘密情報と実 URL はコミットしない。
 - 実 Salesforce 接続はしない。
+- Salesforce API 呼び出しは原則 `jsforce` を利用する。
+- Salesforce 認証と API 呼び出しは `jsforce.Connection` を利用して一元化する。
+- Salesforce API 呼び出しの実装は `services/salesforce` 配下に集約する。
 - 新しい依存は原則追加しない。必要な場合は理由を説明し、ユーザー承認後に追加する。
 - CSS / UI 実装は Lightning Design System 1 (SLDS1) のコンポーネントを優先する。
 - SLDS1 コンポーネントを使う場合は、まずローカルの `@salesforce-ux/design-system` の CSS / アセット / 利用可能な実装情報を確認する。
