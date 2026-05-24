@@ -50,3 +50,149 @@ body {
     --slds-c-button-brand-color-border: var(--heroku-purple);
     --slds-c-button-brand-color-border-hover: var(--heroku-purple-dark);
 }
+
+.playground-workspace {
+    background: #f3f3f3;
+    min-height: calc(100vh - 6.25rem);
+    padding: 0.75rem;
+}
+
+.playground-list-view {
+    background: #fff;
+}
+
+.playground-list-toolbar {
+    background: #fff;
+    min-height: 3.25rem;
+}
+
+.playground-list-search {
+    min-width: 17rem;
+}
+
+.playground-data-table th,
+.playground-data-table td {
+    height: 2.5rem;
+}
+
+.playground-row-number {
+    text-align: center;
+    width: 3rem;
+}
+
+.playground-checkbox-cell {
+    text-align: center;
+    width: 2.75rem;
+}
+
+.playground-record-page {
+    background: #f3f3f3;
+}
+
+.playground-record-header .slds-page-header__row {
+    gap: 0.75rem;
+}
+
+.playground-record-header .slds-page-header__col-title {
+    min-width: 18rem;
+}
+
+.playground-record-header .slds-page-header__controls {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 0.5rem;
+}
+
+.playground-record-header .slds-page-header__detail-row {
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+}
+
+.playground-record-header .slds-page-header__detail-block {
+    min-width: 10rem;
+}
+
+.playground-record-body {
+    row-gap: 1rem;
+}
+
+.playground-record-tabs {
+    background: #fff;
+    border: 1px solid #c9c9c9;
+    border-radius: 0.25rem;
+}
+
+.playground-record-tabs > .slds-tabs_default__nav {
+    padding-left: 1rem;
+}
+
+.playground-record-tabs > .slds-tabs_default__content {
+    padding: 0.75rem;
+}
+
+.playground-tab-button {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+}
+
+.playground-activity-card {
+    min-height: 22rem;
+}
+
+@media (max-width: 767px) {
+    .playground-workspace {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .playground-list-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .playground-list-search {
+        min-width: 100%;
+    }
+
+    .playground-record-header .slds-page-header__row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .playground-record-header .slds-page-header__col-title {
+        min-width: 0;
+    }
+
+    .playground-record-header .slds-page-header__col-actions {
+        width: 100%;
+    }
+
+    .playground-record-header .slds-page-header__controls {
+        justify-content: flex-start;
+    }
+
+    .playground-record-header .slds-page-header__control {
+        margin-bottom: 0;
+    }
+
+    .playground-record-header .slds-page-header__detail-block {
+        flex: 1 1 calc(50% - 0.75rem);
+        min-width: 8rem;
+    }
+}
+
+@media (max-width: 479px) {
+    .playground-record-header .slds-page-header__control {
+        flex: 1 1 calc(50% - 0.5rem);
+    }
+
+    .playground-record-header .slds-page-header__control .slds-button {
+        width: 100%;
+    }
+
+    .playground-record-header .slds-page-header__detail-block {
+        flex-basis: 100%;
+    }
+}
