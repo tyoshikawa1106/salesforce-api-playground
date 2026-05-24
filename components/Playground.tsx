@@ -477,7 +477,11 @@ function AppNavigation({
 function NavigationItem({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
   return (
     <li className={`slds-context-bar__item ${active ? "slds-is-active heroku-context-bar__item_active" : ""}`}>
-      <button className="slds-button_reset slds-context-bar__label-action" type="button" onClick={onClick}>
+      <button
+        className={`slds-button_reset slds-context-bar__label-action ${active ? "heroku-context-bar__label-action_active" : ""}`}
+        type="button"
+        onClick={onClick}
+      >
         <span className="slds-truncate" title={label}>
           {label}
         </span>
