@@ -1,6 +1,11 @@
 "use client";
 
+import Image, { type StaticImageData } from "next/image";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import accountIcon from "@salesforce-ux/design-system/assets/icons/standard/account.svg";
+import contactIcon from "@salesforce-ux/design-system/assets/icons/standard/contact.svg";
+import homeIcon from "@salesforce-ux/design-system/assets/icons/standard/home.svg";
+import salesforceLogo from "@salesforce-ux/design-system/assets/images/logo-noname.svg";
 import {
   buildAccountCreatePayload,
   buildAccountUpdatePayload,
@@ -39,6 +44,12 @@ type Notice = {
 };
 
 type ActiveTab = "home" | "accounts" | "contacts";
+
+const standardIcons: Record<ActiveTab, StaticImageData> = {
+  home: homeIcon,
+  accounts: accountIcon,
+  contacts: contactIcon
+};
 
 const blankAccount: AccountForm = {
   Name: "",
@@ -411,10 +422,14 @@ function GlobalHeader({ connected }: { connected: boolean }) {
   return (
     <header className="slds-global-header slds-grid slds-grid_align-spread">
         <div className="slds-global-header__item">
-          <span className="slds-avatar slds-avatar_medium heroku-brand-logo" aria-hidden="true">
-            <span className="slds-avatar__initials heroku-brand-logo__initials">H</span>
-          </span>
-          <span className="slds-assistive-text">Heroku</span>
+          <Image
+            className="salesforce-brand-logo"
+            src={salesforceLogo}
+            alt="Salesforce"
+            width={58}
+            height={40}
+            priority
+          />
         </div>
         <div className="slds-global-header__item slds-global-header__item_search slds-show_medium">
           <div className="slds-form-element">
@@ -490,6 +505,18 @@ function NavigationItem({ active, label, onClick }: { active: boolean; label: st
   );
 }
 
+function StandardPageHeaderIcon({ tab, label }: { tab: ActiveTab; label: string }) {
+  const iconClass =
+    tab === "home" ? "slds-icon-standard-home" : tab === "accounts" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
+
+  return (
+    <span className={`slds-icon_container slds-page-header__icon ${iconClass}`} title={label}>
+      <Image className="slds-icon slds-icon_small" src={standardIcons[tab]} alt="" width={24} height={24} aria-hidden="true" />
+      <span className="slds-assistive-text">{label}</span>
+    </span>
+  );
+}
+
 function ObjectHomeHeader({
   activeTab,
   accountsCount,
@@ -511,7 +538,6 @@ function ObjectHomeHeader({
 }) {
   const objectLabel = activeTab === "accounts" ? "Accounts" : "Contacts";
   const recordCount = activeTab === "accounts" ? accountsCount : contactsCount;
-  const iconClass = activeTab === "accounts" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
 
   return (
     <div className="slds-page-header slds-page-header_object-home slds-page-header_joined">
@@ -519,9 +545,7 @@ function ObjectHomeHeader({
         <div className="slds-page-header__col-title">
           <div className="slds-media">
             <div className="slds-media__figure">
-              <span className={`slds-icon_container slds-page-header__icon ${iconClass}`} aria-hidden="true">
-                <span className="slds-assistive-text">{objectLabel}</span>
-              </span>
+              <StandardPageHeaderIcon tab={activeTab} label={objectLabel} />
             </div>
             <div className="slds-media__body">
               <div className="slds-page-header__name">
@@ -595,9 +619,7 @@ function HomePanel({
           <div className="slds-page-header__col-title">
             <div className="slds-media">
               <div className="slds-media__figure">
-                <span className="slds-icon_container slds-page-header__icon slds-icon-standard-home heroku-app-icon" aria-hidden="true">
-                  <span className="slds-assistive-text">Home</span>
-                </span>
+                <StandardPageHeaderIcon tab="home" label="Home" />
               </div>
               <div className="slds-media__body">
                 <div className="slds-page-header__name">
