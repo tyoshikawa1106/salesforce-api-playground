@@ -1,41 +1,52 @@
 @import "@salesforce-ux/design-system/assets/styles/salesforce-lightning-design-system.min.css";
 
 :root {
-  color-scheme: light;
-  --heroku-purple: #5a1ba9;
-  --heroku-purple-dark: #300b60;
-  --heroku-purple-light: #d7bff2;
+    color-scheme: light;
+    --heroku-purple: #5a1ba9;
+    --heroku-purple-dark: #300b60;
+    --heroku-purple-light: #d7bff2;
 }
 
 body {
-  margin: 0;
-  min-height: 100vh;
+    margin: 0;
+    min-height: 100vh;
 }
 
 .salesforce-brand-logo {
-  display: block;
-  height: 2.5rem;
-  object-fit: contain;
-  width: 3.625rem;
+    display: block;
+    height: 2.5rem;
+    object-fit: contain;
+    width: 3.625rem;
+}
+
+.playground-page-header-icon {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.playground-page-header-icon__image {
+    display: block;
+    object-fit: contain;
 }
 
 .heroku-context-bar {
-  border-bottom-color: var(--heroku-purple);
+    border-bottom-color: var(--heroku-purple);
 }
 
 .heroku-context-bar__item_active.heroku-context-bar__item_active:before {
-  background: var(--heroku-purple);
+    background: var(--heroku-purple);
 }
 
 .heroku-context-bar__label-action_active,
 .heroku-context-bar__label-action_active:focus,
 .heroku-context-bar__label-action_active:hover {
-  color: var(--heroku-purple);
+    color: var(--heroku-purple);
 }
 
 .heroku-brand-action {
-  --slds-c-button-brand-color-background: var(--heroku-purple);
-  --slds-c-button-brand-color-background-hover: var(--heroku-purple-dark);
-  --slds-c-button-brand-color-border: var(--heroku-purple);
-  --slds-c-button-brand-color-border-hover: var(--heroku-purple-dark);
+    --slds-c-button-brand-color-background: var(--heroku-purple);
+    --slds-c-button-brand-color-background-hover: var(--heroku-purple-dark);
+    --slds-c-button-brand-color-border: var(--heroku-purple);
+    --slds-c-button-brand-color-border-hover: var(--heroku-purple-dark);
 }
