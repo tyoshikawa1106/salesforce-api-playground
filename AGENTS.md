@@ -22,6 +22,7 @@
 ## 実装方針
 
 - 秘密情報と実 URL はコミットしない。
+- 開発コードのインデントは半角スペース 4 つに統一する。
 - 実 Salesforce 接続はしない。
 - Salesforce API 呼び出しは原則 `jsforce` を利用する。
 - Salesforce 認証と API 呼び出しは `jsforce.Connection` を利用して一元化する。
