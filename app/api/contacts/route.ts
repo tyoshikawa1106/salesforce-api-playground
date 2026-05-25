@@ -1,25 +1,14 @@
-import {
-    jsonWithSession,
-    salesforceErrorResponse
-} from "@/lib/salesforce/client";
 import { readContactCreatePayload } from "@/lib/salesforce/request-payloads";
+import { handleSalesforceRoute } from "@/lib/salesforce/route-handler";
 import { createContact, listContacts } from "@/services/salesforce/records";
 
 export async function GET() {
-    try {
-        const { data, session } = await listContacts();
-        return jsonWithSession(data, session);
-    } catch (error) {
-        return salesforceErrorResponse(error);
-    }
+    return handleSalesforceRoute(() => listContacts());
 }
 
 export async function POST(request: Request) {
-    try {
+    return handleSalesforceRoute(async () => {
         const input = await readContactCreatePayload(request);
-        const { data, session } = await createContact(input);
-        return jsonWithSession(data, session, 201);
-    } catch (error) {
-        return salesforceErrorResponse(error);
-    }
+        return createContact(input);
+    }, 201);
 }
