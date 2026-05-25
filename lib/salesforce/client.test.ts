@@ -10,17 +10,26 @@ import {
     soql
 } from "./client";
 import { getSalesforceConfig } from "./config";
-import { getSession, setSessionCookie } from "./session";
+import {
+    clearSessionCookie,
+    clearStateCookie,
+    getSession,
+    setSessionCookie
+} from "./session";
 
 vi.mock("./config", () => ({
     getSalesforceConfig: vi.fn()
 }));
 
 vi.mock("./session", () => ({
+    clearSessionCookie: vi.fn(),
+    clearStateCookie: vi.fn(),
     getSession: vi.fn(),
     setSessionCookie: vi.fn()
 }));
 
+const clearSessionCookieMock = vi.mocked(clearSessionCookie);
+const clearStateCookieMock = vi.mocked(clearStateCookie);
 const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
 const getSessionMock = vi.mocked(getSession);
 const setSessionCookieMock = vi.mocked(setSessionCookie);
@@ -387,6 +396,21 @@ describe("salesforceErrorResponse", () => {
         expect(response.status).toBe(500);
         await expect(response.json()).resolves.toEqual({
             error: "Unexpected failure"
+        });
+    });
+
+    it("clears cookies and normalizes expired sessions to a reconnect response", async () => {
+        const details = [{ message: "expired access/refresh token", errorCode: "invalid_grant" }];
+        const response = salesforceErrorResponse(
+            new SalesforceApiError("Unable to refresh session due to: expired access/refresh token", 400, details)
+        );
+
+        expect(response.status).toBe(401);
+        expect(clearSessionCookieMock).toHaveBeenCalledWith(response);
+        expect(clearStateCookieMock).toHaveBeenCalledWith(response);
+        await expect(response.json()).resolves.toEqual({
+            error: "Salesforce session expired. Please connect again.",
+            details
         });
     });
 });

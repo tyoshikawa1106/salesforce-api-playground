@@ -287,16 +287,22 @@ describe("Logout API route", () => {
         expect(response.headers.get("location")).toBe("https://app.example.test/");
     });
 
-    it("delegates revoke errors to salesforceErrorResponse", async () => {
+    it("clears cookies and redirects home even when revoke fails", async () => {
         setDefaultMocks();
         getSessionMock.mockResolvedValue(dummySalesforceSession);
+        const consoleErrorMock = vi.spyOn(console, "error").mockImplementation(() => undefined);
         const error = new Error("Revoke failed");
         revokeSalesforceSessionMock.mockRejectedValue(error);
         const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });
 
         const response = await logoutRoute.POST(request);
 
-        expect(salesforceErrorResponseMock).toHaveBeenCalledWith(error);
-        await expectJson(response, { error: "Revoke failed" });
+        expect(consoleErrorMock).toHaveBeenCalledWith("Salesforce token revocation failed during logout.", error);
+        expect(salesforceErrorResponseMock).not.toHaveBeenCalled();
+        expect(clearSessionCookieMock).toHaveBeenCalledWith(response);
+        expect(clearStateCookieMock).toHaveBeenCalledWith(response);
+        expect(response.status).toBe(307);
+        expect(response.headers.get("location")).toBe("https://app.example.test/");
+        consoleErrorMock.mockRestore();
     });
 });

@@ -19,6 +19,8 @@ import type { TokenResponse } from "./client-core";
 import { getSalesforceConfig } from "./config";
 import {
     SalesforceSession,
+    clearSessionCookie,
+    clearStateCookie,
     getSession,
     setSessionCookie
 } from "./session";
@@ -157,8 +159,30 @@ export function jsonWithSession<T>(data: T, session: SalesforceSession, status =
     return response;
 }
 
+function isExpiredSessionError(error: SalesforceApiError): boolean {
+    const detailsText = error.details ? JSON.stringify(error.details) : "";
+    return (
+        error.status === 401 ||
+        /invalid_grant|expired access\/refresh token|session expired/i.test(error.message) ||
+        /invalid_grant|expired access\/refresh token|expired refresh token/i.test(detailsText)
+    );
+}
+
 export function salesforceErrorResponse(error: unknown): NextResponse {
     if (error instanceof SalesforceApiError) {
+        if (isExpiredSessionError(error)) {
+            const response = NextResponse.json(
+                {
+                    error: "Salesforce session expired. Please connect again.",
+                    details: error.details
+                },
+                { status: 401 }
+            );
+            clearSessionCookie(response);
+            clearStateCookie(response);
+            return response;
+        }
+
         return NextResponse.json(
             {
                 error: error.message,
