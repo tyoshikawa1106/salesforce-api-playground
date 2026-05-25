@@ -23,12 +23,24 @@ async function requireSalesforceSession(): Promise<SalesforceSession> {
 }
 
 function createConnection(session: SalesforceSession): Connection {
-    const { apiVersion, loginUrl } = getSalesforceConfig();
+    const {
+        apiVersion,
+        clientId,
+        clientSecret,
+        loginUrl,
+        redirectUri
+    } = getSalesforceConfig();
 
     return new Connection({
         accessToken: session.accessToken,
         instanceUrl: session.instanceUrl,
         loginUrl,
+        oauth2: {
+            clientId,
+            clientSecret,
+            loginUrl,
+            redirectUri
+        },
         refreshToken: session.refreshToken,
         version: apiVersion.replace(/^v/, "")
     });
