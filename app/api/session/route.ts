@@ -4,7 +4,7 @@ import { getSession } from "@/lib/salesforce/session";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const session = getSession();
+  const session = await getSession();
 
   return NextResponse.json({
     connected: Boolean(session),

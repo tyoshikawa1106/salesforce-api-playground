@@ -131,7 +131,7 @@ afterEach(() => {
 
 describe("Session API route", () => {
     it("returns disconnected when there is no session", async () => {
-        getSessionMock.mockReturnValue(null);
+        getSessionMock.mockResolvedValue(null);
 
         const response = await sessionRoute.GET();
 
@@ -139,7 +139,7 @@ describe("Session API route", () => {
     });
 
     it("returns connected session metadata without secrets", async () => {
-        getSessionMock.mockReturnValue(dummySalesforceSession);
+        getSessionMock.mockResolvedValue(dummySalesforceSession);
 
         const response = await sessionRoute.GET();
         const body = await response.json();
@@ -260,7 +260,7 @@ describe("Callback API route", () => {
 describe("Logout API route", () => {
     it("revokes the current session, clears cookies, and redirects home", async () => {
         setDefaultMocks();
-        getSessionMock.mockReturnValue(dummySalesforceSession);
+        getSessionMock.mockResolvedValue(dummySalesforceSession);
         const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });
 
         const response = await logoutRoute.POST(request);
@@ -276,7 +276,7 @@ describe("Logout API route", () => {
 
     it("still redirects and clears cookies when there is no session", async () => {
         setDefaultMocks();
-        getSessionMock.mockReturnValue(null);
+        getSessionMock.mockResolvedValue(null);
         const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });
 
         const response = await logoutRoute.POST(request);
@@ -289,7 +289,7 @@ describe("Logout API route", () => {
 
     it("delegates revoke errors to salesforceErrorResponse", async () => {
         setDefaultMocks();
-        getSessionMock.mockReturnValue(dummySalesforceSession);
+        getSessionMock.mockResolvedValue(dummySalesforceSession);
         const error = new Error("Revoke failed");
         revokeSalesforceSessionMock.mockRejectedValue(error);
         const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });

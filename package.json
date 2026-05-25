@@ -10,7 +10,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p ${PORT:-3000}",
-    "lint": "next lint",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "slds:lint": "slds-linter lint . --config-eslint slds-linter.eslint.config.mjs",
     "slds:lint:fix": "slds-linter lint . --fix --config-eslint slds-linter.eslint.config.mjs",
     "typecheck": "tsc --noEmit",
@@ -20,9 +20,12 @@
   "dependencies": {
     "@salesforce-ux/design-system": "^2.25.4",
     "jsforce": "^3.10.15",
-    "next": "^14.2.23",
+    "next": "^15.5.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
   },
   "devDependencies": {
     "@salesforce-ux/slds-linter": "^1.2.1",
@@ -31,7 +34,7 @@
     "@types/react-dom": "^18.3.5",
     "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.23",
+    "eslint-config-next": "^15.5.18",
     "typescript": "^5.7.3",
     "vitest": "^4.1.5"
   }

@@ -62,13 +62,13 @@ describe("session encryption", () => {
         expect(decryptSession("not-a-session")).toBeNull();
     });
 
-    it("returns null when the session cookie cannot be decrypted", () => {
+    it("returns null when the session cookie cannot be decrypted", async () => {
         setSessionSecret();
-        cookiesMock.mockReturnValue({
+        cookiesMock.mockResolvedValue({
             get: vi.fn((name: string) => (name === SESSION_COOKIE ? { value: "not-a-session" } : undefined))
-        } as unknown as ReturnType<typeof cookies>);
+        } as unknown as Awaited<ReturnType<typeof cookies>>);
 
-        expect(getSession()).toBeNull();
+        await expect(getSession()).resolves.toBeNull();
     });
 });
 

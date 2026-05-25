@@ -112,7 +112,7 @@ describe("Account API route", () => {
         updateAccountMock.mockResolvedValue({ data, session });
 
         const response = await accountRecordRoute.PATCH(request, {
-            params: { id: "001xx000003DGbY" }
+            params: Promise.resolve({ id: "001xx000003DGbY" })
         });
 
         expect(readAccountUpdatePayloadMock).toHaveBeenCalledWith(request);
@@ -128,7 +128,7 @@ describe("Account API route", () => {
         deleteAccountMock.mockResolvedValue({ data, session });
 
         const response = await accountRecordRoute.DELETE(request, {
-            params: { id: "001xx000003DGbY" }
+            params: Promise.resolve({ id: "001xx000003DGbY" })
         });
 
         expect(deleteAccountMock).toHaveBeenCalledWith("001xx000003DGbY");
@@ -172,7 +172,7 @@ describe("Contact API route", () => {
         updateContactMock.mockResolvedValue({ data, session });
 
         const response = await contactRecordRoute.PATCH(request, {
-            params: { id: "003xx000004TmiQ" }
+            params: Promise.resolve({ id: "003xx000004TmiQ" })
         });
 
         expect(readContactUpdatePayloadMock).toHaveBeenCalledWith(request);
@@ -188,7 +188,7 @@ describe("Contact API route", () => {
         deleteContactMock.mockResolvedValue({ data, session });
 
         const response = await contactRecordRoute.DELETE(request, {
-            params: { id: "003xx000004TmiQ" }
+            params: Promise.resolve({ id: "003xx000004TmiQ" })
         });
 
         expect(deleteContactMock).toHaveBeenCalledWith("003xx000004TmiQ");
@@ -213,7 +213,7 @@ describe("Salesforce API route error handling", () => {
         updateContactMock.mockRejectedValue(error);
 
         const response = await contactRecordRoute.PATCH(jsonRequest({ Title: "Manager" }, "PATCH"), {
-            params: { id: "003xx000004TmiQ" }
+            params: Promise.resolve({ id: "003xx000004TmiQ" })
         });
 
         expect(salesforceErrorResponseMock).toHaveBeenCalledWith(error);

@@ -13,8 +13,8 @@ export type SalesforceServiceResult<T> = {
     session: SalesforceSession;
 };
 
-function requireSalesforceSession(): SalesforceSession {
-    const session = getSession();
+async function requireSalesforceSession(): Promise<SalesforceSession> {
+    const session = await getSession();
     if (!session) {
         throw new SalesforceApiError("Not connected to Salesforce.", 401);
     }
@@ -74,7 +74,7 @@ function salesforceErrorFromUnknown(error: unknown): SalesforceApiError {
 async function withSalesforceConnection<T>(
     operation: (connection: Connection) => Promise<T>
 ): Promise<SalesforceServiceResult<T>> {
-    const session = requireSalesforceSession();
+    const session = await requireSalesforceSession();
 
     try {
         const data = await operation(createConnection(session));

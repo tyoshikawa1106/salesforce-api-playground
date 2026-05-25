@@ -48,8 +48,8 @@ export function decryptSession(value: string): SalesforceSession | null {
     }
 }
 
-export function getSession(): SalesforceSession | null {
-    const raw = cookies().get(SESSION_COOKIE)?.value;
+export async function getSession(): Promise<SalesforceSession | null> {
+    const raw = (await cookies()).get(SESSION_COOKIE)?.value;
     return raw ? decryptSession(raw) : null;
 }
 

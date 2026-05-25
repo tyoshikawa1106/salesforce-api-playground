@@ -184,7 +184,7 @@ describe("revokeSalesforceSession", () => {
 describe("salesforceFetch", () => {
     it("fetches with the current session and reads JSON data", async () => {
         getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockReturnValue(salesforceSession);
+        getSessionMock.mockResolvedValue(salesforceSession);
         const fetchMock = vi
             .fn<typeof fetch>()
             .mockResolvedValue(Response.json({ records: [{ Id: "001xx000003DGbY" }] }));
@@ -213,7 +213,7 @@ describe("salesforceFetch", () => {
 
     it("refreshes the access token and retries once when Salesforce returns 401", async () => {
         getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockReturnValue({
+        getSessionMock.mockResolvedValue({
             accessToken: "expired-token",
             refreshToken: "refresh-token",
             instanceUrl: "https://old.example.my.salesforce.com",
@@ -279,7 +279,7 @@ describe("salesforceFetch", () => {
     });
 
     it("fails before calling Salesforce when there is no session", async () => {
-        getSessionMock.mockReturnValue(null);
+        getSessionMock.mockResolvedValue(null);
         const fetchMock = vi.fn<typeof fetch>();
         vi.stubGlobal("fetch", fetchMock);
 
@@ -292,7 +292,7 @@ describe("salesforceFetch", () => {
 
     it("does not retry a 401 when the session has no refresh token", async () => {
         getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockReturnValue({
+        getSessionMock.mockResolvedValue({
             accessToken: "expired-token",
             instanceUrl: "https://example.my.salesforce.com",
             issuedAt: 100
@@ -311,7 +311,7 @@ describe("salesforceFetch", () => {
 
     it("returns the refresh failure when access token refresh is rejected", async () => {
         getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockReturnValue({
+        getSessionMock.mockResolvedValue({
             ...salesforceSession,
             accessToken: "expired-token"
         });
@@ -332,7 +332,7 @@ describe("salesforceFetch", () => {
 
     it("returns the retried Salesforce error after a successful refresh", async () => {
         getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockReturnValue({
+        getSessionMock.mockResolvedValue({
             ...salesforceSession,
             accessToken: "expired-token"
         });
