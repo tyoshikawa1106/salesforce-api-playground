@@ -51,6 +51,38 @@ body {
     --slds-c-button-brand-color-border-hover: var(--heroku-purple-dark);
 }
 
+.playground-login-page {
+    min-height: 100vh;
+}
+
+.playground-login-panel {
+    max-width: 26rem;
+    padding: 3rem 2.5rem;
+    width: 100%;
+}
+
+.playground-login-brand-row {
+    margin-bottom: 3rem;
+}
+
+.playground-login-icon {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.playground-login-title {
+    margin-top: 1.75rem;
+}
+
+.playground-login-description {
+    margin-top: 1rem;
+}
+
+.playground-login-action {
+    margin-top: 2.75rem;
+}
+
 .playground-workspace {
     min-height: calc(100vh - 6.25rem);
 }
