@@ -136,7 +136,7 @@ export async function salesforceFetch<T>(
     path: string,
     init: RequestInit = {}
 ): Promise<{ data: T; session: SalesforceSession }> {
-    const session = getSession();
+    const session = await getSession();
     if (!session) {
         throw new SalesforceApiError("Not connected to Salesforce.", 401);
     }

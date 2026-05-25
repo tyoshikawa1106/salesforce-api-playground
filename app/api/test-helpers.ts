@@ -44,8 +44,7 @@ export function mockOauthStateCookie(
     cookieName: string,
     value?: string
 ): void {
-    cookiesMock.mockReturnValue({
+    cookiesMock.mockResolvedValue({
         get: vi.fn((name: string) => (name === cookieName && value ? { value } : undefined))
-    } as unknown as ReturnType<typeof cookies>);
+    } as unknown as Awaited<ReturnType<typeof cookies>>);
 }
-

@@ -10,7 +10,7 @@ import { getRequestOrigin } from "@/lib/salesforce/urls";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const session = getSession();
+  const session = await getSession();
 
   if (session) {
     try {

@@ -76,7 +76,7 @@ afterEach(() => {
 
 describe("Salesforce record services", () => {
     it("creates a jsforce connection from the current session", async () => {
-        getSessionMock.mockReturnValue(session);
+        getSessionMock.mockResolvedValue(session);
         jsforceMocks.query.mockResolvedValue({ records: [{ Id: "001xx000003DGbY", Name: "Acme" }] });
 
         await expect(listAccounts()).resolves.toEqual({
@@ -94,7 +94,7 @@ describe("Salesforce record services", () => {
     });
 
     it("uses jsforce standard object create for accounts", async () => {
-        getSessionMock.mockReturnValue(session);
+        getSessionMock.mockResolvedValue(session);
         jsforceMocks.create.mockResolvedValue({ id: "001xx000003DGbY", success: true });
 
         await expect(createAccount({ Name: "Acme" })).resolves.toEqual({
@@ -106,7 +106,7 @@ describe("Salesforce record services", () => {
     });
 
     it("uses jsforce standard object update with the record id", async () => {
-        getSessionMock.mockReturnValue(session);
+        getSessionMock.mockResolvedValue(session);
         jsforceMocks.update.mockResolvedValue({ success: true });
 
         await expect(updateContact("003xx000004TmiQ", { Title: "Manager" })).resolves.toEqual({
@@ -121,7 +121,7 @@ describe("Salesforce record services", () => {
     });
 
     it("uses jsforce standard object destroy for deletes", async () => {
-        getSessionMock.mockReturnValue(session);
+        getSessionMock.mockResolvedValue(session);
         jsforceMocks.destroy.mockResolvedValue({ success: true });
 
         await expect(deleteAccount("001xx000003DGbY")).resolves.toEqual({
