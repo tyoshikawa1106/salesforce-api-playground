@@ -7,7 +7,7 @@ import { StandardPageHeaderIcon } from "./Navigation";
 
 function DetailBlock({ label, value }: { label: string; value: string }) {
     return (
-        <li className="slds-page-header__detail-block">
+        <li className="slds-page-header__detail-block playground-record-detail-block">
             <p className="slds-text-title slds-truncate" title={label}>
                 {label}
             </p>
@@ -179,8 +179,8 @@ function RecordPageHeader({
 }) {
     return (
         <div className="slds-page-header slds-page-header_record-home slds-page-header_joined playground-record-header">
-            <div className="slds-page-header__row">
-                <div className="slds-page-header__col-title">
+            <div className="slds-page-header__row playground-record-header-row">
+                <div className="slds-page-header__col-title playground-record-header-title">
                     <div className="slds-media">
                         <div className="slds-media__figure">
                             <StandardPageHeaderIcon tab={tab} label={objectLabel} />
@@ -199,39 +199,39 @@ function RecordPageHeader({
                         </div>
                     </div>
                 </div>
-                <div className="slds-page-header__col-actions">
-                    <div className="slds-page-header__controls">
-                        <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_neutral" type="button" onClick={onBack}>
+                <div className="slds-page-header__col-actions playground-record-header-actions">
+                    <div className="slds-page-header__controls playground-record-header-controls">
+                        <div className="slds-page-header__control playground-record-header-action">
+                            <button className="slds-button slds-button_neutral playground-record-header-button" type="button" onClick={onBack}>
                                 Back to List
                             </button>
                         </div>
-                        <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_neutral" type="button" onClick={onRefresh} disabled={loading}>
+                        <div className="slds-page-header__control playground-record-header-action">
+                            <button className="slds-button slds-button_neutral playground-record-header-button" type="button" onClick={onRefresh} disabled={loading}>
                                 Refresh
                             </button>
                         </div>
-                        <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_neutral" type="button" onClick={onEdit}>
+                        <div className="slds-page-header__control playground-record-header-action">
+                            <button className="slds-button slds-button_neutral playground-record-header-button" type="button" onClick={onEdit}>
                                 Edit
                             </button>
                         </div>
-                        <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_neutral" type="button">
+                        <div className="slds-page-header__control playground-record-header-action">
+                            <button className="slds-button slds-button_neutral playground-record-header-button" type="button">
                                 {primaryActionLabel}
                             </button>
                         </div>
-                        <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_destructive" type="button" onClick={onDelete}>
+                        <div className="slds-page-header__control playground-record-header-action">
+                            <button className="slds-button slds-button_destructive playground-record-header-button" type="button" onClick={onDelete}>
                                 Delete
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="slds-page-header__row slds-page-header__row_gutters">
+            <div className="slds-page-header__row slds-page-header__row_gutters playground-record-header-row">
                 <div className="slds-page-header__col-details">
-                    <ul className="slds-page-header__detail-row">{children}</ul>
+                    <ul className="slds-page-header__detail-row playground-record-detail-row">{children}</ul>
                 </div>
             </div>
         </div>

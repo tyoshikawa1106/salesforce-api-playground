@@ -144,26 +144,26 @@ body {
     min-width: 17rem;
 }
 
-.playground-record-header .slds-page-header__row {
+.playground-record-header-row {
     gap: 0.75rem;
 }
 
-.playground-record-header .slds-page-header__col-title {
+.playground-record-header-title {
     min-width: 18rem;
 }
 
-.playground-record-header .slds-page-header__controls {
+.playground-record-header-controls {
     flex-wrap: wrap;
     justify-content: flex-end;
     row-gap: 0.5rem;
 }
 
-.playground-record-header .slds-page-header__detail-row {
+.playground-record-detail-row {
     flex-wrap: wrap;
     row-gap: 0.75rem;
 }
 
-.playground-record-header .slds-page-header__detail-block {
+.playground-record-detail-block {
     min-width: 10rem;
 }
 
@@ -182,43 +182,43 @@ body {
         min-width: 100%;
     }
 
-    .playground-record-header .slds-page-header__row {
+    .playground-record-header-row {
         align-items: stretch;
         flex-direction: column;
     }
 
-    .playground-record-header .slds-page-header__col-title {
+    .playground-record-header-title {
         min-width: 0;
     }
 
-    .playground-record-header .slds-page-header__col-actions {
+    .playground-record-header-actions {
         width: 100%;
     }
 
-    .playground-record-header .slds-page-header__controls {
+    .playground-record-header-controls {
         justify-content: flex-start;
     }
 
-    .playground-record-header .slds-page-header__control {
+    .playground-record-header-action {
         margin-bottom: 0;
     }
 
-    .playground-record-header .slds-page-header__detail-block {
+    .playground-record-detail-block {
         flex: 1 1 calc(50% - 0.75rem);
         min-width: 8rem;
     }
 }
 
 @media (max-width: 479px) {
-    .playground-record-header .slds-page-header__control {
+    .playground-record-header-action {
         flex: 1 1 calc(50% - 0.5rem);
     }
 
-    .playground-record-header .slds-page-header__control .slds-button {
+    .playground-record-header-button {
         width: 100%;
     }
 
-    .playground-record-header .slds-page-header__detail-block {
+    .playground-record-detail-block {
         flex-basis: 100%;
     }
 }
