@@ -30,6 +30,9 @@ jobs:
       - name: Run lint
         run: npm run lint
 
+      - name: Run SLDS lint
+        run: npm run slds:lint
+
       - name: Run typecheck
         run: npm run typecheck
 
