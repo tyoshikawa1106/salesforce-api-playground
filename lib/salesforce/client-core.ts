@@ -47,8 +47,6 @@ export type SalesforceRequest = {
     init: RequestInit;
 };
 
-export type SalesforceApiMethod = "POST" | "PATCH" | "DELETE";
-
 function buildSalesforceTokenEndpointUrl(config: TokenEndpointConfig): string {
     return `${config.loginUrl}/services/oauth2/token`;
 }
@@ -165,63 +163,6 @@ export function buildTokenRequestInit(params: URLSearchParams): RequestInit {
     };
 }
 
-export function buildAuthenticatedSalesforceRequestInit(
-    session: Pick<SalesforceSession, "accessToken">,
-    init: RequestInit = {}
-): RequestInit {
-    return {
-        ...init,
-        headers: {
-            authorization: `Bearer ${session.accessToken}`,
-            "content-type": "application/json",
-            ...(init.headers ?? {})
-        },
-        cache: "no-store"
-    };
-}
-
-export function buildSalesforceQueryPath(query: string): string {
-    return `/query?q=${encodeURIComponent(query)}`;
-}
-
-export function buildSalesforceSObjectCollectionPath(objectName: string): string {
-    return `/sobjects/${objectName}`;
-}
-
-export function buildSalesforceSObjectRecordPath(objectName: string, id: string): string {
-    return `/sobjects/${objectName}/${encodeURIComponent(id)}`;
-}
-
-export function buildSalesforceRequestInit(
-    method: SalesforceApiMethod,
-    body?: unknown
-): RequestInit {
-    return {
-        method,
-        ...(body === undefined ? {} : { body: JSON.stringify(body) })
-    };
-}
-
-export function buildSalesforceApiUrl(
-    session: Pick<SalesforceSession, "instanceUrl">,
-    apiVersion: string,
-    path: string
-): string {
-    return `${session.instanceUrl}/services/data/${apiVersion}${path}`;
-}
-
-export function buildSalesforceApiRequest(
-    session: Pick<SalesforceSession, "accessToken" | "instanceUrl">,
-    apiVersion: string,
-    path: string,
-    init: RequestInit = {}
-): SalesforceRequest {
-    return {
-        url: buildSalesforceApiUrl(session, apiVersion, path),
-        init: buildAuthenticatedSalesforceRequestInit(session, init)
-    };
-}
-
 export function extractSalesforceErrorMessage(
     details: unknown,
     statusText: string
@@ -242,10 +183,6 @@ export async function readSalesforceErrorDetails(response: Response): Promise<un
     } catch {
         return await response.text();
     }
-}
-
-export async function readSalesforceResponseData<T>(response: Response): Promise<T> {
-    return response.status === 204 ? ({} as T) : ((await response.json()) as T);
 }
 
 export function tokenResponseToSession(
