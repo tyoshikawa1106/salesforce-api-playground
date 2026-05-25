@@ -5,8 +5,8 @@ import { salesforceLogo } from "./icons";
 export function LoginPage({ loading = false }: { loading?: boolean }) {
     return (
         <main className="slds-template_default slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-around_large slds-theme_shade playground-login-page">
-            <section className="slds-box slds-theme_default playground-login-panel" aria-labelledby="login-title">
-                <div className="slds-grid slds-grid_vertical-align-center slds-gutters_small playground-login-brand-row">
+            <section className="slds-box slds-theme_default slds-size_1-of-1 slds-medium-size_5-of-12 slds-large-size_1-of-3 slds-p-around_x-large playground-login-panel" aria-labelledby="login-title">
+                <div className="slds-grid slds-grid_vertical-align-center slds-gutters_small slds-m-bottom_x-large">
                     <div className="slds-col_bump-right">
                         <Image
                             className="salesforce-brand-logo"
@@ -32,15 +32,15 @@ export function LoginPage({ loading = false }: { loading?: boolean }) {
                         />
                         <span className="slds-assistive-text">Salesforce API Playground</span>
                     </span>
-                    <h1 id="login-title" className="slds-text-heading_large playground-login-title">
+                    <h1 id="login-title" className="slds-text-heading_large slds-m-top_x-large">
                         Salesforce API Playground
                     </h1>
-                    <p className="slds-text-body_regular slds-text-color_weak playground-login-description">
+                    <p className="slds-text-body_regular slds-text-color_weak slds-m-top_medium">
                         個人学習用アプリケーション
                     </p>
                 </div>
 
-                <div className="playground-login-action">
+                <div className="slds-m-top_x-large">
                     <a
                         className={`slds-button slds-button_brand slds-button_stretch heroku-brand-action ${loading ? "slds-disabled" : ""}`}
                         href={loading ? undefined : "/api/auth/login"}

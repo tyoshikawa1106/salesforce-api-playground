@@ -27,7 +27,7 @@ function ListViewToolbar({
                         <span className="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_left" aria-hidden="true" />
                         <input
                             id={`${objectLabel.toLowerCase()}-list-search`}
-                            className="slds-input playground-list-search"
+                            className="slds-input slds-max-medium-size_full playground-list-search"
                             type="search"
                             placeholder="Search this list..."
                         />
