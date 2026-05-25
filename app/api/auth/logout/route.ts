@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logServerError } from "@/lib/server-log";
 import { revokeSalesforceSession } from "@/lib/salesforce/client";
 import {
     clearSessionCookie,
@@ -10,7 +11,7 @@ import { getRequestOrigin } from "@/lib/salesforce/urls";
 export const dynamic = "force-dynamic";
 
 function handleRevokeError(error: unknown): void {
-    console.error("Salesforce token revocation failed during logout.", error);
+    logServerError("Salesforce token revocation failed during logout.", error);
 }
 
 export async function POST(request: NextRequest) {
