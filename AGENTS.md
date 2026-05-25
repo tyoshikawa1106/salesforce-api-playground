@@ -11,6 +11,9 @@
 - PR title に `codex` プレフィックスを付けない。
 - ブランチ名は `codex/...` にする。
 - コミットメッセージは日本語にする。
+- PR 作成・更新・状態確認など GitHub 上の操作は GitHub Connector を優先する。
+- CI / check の watch など GitHub Connector で不足する操作のみ `gh` を利用する。
+- commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - PR マージ前に GitHub Actions が pass していることを確認する。
 - 通常 merge commit でマージする。
 - PR マージ後は `main` に戻して GitHub と同期する。
