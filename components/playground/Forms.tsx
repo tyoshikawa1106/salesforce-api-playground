@@ -1,44 +1,64 @@
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
+import {
+    accountFieldNames,
+    contactFieldNames
+} from "@/lib/salesforce/record-fields";
+import type { AccountFieldName, ContactFieldName } from "@/lib/salesforce/record-fields";
 import type { Account } from "./types";
 
-type TextFieldDefinition<TForm extends Record<string, string>> = {
-    key: keyof TForm;
+type TextFieldDefinition<TFieldName extends string> = {
+    key: TFieldName;
     label: string;
     required?: boolean;
     type?: string;
 };
 
-const accountTextFields: Array<TextFieldDefinition<AccountForm>> = [
-    { key: "Name", label: "Account Name", required: true },
-    { key: "Phone", label: "Phone" },
-    { key: "Website", label: "Website" },
-    { key: "Industry", label: "Industry" },
-    { key: "Type", label: "Type" },
-    { key: "BillingCity", label: "Billing City" },
-    { key: "BillingCountry", label: "Billing Country" }
-];
+const accountFieldLabels: Record<AccountFieldName, string> = {
+    Name: "Account Name",
+    Phone: "Phone",
+    Website: "Website",
+    Industry: "Industry",
+    Type: "Type",
+    BillingCity: "Billing City",
+    BillingCountry: "Billing Country"
+};
 
-const contactTextFields: Array<TextFieldDefinition<Omit<ContactForm, "AccountId">>> = [
-    { key: "FirstName", label: "First Name" },
-    { key: "LastName", label: "Last Name", required: true },
-    { key: "Email", label: "Email", type: "email" },
-    { key: "Phone", label: "Phone" },
-    { key: "Title", label: "Title" }
-];
+const contactFieldLabels: Record<ContactFieldName, string> = {
+    FirstName: "First Name",
+    LastName: "Last Name",
+    Email: "Email",
+    Phone: "Phone",
+    Title: "Title",
+    AccountId: "Account"
+};
+
+const accountTextFields: Array<TextFieldDefinition<AccountFieldName>> = accountFieldNames.map((key) => ({
+    key,
+    label: accountFieldLabels[key],
+    required: key === "Name"
+}));
+
+const contactTextFields: Array<TextFieldDefinition<Exclude<ContactFieldName, "AccountId">>> = contactFieldNames
+    .filter((key) => key !== "AccountId")
+    .map((key) => ({
+        key,
+        label: contactFieldLabels[key],
+        required: key === "LastName",
+        type: key === "Email" ? "email" : undefined
+    }));
 
 function createBlankForm<TForm extends Record<string, string>>(
-    fields: Array<TextFieldDefinition<TForm>>
+    fields: readonly string[]
 ): TForm {
-    return Object.fromEntries(fields.map((field) => [field.key, ""])) as TForm;
+    return Object.fromEntries(fields.map((field) => [field, ""])) as TForm;
 }
 
 export const blankAccount: AccountForm = {
-    ...createBlankForm(accountTextFields)
+    ...createBlankForm(accountFieldNames)
 };
 
 export const blankContact: ContactForm = {
-    ...createBlankForm(contactTextFields),
-    AccountId: ""
+    ...createBlankForm(contactFieldNames)
 };
 
 export function AccountFormFields({

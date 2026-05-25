@@ -4,6 +4,10 @@ import type {
     ContactInput,
     ContactUpdateInput
 } from "./records";
+import {
+    accountFieldNames,
+    contactFieldNames
+} from "./record-fields";
 import { SalesforceApiError } from "./client";
 
 type JsonRequest = Pick<Request, "json">;
@@ -17,25 +21,6 @@ type SalesforcePayloadOptions = {
 
 type SalesforcePayloadValue = string | null;
 type SalesforcePayload = Record<string, SalesforcePayloadValue>;
-
-const accountFields = [
-    "Name",
-    "Phone",
-    "Website",
-    "Industry",
-    "Type",
-    "BillingCity",
-    "BillingCountry"
-] as const;
-
-const contactFields = [
-    "FirstName",
-    "LastName",
-    "Email",
-    "Phone",
-    "Title",
-    "AccountId"
-] as const;
 
 function isJsonObject(body: unknown): body is Record<string, unknown> {
     return typeof body === "object" && body !== null && !Array.isArray(body);
@@ -110,7 +95,7 @@ async function readSalesforcePayload<T>(
 export async function readAccountCreatePayload(request: JsonRequest): Promise<AccountInput> {
     return readSalesforcePayload<AccountInput>(request, {
         allowNull: false,
-        fields: accountFields,
+        fields: accountFieldNames,
         objectLabel: "Account",
         required: ["Name"]
     });
@@ -119,7 +104,7 @@ export async function readAccountCreatePayload(request: JsonRequest): Promise<Ac
 export async function readAccountUpdatePayload(request: JsonRequest): Promise<AccountUpdateInput> {
     return readSalesforcePayload<AccountUpdateInput>(request, {
         allowNull: true,
-        fields: accountFields,
+        fields: accountFieldNames,
         objectLabel: "Account",
         required: []
     });
@@ -128,7 +113,7 @@ export async function readAccountUpdatePayload(request: JsonRequest): Promise<Ac
 export async function readContactCreatePayload(request: JsonRequest): Promise<ContactInput> {
     return readSalesforcePayload<ContactInput>(request, {
         allowNull: false,
-        fields: contactFields,
+        fields: contactFieldNames,
         objectLabel: "Contact",
         required: ["LastName"]
     });
@@ -137,7 +122,7 @@ export async function readContactCreatePayload(request: JsonRequest): Promise<Co
 export async function readContactUpdatePayload(request: JsonRequest): Promise<ContactUpdateInput> {
     return readSalesforcePayload<ContactUpdateInput>(request, {
         allowNull: true,
-        fields: contactFields,
+        fields: contactFieldNames,
         objectLabel: "Contact",
         required: []
     });
