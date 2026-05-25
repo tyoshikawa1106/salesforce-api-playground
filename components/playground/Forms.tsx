@@ -1,22 +1,43 @@
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { Account } from "./types";
 
+type TextFieldDefinition<TForm extends Record<string, string>> = {
+    key: keyof TForm;
+    label: string;
+    required?: boolean;
+    type?: string;
+};
+
+const accountTextFields: Array<TextFieldDefinition<AccountForm>> = [
+    { key: "Name", label: "Account Name", required: true },
+    { key: "Phone", label: "Phone" },
+    { key: "Website", label: "Website" },
+    { key: "Industry", label: "Industry" },
+    { key: "Type", label: "Type" },
+    { key: "BillingCity", label: "Billing City" },
+    { key: "BillingCountry", label: "Billing Country" }
+];
+
+const contactTextFields: Array<TextFieldDefinition<Omit<ContactForm, "AccountId">>> = [
+    { key: "FirstName", label: "First Name" },
+    { key: "LastName", label: "Last Name", required: true },
+    { key: "Email", label: "Email", type: "email" },
+    { key: "Phone", label: "Phone" },
+    { key: "Title", label: "Title" }
+];
+
+function createBlankForm<TForm extends Record<string, string>>(
+    fields: Array<TextFieldDefinition<TForm>>
+): TForm {
+    return Object.fromEntries(fields.map((field) => [field.key, ""])) as TForm;
+}
+
 export const blankAccount: AccountForm = {
-    Name: "",
-    Phone: "",
-    Website: "",
-    Industry: "",
-    Type: "",
-    BillingCity: "",
-    BillingCountry: ""
+    ...createBlankForm(accountTextFields)
 };
 
 export const blankContact: ContactForm = {
-    FirstName: "",
-    LastName: "",
-    Email: "",
-    Phone: "",
-    Title: "",
+    ...createBlankForm(contactTextFields),
     AccountId: ""
 };
 
@@ -29,13 +50,16 @@ export function AccountFormFields({
 }) {
     return (
         <div className="slds-grid slds-wrap slds-gutters">
-            <TextField label="Account Name" required value={value.Name} onChange={(Name) => onChange({ ...value, Name })} />
-            <TextField label="Phone" value={value.Phone} onChange={(Phone) => onChange({ ...value, Phone })} />
-            <TextField label="Website" value={value.Website} onChange={(Website) => onChange({ ...value, Website })} />
-            <TextField label="Industry" value={value.Industry} onChange={(Industry) => onChange({ ...value, Industry })} />
-            <TextField label="Type" value={value.Type} onChange={(Type) => onChange({ ...value, Type })} />
-            <TextField label="Billing City" value={value.BillingCity} onChange={(BillingCity) => onChange({ ...value, BillingCity })} />
-            <TextField label="Billing Country" value={value.BillingCountry} onChange={(BillingCountry) => onChange({ ...value, BillingCountry })} />
+            {accountTextFields.map((field) => (
+                <TextField
+                    key={field.key}
+                    label={field.label}
+                    required={field.required}
+                    type={field.type}
+                    value={value[field.key]}
+                    onChange={(nextValue) => onChange({ ...value, [field.key]: nextValue })}
+                />
+            ))}
         </div>
     );
 }
@@ -51,11 +75,16 @@ export function ContactFormFields({
 }) {
     return (
         <div className="slds-grid slds-wrap slds-gutters">
-            <TextField label="First Name" value={value.FirstName} onChange={(FirstName) => onChange({ ...value, FirstName })} />
-            <TextField label="Last Name" required value={value.LastName} onChange={(LastName) => onChange({ ...value, LastName })} />
-            <TextField label="Email" type="email" value={value.Email} onChange={(Email) => onChange({ ...value, Email })} />
-            <TextField label="Phone" value={value.Phone} onChange={(Phone) => onChange({ ...value, Phone })} />
-            <TextField label="Title" value={value.Title} onChange={(Title) => onChange({ ...value, Title })} />
+            {contactTextFields.map((field) => (
+                <TextField
+                    key={field.key}
+                    label={field.label}
+                    required={field.required}
+                    type={field.type}
+                    value={value[field.key]}
+                    onChange={(nextValue) => onChange({ ...value, [field.key]: nextValue })}
+                />
+            ))}
             <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
                 <label className="slds-form-element__label" htmlFor="contact-account">
                     Account
