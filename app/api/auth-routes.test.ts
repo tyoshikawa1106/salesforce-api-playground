@@ -6,7 +6,7 @@ import * as sessionRoute from "./session/route";
 import { exchangeCodeForToken, revokeSalesforceSession, salesforceErrorResponse } from "@/lib/salesforce/client";
 import { buildAuthorizationUrl } from "@/lib/salesforce/client-core";
 import { getSalesforceConfig } from "@/lib/salesforce/config";
-import { getConfiguredAppOrigin, getRequestOrigin } from "@/lib/salesforce/urls";
+import { getConfiguredAppOrigin } from "@/lib/salesforce/urls";
 import {
     SESSION_COOKIE,
     STATE_COOKIE,
@@ -50,19 +50,31 @@ vi.mock("@/lib/salesforce/client-core", () => ({
 }));
 
 vi.mock("@/lib/salesforce/client", () => ({
+    SalesforceApiError: class SalesforceApiError extends Error {
+        constructor(
+            message: string,
+            public status: number,
+            public details?: unknown
+        ) {
+            super(message);
+        }
+    },
     exchangeCodeForToken: vi.fn(),
     revokeSalesforceSession: vi.fn(),
-    salesforceErrorResponse: vi.fn((error: unknown) =>
-        Response.json(
+    salesforceErrorResponse: vi.fn((error: unknown) => {
+        const status = typeof error === "object" && error !== null && "status" in error
+            ? Number(error.status)
+            : 500;
+
+        return Response.json(
             { error: error instanceof Error ? error.message : "Unexpected server error." },
-            { status: 500 }
-        )
-    )
+            { status }
+        );
+    })
 }));
 
 vi.mock("@/lib/salesforce/urls", () => ({
-    getConfiguredAppOrigin: vi.fn(() => "https://app.example.test"),
-    getRequestOrigin: vi.fn(() => "https://app.example.test")
+    getConfiguredAppOrigin: vi.fn(() => "https://app.example.test")
 }));
 
 vi.mock("@/lib/salesforce/session", () => {
@@ -105,7 +117,6 @@ const salesforceErrorResponseMock = vi.mocked(salesforceErrorResponse);
 const buildAuthorizationUrlMock = vi.mocked(buildAuthorizationUrl);
 const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
 const getConfiguredAppOriginMock = vi.mocked(getConfiguredAppOrigin);
-const getRequestOriginMock = vi.mocked(getRequestOrigin);
 const clearSessionCookieMock = vi.mocked(clearSessionCookie);
 const clearStateCookieMock = vi.mocked(clearStateCookie);
 const createOauthStateMock = vi.mocked(createOauthState);
@@ -121,7 +132,6 @@ function setDefaultMocks() {
     getSalesforceConfigMock.mockReturnValue(dummySalesforceConfig);
     createOauthStateMock.mockReturnValue("generated-state");
     getConfiguredAppOriginMock.mockReturnValue("https://app.example.test");
-    getRequestOriginMock.mockReturnValue("https://app.example.test");
     setOauthStateCookie("generated-state");
 }
 
@@ -261,7 +271,12 @@ describe("Logout API route", () => {
     it("revokes the current session, clears cookies, and redirects home", async () => {
         setDefaultMocks();
         getSessionMock.mockResolvedValue(dummySalesforceSession);
-        const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });
+        const request = nextRequest("https://app.example.test/api/auth/logout", {
+            method: "POST",
+            headers: {
+                origin: "https://app.example.test"
+            }
+        });
 
         const response = await logoutRoute.POST(request);
 
@@ -277,7 +292,12 @@ describe("Logout API route", () => {
     it("still redirects and clears cookies when there is no session", async () => {
         setDefaultMocks();
         getSessionMock.mockResolvedValue(null);
-        const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });
+        const request = nextRequest("https://app.example.test/api/auth/logout", {
+            method: "POST",
+            headers: {
+                origin: "https://app.example.test"
+            }
+        });
 
         const response = await logoutRoute.POST(request);
 
@@ -293,7 +313,12 @@ describe("Logout API route", () => {
         const consoleErrorMock = vi.spyOn(console, "error").mockImplementation(() => undefined);
         const error = new Error("Revoke failed");
         revokeSalesforceSessionMock.mockRejectedValue(error);
-        const request = nextRequest("https://app.example.test/api/auth/logout", { method: "POST" });
+        const request = nextRequest("https://app.example.test/api/auth/logout", {
+            method: "POST",
+            headers: {
+                origin: "https://app.example.test"
+            }
+        });
 
         const response = await logoutRoute.POST(request);
 
@@ -304,5 +329,22 @@ describe("Logout API route", () => {
         expect(response.status).toBe(307);
         expect(response.headers.get("location")).toBe("https://app.example.test/");
         consoleErrorMock.mockRestore();
+    });
+
+    it("rejects logout requests from another origin before reading the session", async () => {
+        setDefaultMocks();
+        const request = nextRequest("https://app.example.test/api/auth/logout", {
+            method: "POST",
+            headers: {
+                origin: "https://evil.example.test"
+            }
+        });
+
+        const response = await logoutRoute.POST(request);
+
+        expect(getSessionMock).not.toHaveBeenCalled();
+        expect(revokeSalesforceSessionMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(403);
+        await expectJson(response, { error: "Invalid request origin." });
     });
 });
