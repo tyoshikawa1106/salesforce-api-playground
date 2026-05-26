@@ -11,8 +11,6 @@ const baseEnv = {
     SALESFORCE_API_VERSION: undefined
 };
 
-const overrideSalesforceApiVersion = "test-api-version";
-
 function setRequiredEnv(overrides: Record<string, string | undefined> = {}) {
     for (const [key, value] of Object.entries({ ...baseEnv, ...overrides })) {
         vi.stubEnv(key, value);
@@ -40,12 +38,12 @@ describe("getSalesforceConfig", () => {
     it("uses optional Salesforce endpoint overrides", () => {
         setRequiredEnv({
             SALESFORCE_LOGIN_URL: "https://test.salesforce.com",
-            SALESFORCE_API_VERSION: overrideSalesforceApiVersion
+            SALESFORCE_API_VERSION: DEFAULT_SALESFORCE_API_VERSION
         });
 
         expect(getSalesforceConfig()).toMatchObject({
             loginUrl: "https://test.salesforce.com",
-            apiVersion: overrideSalesforceApiVersion
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION
         });
     });
 
