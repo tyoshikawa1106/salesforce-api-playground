@@ -11,6 +11,7 @@
 ### Changed
 
 - `docs/api/api-overview.md`、`docs/security/oauth-flow.md`、`docs/setup/local-development.md`、`docs/operations/troubleshooting.md` を実装から確認できる内容に更新。
+- docs 配下の `TODO` / `未確認` を再整理し、Heroku release / dyno 確認済み情報、OAuth、Salesforce 組織依存事項の一次情報リンクを明確化。
 
 ### Fixed
 

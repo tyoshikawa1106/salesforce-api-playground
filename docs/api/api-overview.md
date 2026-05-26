@@ -306,9 +306,9 @@ refresh token がない場合、または refresh に失敗した場合は `401`
 
 ## TODO / 未確認
 
-- Salesforce 側の validation rule、権限不足、参照整合性エラーなど、組織設定に依存する詳細な `details` 形式は未確認。
-- Account / Contact の選択リスト値や必須項目追加など、Salesforce 組織固有のメタデータは未確認。
-- API route に rate limit は実装されていません。必要性は TODO。
+- Salesforce 側の validation rule、権限不足、参照整合性エラーなど、組織設定に依存する詳細な `details` 形式は未確認。発生時は Salesforce から返る `details` を秘密情報を除いて確認する。
+- Account / Contact の選択リスト値や必須項目追加など、Salesforce 組織固有のメタデータは未確認。現行実装の許可フィールドは `lib/salesforce/record-fields.ts` を参照する。
+- API route に rate limit は実装されていません。現時点で必要性を判断できる運用情報がないため TODO。
 
 ## 関連ドキュメント
 
