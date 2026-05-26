@@ -71,6 +71,8 @@ Salesforce の参照整合性エラーや権限エラーの詳細形式は未確
 
 ## Heroku
 
+Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認、未確認事項の一次情報は [Heroku デプロイ](../deployment/heroku.md) を参照してください。
+
 | 事象 | 確認すること | 対処 |
 | --- | --- | --- |
 | GitHub `main` merge 後に release が作成されない | PR merge 後の `main` push workflow が pass しているか、Heroku の GitHub 自動デプロイ設定が有効か | 自動デプロイ設定の画面手順は未確認。Heroku release 履歴で commit hash との対応を見る |
@@ -127,9 +129,9 @@ npm run build
 
 ## TODO / 未確認
 
-- Salesforce 外部クライアントアプリケーションの最新 UI に基づく詳細な確認手順は未確認。
-- Heroku の自動デプロイ設定画面、build log 詳細取得、ロールバック手順は未確認。
-- Salesforce 組織固有の validation rule、権限、参照整合性エラーの詳細は未確認。
+- Salesforce 外部クライアントアプリケーションの最新 UI に基づく詳細な確認手順は未確認。一次情報は [OAuth フロー](../security/oauth-flow.md) を参照。
+- Heroku の自動デプロイ設定画面、build log 詳細取得、ロールバック手順は未確認。一次情報は [Heroku デプロイ](../deployment/heroku.md) を参照。
+- Salesforce 組織固有の validation rule、権限、参照整合性エラーの詳細は未確認。発生時は [API 概要](../api/api-overview.md) の共通エラーと Salesforce の `details` を確認する。
 
 ## 関連ドキュメント
 

@@ -159,8 +159,8 @@ Salesforce 組織や OAuth 設定を変更した場合、既存の localhost Coo
 
 ## TODO / 未確認
 
-- Salesforce 外部クライアントアプリケーション作成手順の最新画面ラベルは未確認。
-- ローカルで Salesforce に実接続した場合の組織固有エラー例は未確認。
+- Salesforce 外部クライアントアプリケーション作成手順の最新画面ラベルは未確認。OAuth 要件と callback URL の一次情報は [OAuth フロー](../security/oauth-flow.md) を参照。
+- ローカルで Salesforce に実接続した場合の組織固有エラー例は未確認。Codex 作業では実 Salesforce 接続を行わないため、発生時は [トラブルシューティング](../operations/troubleshooting.md) に秘密情報を除いて記録する。
 
 ## 関連ドキュメント
 
