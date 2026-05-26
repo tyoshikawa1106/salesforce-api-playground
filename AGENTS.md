@@ -70,6 +70,7 @@
 - コード変更: `npm run lint` / `npm run slds:lint` / `npm run typecheck` / `npm run test:coverage` / `npm run build`
 - docs / template のみ: `git diff --check`
 - 実行しない項目がある場合は PR 本文に理由を書く。
+- 未実行の確認は、変更内容のレビュー判断に関係する項目のみ記載する。
 
 ## PR Body
 
