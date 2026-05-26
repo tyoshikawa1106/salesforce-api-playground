@@ -41,7 +41,7 @@
 - 実 Salesforce 接続は Codex 作業では行わない。
 - Salesforce API 呼び出しは原則 `jsforce` を利用する。
 - Salesforce 認証と API 呼び出しは `jsforce.Connection` を利用して一元化する。
-- Salesforce API 呼び出しの実装は `services/salesforce` 配下に集約する。
+- Salesforce のデータ操作は `services/salesforce` 配下に集約する。OAuth、session、config、型定義などの共通処理は `lib/salesforce` 配下に置く。
 - README は開発手順、利用方法、CI / 運用に影響する変更がある場合に更新する。
 - 実装変更時は、必要に応じて `README.md` / `docs` 配下 / `CHANGELOG.md` を更新する。
 

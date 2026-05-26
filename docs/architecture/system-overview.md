@@ -140,7 +140,7 @@ Cookie 属性は `httpOnly: true`、`sameSite: "lax"`、`path: "/"` です。`se
 
 - Salesforce 組織ごとの validation rule、権限、必須項目追加による挙動は、組織設定に依存するため未確認。API エラーの確認観点は [API 概要](../api/api-overview.md) と [トラブルシューティング](../operations/troubleshooting.md) を参照。
 - `organizationId` は session 型に存在しますが、現在の `tokenResponseToSession()` では設定されていません。現時点でレスポンスや API 呼び出しに使用していないため、保存する必要性は TODO。
-- Heroku は PR #44 merge 後に release `v35 Deploy 446788ba`、merge commit `446788b` との対応、`web.1 up` を確認済み。ロールバック手順は未確認のため [Heroku デプロイ](../deployment/heroku.md) を参照。
+- Heroku release と GitHub merge commit の対応、dyno 起動状態、ロールバック手順の確認観点は [Heroku デプロイ](../deployment/heroku.md) を参照。
 
 ## 関連ドキュメント
 
