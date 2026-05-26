@@ -31,6 +31,10 @@ export function nextRequest(
 export function jsonRequest(body: unknown, method = "POST"): Request {
     return new Request("https://app.example.test/api", {
         method,
+        headers: {
+            "content-type": "application/json",
+            origin: "https://app.example.test"
+        },
         body: JSON.stringify(body)
     });
 }

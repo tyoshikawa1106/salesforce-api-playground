@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logServerError } from "@/lib/server-log";
-import { revokeSalesforceSession } from "@/lib/salesforce/client";
+import { revokeSalesforceSession, salesforceErrorResponse } from "@/lib/salesforce/client";
+import { assertSameOriginRequest } from "@/lib/salesforce/request-security";
 import {
     clearSessionCookie,
     clearStateCookie,
     getSession
 } from "@/lib/salesforce/session";
-import { getRequestOrigin } from "@/lib/salesforce/urls";
+import { getConfiguredAppOrigin } from "@/lib/salesforce/urls";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,12 @@ function handleRevokeError(error: unknown): void {
 }
 
 export async function POST(request: NextRequest) {
+    try {
+        assertSameOriginRequest(request);
+    } catch (error) {
+        return salesforceErrorResponse(error);
+    }
+
     const session = await getSession();
 
     if (session) {
@@ -25,7 +32,7 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    const response = NextResponse.redirect(new URL("/", getRequestOrigin(request)));
+    const response = NextResponse.redirect(new URL("/", getConfiguredAppOrigin()));
     clearSessionCookie(response);
     clearStateCookie(response);
     return response;

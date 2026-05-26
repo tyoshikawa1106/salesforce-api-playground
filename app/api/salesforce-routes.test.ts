@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as accountRoute from "./accounts/route";
 import * as accountRecordRoute from "./accounts/[id]/route";
 import * as contactRoute from "./contacts/route";
@@ -26,15 +26,28 @@ import {
 import { dummySalesforceSession, expectJson, jsonRequest } from "./test-helpers";
 
 vi.mock("@/lib/salesforce/client", () => ({
+    SalesforceApiError: class SalesforceApiError extends Error {
+        constructor(
+            message: string,
+            public status: number,
+            public details?: unknown
+        ) {
+            super(message);
+        }
+    },
     jsonWithSession: vi.fn((data: unknown, _session: unknown, status = 200) =>
         Response.json(data, { status })
     ),
-    salesforceErrorResponse: vi.fn((error: unknown) =>
-        Response.json(
+    salesforceErrorResponse: vi.fn((error: unknown) => {
+        const status = typeof error === "object" && error !== null && "status" in error
+            ? Number(error.status)
+            : 500;
+
+        return Response.json(
             { error: error instanceof Error ? error.message : "Unexpected server error." },
-            { status: 500 }
-        )
-    )
+            { status }
+        );
+    })
 }));
 
 vi.mock("@/lib/salesforce/request-payloads", () => ({
@@ -72,8 +85,16 @@ const updateContactMock = vi.mocked(updateContact);
 
 const session = dummySalesforceSession;
 
+beforeEach(() => {
+    vi.stubEnv("SALESFORCE_CLIENT_ID", "test-client-id");
+    vi.stubEnv("SALESFORCE_CLIENT_SECRET", "test-client-secret");
+    vi.stubEnv("SALESFORCE_REDIRECT_URI", "https://app.example.test/api/auth/callback");
+    vi.stubEnv("SESSION_SECRET", "test-session-secret-with-32-chars");
+});
+
 afterEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllEnvs();
 });
 
 describe("Account API route", () => {
@@ -122,7 +143,10 @@ describe("Account API route", () => {
 
     it("deletes an account with DELETE /sobjects/Account/{id} and no body", async () => {
         const request = new Request("https://app.example.test/api/accounts/001xx000003DGbY", {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                origin: "https://app.example.test"
+            }
         });
         const data = {};
         deleteAccountMock.mockResolvedValue({ data, session });
@@ -133,6 +157,37 @@ describe("Account API route", () => {
 
         expect(deleteAccountMock).toHaveBeenCalledWith("001xx000003DGbY");
         await expectJson(response, data);
+    });
+
+    it("rejects account mutations from another origin before calling Salesforce", async () => {
+        const request = new Request("https://app.example.test/api/accounts", {
+            method: "POST",
+            headers: {
+                origin: "https://evil.example.test",
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({ Name: "Acme" })
+        });
+
+        const response = await accountRoute.POST(request);
+
+        expect(readAccountCreatePayloadMock).not.toHaveBeenCalled();
+        expect(createAccountMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(403);
+        await expectJson(response, { error: "Invalid request origin." });
+    });
+
+    it("rejects invalid account ids before calling Salesforce", async () => {
+        const request = jsonRequest({ Phone: "03-1234-5678" }, "PATCH");
+
+        const response = await accountRecordRoute.PATCH(request, {
+            params: Promise.resolve({ id: "003xx000004TmiQ" })
+        });
+
+        expect(readAccountUpdatePayloadMock).not.toHaveBeenCalled();
+        expect(updateAccountMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(400);
+        await expectJson(response, { error: "Invalid Account id." });
     });
 });
 
@@ -182,7 +237,10 @@ describe("Contact API route", () => {
 
     it("deletes a contact with DELETE /sobjects/Contact/{id} and no body", async () => {
         const request = new Request("https://app.example.test/api/contacts/003xx000004TmiQ", {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                origin: "https://app.example.test"
+            }
         });
         const data = {};
         deleteContactMock.mockResolvedValue({ data, session });
@@ -193,6 +251,37 @@ describe("Contact API route", () => {
 
         expect(deleteContactMock).toHaveBeenCalledWith("003xx000004TmiQ");
         await expectJson(response, data);
+    });
+
+    it("rejects contact mutations from another origin before calling Salesforce", async () => {
+        const request = new Request("https://app.example.test/api/contacts", {
+            method: "POST",
+            headers: {
+                origin: "https://evil.example.test",
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({ LastName: "Yamada" })
+        });
+
+        const response = await contactRoute.POST(request);
+
+        expect(readContactCreatePayloadMock).not.toHaveBeenCalled();
+        expect(createContactMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(403);
+        await expectJson(response, { error: "Invalid request origin." });
+    });
+
+    it("rejects invalid contact ids before calling Salesforce", async () => {
+        const request = jsonRequest({ Title: "Manager" }, "PATCH");
+
+        const response = await contactRecordRoute.PATCH(request, {
+            params: Promise.resolve({ id: "001xx000003DGbY" })
+        });
+
+        expect(readContactUpdatePayloadMock).not.toHaveBeenCalled();
+        expect(updateContactMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(400);
+        await expectJson(response, { error: "Invalid Contact id." });
     });
 });
 

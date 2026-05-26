@@ -15,6 +15,7 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | `app/api/**/route.ts` | HTTP メソッドごとのエントリポイント |
 | `lib/salesforce/route-handler.ts` | Salesforce 系 Route の共通レスポンス / エラーハンドリング |
 | `lib/salesforce/request-payloads.ts` | Account / Contact の入力検証と正規化 |
+| `lib/salesforce/request-security.ts` | state 変更リクエストの Origin / Referer 検証、Salesforce レコード ID 検証 |
 | `lib/salesforce/session.ts` | 暗号化 Cookie によるセッション保存 / 読み取り |
 | `lib/salesforce/client.ts` | OAuth token 交換、refresh、revoke、共通エラー変換 |
 | `services/salesforce/client.ts` | `jsforce.Connection` 作成と access token refresh 後の再試行 |
@@ -27,15 +28,15 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | `/api/session` | `GET` | 現在の Salesforce 接続状態を返す | `{ connected, instanceUrl?, issuedAt?, userId? }` | セッション復号や環境変数エラー時は `500` |
 | `/api/auth/login` | `GET` | OAuth state を Cookie に保存し、Salesforce 認可 URL へ redirect | `307` redirect | 環境変数不足、`SESSION_SECRET` 不備で `500` |
 | `/api/auth/callback` | `GET` | `code` と `state` を検証し、token 交換後にセッション Cookie を保存 | `307` redirect to `/?auth=connected` | state 不一致は `/?auth=state_error` へ redirect、token 交換失敗は Salesforce エラー応答 |
-| `/api/auth/logout` | `POST` | token revoke を試行し、セッション Cookie と state Cookie を削除 | `307` redirect to `/` | revoke 失敗はサーバーログへ出し、Cookie 削除と redirect は継続 |
+| `/api/auth/logout` | `POST` | token revoke を試行し、セッション Cookie と state Cookie を削除 | `307` redirect to `/` | Origin / Referer 不一致 `403`、revoke 失敗はサーバーログへ出し、Cookie 削除と redirect は継続 |
 | `/api/accounts` | `GET` | Account 一覧を取得 | `{ accounts: AccountRecord[] }` | 未接続 `401`、Salesforce API エラー、セッション期限切れ |
-| `/api/accounts` | `POST` | Account を作成 | `{ id, success }` with `201` | 入力エラー `400`、未接続 `401`、Salesforce API エラー |
-| `/api/accounts/[id]` | `PATCH` | Account を更新 | `{}` | 入力エラー `400`、未接続 `401`、Salesforce API エラー |
-| `/api/accounts/[id]` | `DELETE` | Account を削除 | `{}` | 未接続 `401`、Salesforce API エラー |
+| `/api/accounts` | `POST` | Account を作成 | `{ id, success }` with `201` | Origin / Referer 不一致 `403`、入力エラー `400`、未接続 `401`、Salesforce API エラー |
+| `/api/accounts/[id]` | `PATCH` | Account を更新 | `{}` | Origin / Referer 不一致 `403`、ID / 入力エラー `400`、未接続 `401`、Salesforce API エラー |
+| `/api/accounts/[id]` | `DELETE` | Account を削除 | `{}` | Origin / Referer 不一致 `403`、ID エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/contacts` | `GET` | Contact 一覧を取得 | `{ contacts: ContactRecord[] }` | 未接続 `401`、Salesforce API エラー、セッション期限切れ |
-| `/api/contacts` | `POST` | Contact を作成 | `{ id, success }` with `201` | 入力エラー `400`、未接続 `401`、Salesforce API エラー |
-| `/api/contacts/[id]` | `PATCH` | Contact を更新 | `{}` | 入力エラー `400`、未接続 `401`、Salesforce API エラー |
-| `/api/contacts/[id]` | `DELETE` | Contact を削除 | `{}` | 未接続 `401`、Salesforce API エラー |
+| `/api/contacts` | `POST` | Contact を作成 | `{ id, success }` with `201` | Origin / Referer 不一致 `403`、入力エラー `400`、未接続 `401`、Salesforce API エラー |
+| `/api/contacts/[id]` | `PATCH` | Contact を更新 | `{}` | Origin / Referer 不一致 `403`、ID / 入力エラー `400`、未接続 `401`、Salesforce API エラー |
+| `/api/contacts/[id]` | `DELETE` | Contact を削除 | `{}` | Origin / Referer 不一致 `403`、ID エラー `400`、未接続 `401`、Salesforce API エラー |
 
 ## 認証系 API
 
@@ -85,6 +86,8 @@ Salesforce 連携の主要な責務は以下に分かれています。
 ### `POST /api/auth/logout`
 
 セッションがある場合は Salesforce の revoke endpoint へ token revoke を送信します。revoke 対象 token は refresh token があれば refresh token、なければ access token です。
+
+`Origin` または `Referer` の origin が `SALESFORCE_REDIRECT_URI` の origin と一致しない場合は `403` を返し、セッション読み取りや token revoke は行いません。
 
 revoke が失敗してもレスポンス自体は失敗にせず、サーバーログへ記録したうえで `sf_playground_session` と `sf_playground_oauth_state` を削除し、`/` へ redirect します。
 
@@ -162,6 +165,8 @@ Account を作成します。許可される入力フィールドは `lib/salesf
 
 Account を更新します。許可フィールドは作成時と同じです。更新時は `null` が許可され、空文字は `null` に正規化されます。
 
+`id` は 15 桁または 18 桁の英数字で、Account の `001` prefix のみ許可します。
+
 リクエスト概要:
 
 ```json
@@ -180,6 +185,8 @@ Account を更新します。許可フィールドは作成時と同じです。
 ### `DELETE /api/accounts/[id]`
 
 Account を削除します。成功時は空オブジェクトを返します。
+
+`id` は 15 桁または 18 桁の英数字で、Account の `001` prefix のみ許可します。
 
 ```json
 {}
@@ -260,6 +267,8 @@ Contact を作成します。許可される入力フィールドは `lib/salesf
 
 Contact を更新します。許可フィールドは作成時と同じです。更新時は `null` が許可され、空文字は `null` に正規化されます。
 
+`id` は 15 桁または 18 桁の英数字で、Contact の `003` prefix のみ許可します。
+
 リクエスト概要:
 
 ```json
@@ -279,6 +288,8 @@ Contact を更新します。許可フィールドは作成時と同じです。
 
 Contact を削除します。成功時は空オブジェクトを返します。
 
+`id` は 15 桁または 18 桁の英数字で、Contact の `003` prefix のみ許可します。
+
 ```json
 {}
 ```
@@ -295,6 +306,8 @@ Contact を削除します。成功時は空オブジェクトを返します。
 | 未許可フィールド | `400` | `{ "error": "Unexpected Account field: ... ." }` または `{ "error": "Unexpected Contact field: ... ." }` |
 | 必須フィールド不足 | `400` | `{ "error": "Name is required." }` または `{ "error": "LastName is required." }` |
 | フィールド型不正 | `400` | `{ "error": "... must be a string." }` |
+| Account / Contact ID 形式不正 | `400` | `{ "error": "Invalid Account id." }` または `{ "error": "Invalid Contact id." }` |
+| Origin / Referer 不一致 | `403` | `{ "error": "Invalid request origin." }` |
 | Salesforce API エラー | Salesforce 側 status | `{ "error": "...", "details": ... }` |
 | 想定外エラー | `500` | `{ "error": "..." }` |
 
