@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { DEFAULT_SALESFORCE_API_VERSION } from "./api-version";
 import { getSalesforceConfig } from "./config";
 
 const baseEnv = {
@@ -29,7 +30,7 @@ describe("getSalesforceConfig", () => {
             clientSecret: "test-client-secret",
             redirectUri: "https://example.test/auth/callback",
             loginUrl: "https://login.salesforce.com",
-            apiVersion: "v60.0",
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION,
             sessionSecret: "a".repeat(32)
         });
     });
@@ -37,12 +38,12 @@ describe("getSalesforceConfig", () => {
     it("uses optional Salesforce endpoint overrides", () => {
         setRequiredEnv({
             SALESFORCE_LOGIN_URL: "https://test.salesforce.com",
-            SALESFORCE_API_VERSION: "v61.0"
+            SALESFORCE_API_VERSION: "v65.0"
         });
 
         expect(getSalesforceConfig()).toMatchObject({
             loginUrl: "https://test.salesforce.com",
-            apiVersion: "v61.0"
+            apiVersion: "v65.0"
         });
     });
 

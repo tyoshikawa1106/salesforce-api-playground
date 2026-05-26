@@ -1,6 +1,7 @@
 import { expect, vi, type MockedFunction } from "vitest";
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { DEFAULT_SALESFORCE_API_VERSION } from "@/lib/salesforce/api-version";
 import type { SalesforceConfig } from "@/lib/salesforce/config";
 import type { SalesforceSession } from "@/lib/salesforce/session";
 
@@ -9,7 +10,7 @@ export const dummySalesforceConfig: SalesforceConfig = {
     clientSecret: "test-client-secret",
     redirectUri: "https://app.example.test/api/auth/callback",
     loginUrl: "https://login.example.test",
-    apiVersion: "v60.0",
+    apiVersion: DEFAULT_SALESFORCE_API_VERSION,
     sessionSecret: "test-session-secret-with-32-chars"
 };
 

@@ -1,5 +1,6 @@
 import { Connection } from "jsforce";
 import type { SaveResult } from "jsforce";
+import { toJsforceApiVersion } from "@/lib/salesforce/api-version";
 import { getSalesforceConfig } from "@/lib/salesforce/config";
 import {
     SalesforceApiError,
@@ -42,7 +43,7 @@ function createConnection(session: SalesforceSession): Connection {
             redirectUri
         },
         refreshToken: session.refreshToken,
-        version: apiVersion.replace(/^v/, "")
+        version: toJsforceApiVersion(apiVersion)
     });
 }
 

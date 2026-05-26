@@ -3,6 +3,7 @@ import {
     assertSalesforceRecordId,
     assertSameOriginRequest
 } from "./request-security";
+import { DEFAULT_SALESFORCE_API_VERSION } from "./api-version";
 import { getSalesforceConfig } from "./config";
 
 vi.mock("./config", () => ({
@@ -28,7 +29,7 @@ describe("assertSameOriginRequest", () => {
             clientSecret: "client-secret",
             loginUrl: "https://login.example.test",
             redirectUri: "https://app.example.test/api/auth/callback",
-            apiVersion: "v62.0",
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION,
             sessionSecret: "session-secret"
         });
 
@@ -43,7 +44,7 @@ describe("assertSameOriginRequest", () => {
             clientSecret: "client-secret",
             loginUrl: "https://login.example.test",
             redirectUri: "https://app.example.test/api/auth/callback",
-            apiVersion: "v62.0",
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION,
             sessionSecret: "session-secret"
         });
 
@@ -58,7 +59,7 @@ describe("assertSameOriginRequest", () => {
             clientSecret: "client-secret",
             loginUrl: "https://login.example.test",
             redirectUri: "https://app.example.test/api/auth/callback",
-            apiVersion: "v62.0",
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION,
             sessionSecret: "session-secret"
         });
 

@@ -1,4 +1,9 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+    DEFAULT_SALESFORCE_API_VERSION,
+    toJsforceApiVersion
+} from "@/lib/salesforce/api-version";
+import { getSalesforceConfig } from "@/lib/salesforce/config";
 import type { SalesforceSession } from "@/lib/salesforce/session";
 import { SalesforceApiError } from "@/lib/salesforce/client";
 import { getSession } from "@/lib/salesforce/session";
@@ -31,13 +36,7 @@ vi.mock("jsforce", () => ({
 }));
 
 vi.mock("@/lib/salesforce/config", () => ({
-    getSalesforceConfig: vi.fn(() => ({
-        apiVersion: "v62.0",
-        clientId: "client-id",
-        clientSecret: "client-secret",
-        loginUrl: "https://login.salesforce.com",
-        redirectUri: "https://app.example.test/api/auth/callback"
-    }))
+    getSalesforceConfig: vi.fn()
 }));
 
 vi.mock("@/lib/salesforce/client", () => {
@@ -62,6 +61,7 @@ vi.mock("@/lib/salesforce/session", () => ({
 }));
 
 const getSessionMock = vi.mocked(getSession);
+const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
 
 const session: SalesforceSession = {
     accessToken: "access-token",
@@ -70,6 +70,17 @@ const session: SalesforceSession = {
     refreshToken: "refresh-token",
     userId: "005xx0000012345"
 };
+
+beforeEach(() => {
+    getSalesforceConfigMock.mockReturnValue({
+        apiVersion: DEFAULT_SALESFORCE_API_VERSION,
+        clientId: "client-id",
+        clientSecret: "client-secret",
+        loginUrl: "https://login.salesforce.com",
+        redirectUri: "https://app.example.test/api/auth/callback",
+        sessionSecret: "session-secret"
+    });
+});
 
 afterEach(() => {
     vi.clearAllMocks();
@@ -96,7 +107,7 @@ describe("Salesforce record services", () => {
                 redirectUri: "https://app.example.test/api/auth/callback"
             },
             refreshToken: "refresh-token",
-            version: "62.0"
+            version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
         });
     });
 
