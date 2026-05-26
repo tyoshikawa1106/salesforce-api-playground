@@ -9,6 +9,7 @@ import type {
     SalesforceQueryResponse
 } from "@/lib/salesforce/records";
 import {
+    createdSalesforceResult,
     emptySalesforceResult,
     withStandardObjectConnection
 } from "./client";
@@ -27,15 +28,10 @@ const contactListQuery = [
     "LIMIT 100"
 ].join(" ");
 
-type CreateResult = {
-    id: string;
-    success: boolean;
-};
-
 async function createStandardObject<TInput extends object>(objectName: string, input: TInput) {
     return withStandardObjectConnection(async (connection) => {
         const result = await connection.sobject(objectName).create(input);
-        return { id: result.id, success: result.success } as CreateResult;
+        return createdSalesforceResult(result);
     });
 }
 
