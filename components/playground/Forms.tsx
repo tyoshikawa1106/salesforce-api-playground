@@ -4,7 +4,7 @@ import {
     contactFieldNames
 } from "@/lib/salesforce/record-fields";
 import type { AccountFieldName, ContactFieldName } from "@/lib/salesforce/record-fields";
-import type { Account } from "./types";
+import type { Account, Contact } from "./types";
 
 type TextFieldDefinition<TFieldName extends string> = {
     key: TFieldName;
@@ -60,6 +60,30 @@ export const blankAccount: AccountForm = {
 export const blankContact: ContactForm = {
     ...createBlankForm(contactFieldNames)
 };
+
+function recordToForm<TRecord, TForm extends Record<string, string>>(
+    fields: readonly string[],
+    record: TRecord | undefined
+): TForm {
+    if (!record) {
+        return createBlankForm(fields);
+    }
+
+    return Object.fromEntries(
+        fields.map((field) => {
+            const value = record[field as keyof TRecord];
+            return [field, typeof value === "string" ? value : ""];
+        })
+    ) as TForm;
+}
+
+export function accountRecordToForm(record?: Account): AccountForm {
+    return recordToForm(accountFieldNames, record);
+}
+
+export function contactRecordToForm(record?: Contact): ContactForm {
+    return recordToForm(contactFieldNames, record);
+}
 
 export function AccountFormFields({
     value,
