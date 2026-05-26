@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     buildAccountCreatePayload,
     buildAccountUpdatePayload,
@@ -19,7 +19,14 @@ import { NoticeBanner } from "./playground/NoticeBanner";
 import { HomePanel, ObjectHomeHeader } from "./playground/ObjectHome";
 import { AccountPanel, ContactPanel } from "./playground/RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./playground/RecordPages";
-import { AccountFormFields, blankAccount, blankContact, ContactFormFields } from "./playground/Forms";
+import {
+    AccountFormFields,
+    accountRecordToForm,
+    blankAccount,
+    blankContact,
+    ContactFormFields,
+    contactRecordToForm
+} from "./playground/Forms";
 import { Modal, ModalFooter } from "./playground/Modal";
 import { getContactName } from "./playground/formatting";
 import type { Account, ActiveTab, Contact, DeleteState, ModalState, Notice } from "./playground/types";
@@ -38,6 +45,7 @@ export default function Playground() {
     const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
     const [accountForm, setAccountForm] = useState<AccountForm>(blankAccount);
     const [contactForm, setContactForm] = useState<ContactForm>(blankContact);
+    const noticeTimer = useRef<number | null>(null);
 
     const accountOptions = useMemo(
         () => [...accounts].sort((a, b) => a.Name.localeCompare(b.Name, "ja")),
@@ -53,8 +61,14 @@ export default function Playground() {
     );
 
     const showNotice = useCallback((nextNotice: Notice) => {
+        if (noticeTimer.current !== null) {
+            window.clearTimeout(noticeTimer.current);
+        }
         setNotice(nextNotice);
-        window.setTimeout(() => setNotice(null), 5000);
+        noticeTimer.current = window.setTimeout(() => {
+            setNotice(null);
+            noticeTimer.current = null;
+        }, 5000);
     }, []);
 
     const loadAll = useCallback(async () => {
@@ -109,6 +123,14 @@ export default function Playground() {
         void loadAll();
     }, [loadAll]);
 
+    useEffect(() => {
+        return () => {
+            if (noticeTimer.current !== null) {
+                window.clearTimeout(noticeTimer.current);
+            }
+        };
+    }, []);
+
     if (loading && !session.connected) {
         return (
             <div>
@@ -128,35 +150,12 @@ export default function Playground() {
     }
 
     function openAccountModal(record?: Account) {
-        setAccountForm(
-            record
-                ? {
-                        Name: record.Name ?? "",
-                        Phone: record.Phone ?? "",
-                        Website: record.Website ?? "",
-                        Industry: record.Industry ?? "",
-                        Type: record.Type ?? "",
-                        BillingCity: record.BillingCity ?? "",
-                        BillingCountry: record.BillingCountry ?? ""
-                    }
-                : blankAccount
-        );
+        setAccountForm(accountRecordToForm(record));
         setModal(record ? { type: "account", mode: "edit", record } : { type: "account", mode: "create" });
     }
 
     function openContactModal(record?: Contact) {
-        setContactForm(
-            record
-                ? {
-                        FirstName: record.FirstName ?? "",
-                        LastName: record.LastName ?? "",
-                        Email: record.Email ?? "",
-                        Phone: record.Phone ?? "",
-                        Title: record.Title ?? "",
-                        AccountId: record.AccountId ?? ""
-                    }
-                : blankContact
-        );
+        setContactForm(contactRecordToForm(record));
         setModal(record ? { type: "contact", mode: "edit", record } : { type: "contact", mode: "create" });
     }
 
