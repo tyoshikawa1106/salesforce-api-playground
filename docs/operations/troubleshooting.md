@@ -73,10 +73,15 @@ Salesforce の参照整合性エラーや権限エラーの詳細形式は未確
 
 | 事象 | 確認すること | 対処 |
 | --- | --- | --- |
-| Heroku 起動に失敗する | Config Vars が揃っているか | `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`, `SALESFORCE_REDIRECT_URI`, `SESSION_SECRET` を確認 |
-| Heroku で OAuth callback が失敗する | Salesforce 側 callback URL と `SALESFORCE_REDIRECT_URI` が一致しているか | Heroku app の callback URL を Salesforce 外部クライアントアプリケーションに登録する |
+| GitHub `main` merge 後に release が作成されない | PR merge 後の `main` push workflow が pass しているか、Heroku の GitHub 自動デプロイ設定が有効か | 自動デプロイ設定の画面手順は未確認。Heroku release 履歴で commit hash との対応を見る |
+| Heroku build が失敗する | CI と同じ `npm ci`, `npm run lint`, `npm run slds:lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build` が通るか | 現在のローカル Heroku CLI では `builds` コマンド未提供のため、build log 詳細取得手順は未確認 |
+| Heroku 起動に失敗する | `Procfile` が `web: npm run start` か、`npm run start` が `next start -p ${PORT:-3000}` か、Config Vars が揃っているか | `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`, `SALESFORCE_REDIRECT_URI`, `SESSION_SECRET` を確認 |
+| Heroku dyno が `up` にならない | `heroku ps --app <app-name>` で `web` dyno と起動コマンドを確認する | Heroku runtime は `PORT` を渡し、Next.js は `npm run start` で起動する |
+| Heroku で OAuth callback が失敗する | Salesforce 側 callback URL と `SALESFORCE_REDIRECT_URI` が scheme、host、path、末尾 slash まで一致しているか | Heroku app の callback URL を Salesforce 外部クライアントアプリケーションに登録する |
+| Heroku で OAuth callback が `state_error` になる | `sf_playground_oauth_state` Cookie が保存されているか、Connect を開始したブラウザと同じブラウザで callback しているか | 古い Cookie を削除して Connect からやり直す。state 不一致時は token 交換しない |
+| Heroku で Cookie が保存されない | HTTPS でアクセスしているか、ブラウザが `Secure` Cookie を受け取っているか | production では session / state Cookie に `Secure` が付くため HTTP では保存されない |
 | Heroku で logout 後も Salesforce 側 token が残る | revoke endpoint へのリクエストが失敗していないか | 実装は revoke 失敗時も Cookie 削除と redirect を継続し、サーバーログに記録する |
-| GitHub `main` merge 後に反映されない | Heroku の GitHub 自動デプロイ設定とデプロイ履歴 | 詳細手順は未確認。`docs/deployment/heroku.md` の TODO |
+| ロールバックしたい | 戻す release 番号、commit hash、GitHub `main` との差分を確認する | このリポジトリ運用での実ロールバック手順は未確認 |
 
 実 URL、Heroku API Key、Salesforce token、Client Secret は記録しないでください。
 
@@ -123,7 +128,7 @@ npm run build
 ## TODO / 未確認
 
 - Salesforce 外部クライアントアプリケーションの最新 UI に基づく詳細な確認手順は未確認。
-- Heroku の自動デプロイ設定、リリース確認、ロールバック手順は未確認。
+- Heroku の自動デプロイ設定画面、build log 詳細取得、ロールバック手順は未確認。
 - Salesforce 組織固有の validation rule、権限、参照整合性エラーの詳細は未確認。
 
 ## 関連ドキュメント
