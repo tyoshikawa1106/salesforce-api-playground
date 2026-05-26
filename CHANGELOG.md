@@ -6,6 +6,7 @@
 
 - 実装ベースで API Route 一覧、OAuth フロー、セッション Cookie、Account / Contact 操作、ローカル確認コマンド、トラブルシューティングを開発ドキュメントへ追記。
 - `docs/architecture/system-overview.md` にシステム構成、OAuth、Account / Contact 操作の Mermaid 図を追加。
+- Heroku 実運用で確認できた起動方式、Config Vars、PR merge 後の確認観点、OAuth callback、Cookie、ロールバック未確認事項を `docs/deployment/heroku.md` と `docs/operations/troubleshooting.md` に整理。
 
 ### Changed
 
