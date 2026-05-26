@@ -91,7 +91,7 @@ describe("Account API route", () => {
     it("creates an account with the request payload and keeps status 201", async () => {
         const request = jsonRequest({ Name: "Acme" });
         const payload = { Name: "Acme" };
-        const data = { id: "001xx000003DGbY", success: true };
+        const data = { id: "001xx000003DGbY", success: true } as const;
         readAccountCreatePayloadMock.mockResolvedValue(payload);
         createAccountMock.mockResolvedValue({ data, session });
 
@@ -151,7 +151,7 @@ describe("Contact API route", () => {
     it("creates a contact with the request payload and keeps status 201", async () => {
         const request = jsonRequest({ LastName: "Yamada" });
         const payload = { LastName: "Yamada" };
-        const data = { id: "003xx000004TmiQ", success: true };
+        const data = { id: "003xx000004TmiQ", success: true } as const;
         readContactCreatePayloadMock.mockResolvedValue(payload);
         createContactMock.mockResolvedValue({ data, session });
 

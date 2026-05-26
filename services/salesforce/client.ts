@@ -126,3 +126,14 @@ export function emptySalesforceResult(result: SaveResult): Record<string, never>
 
     return {};
 }
+
+export function createdSalesforceResult(result: SaveResult): { id: string; success: true } {
+    if (!result.success || !result.id) {
+        throw new SalesforceApiError("Salesforce API request failed.", 400, result.errors);
+    }
+
+    return {
+        id: result.id,
+        success: true
+    };
+}

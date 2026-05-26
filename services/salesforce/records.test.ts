@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SalesforceSession } from "@/lib/salesforce/session";
+import { SalesforceApiError } from "@/lib/salesforce/client";
 import { getSession } from "@/lib/salesforce/session";
 import {
     createAccount,
@@ -109,6 +110,21 @@ describe("Salesforce record services", () => {
         });
 
         expect(jsforceMocks.create).toHaveBeenCalledWith({ Name: "Acme" });
+    });
+
+    it("returns Salesforce create errors instead of reporting a failed create as success", async () => {
+        getSessionMock.mockResolvedValue(session);
+        const errors = [{ message: "Name is required", errorCode: "REQUIRED_FIELD_MISSING" }];
+        jsforceMocks.create.mockResolvedValue({ success: false, errors });
+
+        const promise = createAccount({ Name: "Acme" });
+
+        await expect(promise).rejects.toMatchObject({
+            message: "Salesforce API request failed.",
+            status: 400,
+            details: errors
+        });
+        await expect(promise).rejects.toBeInstanceOf(SalesforceApiError);
     });
 
     it("uses jsforce standard object update with the record id", async () => {
