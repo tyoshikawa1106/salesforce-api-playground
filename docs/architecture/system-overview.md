@@ -8,50 +8,139 @@
 
 このアプリケーションは、Salesforce OAuth 2.0 Authorization Code Flow と Salesforce REST API を検証するための Next.js アプリです。アプリ側に DB は持たず、Salesforce の Account / Contact データを API 経由で直接操作します。
 
-現時点で実装から確認できる主な構成は以下です。
+Client Secret、access token、refresh token はブラウザへ出しません。OAuth callback 後に作成したセッションを AES-256-GCM で暗号化し、HttpOnly Cookie に保存します。refresh token は DB やファイルへ永続保存しません。
 
-- UI: `app` / `components`
-- API Routes: `app/api`
-- Salesforce 関連処理: `lib/salesforce` / `services/salesforce`
-- セッション管理: 暗号化した HttpOnly Cookie
-- デプロイ想定: Heroku
+## システム構成
 
 ```mermaid
 flowchart LR
-    Browser["ブラウザ"] --> NextApp["Next.js App"]
-    NextApp --> ApiRoutes["API Routes"]
-    ApiRoutes --> SalesforceService["services/salesforce"]
-    SalesforceService --> Jsforce["jsforce.Connection"]
+    Browser["ブラウザ / React UI"] --> App["Next.js App Router"]
+    App --> Api["app/api API Routes"]
+    Api --> Session["lib/salesforce/session.ts<br/>暗号化 HttpOnly Cookie"]
+    Api --> RouteHandler["lib/salesforce/route-handler.ts"]
+    RouteHandler --> Service["services/salesforce"]
+    Service --> Jsforce["jsforce.Connection"]
     Jsforce --> Salesforce["Salesforce REST API"]
-    ApiRoutes --> CookieSession["暗号化 HttpOnly Cookie"]
-    Heroku["Heroku"] --> NextApp
+    Api --> OAuthClient["lib/salesforce/client.ts<br/>token exchange / refresh / revoke"]
+    OAuthClient --> SalesforceOAuth["Salesforce OAuth endpoints"]
+    Heroku["Heroku<br/>GitHub main から自動デプロイ"] --> App
 ```
 
-## 前提条件
+## 主要コンポーネント
 
-- Node.js 20 以上 23 未満
-- npm 10 以上
-- Salesforce Developer Edition、Trailhead ハンズオン組織、または検証用 Salesforce 組織
-- Salesforce 外部クライアントアプリケーション
-- ローカルまたは Heroku の環境変数設定
+| 領域 | 配置 | 実装から確認できる責務 |
+| --- | --- | --- |
+| ページ | `app/page.tsx` | Playground UI の表示 |
+| レイアウト / CSS | `app/layout.tsx`, `app/globals.css` | Next.js レイアウト、SLDS CSS 読み込み |
+| UI コンポーネント | `components/Playground.tsx`, `components/playground/*` | 接続状態表示、Account / Contact の一覧、フォーム、モーダル、通知 |
+| UI API helper | `lib/playground-api.ts`, `components/playground/api.ts` | API path 定義、fetch request 作成、エラー表示用変換 |
+| API Routes | `app/api/**/route.ts` | OAuth、session、Account / Contact CRUD の HTTP エントリポイント |
+| Salesforce session | `lib/salesforce/session.ts` | Cookie 暗号化、復号、state 生成、Cookie set / clear |
+| Salesforce OAuth | `lib/salesforce/client.ts`, `lib/salesforce/client-core.ts` | authorization URL、token exchange、refresh、revoke、Salesforce エラー変換 |
+| Salesforce service | `services/salesforce/client.ts` | `jsforce.Connection` 作成、未接続検出、access token refresh 後の再試行 |
+| Salesforce records | `services/salesforce/records.ts` | Account / Contact の SOQL、create、update、delete |
+| 入力検証 | `lib/salesforce/request-payloads.ts`, `lib/salesforce/record-fields.ts` | 許可フィールド、必須フィールド、文字列 / null の検証 |
 
-## 手順
+## OAuth フロー
 
-1. 新しい構成要素を追加した場合は、このドキュメントに責務と配置場所を追記する。
-2. 外部連携やデータフローが変わる場合は Mermaid 図を更新する。
-3. 実装から確認できない内容は `未確認` または `TODO` として残す。
+```mermaid
+sequenceDiagram
+    participant Browser as ブラウザ
+    participant Next as Next.js API Routes
+    participant Cookie as HttpOnly Cookie
+    participant SF as Salesforce OAuth
 
-## 注意事項
+    Browser->>Next: GET /api/auth/login
+    Next->>Next: Salesforce 設定を読み込み state 生成
+    Next->>Cookie: sf_playground_oauth_state を保存
+    Next-->>Browser: Salesforce 認可 URL へ redirect
+    Browser->>SF: 認可画面へアクセス
+    SF-->>Browser: /api/auth/callback?code=...&state=... へ redirect
+    Browser->>Next: GET /api/auth/callback
+    Next->>Cookie: 保存済み state を取得
+    Next->>Next: query state と Cookie state を検証
+    alt state 不一致または code 不足
+        Next->>Cookie: state Cookie を削除
+        Next-->>Browser: /?auth=state_error へ redirect
+    else state OK
+        Next->>SF: authorization code を token endpoint へ送信
+        SF-->>Next: access token / refresh token / instance URL
+        Next->>Cookie: 暗号化 session Cookie を保存、state Cookie を削除
+        Next-->>Browser: /?auth=connected へ redirect
+    end
+```
 
-- 実 Salesforce 接続の動作確認結果や実 URL は記載しない。
-- 秘密情報、トークン、Client Secret は記載しない。
-- 推測で仕様を書かず、コードまたは運用ルールから確認できる内容を記載する。
+## Account / Contact 操作フロー
 
-## TODO
+```mermaid
+sequenceDiagram
+    participant UI as React UI
+    participant API as Account / Contact API Route
+    participant Session as Session Cookie
+    participant Service as services/salesforce
+    participant Jsforce as jsforce.Connection
+    participant SF as Salesforce REST API
 
-- 主要コンポーネントごとの責務を詳細化する。
-- OAuth callback からセッション保存までの詳細シーケンス図を追加する。
-- Account / Contact 操作のデータフローを追加する。
+    UI->>API: GET / POST / PATCH / DELETE
+    API->>API: request payload を検証
+    API->>Session: sf_playground_session を復号
+    alt セッションなし
+        API-->>UI: 401 Not connected
+    else セッションあり
+        API->>Service: list / create / update / delete
+        Service->>Jsforce: access token と instance URL で Connection 作成
+        Jsforce->>SF: SOQL または sObject CRUD
+        alt access token 無効
+            Service->>SF: refresh token grant
+            SF-->>Service: 新しい access token
+            Service->>Jsforce: 新セッションで再試行
+        end
+        SF-->>Jsforce: 結果
+        Jsforce-->>Service: 結果
+        Service-->>API: data と session
+        API->>Session: session Cookie を再セット
+        API-->>UI: JSON response
+    end
+```
+
+## データ操作の概要
+
+Account / Contact は `services/salesforce/records.ts` で標準オブジェクトとして操作します。現在の一覧取得はそれぞれ `LastModifiedDate DESC`、`LIMIT 100` です。
+
+| 操作 | Account | Contact |
+| --- | --- | --- |
+| 一覧 | `SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate FROM Account ...` | `SELECT Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate FROM Contact ...` |
+| 作成 | `connection.sobject("Account").create(input)` | `connection.sobject("Contact").create(input)` |
+| 更新 | `connection.sobject("Account").update({ Id: id, ...input })` | `connection.sobject("Contact").update({ Id: id, ...input })` |
+| 削除 | `connection.sobject("Account").destroy(id)` | `connection.sobject("Contact").destroy(id)` |
+
+## セッション Cookie
+
+| Cookie | 用途 | 保存内容 | maxAge |
+| --- | --- | --- | --- |
+| `sf_playground_oauth_state` | OAuth state 検証 | ランダム state 文字列 | 10 分 |
+| `sf_playground_session` | Salesforce 接続セッション | AES-256-GCM で暗号化した `accessToken`, `refreshToken`, `instanceUrl`, `issuedAt`, `userId`, `organizationId?` | 8 時間 |
+
+Cookie 属性は `httpOnly: true`、`sameSite: "lax"`、`path: "/"` です。`secure` は `NODE_ENV === "production"` の場合に有効です。
+
+## 環境変数
+
+`lib/salesforce/config.ts` が参照する環境変数は以下です。
+
+| 変数 | 必須 | 既定値 | 用途 |
+| --- | --- | --- | --- |
+| `SALESFORCE_CLIENT_ID` | 必須 | なし | OAuth client id |
+| `SALESFORCE_CLIENT_SECRET` | 必須 | なし | OAuth client secret |
+| `SALESFORCE_REDIRECT_URI` | 必須 | なし | OAuth callback URL |
+| `SALESFORCE_LOGIN_URL` | 任意 | `https://login.salesforce.com` | Salesforce login / token endpoint の基点 |
+| `SALESFORCE_API_VERSION` | 任意 | `v60.0` | `jsforce.Connection` の API version |
+| `SESSION_SECRET` | 必須 | なし | Cookie 暗号化キーの元文字列。32 文字以上必須 |
+
+## TODO / 未確認
+
+- Salesforce 組織ごとの validation rule、権限、必須項目追加による挙動は未確認。
+- `organizationId` は session 型に存在しますが、現在の token 変換では設定されていません。必要性は TODO。
+- Heroku の実リリース確認、ロールバック手順は [Heroku デプロイ](../deployment/heroku.md) 側で TODO。
 
 ## 関連ドキュメント
 
