@@ -32,6 +32,27 @@ type CreateResult = {
     success: boolean;
 };
 
+async function createStandardObject<TInput extends object>(objectName: string, input: TInput) {
+    return withStandardObjectConnection(async (connection) => {
+        const result = await connection.sobject(objectName).create(input);
+        return { id: result.id, success: result.success } as CreateResult;
+    });
+}
+
+async function updateStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
+    return withStandardObjectConnection(async (connection) => {
+        const result = await connection.sobject(objectName).update({ Id: id, ...input });
+        return emptySalesforceResult(result);
+    });
+}
+
+async function deleteStandardObject(objectName: string, id: string) {
+    return withStandardObjectConnection(async (connection) => {
+        const result = await connection.sobject(objectName).destroy(id);
+        return emptySalesforceResult(result);
+    });
+}
+
 export async function listAccounts() {
     return withStandardObjectConnection(async (connection) => {
         const response = await connection.query<AccountRecord>(accountListQuery);
@@ -40,24 +61,15 @@ export async function listAccounts() {
 }
 
 export async function createAccount(input: AccountInput) {
-    return withStandardObjectConnection(async (connection) => {
-        const result = await connection.sobject("Account").create(input);
-        return { id: result.id, success: result.success } as CreateResult;
-    });
+    return createStandardObject("Account", input);
 }
 
 export async function updateAccount(id: string, input: AccountUpdateInput) {
-    return withStandardObjectConnection(async (connection) => {
-        const result = await connection.sobject("Account").update({ Id: id, ...input });
-        return emptySalesforceResult(result);
-    });
+    return updateStandardObject("Account", id, input);
 }
 
 export async function deleteAccount(id: string) {
-    return withStandardObjectConnection(async (connection) => {
-        const result = await connection.sobject("Account").destroy(id);
-        return emptySalesforceResult(result);
-    });
+    return deleteStandardObject("Account", id);
 }
 
 export async function listContacts() {
@@ -68,24 +80,15 @@ export async function listContacts() {
 }
 
 export async function createContact(input: ContactInput) {
-    return withStandardObjectConnection(async (connection) => {
-        const result = await connection.sobject("Contact").create(input);
-        return { id: result.id, success: result.success } as CreateResult;
-    });
+    return createStandardObject("Contact", input);
 }
 
 export async function updateContact(id: string, input: ContactUpdateInput) {
-    return withStandardObjectConnection(async (connection) => {
-        const result = await connection.sobject("Contact").update({ Id: id, ...input });
-        return emptySalesforceResult(result);
-    });
+    return updateStandardObject("Contact", id, input);
 }
 
 export async function deleteContact(id: string) {
-    return withStandardObjectConnection(async (connection) => {
-        const result = await connection.sobject("Contact").destroy(id);
-        return emptySalesforceResult(result);
-    });
+    return deleteStandardObject("Contact", id);
 }
 
 export type { SalesforceQueryResponse, SaveResult };

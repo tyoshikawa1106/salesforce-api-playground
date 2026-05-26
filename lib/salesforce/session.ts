@@ -22,6 +22,27 @@ function getKey(): Buffer {
     return crypto.createHash("sha256").update(sessionSecret).digest();
 }
 
+function isOptionalString(value: unknown): boolean {
+    return value === undefined || typeof value === "string";
+}
+
+function isSalesforceSession(value: unknown): value is SalesforceSession {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        return false;
+    }
+
+    const candidate = value as Partial<SalesforceSession>;
+    return (
+        typeof candidate.accessToken === "string" &&
+        typeof candidate.instanceUrl === "string" &&
+        typeof candidate.issuedAt === "number" &&
+        Number.isFinite(candidate.issuedAt) &&
+        isOptionalString(candidate.refreshToken) &&
+        isOptionalString(candidate.userId) &&
+        isOptionalString(candidate.organizationId)
+    );
+}
+
 export function encryptSession(session: SalesforceSession): string {
     const iv = crypto.randomBytes(12);
     const cipher = crypto.createCipheriv(algorithm, getKey(), iv);
@@ -42,7 +63,8 @@ export function decryptSession(value: string): SalesforceSession | null {
         const decipher = crypto.createDecipheriv(algorithm, getKey(), iv);
         decipher.setAuthTag(tag);
         const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
-        return JSON.parse(decrypted.toString("utf8")) as SalesforceSession;
+        const session = JSON.parse(decrypted.toString("utf8"));
+        return isSalesforceSession(session) ? session : null;
     } catch {
         return null;
     }

@@ -62,6 +62,17 @@ describe("session encryption", () => {
         expect(decryptSession("not-a-session")).toBeNull();
     });
 
+    it("returns null for decrypted values that are not valid sessions", () => {
+        setSessionSecret();
+
+        const encrypted = encryptSession({
+            accessToken: "access-token",
+            issuedAt: 1710000000000
+        } as SalesforceSession);
+
+        expect(decryptSession(encrypted)).toBeNull();
+    });
+
     it("returns null when the session cookie cannot be decrypted", async () => {
         setSessionSecret();
         cookiesMock.mockResolvedValue({

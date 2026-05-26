@@ -1,8 +1,5 @@
-import {
-    jsonWithSession,
-    salesforceErrorResponse
-} from "@/lib/salesforce/client";
 import { readContactUpdatePayload } from "@/lib/salesforce/request-payloads";
+import { handleSalesforceRoute } from "@/lib/salesforce/route-handler";
 import { deleteContact, updateContact } from "@/services/salesforce/records";
 
 type Params = {
@@ -12,22 +9,16 @@ type Params = {
 };
 
 export async function PATCH(request: Request, { params }: Params) {
-    try {
+    return handleSalesforceRoute(async () => {
         const { id } = await params;
         const input = await readContactUpdatePayload(request);
-        const { data, session } = await updateContact(id, input);
-        return jsonWithSession(data, session);
-    } catch (error) {
-        return salesforceErrorResponse(error);
-    }
+        return updateContact(id, input);
+    });
 }
 
 export async function DELETE(_request: Request, { params }: Params) {
-    try {
+    return handleSalesforceRoute(async () => {
         const { id } = await params;
-        const { data, session } = await deleteContact(id);
-        return jsonWithSession(data, session);
-    } catch (error) {
-        return salesforceErrorResponse(error);
-    }
+        return deleteContact(id);
+    });
 }

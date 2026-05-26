@@ -1,8 +1,5 @@
-import {
-    jsonWithSession,
-    salesforceErrorResponse
-} from "@/lib/salesforce/client";
 import { readAccountUpdatePayload } from "@/lib/salesforce/request-payloads";
+import { handleSalesforceRoute } from "@/lib/salesforce/route-handler";
 import { deleteAccount, updateAccount } from "@/services/salesforce/records";
 
 type Params = {
@@ -12,22 +9,16 @@ type Params = {
 };
 
 export async function PATCH(request: Request, { params }: Params) {
-    try {
+    return handleSalesforceRoute(async () => {
         const { id } = await params;
         const input = await readAccountUpdatePayload(request);
-        const { data, session } = await updateAccount(id, input);
-        return jsonWithSession(data, session);
-    } catch (error) {
-        return salesforceErrorResponse(error);
-    }
+        return updateAccount(id, input);
+    });
 }
 
 export async function DELETE(_request: Request, { params }: Params) {
-    try {
+    return handleSalesforceRoute(async () => {
         const { id } = await params;
-        const { data, session } = await deleteAccount(id);
-        return jsonWithSession(data, session);
-    } catch (error) {
-        return salesforceErrorResponse(error);
-    }
+        return deleteAccount(id);
+    });
 }

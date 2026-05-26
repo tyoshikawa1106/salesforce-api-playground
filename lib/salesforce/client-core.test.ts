@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-    buildAuthenticatedSalesforceRequestInit,
     buildAuthorizationCodeTokenEndpointUrl,
     buildAuthorizationCodeTokenParams,
     buildAuthorizationEndpointUrl,
@@ -12,16 +11,9 @@ import {
     buildRevokeEndpointUrl,
     buildRevokeParams,
     buildRevokeRequestInit,
-    buildSalesforceApiRequest,
-    buildSalesforceApiUrl,
-    buildSalesforceQueryPath,
-    buildSalesforceRequestInit,
-    buildSalesforceSObjectCollectionPath,
-    buildSalesforceSObjectRecordPath,
     buildTokenRequestInit,
     extractSalesforceErrorMessage,
     readSalesforceErrorDetails,
-    readSalesforceResponseData,
     selectRevokeToken,
     tokenResponseToRefreshedSession,
     tokenResponseToSession
@@ -210,139 +202,6 @@ describe("buildTokenRequestInit", () => {
     });
 });
 
-describe("buildAuthenticatedSalesforceRequestInit", () => {
-    it("adds Salesforce auth headers and disables caching", () => {
-        expect(
-            buildAuthenticatedSalesforceRequestInit(
-                { accessToken: "access-token" },
-                {
-                    method: "PATCH",
-                    body: JSON.stringify({ Name: "Acme" })
-                }
-            )
-        ).toEqual({
-            method: "PATCH",
-            body: JSON.stringify({ Name: "Acme" }),
-            headers: {
-                authorization: "Bearer access-token",
-                "content-type": "application/json"
-            },
-            cache: "no-store"
-        });
-    });
-
-    it("keeps the existing header override order", () => {
-        expect(
-            buildAuthenticatedSalesforceRequestInit(
-                { accessToken: "access-token" },
-                {
-                    headers: {
-                        authorization: "Bearer caller-token",
-                        "content-type": "application/merge-patch+json",
-                        "if-match": "etag"
-                    },
-                    cache: "reload"
-                }
-            )
-        ).toMatchObject({
-            headers: {
-                authorization: "Bearer caller-token",
-                "content-type": "application/merge-patch+json",
-                "if-match": "etag"
-            },
-            cache: "no-store"
-        });
-    });
-});
-
-describe("buildSalesforceQueryPath", () => {
-    it("builds a Salesforce query API path with an encoded SOQL query", () => {
-        const query = [
-            "SELECT Id, Name",
-            "FROM Account",
-            "ORDER BY LastModifiedDate DESC",
-            "LIMIT 100"
-        ].join(" ");
-
-        expect(buildSalesforceQueryPath(query)).toBe(
-            "/query?q=SELECT%20Id%2C%20Name%20FROM%20Account%20ORDER%20BY%20LastModifiedDate%20DESC%20LIMIT%20100"
-        );
-    });
-});
-
-describe("buildSalesforceSObjectCollectionPath", () => {
-    it("builds a Salesforce sObject collection API path", () => {
-        expect(buildSalesforceSObjectCollectionPath("Account")).toBe("/sobjects/Account");
-    });
-});
-
-describe("buildSalesforceSObjectRecordPath", () => {
-    it("builds a Salesforce sObject record API path with an encoded id", () => {
-        expect(buildSalesforceSObjectRecordPath("Contact", "003xx00000a/b")).toBe(
-            "/sobjects/Contact/003xx00000a%2Fb"
-        );
-    });
-});
-
-describe("buildSalesforceRequestInit", () => {
-    it("builds a method-only Salesforce request init", () => {
-        expect(buildSalesforceRequestInit("DELETE")).toEqual({
-            method: "DELETE"
-        });
-    });
-
-    it("builds a Salesforce request init with a JSON string body", () => {
-        expect(buildSalesforceRequestInit("PATCH", { Name: "Acme" })).toEqual({
-            method: "PATCH",
-            body: JSON.stringify({ Name: "Acme" })
-        });
-    });
-});
-
-describe("buildSalesforceApiUrl", () => {
-    it("builds a Salesforce REST API URL from session, version, and path", () => {
-        expect(
-            buildSalesforceApiUrl(
-                { instanceUrl: "https://example.my.salesforce.com" },
-                "v62.0",
-                "/query?q=SELECT+Id+FROM+Account"
-            )
-        ).toBe(
-            "https://example.my.salesforce.com/services/data/v62.0/query?q=SELECT+Id+FROM+Account"
-        );
-    });
-});
-
-describe("buildSalesforceApiRequest", () => {
-    it("builds the Salesforce API URL and authenticated request init together", () => {
-        expect(
-            buildSalesforceApiRequest(
-                {
-                    accessToken: "access-token",
-                    instanceUrl: "https://example.my.salesforce.com"
-                },
-                "v62.0",
-                "/sobjects/Account/001xx000003DGbY",
-                {
-                    method: "PATCH",
-                    body: JSON.stringify({ Name: "Acme" })
-                }
-            )
-        ).toEqual({
-            url: "https://example.my.salesforce.com/services/data/v62.0/sobjects/Account/001xx000003DGbY",
-            init: {
-                method: "PATCH",
-                body: JSON.stringify({ Name: "Acme" }),
-                headers: {
-                    authorization: "Bearer access-token",
-                    "content-type": "application/json"
-                },
-                cache: "no-store"
-            }
-        });
-    });
-});
-
 describe("extractSalesforceErrorMessage", () => {
     it("joins messages from Salesforce error payload arrays", () => {
         expect(
@@ -382,22 +241,6 @@ describe("readSalesforceErrorDetails", () => {
         });
 
         await expect(readSalesforceErrorDetails(response)).resolves.toBe("service unavailable");
-    });
-});
-
-describe("readSalesforceResponseData", () => {
-    it("returns an empty object for 204 responses", async () => {
-        const response = new Response(null, { status: 204 });
-
-        await expect(readSalesforceResponseData(response)).resolves.toEqual({});
-    });
-
-    it("reads JSON data for non-204 responses", async () => {
-        const response = Response.json({ id: "001xx000003DGbY" });
-
-        await expect(readSalesforceResponseData(response)).resolves.toEqual({
-            id: "001xx000003DGbY"
-        });
     });
 });
 
@@ -466,6 +309,30 @@ describe("tokenResponseToRefreshedSession", () => {
             issuedAt: 789,
             userId: "005xx0000012345",
             organizationId: "00Dxx0000000001"
+        });
+    });
+
+    it("keeps the current instance URL and uses the fallback issued time when omitted", () => {
+        const session: SalesforceSession = {
+            accessToken: "old-access-token",
+            refreshToken: "refresh-token",
+            instanceUrl: "https://old.example.my.salesforce.com",
+            issuedAt: 100
+        };
+
+        expect(
+            tokenResponseToRefreshedSession(
+                session,
+                {
+                    access_token: "new-access-token"
+                } as Parameters<typeof tokenResponseToRefreshedSession>[1],
+                789
+            )
+        ).toEqual({
+            accessToken: "new-access-token",
+            refreshToken: "refresh-token",
+            instanceUrl: "https://old.example.my.salesforce.com",
+            issuedAt: 789
         });
     });
 });

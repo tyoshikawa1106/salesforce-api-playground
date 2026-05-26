@@ -3,17 +3,15 @@ import {
     SalesforceApiError,
     exchangeCodeForToken,
     jsonWithSession,
+    refreshAccessToken,
     revokeSalesforceSession,
     salesforceApiErrorFromResponse,
-    salesforceErrorResponse,
-    salesforceFetch,
-    soql
+    salesforceErrorResponse
 } from "./client";
 import { getSalesforceConfig } from "./config";
 import {
     clearSessionCookie,
     clearStateCookie,
-    getSession,
     setSessionCookie
 } from "./session";
 
@@ -24,14 +22,12 @@ vi.mock("./config", () => ({
 vi.mock("./session", () => ({
     clearSessionCookie: vi.fn(),
     clearStateCookie: vi.fn(),
-    getSession: vi.fn(),
     setSessionCookie: vi.fn()
 }));
 
 const clearSessionCookieMock = vi.mocked(clearSessionCookie);
 const clearStateCookieMock = vi.mocked(clearStateCookie);
 const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
-const getSessionMock = vi.mocked(getSession);
 const setSessionCookieMock = vi.mocked(setSessionCookie);
 
 const salesforceConfig = {
@@ -53,17 +49,6 @@ const salesforceSession = {
 afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
-});
-
-describe("soql", () => {
-    it("combines template parts without calling Salesforce", () => {
-        const objectName = "Account";
-        const limit = "10";
-
-        expect(soql`SELECT Id, Name FROM ${objectName} LIMIT ${limit}`).toBe(
-            "SELECT Id, Name FROM Account LIMIT 10"
-        );
-    });
 });
 
 describe("SalesforceApiError", () => {
@@ -190,81 +175,25 @@ describe("revokeSalesforceSession", () => {
     });
 });
 
-describe("salesforceFetch", () => {
-    it("fetches with the current session and reads JSON data", async () => {
+describe("refreshAccessToken", () => {
+    it("refreshes the access token and preserves the existing session context", async () => {
         getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockResolvedValue(salesforceSession);
-        const fetchMock = vi
-            .fn<typeof fetch>()
-            .mockResolvedValue(Response.json({ records: [{ Id: "001xx000003DGbY" }] }));
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+            Response.json({
+                access_token: "refreshed-token",
+                instance_url: "https://new.example.my.salesforce.com",
+                issued_at: "200"
+            })
+        );
         vi.stubGlobal("fetch", fetchMock);
 
-        await expect(salesforceFetch("/query?q=SELECT+Id+FROM+Account")).resolves.toEqual({
-            data: { records: [{ Id: "001xx000003DGbY" }] },
-            session: {
-                accessToken: "access-token",
-                refreshToken: "refresh-token",
-                instanceUrl: "https://example.my.salesforce.com",
-                issuedAt: 100
-            }
+        await expect(refreshAccessToken(salesforceSession)).resolves.toEqual({
+            accessToken: "refreshed-token",
+            refreshToken: "refresh-token",
+            instanceUrl: "https://new.example.my.salesforce.com",
+            issuedAt: 200
         });
         expect(fetchMock).toHaveBeenCalledWith(
-            "https://example.my.salesforce.com/services/data/v62.0/query?q=SELECT+Id+FROM+Account",
-            {
-                headers: {
-                    authorization: "Bearer access-token",
-                    "content-type": "application/json"
-                },
-                cache: "no-store"
-            }
-        );
-    });
-
-    it("refreshes the access token and retries once when Salesforce returns 401", async () => {
-        getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockResolvedValue({
-            accessToken: "expired-token",
-            refreshToken: "refresh-token",
-            instanceUrl: "https://old.example.my.salesforce.com",
-            issuedAt: 100,
-            userId: "005xx0000012345"
-        });
-        const fetchMock = vi
-            .fn<typeof fetch>()
-            .mockResolvedValueOnce(new Response("", { status: 401, statusText: "Unauthorized" }))
-            .mockResolvedValueOnce(
-                Response.json({
-                    access_token: "refreshed-token",
-                    instance_url: "https://new.example.my.salesforce.com",
-                    issued_at: "200"
-                })
-            )
-            .mockResolvedValueOnce(Response.json({ id: "001xx000003DGbY" }));
-        vi.stubGlobal("fetch", fetchMock);
-
-        await expect(salesforceFetch("/sobjects/Account/001xx000003DGbY")).resolves.toEqual({
-            data: { id: "001xx000003DGbY" },
-            session: {
-                accessToken: "refreshed-token",
-                refreshToken: "refresh-token",
-                instanceUrl: "https://new.example.my.salesforce.com",
-                issuedAt: 200,
-                userId: "005xx0000012345"
-            }
-        });
-        expect(fetchMock).toHaveBeenNthCalledWith(
-            1,
-            "https://old.example.my.salesforce.com/services/data/v62.0/sobjects/Account/001xx000003DGbY",
-            {
-                headers: {
-                    authorization: "Bearer expired-token",
-                    "content-type": "application/json"
-                },
-                cache: "no-store"
-            }
-        );
-        expect(fetchMock).toHaveBeenNthCalledWith(
-            2,
             "https://login.salesforce.com/services/oauth2/token",
             expect.objectContaining({
                 method: "POST",
@@ -274,97 +203,38 @@ describe("salesforceFetch", () => {
                 cache: "no-store"
             })
         );
-        expect(fetchMock).toHaveBeenNthCalledWith(
-            3,
-            "https://new.example.my.salesforce.com/services/data/v62.0/sobjects/Account/001xx000003DGbY",
-            {
-                headers: {
-                    authorization: "Bearer refreshed-token",
-                    "content-type": "application/json"
-                },
-                cache: "no-store"
-            }
-        );
     });
 
-    it("fails before calling Salesforce when there is no session", async () => {
-        getSessionMock.mockResolvedValue(null);
+    it("fails before calling Salesforce when the session has no refresh token", async () => {
         const fetchMock = vi.fn<typeof fetch>();
         vi.stubGlobal("fetch", fetchMock);
 
-        await expect(salesforceFetch("/query?q=SELECT+Id+FROM+Account")).rejects.toMatchObject({
-            message: "Not connected to Salesforce.",
+        await expect(
+            refreshAccessToken({
+                accessToken: "access-token",
+                instanceUrl: "https://example.my.salesforce.com",
+                issuedAt: 100
+            })
+        ).rejects.toMatchObject({
+            message: "Salesforce session expired. Please connect again.",
             status: 401
         });
         expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it("does not retry a 401 when the session has no refresh token", async () => {
+    it("returns Salesforce refresh errors", async () => {
         getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockResolvedValue({
-            accessToken: "expired-token",
-            instanceUrl: "https://example.my.salesforce.com",
-            issuedAt: 100
-        });
+        const details = [{ message: "expired refresh token", errorCode: "invalid_grant" }];
         const fetchMock = vi
             .fn<typeof fetch>()
-            .mockResolvedValue(new Response("", { status: 401, statusText: "Unauthorized" }));
+            .mockResolvedValue(Response.json(details, { status: 400, statusText: "Bad Request" }));
         vi.stubGlobal("fetch", fetchMock);
 
-        await expect(salesforceFetch("/query?q=SELECT+Id+FROM+Account")).rejects.toMatchObject({
-            message: "Salesforce session expired. Please connect again.",
-            status: 401
-        });
-        expect(fetchMock).toHaveBeenCalledOnce();
-    });
-
-    it("returns the refresh failure when access token refresh is rejected", async () => {
-        getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockResolvedValue({
-            ...salesforceSession,
-            accessToken: "expired-token"
-        });
-        const refreshError = [{ message: "expired refresh token", errorCode: "invalid_grant" }];
-        const fetchMock = vi
-            .fn<typeof fetch>()
-            .mockResolvedValueOnce(new Response("", { status: 401, statusText: "Unauthorized" }))
-            .mockResolvedValueOnce(Response.json(refreshError, { status: 400, statusText: "Bad Request" }));
-        vi.stubGlobal("fetch", fetchMock);
-
-        await expect(salesforceFetch("/sobjects/Account/001xx000003DGbY")).rejects.toMatchObject({
+        await expect(refreshAccessToken(salesforceSession)).rejects.toMatchObject({
             message: "expired refresh token",
             status: 400,
-            details: refreshError
+            details
         });
-        expect(fetchMock).toHaveBeenCalledTimes(2);
-    });
-
-    it("returns the retried Salesforce error after a successful refresh", async () => {
-        getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        getSessionMock.mockResolvedValue({
-            ...salesforceSession,
-            accessToken: "expired-token"
-        });
-        const salesforceError = [{ message: "record is not accessible", errorCode: "INSUFFICIENT_ACCESS" }];
-        const fetchMock = vi
-            .fn<typeof fetch>()
-            .mockResolvedValueOnce(new Response("", { status: 401, statusText: "Unauthorized" }))
-            .mockResolvedValueOnce(
-                Response.json({
-                    access_token: "refreshed-token",
-                    instance_url: "https://example.my.salesforce.com",
-                    issued_at: "200"
-                })
-            )
-            .mockResolvedValueOnce(Response.json(salesforceError, { status: 403, statusText: "Forbidden" }));
-        vi.stubGlobal("fetch", fetchMock);
-
-        await expect(salesforceFetch("/sobjects/Account/001xx000003DGbY")).rejects.toMatchObject({
-            message: "record is not accessible",
-            status: 403,
-            details: salesforceError
-        });
-        expect(fetchMock).toHaveBeenCalledTimes(3);
     });
 });
 

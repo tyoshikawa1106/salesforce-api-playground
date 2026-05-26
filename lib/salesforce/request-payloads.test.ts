@@ -13,42 +13,94 @@ function jsonRequest(body: unknown): Pick<Request, "json"> {
 }
 
 describe("Salesforce request payload readers", () => {
-    it("treats account create request JSON as the Salesforce create payload without rewriting values", async () => {
+    it("normalizes account create payloads and omits empty optional fields", async () => {
         const body = {
-            Name: "Acme",
+            Name: " Acme ",
             Phone: "",
             Website: undefined
         };
 
-        await expect(readAccountCreatePayload(jsonRequest(body))).resolves.toBe(body);
+        await expect(readAccountCreatePayload(jsonRequest(body))).resolves.toEqual({
+            Name: "Acme"
+        });
     });
 
-    it("treats account update request JSON as the Salesforce update payload without rewriting nulls", async () => {
+    it("normalizes account update payloads without rewriting nulls", async () => {
         const body = {
-            Name: "Acme",
-            Phone: null
+            Name: " Acme ",
+            Phone: null,
+            Website: ""
         };
 
-        await expect(readAccountUpdatePayload(jsonRequest(body))).resolves.toBe(body);
+        await expect(readAccountUpdatePayload(jsonRequest(body))).resolves.toEqual({
+            Name: "Acme",
+            Phone: null,
+            Website: null
+        });
     });
 
-    it("treats contact create request JSON as the Salesforce create payload without rewriting values", async () => {
+    it("normalizes contact create payloads and omits empty optional fields", async () => {
         const body = {
             FirstName: "",
-            LastName: "Yamada",
+            LastName: " Yamada ",
             AccountId: undefined
         };
 
-        await expect(readContactCreatePayload(jsonRequest(body))).resolves.toBe(body);
+        await expect(readContactCreatePayload(jsonRequest(body))).resolves.toEqual({
+            LastName: "Yamada"
+        });
     });
 
-    it("treats contact update request JSON as the Salesforce update payload without rewriting nulls", async () => {
+    it("normalizes contact update payloads without rewriting nulls", async () => {
         const body = {
             FirstName: null,
-            LastName: "Yamada",
-            AccountId: null
+            LastName: " Yamada ",
+            AccountId: null,
+            Title: ""
         };
 
-        await expect(readContactUpdatePayload(jsonRequest(body))).resolves.toBe(body);
+        await expect(readContactUpdatePayload(jsonRequest(body))).resolves.toEqual({
+            FirstName: null,
+            LastName: "Yamada",
+            AccountId: null,
+            Title: null
+        });
+    });
+
+    it("rejects non-object payloads", async () => {
+        await expect(readAccountCreatePayload(jsonRequest(null))).rejects.toMatchObject({
+            message: "Request body must be a JSON object.",
+            status: 400
+        });
+    });
+
+    it("rejects unexpected fields before calling Salesforce", async () => {
+        await expect(
+            readContactCreatePayload(jsonRequest({ LastName: "Yamada", OwnerId: "005xx0000012345" }))
+        ).rejects.toMatchObject({
+            message: "Unexpected Contact field: OwnerId.",
+            status: 400
+        });
+    });
+
+    it("rejects missing required create fields", async () => {
+        await expect(readAccountCreatePayload(jsonRequest({ Name: " " }))).rejects.toMatchObject({
+            message: "Name is required.",
+            status: 400
+        });
+    });
+
+    it("rejects null values in create payloads", async () => {
+        await expect(readContactCreatePayload(jsonRequest({ LastName: "Yamada", Email: null }))).rejects.toMatchObject({
+            message: "Email must be a string.",
+            status: 400
+        });
+    });
+
+    it("rejects non-string field values", async () => {
+        await expect(readAccountUpdatePayload(jsonRequest({ Phone: 123 }))).rejects.toMatchObject({
+            message: "Phone must be a string.",
+            status: 400
+        });
     });
 });
