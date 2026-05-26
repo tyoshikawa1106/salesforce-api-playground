@@ -11,13 +11,8 @@ permissions:
 
 jobs:
   build:
-    name: Lint, typecheck, and build / Node.js ${{ matrix.node-version }}
+    name: Lint, typecheck, and build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version:
-          - 20
-          - 22
 
     steps:
       - name: Check out repository
@@ -26,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: npm
 
       - name: Install dependencies

@@ -10,7 +10,7 @@
 
 ## CI の確認
 
-GitHub Actions CI は Pull Request と `main` ブランチへの push で実行されます。Node.js 20 / 22 で依存関係を `npm ci` でインストールしたあと、以下を順番に確認します。
+GitHub Actions CI は Pull Request と `main` ブランチへの push で実行されます。Node.js 22 で依存関係を `npm ci` でインストールしたあと、以下を順番に確認します。
 
 ```bash
 npm run lint
