@@ -111,7 +111,8 @@ describe("exchangeCodeForToken", () => {
             refreshToken: "refresh-token",
             instanceUrl: "https://example.my.salesforce.com",
             issuedAt: 200,
-            userId: "005xx0000012345"
+            userId: "005xx0000012345",
+            organizationId: "00Dxx0000000001"
         });
         expect(fetchMock).toHaveBeenCalledWith(
             "https://login.salesforce.com/services/oauth2/token",

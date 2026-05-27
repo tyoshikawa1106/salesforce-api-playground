@@ -263,7 +263,8 @@ describe("tokenResponseToSession", () => {
             refreshToken: "refresh-token",
             instanceUrl: "https://example.my.salesforce.com",
             issuedAt: 1714350000000,
-            userId: "005xx0000012345"
+            userId: "005xx0000012345",
+            organizationId: "00Dxx0000000001"
         });
     });
 
@@ -278,7 +279,8 @@ describe("tokenResponseToSession", () => {
             )
         ).toMatchObject({
             issuedAt: 456,
-            userId: undefined
+            userId: undefined,
+            organizationId: undefined
         });
     });
 });

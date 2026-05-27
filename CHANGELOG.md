@@ -15,6 +15,7 @@
 - `AGENTS.md` の Salesforce 関連配置ルールを、`services/salesforce` と `lib/salesforce` の実装責務に合わせて明確化。
 - Node.js の運用バージョンを 22 に揃え、`package.json` の engines、CI、README、docs の記述を統一。
 - Heroku docs から時点依存の release / commit 例を外し、確認観点中心の記述に整理。
+- Salesforce OAuth token response の `id` URL から `organizationId` を session に保存するように変更。
 
 ### Fixed
 
