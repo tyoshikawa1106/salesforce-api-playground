@@ -128,6 +128,9 @@ describe("playground UI smoke rendering", () => {
         expect(markup).toContain("slds-page-header__meta-text");
         expect(markup).toContain("Create Account");
         expect(markup).toContain("Account Name");
+        expect(markup).toContain("slds-m-top_small\"><form");
+        expect(markup).not.toContain("slds-p-around_medium\"><form");
+        expect(markup).not.toContain("slds-theme_default slds-p-vertical_medium");
     });
 
     it("renders list view page header meta text in the SLDS meta row", () => {

@@ -125,7 +125,7 @@ export function IntegrationPanel({
                 </div>
             </div>
 
-            <div className="slds-p-around_medium">
+            <div className="slds-m-top_small">
                 <form className="slds-box slds-theme_default" onSubmit={onCreateAccount}>
                     <div className="slds-text-heading_small slds-m-bottom_medium">New Account</div>
                     <AccountFormFields value={accountForm} onChange={onAccountFormChange} />
