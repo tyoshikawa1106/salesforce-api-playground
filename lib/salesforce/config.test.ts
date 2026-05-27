@@ -7,8 +7,7 @@ const baseEnv = {
     SALESFORCE_CLIENT_SECRET: "test-client-secret",
     SALESFORCE_REDIRECT_URI: "https://example.test/auth/callback",
     SESSION_SECRET: "a".repeat(32),
-    SALESFORCE_LOGIN_URL: undefined,
-    SALESFORCE_API_VERSION: undefined
+    SALESFORCE_LOGIN_URL: undefined
 };
 
 function setRequiredEnv(overrides: Record<string, string | undefined> = {}) {
@@ -42,6 +41,16 @@ describe("getSalesforceConfig", () => {
 
         expect(getSalesforceConfig()).toMatchObject({
             loginUrl: "https://test.salesforce.com"
+        });
+    });
+
+    it("ignores Salesforce API version environment variables", () => {
+        setRequiredEnv({
+            SALESFORCE_API_VERSION: "v1.0"
+        });
+
+        expect(getSalesforceConfig()).toMatchObject({
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION
         });
     });
 

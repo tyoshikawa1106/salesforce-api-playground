@@ -139,8 +139,9 @@ Cookie 属性は `httpOnly: true`、`sameSite: "lax"`、`path: "/"` です。`se
 | `SALESFORCE_CLIENT_SECRET` | 必須 | なし | OAuth client secret |
 | `SALESFORCE_REDIRECT_URI` | 必須 | なし | OAuth callback URL |
 | `SALESFORCE_LOGIN_URL` | 任意 | `https://login.salesforce.com` | Salesforce login / token endpoint の基点 |
-| `SALESFORCE_API_VERSION` | 任意 | `v66.0` | `jsforce.Connection` の API version |
 | `SESSION_SECRET` | 必須 | なし | Cookie 暗号化キーの元文字列。32 文字以上必須 |
+
+Salesforce API version は環境変数ではなく、`lib/salesforce/api-version.ts` の `DEFAULT_SALESFORCE_API_VERSION` を唯一の定義元として管理します。`jsforce.Connection` には `toJsforceApiVersion()` で先頭 `v` を除いた値を渡します。
 
 ## TODO / 未確認
 

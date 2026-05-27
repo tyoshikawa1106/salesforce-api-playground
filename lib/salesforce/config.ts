@@ -15,7 +15,7 @@ export function getSalesforceConfig(): SalesforceConfig {
         clientSecret: process.env.SALESFORCE_CLIENT_SECRET ?? "",
         redirectUri: process.env.SALESFORCE_REDIRECT_URI ?? "",
         loginUrl: process.env.SALESFORCE_LOGIN_URL ?? "https://login.salesforce.com",
-        apiVersion: process.env.SALESFORCE_API_VERSION ?? DEFAULT_SALESFORCE_API_VERSION,
+        apiVersion: DEFAULT_SALESFORCE_API_VERSION,
         sessionSecret: process.env.SESSION_SECRET ?? ""
     };
 

@@ -29,7 +29,6 @@ function setSessionSecret() {
     vi.stubEnv("SALESFORCE_REDIRECT_URI", "https://example.test/auth/callback");
     vi.stubEnv("SESSION_SECRET", sessionSecret);
     vi.stubEnv("SALESFORCE_LOGIN_URL", undefined);
-    vi.stubEnv("SALESFORCE_API_VERSION", undefined);
 }
 
 afterEach(() => {
