@@ -55,7 +55,7 @@ export function AccountRecordPage({
                 <DetailBlock label="Billing" value={getAccountBilling(account) || "-"} />
             </RecordPageHeader>
 
-            <div className="slds-grid slds-wrap slds-gutters slds-p-around_medium playground-record-body">
+            <div className="slds-grid slds-wrap slds-gutters slds-m-top_small playground-record-body">
                 <div className="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
                     <RecordMainTabs
                         relatedContent={
@@ -123,7 +123,7 @@ export function ContactRecordPage({
                 <DetailBlock label="Last Modified" value={formatDate(contact.LastModifiedDate)} />
             </RecordPageHeader>
 
-            <div className="slds-grid slds-wrap slds-gutters slds-p-around_medium playground-record-body">
+            <div className="slds-grid slds-wrap slds-gutters slds-m-top_small playground-record-body">
                 <div className="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
                     <RecordMainTabs
                         relatedContent={
