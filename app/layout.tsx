@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
     title: "Salesforce API Playground",
-    description: "Salesforce REST API learning playground for Accounts and Contacts."
+    description: "取引先と取引先責任者を操作する Salesforce REST API 学習用プレイグラウンドです。"
 };
 
 export default function RootLayout({

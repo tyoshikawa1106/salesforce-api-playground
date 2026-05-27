@@ -46,7 +46,7 @@ export function LoginPage({ loading = false }: { loading?: boolean }) {
                         href={loading ? undefined : "/api/auth/login"}
                         aria-disabled={loading}
                     >
-                        {loading ? "Checking connection..." : "Connect Salesforce"}
+                        {loading ? "接続を確認しています..." : "Salesforce に接続"}
                     </a>
                 </div>
             </section>

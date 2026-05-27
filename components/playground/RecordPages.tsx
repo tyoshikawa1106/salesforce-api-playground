@@ -37,18 +37,18 @@ export function AccountRecordPage({
         <div>
             <RecordPageHeader
                 tab="accounts"
-                objectLabel="Account"
+                objectLabel="取引先"
                 title={account.Name}
                 loading={loading}
                 onDelete={() => onDelete(account)}
                 onEdit={() => onEdit(account)}
                 onRefresh={onRefresh}
             >
-                <DetailBlock label="Type" value={account.Type || "-"} />
-                <DetailBlock label="Phone" value={account.Phone || "-"} />
-                <DetailBlock label="Website" value={account.Website || "-"} />
-                <DetailBlock label="Industry" value={account.Industry || "-"} />
-                <DetailBlock label="Billing" value={getAccountBilling(account) || "-"} />
+                <DetailBlock label="種別" value={account.Type || "-"} />
+                <DetailBlock label="電話" value={account.Phone || "-"} />
+                <DetailBlock label="Web サイト" value={account.Website || "-"} />
+                <DetailBlock label="業種" value={account.Industry || "-"} />
+                <DetailBlock label="請求先" value={getAccountBilling(account) || "-"} />
             </RecordPageHeader>
 
             <div className="slds-m-top_small playground-record-body">
@@ -56,21 +56,21 @@ export function AccountRecordPage({
                     <RecordMainTabs
                         relatedContent={
                             <>
-                                <RecordNotice title="No potential duplicates were found for this Account." />
+                                <RecordNotice title="この取引先の重複候補は見つかりませんでした。" />
                                 <RelatedContactsCard contacts={contacts} />
                             </>
                         }
                         detailContent={
                             <RecordFieldGrid
                                 fields={[
-                                    ["Account Name", account.Name],
-                                    ["Phone", account.Phone],
-                                    ["Website", account.Website],
-                                    ["Industry", account.Industry],
-                                    ["Type", account.Type],
-                                    ["Billing City", account.BillingCity],
-                                    ["Billing Country", account.BillingCountry],
-                                    ["Last Modified", formatDate(account.LastModifiedDate)]
+                                    ["取引先名", account.Name],
+                                    ["電話", account.Phone],
+                                    ["Web サイト", account.Website],
+                                    ["業種", account.Industry],
+                                    ["種別", account.Type],
+                                    ["請求先市区郡", account.BillingCity],
+                                    ["請求先国", account.BillingCountry],
+                                    ["最終更新日", formatDate(account.LastModifiedDate)]
                                 ]}
                             />
                         }
@@ -101,18 +101,18 @@ export function ContactRecordPage({
         <div>
             <RecordPageHeader
                 tab="contacts"
-                objectLabel="Contact"
+                objectLabel="取引先責任者"
                 title={getContactName(contact)}
                 loading={loading}
                 onDelete={() => onDelete(contact)}
                 onEdit={() => onEdit(contact)}
                 onRefresh={onRefresh}
             >
-                <DetailBlock label="Title" value={contact.Title || "-"} />
-                <DetailBlock label="Account Name" value={contact.Account?.Name || "-"} />
-                <DetailBlock label="Email" value={contact.Email || "-"} />
-                <DetailBlock label="Phone" value={contact.Phone || "-"} />
-                <DetailBlock label="Last Modified" value={formatDate(contact.LastModifiedDate)} />
+                <DetailBlock label="役職" value={contact.Title || "-"} />
+                <DetailBlock label="取引先名" value={contact.Account?.Name || "-"} />
+                <DetailBlock label="メール" value={contact.Email || "-"} />
+                <DetailBlock label="電話" value={contact.Phone || "-"} />
+                <DetailBlock label="最終更新日" value={formatDate(contact.LastModifiedDate)} />
             </RecordPageHeader>
 
             <div className="slds-m-top_small playground-record-body">
@@ -120,19 +120,19 @@ export function ContactRecordPage({
                     <RecordMainTabs
                         relatedContent={
                             <>
-                                <RecordNotice title="No activities are related to this Contact yet." />
+                                <RecordNotice title="この取引先責任者に関連する活動はまだありません。" />
                                 <RelatedAccountCard accountName={contact.Account?.Name} />
                             </>
                         }
                         detailContent={
                             <RecordFieldGrid
                                 fields={[
-                                    ["Name", getContactName(contact)],
-                                    ["Title", contact.Title],
-                                    ["Account Name", contact.Account?.Name],
-                                    ["Email", contact.Email],
-                                    ["Phone", contact.Phone],
-                                    ["Last Modified", formatDate(contact.LastModifiedDate)]
+                                    ["氏名", getContactName(contact)],
+                                    ["役職", contact.Title],
+                                    ["取引先名", contact.Account?.Name],
+                                    ["メール", contact.Email],
+                                    ["電話", contact.Phone],
+                                    ["最終更新日", formatDate(contact.LastModifiedDate)]
                                 ]}
                             />
                         }
@@ -193,21 +193,21 @@ function RecordPageHeader({
                             <button
                                 className="slds-button slds-button_icon slds-button_icon-border-filled playground-record-header-button"
                                 type="button"
-                                title="Refresh"
+                                title="更新"
                                 onClick={onRefresh}
                                 disabled={loading}
                             >
                                 <UtilityButtonIcon name="refresh" label="" />
-                                <span className="slds-assistive-text">Refresh</span>
+                                <span className="slds-assistive-text">更新</span>
                             </button>
                         </div>
                         <div className="slds-page-header__control playground-record-header-action">
-                            <div className="slds-button-group" role="group" aria-label={`${objectLabel} record actions`}>
+                            <div className="slds-button-group" role="group" aria-label={`${objectLabel}レコードのアクション`}>
                                 <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onEdit}>
-                                    Edit
+                                    編集
                                 </button>
                                 <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onDelete}>
-                                    Delete
+                                    削除
                                 </button>
                             </div>
                         </div>
@@ -243,7 +243,7 @@ function RecordMainTabs({
                         aria-selected={activeRecordTab === "related"}
                         onClick={() => setActiveRecordTab("related")}
                     >
-                        Related
+                        関連
                     </button>
                 </li>
                 <li className={`slds-tabs_default__item ${activeRecordTab === "details" ? "slds-is-active" : ""}`} role="presentation">
@@ -254,7 +254,7 @@ function RecordMainTabs({
                         aria-selected={activeRecordTab === "details"}
                         onClick={() => setActiveRecordTab("details")}
                     >
-                        Details
+                        詳細
                     </button>
                 </li>
             </ul>
@@ -275,7 +275,7 @@ function RecordNotice({ title }: { title: string }) {
                 <div className="slds-media__body">
                     <h2 className="slds-text-heading_small">{title}</h2>
                     <p className="slds-text-body_regular slds-m-top_small">
-                        This playground shows the Salesforce records returned by the API.
+                        このプレイグラウンドでは、API から返された Salesforce レコードを表示しています。
                     </p>
                 </div>
             </div>
@@ -289,34 +289,34 @@ function RelatedContactsCard({ contacts }: { contacts: Contact[] }) {
             <div className="slds-card__header slds-grid">
                 <header className="slds-media slds-media_center slds-has-flexi-truncate">
                     <div className="slds-media__figure">
-                        <StandardPageHeaderIcon tab="contacts" label="Contacts" />
+                        <StandardPageHeaderIcon tab="contacts" label="取引先責任者" />
                     </div>
                     <div className="slds-media__body">
                         <h2 className="slds-card__header-title">
-                            <span>Contacts ({contacts.length})</span>
+                            <span>取引先責任者 ({contacts.length})</span>
                         </h2>
                     </div>
                 </header>
             </div>
             <div className="slds-card__body slds-card__body_inner">
                 {contacts.length === 0 ? (
-                    <p className="slds-text-color_weak">No Contacts are related to this Account.</p>
+                    <p className="slds-text-color_weak">この取引先に関連する取引先責任者はありません。</p>
                 ) : (
                     <div className="slds-grid slds-wrap slds-gutters_x-small">
                         {contacts.slice(0, 4).map((contact) => (
                             <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" key={contact.Id}>
                                 <article className="slds-tile slds-media">
                                     <div className="slds-media__figure">
-                                        <StandardPageHeaderIcon tab="contacts" label="Contact" />
+                                        <StandardPageHeaderIcon tab="contacts" label="取引先責任者" />
                                     </div>
                                     <div className="slds-media__body">
                                         <h3 className="slds-tile__title slds-truncate" title={getContactName(contact)}>
                                             {getContactName(contact)}
                                         </h3>
                                         <div className="slds-tile__detail">
-                                            <p className="slds-truncate">Title: {contact.Title || "-"}</p>
-                                            <p className="slds-truncate">Email: {contact.Email || "-"}</p>
-                                            <p className="slds-truncate">Phone: {contact.Phone || "-"}</p>
+                                            <p className="slds-truncate">役職: {contact.Title || "-"}</p>
+                                            <p className="slds-truncate">メール: {contact.Email || "-"}</p>
+                                            <p className="slds-truncate">電話: {contact.Phone || "-"}</p>
                                         </div>
                                     </div>
                                 </article>
@@ -335,17 +335,17 @@ function RelatedAccountCard({ accountName }: { accountName?: string }) {
             <div className="slds-card__header slds-grid">
                 <header className="slds-media slds-media_center slds-has-flexi-truncate">
                     <div className="slds-media__figure">
-                        <StandardPageHeaderIcon tab="accounts" label="Account" />
+                        <StandardPageHeaderIcon tab="accounts" label="取引先" />
                     </div>
                     <div className="slds-media__body">
                         <h2 className="slds-card__header-title">
-                            <span>Account</span>
+                            <span>取引先</span>
                         </h2>
                     </div>
                 </header>
             </div>
             <div className="slds-card__body slds-card__body_inner">
-                <p className="slds-text-link">{accountName || "No Account"}</p>
+                <p className="slds-text-link">{accountName || "取引先なし"}</p>
             </div>
         </section>
     );
@@ -376,7 +376,7 @@ function ActivityCard() {
             <div className="slds-card__header slds-grid">
                 <header className="slds-media slds-media_center slds-has-flexi-truncate">
                     <div className="slds-media__body">
-                        <h2 className="slds-card__header-title">Activity</h2>
+                        <h2 className="slds-card__header-title">活動</h2>
                     </div>
                 </header>
             </div>
@@ -385,7 +385,7 @@ function ActivityCard() {
                     <ul className="slds-tabs_default__nav" role="tablist">
                         <li className="slds-tabs_default__item slds-is-active" role="presentation">
                             <a className="slds-tabs_default__link" href="#activity" role="tab" aria-selected="true">
-                                Activity
+                                活動
                             </a>
                         </li>
                         <li className="slds-tabs_default__item" role="presentation">
@@ -397,8 +397,8 @@ function ActivityCard() {
                 </div>
                 <div className="slds-illustration slds-illustration_small slds-p-around_medium">
                     <div className="slds-text-align_center">
-                        <h3 className="slds-text-heading_small">No activities to show.</h3>
-                        <p className="slds-text-color_weak slds-m-top_x-small">Send email or schedule a ToDo to start tracking work.</p>
+                        <h3 className="slds-text-heading_small">表示する活動はありません。</h3>
+                        <p className="slds-text-color_weak slds-m-top_x-small">メール送信や ToDo の予定作成で作業を記録できます。</p>
                     </div>
                 </div>
             </div>
