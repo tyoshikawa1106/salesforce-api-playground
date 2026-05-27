@@ -40,6 +40,7 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | `/api/contacts/[id]` | `DELETE` | Contact を削除 | `{}` | Origin / Referer 不一致 `403`、ID エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/integration/accounts` | `POST` | 連携用ユーザーで Account を作成 | `{ id, success }` with `201` | API key 不一致 `401`、入力エラー `400`、Salesforce API エラー |
 | `/api/integration/accounts/[id]` | `PATCH` | 連携用ユーザーで Account を更新 | `{}` | API key 不一致 `401`、ID / 入力エラー `400`、Salesforce API エラー |
+| `/api/integration/ui/accounts` | `POST` | Integration タブから連携用ユーザーで Account を作成 | `{ id, success }` with `201` | 未接続 `401`、Origin / Referer 不一致 `403`、入力エラー `400`、Salesforce API エラー |
 
 ## 認証系 API
 
@@ -228,6 +229,10 @@ curl -X POST http://localhost:3000/api/integration/accounts \
     "success": true
 }
 ```
+
+### `POST /api/integration/ui/accounts`
+
+Integration タブの画面操作から連携用ユーザーで Account を作成します。`x-integration-api-key` はブラウザへ公開せず、通常の画面操作 API と同じくログイン済みセッションと Origin / Referer を検証します。入力フィールドと検証ルール、Salesforce への接続方式は `POST /api/integration/accounts` と同じです。
 
 ### `PATCH /api/integration/accounts/[id]`
 

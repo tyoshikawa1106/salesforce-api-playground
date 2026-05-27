@@ -33,6 +33,7 @@ export function AppNavigation({
                     <NavigationItem active={activeTab === "home"} label="Home" onClick={() => onChange("home")} />
                     {connected ? <NavigationItem active={activeTab === "accounts"} label="Accounts" onClick={() => onChange("accounts")} /> : null}
                     {connected ? <NavigationItem active={activeTab === "contacts"} label="Contacts" onClick={() => onChange("contacts")} /> : null}
+                    {connected ? <NavigationItem active={activeTab === "integration"} label="Integration" onClick={() => onChange("integration")} /> : null}
                 </ul>
             </nav>
         </div>
@@ -73,7 +74,13 @@ function NavigationItem({ active, label, onClick }: { active: boolean; label: st
 
 export function StandardPageHeaderIcon({ tab, label }: { tab: ActiveTab; label: string }) {
     const iconClass =
-        tab === "home" ? "slds-icon-standard-home" : tab === "accounts" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
+        tab === "home"
+            ? "slds-icon-standard-home"
+            : tab === "accounts"
+                ? "slds-icon-standard-account"
+                : tab === "contacts"
+                    ? "slds-icon-standard-contact"
+                    : "slds-icon-standard-connected-apps";
 
     return (
         <span className={`slds-icon_container playground-page-header-icon ${iconClass}`} title={label}>

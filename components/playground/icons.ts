@@ -1,5 +1,6 @@
 import type { StaticImageData } from "next/image";
 import accountIcon from "@salesforce-ux/design-system/assets/icons/standard/account.svg";
+import connectedAppsIcon from "@salesforce-ux/design-system/assets/icons/standard/connected_apps.svg";
 import contactIcon from "@salesforce-ux/design-system/assets/icons/standard/contact.svg";
 import homeIcon from "@salesforce-ux/design-system/assets/icons/standard/home.svg";
 import addIcon from "@salesforce-ux/design-system/assets/icons/utility/add.svg";
@@ -19,7 +20,8 @@ export { salesforceLogo };
 export const standardIcons: Record<ActiveTab, StaticImageData> = {
     home: homeIcon,
     accounts: accountIcon,
-    contacts: contactIcon
+    contacts: contactIcon,
+    integration: connectedAppsIcon
 };
 
 export const utilityIcons = {

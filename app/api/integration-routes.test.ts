@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as integrationAccountRoute from "./integration/accounts/route";
 import * as integrationAccountRecordRoute from "./integration/accounts/[id]/route";
+import * as integrationUiAccountRoute from "./integration/ui/accounts/route";
 import {
     readAccountCreatePayload,
     readAccountUpdatePayload
@@ -9,6 +10,7 @@ import {
     createIntegrationAccount,
     updateIntegrationAccount
 } from "@/services/salesforce/records";
+import { getSession } from "@/lib/salesforce/session";
 import { expectJson } from "./test-helpers";
 
 vi.mock("@/lib/salesforce/client", () => ({
@@ -38,6 +40,10 @@ vi.mock("@/lib/salesforce/request-payloads", () => ({
     readAccountUpdatePayload: vi.fn()
 }));
 
+vi.mock("@/lib/salesforce/session", () => ({
+    getSession: vi.fn()
+}));
+
 vi.mock("@/services/salesforce/records", () => ({
     createIntegrationAccount: vi.fn(),
     updateIntegrationAccount: vi.fn()
@@ -47,6 +53,7 @@ const readAccountCreatePayloadMock = vi.mocked(readAccountCreatePayload);
 const readAccountUpdatePayloadMock = vi.mocked(readAccountUpdatePayload);
 const createIntegrationAccountMock = vi.mocked(createIntegrationAccount);
 const updateIntegrationAccountMock = vi.mocked(updateIntegrationAccount);
+const getSessionMock = vi.mocked(getSession);
 
 function integrationRequest(body: unknown, method = "POST", apiKey = "test-integration-api-key"): Request {
     return new Request("https://app.example.test/api/integration/accounts", {
@@ -59,11 +66,31 @@ function integrationRequest(body: unknown, method = "POST", apiKey = "test-integ
     });
 }
 
+function integrationUiRequest(body: unknown, origin = "https://app.example.test"): Request {
+    return new Request("https://app.example.test/api/integration/ui/accounts", {
+        method: "POST",
+        headers: {
+            "content-type": "application/json",
+            origin
+        },
+        body: JSON.stringify(body)
+    });
+}
+
 beforeEach(() => {
+    vi.stubEnv("SALESFORCE_CLIENT_ID", "client-id");
+    vi.stubEnv("SALESFORCE_CLIENT_SECRET", "client-secret");
+    vi.stubEnv("SALESFORCE_REDIRECT_URI", "https://app.example.test/api/auth/callback");
+    vi.stubEnv("SESSION_SECRET", "test-session-secret-with-32-chars");
     vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_ID", "integration-client-id");
     vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_SECRET", "integration-client-secret");
     vi.stubEnv("SALESFORCE_INTEGRATION_LOGIN_URL", "https://my-domain.example.test");
     vi.stubEnv("INTEGRATION_API_KEY", "test-integration-api-key");
+    getSessionMock.mockResolvedValue({
+        accessToken: "test-access-token",
+        instanceUrl: "https://example.my.salesforce.test",
+        issuedAt: 1710000000000
+    });
 });
 
 afterEach(() => {
@@ -124,5 +151,44 @@ describe("Integration Account API route", () => {
         expect(updateIntegrationAccountMock).not.toHaveBeenCalled();
         expect(response.status).toBe(400);
         await expectJson(response, { error: "Invalid Account id." });
+    });
+
+    it("creates an account from the same-origin Integration tab route", async () => {
+        const request = integrationUiRequest({ Name: "Integration Tab Acme" });
+        const payload = { Name: "Integration Tab Acme" };
+        const data = { id: "001xx000003DGbY", success: true } as const;
+        readAccountCreatePayloadMock.mockResolvedValue(payload);
+        createIntegrationAccountMock.mockResolvedValue({ data });
+
+        const response = await integrationUiAccountRoute.POST(request);
+
+        expect(readAccountCreatePayloadMock).toHaveBeenCalledWith(request);
+        expect(createIntegrationAccountMock).toHaveBeenCalledWith(payload);
+        expect(response.status).toBe(201);
+        await expectJson(response, data);
+    });
+
+    it("rejects cross-origin Integration tab create requests before reading the payload", async () => {
+        const request = integrationUiRequest({ Name: "Integration Tab Acme" }, "https://evil.example.test");
+
+        const response = await integrationUiAccountRoute.POST(request);
+
+        expect(getSessionMock).not.toHaveBeenCalled();
+        expect(readAccountCreatePayloadMock).not.toHaveBeenCalled();
+        expect(createIntegrationAccountMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(403);
+        await expectJson(response, { error: "Invalid request origin." });
+    });
+
+    it("rejects Integration tab create requests without a Salesforce session", async () => {
+        getSessionMock.mockResolvedValue(null);
+        const request = integrationUiRequest({ Name: "Integration Tab Acme" });
+
+        const response = await integrationUiAccountRoute.POST(request);
+
+        expect(readAccountCreatePayloadMock).not.toHaveBeenCalled();
+        expect(createIntegrationAccountMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(401);
+        await expectJson(response, { error: "Salesforce session is required." });
     });
 });

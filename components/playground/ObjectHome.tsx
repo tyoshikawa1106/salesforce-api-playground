@@ -1,4 +1,6 @@
 import { StandardPageHeaderIcon } from "./Navigation";
+import type { AccountForm } from "@/lib/salesforce/records";
+import { AccountFormFields } from "./Forms";
 
 export function ObjectHomeHeader({
     activeTab,
@@ -59,6 +61,72 @@ export function ObjectHomeHeader({
                 </div>
             </div>
         </div>
+    );
+}
+
+export function IntegrationPanel({
+    accountForm,
+    loading,
+    saving,
+    onAccountFormChange,
+    onCreateAccount,
+    onRefresh
+}: {
+    accountForm: AccountForm;
+    loading: boolean;
+    saving: boolean;
+    onAccountFormChange: (value: AccountForm) => void;
+    onCreateAccount: (event: React.FormEvent<HTMLFormElement>) => void;
+    onRefresh: () => void;
+}) {
+    return (
+        <>
+            <div className="slds-page-header slds-page-header_joined">
+                <div className="slds-page-header__row">
+                    <div className="slds-page-header__col-title">
+                        <div className="slds-media">
+                            <div className="slds-media__figure">
+                                <StandardPageHeaderIcon tab="integration" label="Integration" />
+                            </div>
+                            <div className="slds-media__body">
+                                <div className="slds-page-header__name">
+                                    <div className="slds-page-header__name-title">
+                                        <p className="slds-text-title_caps">Integration</p>
+                                        <h1>
+                                            <span className="slds-page-header__title slds-truncate" title="Integration User Account Create">
+                                                Integration User Account Create
+                                            </span>
+                                        </h1>
+                                    </div>
+                                </div>
+                                <p className="slds-page-header__name-meta">Create Account records with Client Credentials Flow.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="slds-page-header__col-actions">
+                        <div className="slds-page-header__controls">
+                            <div className="slds-page-header__control">
+                                <button className="slds-button slds-button_neutral" type="button" onClick={onRefresh} disabled={loading}>
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="slds-p-around_medium">
+                <form className="slds-box slds-theme_default" onSubmit={onCreateAccount}>
+                    <div className="slds-text-heading_small slds-m-bottom_medium">New Account</div>
+                    <AccountFormFields value={accountForm} onChange={onAccountFormChange} />
+                    <div className="slds-m-top_medium slds-text-align_right">
+                        <button className="slds-button slds-button_brand heroku-brand-action" type="submit" disabled={saving}>
+                            {saving ? "Creating..." : "Create Account"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </>
     );
 }
 

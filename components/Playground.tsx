@@ -16,7 +16,7 @@ import { AppNavigation } from "./playground/Navigation";
 import { GlobalHeader } from "./playground/GlobalHeader";
 import { LoginPage } from "./playground/LoginPage";
 import { NoticeBanner } from "./playground/NoticeBanner";
-import { HomePanel, ObjectHomeHeader } from "./playground/ObjectHome";
+import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./playground/ObjectHome";
 import { AccountPanel, ContactPanel } from "./playground/RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./playground/RecordPages";
 import {
@@ -44,6 +44,7 @@ export default function Playground() {
     const [modal, setModal] = useState<ModalState | null>(null);
     const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
     const [accountForm, setAccountForm] = useState<AccountForm>(blankAccount);
+    const [integrationAccountForm, setIntegrationAccountForm] = useState<AccountForm>(blankAccount);
     const [contactForm, setContactForm] = useState<ContactForm>(blankContact);
     const noticeTimer = useRef<number | null>(null);
 
@@ -245,6 +246,38 @@ export default function Playground() {
         }
     }
 
+    async function createIntegrationAccountFromTab(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!integrationAccountForm.Name.trim()) {
+            showNotice({ tone: "error", message: "Account Name is required." });
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const saveNotice = await saveRecord(
+                async () => {
+                    const payload = buildAccountCreatePayload(integrationAccountForm);
+                    await apiRequest(
+                        buildPlaygroundApiRequest(playgroundApiPaths.integrationAccounts, {
+                            method: "POST",
+                            body: payload
+                        })
+                    );
+                    return "Account was created by the integration user.";
+                },
+                "Integration Account create failed."
+            );
+            showNotice(saveNotice);
+            if (saveNotice.tone === "success") {
+                setIntegrationAccountForm(blankAccount);
+                await loadAll();
+            }
+        } finally {
+            setSaving(false);
+        }
+    }
+
     async function confirmDelete() {
         if (!deleteState) {
             return;
@@ -355,6 +388,17 @@ export default function Playground() {
                             onEdit={openContactModal}
                             onRefresh={loadAll}
                             loading={loading}
+                        />
+                    ) : null}
+
+                    {activeTab === "integration" && session.connected ? (
+                        <IntegrationPanel
+                            accountForm={integrationAccountForm}
+                            loading={loading}
+                            saving={saving}
+                            onAccountFormChange={setIntegrationAccountForm}
+                            onCreateAccount={createIntegrationAccountFromTab}
+                            onRefresh={loadAll}
                         />
                     ) : null}
                 </section>

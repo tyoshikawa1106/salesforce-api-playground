@@ -18,4 +18,4 @@ export type Notice = {
     message: string;
 };
 
-export type ActiveTab = "home" | "accounts" | "contacts";
+export type ActiveTab = "home" | "accounts" | "contacts" | "integration";
