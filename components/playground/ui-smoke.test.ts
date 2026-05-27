@@ -81,7 +81,6 @@ describe("playground UI smoke rendering", () => {
                 account,
                 contacts: [contact],
                 loading: false,
-                onBack: noop,
                 onDelete: noop,
                 onEdit: noop,
                 onRefresh: noop
@@ -91,7 +90,6 @@ describe("playground UI smoke rendering", () => {
             createElement(ContactRecordPage, {
                 contact,
                 loading: false,
-                onBack: noop,
                 onDelete: noop,
                 onEdit: noop,
                 onRefresh: noop

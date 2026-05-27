@@ -22,7 +22,6 @@ export function AccountRecordPage({
     account,
     contacts,
     loading,
-    onBack,
     onDelete,
     onEdit,
     onRefresh
@@ -30,7 +29,6 @@ export function AccountRecordPage({
     account: Account;
     contacts: Contact[];
     loading: boolean;
-    onBack: () => void;
     onDelete: (record: Account) => void;
     onEdit: (record: Account) => void;
     onRefresh: () => void;
@@ -42,7 +40,6 @@ export function AccountRecordPage({
                 objectLabel="Account"
                 title={account.Name}
                 loading={loading}
-                onBack={onBack}
                 onDelete={() => onDelete(account)}
                 onEdit={() => onEdit(account)}
                 onRefresh={onRefresh}
@@ -91,14 +88,12 @@ export function AccountRecordPage({
 export function ContactRecordPage({
     contact,
     loading,
-    onBack,
     onDelete,
     onEdit,
     onRefresh
 }: {
     contact: Contact;
     loading: boolean;
-    onBack: () => void;
     onDelete: (record: Contact) => void;
     onEdit: (record: Contact) => void;
     onRefresh: () => void;
@@ -110,7 +105,6 @@ export function ContactRecordPage({
                 objectLabel="Contact"
                 title={getContactName(contact)}
                 loading={loading}
-                onBack={onBack}
                 onDelete={() => onDelete(contact)}
                 onEdit={() => onEdit(contact)}
                 onRefresh={onRefresh}
@@ -159,7 +153,6 @@ function RecordPageHeader({
     objectLabel,
     title,
     loading,
-    onBack,
     onDelete,
     onEdit,
     onRefresh,
@@ -170,7 +163,6 @@ function RecordPageHeader({
     objectLabel: string;
     title: string;
     loading: boolean;
-    onBack: () => void;
     onDelete: () => void;
     onEdit: () => void;
     onRefresh: () => void;
@@ -201,11 +193,6 @@ function RecordPageHeader({
                 </div>
                 <div className="slds-page-header__col-actions slds-max-medium-size_full playground-record-header-actions">
                     <div className="slds-page-header__controls playground-record-header-controls">
-                        <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onBack}>
-                                Back to List
-                            </button>
-                        </div>
                         <div className="slds-page-header__control playground-record-header-action">
                             <button
                                 className="slds-button slds-button_icon slds-button_icon-border-filled playground-record-header-button"
