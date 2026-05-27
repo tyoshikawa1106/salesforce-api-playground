@@ -23,11 +23,14 @@
 
 - `main` は GitHub と同期済みの安定ブランチとして扱う。
 - Heroku は GitHub `main` から自動デプロイされる。
+- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。PR を作成し、CI pass 後に ready for review へ変更して、`main` へマージすると自動デプロイされる旨を案内する。
+- Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
 - 作業ブランチは `codex/...` の形式にする。
 - `main` へ直接コミットしない。
 - コミットは作業単位で分割し、コミットメッセージは日本語で書く。
-- 開発完了後は ready PR を作成し、ユーザーは PR の内容をもとにレビューする。
-- 実装途中の共有や方針確認が目的の場合のみ draft PR を使う。
+- 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
+- CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
+- 実装途中の共有や方針確認が目的の場合も draft PR を使う。
 - PR title に `codex` プレフィックスを付けない。
 - PR のマージはユーザーが行う。通常は merge commit でマージする。
 - PR マージ前に GitHub Actions が pass していることを確認する。
