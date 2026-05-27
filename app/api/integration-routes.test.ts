@@ -62,6 +62,7 @@ function integrationRequest(body: unknown, method = "POST", apiKey = "test-integ
 beforeEach(() => {
     vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_ID", "integration-client-id");
     vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_SECRET", "integration-client-secret");
+    vi.stubEnv("SALESFORCE_INTEGRATION_LOGIN_URL", "https://my-domain.example.test");
     vi.stubEnv("INTEGRATION_API_KEY", "test-integration-api-key");
 });
 
