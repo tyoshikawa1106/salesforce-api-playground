@@ -37,13 +37,11 @@ describe("getSalesforceConfig", () => {
 
     it("uses optional Salesforce endpoint overrides", () => {
         setRequiredEnv({
-            SALESFORCE_LOGIN_URL: "https://test.salesforce.com",
-            SALESFORCE_API_VERSION: DEFAULT_SALESFORCE_API_VERSION
+            SALESFORCE_LOGIN_URL: "https://test.salesforce.com"
         });
 
         expect(getSalesforceConfig()).toMatchObject({
-            loginUrl: "https://test.salesforce.com",
-            apiVersion: DEFAULT_SALESFORCE_API_VERSION
+            loginUrl: "https://test.salesforce.com"
         });
     });
 
