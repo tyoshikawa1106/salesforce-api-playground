@@ -311,17 +311,41 @@ Contact を削除します。成功時は空オブジェクトを返します。
 | Salesforce API エラー | Salesforce 側 status | `{ "error": "...", "details": ... }` |
 | 想定外エラー | `500` | `{ "error": "..." }` |
 
+Salesforce 組織依存エラーの扱い:
+
+- validation rule、権限不足、参照整合性、選択リスト値、組織側で追加された必須項目は Salesforce 組織設定に依存します。
+- 現行実装では jsforce / Salesforce から受け取ったエラーを `SalesforceApiError` に変換し、`details` を保持して API レスポンスへ含めます。
+- UI 表示では `details` をそのまま説明文にせず、秘密情報や内部情報を不用意に出さない文言へ変換します。
+- 変換対象の候補は `REQUIRED_FIELD_MISSING`、`FIELD_CUSTOM_VALIDATION_EXCEPTION`、`INSUFFICIENT_ACCESS_OR_READONLY`、`INVALID_CROSS_REFERENCE_KEY` です。
+
 ## セッション更新
 
 Account / Contact 系 API は成功時に `jsonWithSession()` を通じてセッション Cookie を再セットします。Salesforce API 呼び出しで `401` または `INVALID_SESSION_ID` が発生した場合、refresh token があれば access token を更新して同じ操作を 1 回再試行します。
 
 refresh token がない場合、または refresh に失敗した場合は `401` を返し、セッション Cookie と OAuth state Cookie を削除します。
 
-## TODO / 未確認
+## Rate limit 方針
 
-- Salesforce 側の validation rule、権限不足、参照整合性エラーなど、組織設定に依存する詳細な `details` 形式は未確認。発生時は Salesforce から返る `details` を秘密情報を除いて確認する。
-- Account / Contact の選択リスト値や必須項目追加など、Salesforce 組織固有のメタデータは未確認。現行実装の許可フィールドは `lib/salesforce/record-fields.ts` を参照する。
-- API route に rate limit は実装されていません。現時点で必要性を判断できる運用情報がないため TODO。
+API route 独自の rate limit は実装していません。今回の整理では実装変更を行いません。
+
+実装しない理由:
+
+- このアプリは個人用 / 検証用 playground であり、不特定多数向けの公開 API として設計していません。
+- Salesforce API 側にも API 使用量や同時実行などの制限があります。
+- 制御点は Heroku / reverse proxy / middleware / API route のどこに置くかで運用負荷、誤検知、監視方法が変わります。
+- 公開範囲や利用者数を広げるまでは、アプリ内 rate limit を運用要件にしません。
+
+公開範囲や利用者数を広げる場合に決めること:
+
+- Heroku 側、reverse proxy、Next.js middleware、個別 API route のどこで制御するかを決める。
+- セッション単位、IP 単位、Salesforce user / organization 単位のどれを基準にするかを決める。
+- `GET` の一覧取得と `POST` / `PATCH` / `DELETE` のデータ変更で制限値を分けるか検討する。
+- Salesforce API limit 到達時のエラーを安全な画面表示に変換する。
+- rate limit による `429` レスポンスを導入する場合は、UI の再試行導線とテストを追加する。
+
+## 組織固有メタデータ
+
+- Account / Contact の選択リスト値や必須項目追加など、Salesforce 組織固有のメタデータは実装側では管理しない。現行実装の許可フィールドは `lib/salesforce/record-fields.ts` を参照する。
 
 ## 関連ドキュメント
 
