@@ -103,10 +103,14 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).toContain("slds-tabs_default__content slds-show slds-p-around_x-small");
         expect(accountMarkup).toContain("slds-box slds-box_x-small slds-theme_default slds-m-bottom_x-small");
         expect(accountMarkup).toContain("slds-card slds-card_boundary playground-record-related-card");
+        expect(accountMarkup).not.toContain("New Contact");
         expect(accountMarkup).not.toContain("slds-box slds-box_x-small slds-theme_default\"><div class=\"slds-grid slds-wrap slds-gutters_x-small");
+        expect(accountMarkup).toContain("slds-button-group");
+        expect(accountMarkup).not.toContain("slds-button_destructive");
         expect(contactMarkup).toContain("Account");
         expect(contactMarkup).toContain("No activities are related to this Contact yet.");
         expect(contactMarkup).toContain("slds-m-top_small playground-record-body");
+        expect(contactMarkup).not.toContain("New Case");
     });
 
     it("renders the Integration tab account create form", () => {

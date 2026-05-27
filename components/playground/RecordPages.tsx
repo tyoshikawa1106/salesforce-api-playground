@@ -43,7 +43,6 @@ export function AccountRecordPage({
                 onDelete={() => onDelete(account)}
                 onEdit={() => onEdit(account)}
                 onRefresh={onRefresh}
-                primaryActionLabel="New Contact"
             >
                 <DetailBlock label="Type" value={account.Type || "-"} />
                 <DetailBlock label="Phone" value={account.Phone || "-"} />
@@ -108,7 +107,6 @@ export function ContactRecordPage({
                 onDelete={() => onDelete(contact)}
                 onEdit={() => onEdit(contact)}
                 onRefresh={onRefresh}
-                primaryActionLabel="New Case"
             >
                 <DetailBlock label="Title" value={contact.Title || "-"} />
                 <DetailBlock label="Account Name" value={contact.Account?.Name || "-"} />
@@ -156,7 +154,6 @@ function RecordPageHeader({
     onDelete,
     onEdit,
     onRefresh,
-    primaryActionLabel,
     children
 }: {
     tab: "accounts" | "contacts";
@@ -166,7 +163,6 @@ function RecordPageHeader({
     onDelete: () => void;
     onEdit: () => void;
     onRefresh: () => void;
-    primaryActionLabel: string;
     children: ReactNode;
 }) {
     return (
@@ -206,19 +202,14 @@ function RecordPageHeader({
                             </button>
                         </div>
                         <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onEdit}>
-                                Edit
-                            </button>
-                        </div>
-                        <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button">
-                                {primaryActionLabel}
-                            </button>
-                        </div>
-                        <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_destructive slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onDelete}>
-                                Delete
-                            </button>
+                            <div className="slds-button-group" role="group" aria-label={`${objectLabel} record actions`}>
+                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onEdit}>
+                                    Edit
+                                </button>
+                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onDelete}>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
