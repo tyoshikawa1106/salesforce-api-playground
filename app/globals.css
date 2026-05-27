@@ -136,7 +136,22 @@ body {
 }
 
 .playground-record-body {
-    row-gap: 1rem;
+    column-gap: 0.75rem;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+    row-gap: 0.75rem;
+}
+
+.playground-record-tabs {
+    --slds-c-tabs-panel-spacing-block: 0.5rem;
+}
+
+.playground-record-related-card {
+    --slds-c-card-body-spacing-block: 0.5rem;
+    --slds-c-card-body-spacing-inline: 0.5rem;
+    --slds-c-card-header-spacing-block-end: 0.25rem;
+    --slds-c-card-header-spacing-block-start: 0.5rem;
+    --slds-c-card-header-spacing-inline: 0.5rem;
 }
 
 @media (max-width: 767px) {
@@ -161,5 +176,11 @@ body {
 
     .playground-record-header-action {
         flex: 1 1 auto;
+    }
+}
+
+@media (max-width: 1023px) {
+    .playground-record-body {
+        grid-template-columns: 1fr;
     }
 }
