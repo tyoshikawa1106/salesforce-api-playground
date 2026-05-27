@@ -14,6 +14,7 @@ describe("playgroundApiPaths", () => {
         expect(playgroundApiPaths.session).toBe("/api/session");
         expect(playgroundApiPaths.accounts).toBe("/api/accounts");
         expect(playgroundApiPaths.contacts).toBe("/api/contacts");
+        expect(playgroundApiPaths.integrationAccounts).toBe("/api/integration/ui/accounts");
         expect(playgroundApiPaths.record("accounts", "001xx000003DGbY")).toBe(
             "/api/accounts/001xx000003DGbY"
         );

@@ -40,6 +40,7 @@ export const playgroundApiPaths = {
     session: "/api/session",
     accounts: "/api/accounts",
     contacts: "/api/contacts",
+    integrationAccounts: "/api/integration/ui/accounts",
     record(resource: PlaygroundApiResource, id: string): string {
         return `/api/${resource}/${id}`;
     }

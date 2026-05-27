@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { LoginPage } from "./LoginPage";
+import { IntegrationPanel } from "./ObjectHome";
 import { AccountPanel, ContactPanel } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
 import type { Account, Contact } from "./types";
@@ -101,5 +102,30 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).toContain("Contacts (1)");
         expect(contactMarkup).toContain("Account");
         expect(contactMarkup).toContain("No activities are related to this Contact yet.");
+    });
+
+    it("renders the Integration tab account create form", () => {
+        const markup = renderToStaticMarkup(
+            createElement(IntegrationPanel, {
+                accountForm: {
+                    Name: "",
+                    Phone: "",
+                    Website: "",
+                    Industry: "",
+                    Type: "",
+                    BillingCity: "",
+                    BillingCountry: ""
+                },
+                loading: false,
+                saving: false,
+                onAccountFormChange: noop,
+                onCreateAccount: noop,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("Integration User Account Create");
+        expect(markup).toContain("Create Account");
+        expect(markup).toContain("Account Name");
     });
 });
