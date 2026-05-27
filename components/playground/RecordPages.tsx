@@ -3,7 +3,7 @@
 import { type ReactNode, useState } from "react";
 import type { Account, Contact, ActiveTab } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
-import { StandardPageHeaderIcon } from "./Navigation";
+import { StandardPageHeaderIcon, UtilityButtonIcon } from "./Navigation";
 
 function DetailBlock({ label, value }: { label: string; value: string }) {
     return (
@@ -22,7 +22,6 @@ export function AccountRecordPage({
     account,
     contacts,
     loading,
-    onBack,
     onDelete,
     onEdit,
     onRefresh
@@ -30,7 +29,6 @@ export function AccountRecordPage({
     account: Account;
     contacts: Contact[];
     loading: boolean;
-    onBack: () => void;
     onDelete: (record: Account) => void;
     onEdit: (record: Account) => void;
     onRefresh: () => void;
@@ -42,11 +40,9 @@ export function AccountRecordPage({
                 objectLabel="Account"
                 title={account.Name}
                 loading={loading}
-                onBack={onBack}
                 onDelete={() => onDelete(account)}
                 onEdit={() => onEdit(account)}
                 onRefresh={onRefresh}
-                primaryActionLabel="New Contact"
             >
                 <DetailBlock label="Type" value={account.Type || "-"} />
                 <DetailBlock label="Phone" value={account.Phone || "-"} />
@@ -55,8 +51,8 @@ export function AccountRecordPage({
                 <DetailBlock label="Billing" value={getAccountBilling(account) || "-"} />
             </RecordPageHeader>
 
-            <div className="slds-grid slds-wrap slds-gutters slds-m-top_small playground-record-body">
-                <div className="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
+            <div className="slds-m-top_small playground-record-body">
+                <div>
                     <RecordMainTabs
                         relatedContent={
                             <>
@@ -80,7 +76,7 @@ export function AccountRecordPage({
                         }
                     />
                 </div>
-                <div className="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                <div>
                     <ActivityCard />
                 </div>
             </div>
@@ -91,14 +87,12 @@ export function AccountRecordPage({
 export function ContactRecordPage({
     contact,
     loading,
-    onBack,
     onDelete,
     onEdit,
     onRefresh
 }: {
     contact: Contact;
     loading: boolean;
-    onBack: () => void;
     onDelete: (record: Contact) => void;
     onEdit: (record: Contact) => void;
     onRefresh: () => void;
@@ -110,11 +104,9 @@ export function ContactRecordPage({
                 objectLabel="Contact"
                 title={getContactName(contact)}
                 loading={loading}
-                onBack={onBack}
                 onDelete={() => onDelete(contact)}
                 onEdit={() => onEdit(contact)}
                 onRefresh={onRefresh}
-                primaryActionLabel="New Case"
             >
                 <DetailBlock label="Title" value={contact.Title || "-"} />
                 <DetailBlock label="Account Name" value={contact.Account?.Name || "-"} />
@@ -123,8 +115,8 @@ export function ContactRecordPage({
                 <DetailBlock label="Last Modified" value={formatDate(contact.LastModifiedDate)} />
             </RecordPageHeader>
 
-            <div className="slds-grid slds-wrap slds-gutters slds-m-top_small playground-record-body">
-                <div className="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
+            <div className="slds-m-top_small playground-record-body">
+                <div>
                     <RecordMainTabs
                         relatedContent={
                             <>
@@ -146,7 +138,7 @@ export function ContactRecordPage({
                         }
                     />
                 </div>
-                <div className="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                <div>
                     <ActivityCard />
                 </div>
             </div>
@@ -159,22 +151,18 @@ function RecordPageHeader({
     objectLabel,
     title,
     loading,
-    onBack,
     onDelete,
     onEdit,
     onRefresh,
-    primaryActionLabel,
     children
 }: {
     tab: "accounts" | "contacts";
     objectLabel: string;
     title: string;
     loading: boolean;
-    onBack: () => void;
     onDelete: () => void;
     onEdit: () => void;
     onRefresh: () => void;
-    primaryActionLabel: string;
     children: ReactNode;
 }) {
     return (
@@ -202,29 +190,26 @@ function RecordPageHeader({
                 <div className="slds-page-header__col-actions slds-max-medium-size_full playground-record-header-actions">
                     <div className="slds-page-header__controls playground-record-header-controls">
                         <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onBack}>
-                                Back to List
+                            <button
+                                className="slds-button slds-button_icon slds-button_icon-border-filled playground-record-header-button"
+                                type="button"
+                                title="Refresh"
+                                onClick={onRefresh}
+                                disabled={loading}
+                            >
+                                <UtilityButtonIcon name="refresh" label="" />
+                                <span className="slds-assistive-text">Refresh</span>
                             </button>
                         </div>
                         <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onRefresh} disabled={loading}>
-                                Refresh
-                            </button>
-                        </div>
-                        <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onEdit}>
-                                Edit
-                            </button>
-                        </div>
-                        <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button">
-                                {primaryActionLabel}
-                            </button>
-                        </div>
-                        <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_destructive slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onDelete}>
-                                Delete
-                            </button>
+                            <div className="slds-button-group" role="group" aria-label={`${objectLabel} record actions`}>
+                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onEdit}>
+                                    Edit
+                                </button>
+                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onDelete}>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -248,8 +233,8 @@ function RecordMainTabs({
     const [activeRecordTab, setActiveRecordTab] = useState<"related" | "details">("related");
 
     return (
-        <div className="slds-tabs_default slds-tabs_card">
-            <ul className="slds-tabs_default__nav slds-p-left_medium" role="tablist">
+        <div className="slds-tabs_default slds-tabs_card playground-record-tabs">
+            <ul className="slds-tabs_default__nav slds-p-left_x-small" role="tablist">
                 <li className={`slds-tabs_default__item ${activeRecordTab === "related" ? "slds-is-active" : ""}`} role="presentation">
                     <button
                         className="slds-tabs_default__link slds-button_reset"
@@ -273,7 +258,7 @@ function RecordMainTabs({
                     </button>
                 </li>
             </ul>
-            <div className="slds-tabs_default__content slds-show slds-p-around_medium" role="tabpanel">
+            <div className="slds-tabs_default__content slds-show slds-p-around_x-small" role="tabpanel">
                 {activeRecordTab === "related" ? relatedContent : detailContent}
             </div>
         </div>
@@ -282,7 +267,7 @@ function RecordMainTabs({
 
 function RecordNotice({ title }: { title: string }) {
     return (
-        <section className="slds-box slds-theme_default slds-m-bottom_medium">
+        <section className="slds-box slds-box_x-small slds-theme_default slds-m-bottom_x-small">
             <div className="slds-media">
                 <div className="slds-media__figure">
                     <span className="slds-icon_container slds-icon-utility-warning" aria-hidden="true" />
@@ -300,7 +285,7 @@ function RecordNotice({ title }: { title: string }) {
 
 function RelatedContactsCard({ contacts }: { contacts: Contact[] }) {
     return (
-        <section className="slds-card slds-card_boundary">
+        <section className="slds-card slds-card_boundary playground-record-related-card">
             <div className="slds-card__header slds-grid">
                 <header className="slds-media slds-media_center slds-has-flexi-truncate">
                     <div className="slds-media__figure">
@@ -317,7 +302,7 @@ function RelatedContactsCard({ contacts }: { contacts: Contact[] }) {
                 {contacts.length === 0 ? (
                     <p className="slds-text-color_weak">No Contacts are related to this Account.</p>
                 ) : (
-                    <div className="slds-grid slds-wrap slds-gutters">
+                    <div className="slds-grid slds-wrap slds-gutters_x-small">
                         {contacts.slice(0, 4).map((contact) => (
                             <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" key={contact.Id}>
                                 <article className="slds-tile slds-media">
@@ -346,7 +331,7 @@ function RelatedContactsCard({ contacts }: { contacts: Contact[] }) {
 
 function RelatedAccountCard({ accountName }: { accountName?: string }) {
     return (
-        <section className="slds-card slds-card_boundary">
+        <section className="slds-card slds-card_boundary playground-record-related-card">
             <div className="slds-card__header slds-grid">
                 <header className="slds-media slds-media_center slds-has-flexi-truncate">
                     <div className="slds-media__figure">
@@ -368,8 +353,8 @@ function RelatedAccountCard({ accountName }: { accountName?: string }) {
 
 function RecordFieldGrid({ fields }: { fields: Array<[string, string | undefined]> }) {
     return (
-        <section className="slds-box slds-theme_default">
-            <div className="slds-grid slds-wrap slds-gutters">
+        <section className="slds-theme_default">
+            <div className="slds-grid slds-wrap slds-gutters_x-small">
                 {fields.map(([label, value]) => (
                     <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" key={label}>
                         <div className="slds-form-element slds-form-element_readonly slds-form-element_stacked slds-p-vertical_x-small slds-border_bottom">

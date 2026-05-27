@@ -91,5 +91,5 @@ export function StandardPageHeaderIcon({ tab, label }: { tab: ActiveTab; label: 
 }
 
 export function UtilityButtonIcon({ name, label }: { name: keyof typeof utilityIcons; label: string }) {
-    return <Image className="slds-button__icon" src={utilityIcons[name]} alt={label} width={16} height={16} />;
+    return <Image className="slds-button__icon playground-utility-button-icon" src={utilityIcons[name]} alt={label} width={16} height={16} />;
 }

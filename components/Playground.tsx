@@ -120,6 +120,13 @@ export default function Playground() {
         }
     }, [showNotice]);
 
+    const changeTab = useCallback((nextTab: ActiveTab) => {
+        setActiveTab(nextTab);
+        setSelectedAccountId(null);
+        setSelectedContactId(null);
+        void loadAll();
+    }, [loadAll]);
+
     useEffect(() => {
         void loadAll();
     }, [loadAll]);
@@ -305,10 +312,10 @@ export default function Playground() {
         <div>
             {notice ? <NoticeBanner notice={notice} /> : null}
             <GlobalHeader connected={session.connected} />
-            <AppNavigation activeTab={activeTab} connected={session.connected} onChange={setActiveTab} />
+            <AppNavigation activeTab={activeTab} connected={session.connected} onChange={changeTab} />
 
             <main className="slds-template_default">
-                <section className={activeTab === "home" ? "slds-card" : "slds-theme_shade slds-p-around_small playground-workspace"}>
+                <section className={activeTab === "home" ? "slds-card" : "playground-workspace"}>
                     {activeTab === "home" ? (
                         <HomePanel
                             accountsCount={accounts.length}
@@ -346,7 +353,6 @@ export default function Playground() {
                         <AccountRecordPage
                             account={selectedAccount}
                             contacts={contacts.filter((contact) => contact.AccountId === selectedAccount.Id)}
-                            onBack={() => setSelectedAccountId(null)}
                             onDelete={(record) => setDeleteState({ type: "account", id: record.Id, label: record.Name })}
                             onEdit={openAccountModal}
                             onRefresh={loadAll}
@@ -381,7 +387,6 @@ export default function Playground() {
                     {activeTab === "contacts" && session.connected && selectedContact ? (
                         <ContactRecordPage
                             contact={selectedContact}
-                            onBack={() => setSelectedContactId(null)}
                             onDelete={(record) =>
                                 setDeleteState({ type: "contact", id: record.Id, label: getContactName(record) })
                             }

@@ -1,4 +1,4 @@
-import { StandardPageHeaderIcon } from "./Navigation";
+import { StandardPageHeaderIcon, UtilityButtonIcon } from "./Navigation";
 import type { AccountForm } from "@/lib/salesforce/records";
 import { AccountFormFields } from "./Forms";
 
@@ -39,17 +39,15 @@ export function ObjectHomeHeader({
                                     </h1>
                                 </div>
                             </div>
-                            <p className="slds-page-header__name-meta">
-                                {recordCount} {recordCount === 1 ? "item" : "items"} - Updated just now
-                            </p>
                         </div>
                     </div>
                 </div>
                 <div className="slds-page-header__col-actions">
                     <div className="slds-page-header__controls">
                         <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_neutral" type="button" onClick={onRefresh} disabled={loading}>
-                                Refresh
+                            <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="Refresh" onClick={onRefresh} disabled={loading}>
+                                <UtilityButtonIcon name="refresh" label="" />
+                                <span className="slds-assistive-text">Refresh</span>
                             </button>
                         </div>
                         <div className="slds-page-header__control">
@@ -58,6 +56,13 @@ export function ObjectHomeHeader({
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div className="slds-page-header__row">
+                <div className="slds-page-header__col-meta">
+                    <p className="slds-page-header__meta-text">
+                        {recordCount} {recordCount === 1 ? "item" : "items"} - Updated just now
+                    </p>
                 </div>
             </div>
         </div>
@@ -99,23 +104,28 @@ export function IntegrationPanel({
                                         </h1>
                                     </div>
                                 </div>
-                                <p className="slds-page-header__name-meta">Create Account records with Client Credentials Flow.</p>
                             </div>
                         </div>
                     </div>
                     <div className="slds-page-header__col-actions">
                         <div className="slds-page-header__controls">
                             <div className="slds-page-header__control">
-                                <button className="slds-button slds-button_neutral" type="button" onClick={onRefresh} disabled={loading}>
-                                    Refresh
+                                <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="Refresh" onClick={onRefresh} disabled={loading}>
+                                    <UtilityButtonIcon name="refresh" label="" />
+                                    <span className="slds-assistive-text">Refresh</span>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div className="slds-page-header__row">
+                    <div className="slds-page-header__col-meta">
+                        <p className="slds-page-header__meta-text">Create Account records with Client Credentials Flow.</p>
+                    </div>
+                </div>
             </div>
 
-            <div className="slds-p-around_medium">
+            <div className="slds-m-top_small">
                 <form className="slds-box slds-theme_default" onSubmit={onCreateAccount}>
                     <div className="slds-text-heading_small slds-m-bottom_medium">New Account</div>
                     <AccountFormFields value={accountForm} onChange={onAccountFormChange} />
@@ -157,7 +167,7 @@ export function HomePanel({
                             <div className="slds-media__body">
                                 <div className="slds-page-header__name">
                                     <div className="slds-page-header__name-title">
-                                        <p className="slds-text-title_caps">App</p>
+                                        <p className="slds-text-title_caps">Home</p>
                                         <h1>
                                             <span className="slds-page-header__title slds-truncate" title="Salesforce API Playground">
                                                 Salesforce API Playground
@@ -165,18 +175,23 @@ export function HomePanel({
                                         </h1>
                                     </div>
                                 </div>
-                                <p className="slds-page-header__name-meta">OAuth と REST API で Account / Contact を直接操作する学習アプリ</p>
                             </div>
                         </div>
                     </div>
                     <div className="slds-page-header__col-actions">
                         <div className="slds-page-header__controls">
                             <div className="slds-page-header__control">
-                                <button className="slds-button slds-button_neutral" type="button" onClick={onRefresh} disabled={loading}>
-                                    Refresh
+                                <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="Refresh" onClick={onRefresh} disabled={loading}>
+                                    <UtilityButtonIcon name="refresh" label="" />
+                                    <span className="slds-assistive-text">Refresh</span>
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div className="slds-page-header__row">
+                    <div className="slds-page-header__col-meta">
+                        <p className="slds-page-header__meta-text">OAuth と REST API で Account / Contact を直接操作する学習アプリ</p>
                     </div>
                 </div>
             </div>

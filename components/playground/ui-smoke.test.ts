@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { LoginPage } from "./LoginPage";
-import { IntegrationPanel } from "./ObjectHome";
+import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
 import type { Account, Contact } from "./types";
@@ -69,6 +69,10 @@ describe("playground UI smoke rendering", () => {
         );
 
         expect(accountMarkup).toContain("Acme");
+        expect(accountMarkup).toContain("Search this list...");
+        expect(accountMarkup).not.toContain("List view controls");
+        expect(accountMarkup).not.toContain("Display as table");
+        expect(accountMarkup).not.toContain("Refresh list");
         expect(accountMarkup).toContain("Edit");
         expect(accountMarkup).toContain("Delete");
         expect(contactMarkup).toContain("Taro Yamada");
@@ -81,7 +85,6 @@ describe("playground UI smoke rendering", () => {
                 account,
                 contacts: [contact],
                 loading: false,
-                onBack: noop,
                 onDelete: noop,
                 onEdit: noop,
                 onRefresh: noop
@@ -91,7 +94,6 @@ describe("playground UI smoke rendering", () => {
             createElement(ContactRecordPage, {
                 contact,
                 loading: false,
-                onBack: noop,
                 onDelete: noop,
                 onEdit: noop,
                 onRefresh: noop
@@ -100,8 +102,19 @@ describe("playground UI smoke rendering", () => {
 
         expect(accountMarkup).toContain("Related");
         expect(accountMarkup).toContain("Contacts (1)");
+        expect(accountMarkup).toContain("slds-m-top_small playground-record-body");
+        expect(accountMarkup).toContain("slds-tabs_default slds-tabs_card playground-record-tabs");
+        expect(accountMarkup).toContain("slds-tabs_default__content slds-show slds-p-around_x-small");
+        expect(accountMarkup).toContain("slds-box slds-box_x-small slds-theme_default slds-m-bottom_x-small");
+        expect(accountMarkup).toContain("slds-card slds-card_boundary playground-record-related-card");
+        expect(accountMarkup).not.toContain("New Contact");
+        expect(accountMarkup).not.toContain("slds-box slds-box_x-small slds-theme_default\"><div class=\"slds-grid slds-wrap slds-gutters_x-small");
+        expect(accountMarkup).toContain("slds-button-group");
+        expect(accountMarkup).not.toContain("slds-button_destructive");
         expect(contactMarkup).toContain("Account");
         expect(contactMarkup).toContain("No activities are related to this Contact yet.");
+        expect(contactMarkup).toContain("slds-m-top_small playground-record-body");
+        expect(contactMarkup).not.toContain("New Case");
     });
 
     it("renders the Integration tab account create form", () => {
@@ -125,7 +138,48 @@ describe("playground UI smoke rendering", () => {
         );
 
         expect(markup).toContain("Integration User Account Create");
+        expect(markup).toContain("slds-page-header__meta-text");
         expect(markup).toContain("Create Account");
         expect(markup).toContain("Account Name");
+        expect(markup).toContain("slds-m-top_small\"><form");
+        expect(markup).not.toContain("slds-p-around_medium\"><form");
+        expect(markup).not.toContain("slds-theme_default slds-p-vertical_medium");
+    });
+
+    it("renders list view page header meta text in the SLDS meta row", () => {
+        const markup = renderToStaticMarkup(
+            createElement(ObjectHomeHeader, {
+                activeTab: "accounts",
+                accountsCount: 15,
+                contactsCount: 0,
+                loading: false,
+                onCreate: noop,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("15 items - Updated just now");
+        expect(markup).toContain("slds-page-header__meta-text");
+        expect(markup).not.toContain("slds-page-header__name-meta");
+    });
+
+    it("renders the Home page header with SLDS meta text and refresh icon button", () => {
+        const markup = renderToStaticMarkup(
+            createElement(HomePanel, {
+                accountsCount: 2,
+                contactsCount: 3,
+                connected: true,
+                instanceUrl: "https://example.my.salesforce.com",
+                loading: false,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("slds-text-title_caps\">Home");
+        expect(markup).toContain("slds-page-header__meta-text");
+        expect(markup).toContain("OAuth と REST API で Account / Contact を直接操作する学習アプリ");
+        expect(markup).toContain("slds-button_icon-border-filled");
+        expect(markup).toContain("slds-button__icon");
+        expect(markup).not.toContain("slds-text-title_caps\">App");
     });
 });
