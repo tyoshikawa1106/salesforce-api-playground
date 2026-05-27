@@ -16,9 +16,9 @@ export function AppNavigation({
             <div className="slds-context-bar__primary">
                 <div className="slds-context-bar__item slds-context-bar__dropdown-trigger slds-dropdown-trigger slds-dropdown-trigger_click slds-no-hover">
                     <div className="slds-context-bar__icon-action">
-                        <button className="slds-button slds-icon-waffle_container slds-context-bar__button" type="button" title="Open App Launcher">
+                        <button className="slds-button slds-icon-waffle_container slds-context-bar__button" type="button" title="アプリケーションランチャーを開く">
                             <AppLauncherIcon />
-                            <span className="slds-assistive-text">Open App Launcher</span>
+                            <span className="slds-assistive-text">アプリケーションランチャーを開く</span>
                         </button>
                     </div>
                     <span className="slds-context-bar__label-action slds-context-bar__app-name">
@@ -28,12 +28,12 @@ export function AppNavigation({
                     </span>
                 </div>
             </div>
-            <nav className="slds-context-bar__secondary" aria-label="Primary">
+            <nav className="slds-context-bar__secondary" aria-label="主要ナビゲーション">
                 <ul className="slds-grid">
-                    <NavigationItem active={activeTab === "home"} label="Home" onClick={() => onChange("home")} />
-                    {connected ? <NavigationItem active={activeTab === "accounts"} label="Accounts" onClick={() => onChange("accounts")} /> : null}
-                    {connected ? <NavigationItem active={activeTab === "contacts"} label="Contacts" onClick={() => onChange("contacts")} /> : null}
-                    {connected ? <NavigationItem active={activeTab === "integration"} label="Integration" onClick={() => onChange("integration")} /> : null}
+                    <NavigationItem active={activeTab === "home"} label="ホーム" onClick={() => onChange("home")} />
+                    {connected ? <NavigationItem active={activeTab === "accounts"} label="取引先" onClick={() => onChange("accounts")} /> : null}
+                    {connected ? <NavigationItem active={activeTab === "contacts"} label="取引先責任者" onClick={() => onChange("contacts")} /> : null}
+                    {connected ? <NavigationItem active={activeTab === "integration"} label="連携" onClick={() => onChange("integration")} /> : null}
                 </ul>
             </nav>
         </div>

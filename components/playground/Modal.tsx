@@ -16,7 +16,7 @@ export function Modal({
             <section className={`slds-modal slds-fade-in-open ${narrow ? "slds-modal_small" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
                 <div className="slds-modal__container">
                     <header className="slds-modal__header">
-                        <button className="slds-button slds-button_icon slds-modal__close" type="button" onClick={onClose} aria-label="Close">
+                        <button className="slds-button slds-button_icon slds-modal__close" type="button" onClick={onClose} aria-label="閉じる">
                             <span aria-hidden="true">×</span>
                         </button>
                         <h2 className="slds-modal__title slds-hyphenate">{title}</h2>
@@ -33,10 +33,10 @@ export function ModalFooter({ saving, onCancel }: { saving: boolean; onCancel: (
     return (
         <div className="slds-modal__footer">
             <button className="slds-button slds-button_neutral" type="button" onClick={onCancel}>
-                Cancel
+                キャンセル
             </button>
             <button className="slds-button slds-button_brand heroku-brand-action" type="submit" disabled={saving}>
-                {saving ? "Saving..." : "Save"}
+                {saving ? "保存中..." : "保存"}
             </button>
         </div>
     );

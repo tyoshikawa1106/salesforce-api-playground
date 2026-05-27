@@ -113,7 +113,7 @@ export default function Playground() {
             }
             showNotice({
                 tone: "error",
-                message: error instanceof Error ? error.message : "Salesforce data could not be loaded."
+                message: error instanceof Error ? error.message : "Salesforce データを読み込めませんでした。"
             });
         } finally {
             setLoading(false);
@@ -170,7 +170,7 @@ export default function Playground() {
     async function saveAccount(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!accountForm.Name.trim()) {
-            showNotice({ tone: "error", message: "Account Name is required." });
+            showNotice({ tone: "error", message: "取引先名は必須です。" });
             return;
         }
 
@@ -186,7 +186,7 @@ export default function Playground() {
                                 body: payload
                             })
                         );
-                        return "Account was updated.";
+                        return "取引先を更新しました。";
                     }
 
                     const payload = buildAccountCreatePayload(accountForm);
@@ -196,9 +196,9 @@ export default function Playground() {
                             body: payload
                         })
                     );
-                    return "Account was created.";
+                    return "取引先を作成しました。";
                 },
-                "Account save failed."
+                "取引先の保存に失敗しました。"
             );
             showNotice(saveNotice);
             if (saveNotice.tone === "success") {
@@ -213,7 +213,7 @@ export default function Playground() {
     async function saveContact(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!contactForm.LastName.trim()) {
-            showNotice({ tone: "error", message: "Contact Last Name is required." });
+            showNotice({ tone: "error", message: "取引先責任者の姓は必須です。" });
             return;
         }
 
@@ -229,7 +229,7 @@ export default function Playground() {
                                 body: payload
                             })
                         );
-                        return "Contact was updated.";
+                        return "取引先責任者を更新しました。";
                     }
 
                     const payload = buildContactCreatePayload(contactForm);
@@ -239,9 +239,9 @@ export default function Playground() {
                             body: payload
                         })
                     );
-                    return "Contact was created.";
+                    return "取引先責任者を作成しました。";
                 },
-                "Contact save failed."
+                "取引先責任者の保存に失敗しました。"
             );
             showNotice(saveNotice);
             if (saveNotice.tone === "success") {
@@ -256,7 +256,7 @@ export default function Playground() {
     async function createIntegrationAccountFromTab(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!integrationAccountForm.Name.trim()) {
-            showNotice({ tone: "error", message: "Account Name is required." });
+            showNotice({ tone: "error", message: "取引先名は必須です。" });
             return;
         }
 
@@ -271,9 +271,9 @@ export default function Playground() {
                             body: payload
                         })
                     );
-                    return "Account was created by the integration user.";
+                    return "連携ユーザーで取引先を作成しました。";
                 },
-                "Integration Account create failed."
+                "連携ユーザーでの取引先作成に失敗しました。"
             );
             showNotice(saveNotice);
             if (saveNotice.tone === "success") {
@@ -298,11 +298,11 @@ export default function Playground() {
                     method: "DELETE"
                 })
             );
-            showNotice({ tone: "success", message: `${deleteState.label} was deleted.` });
+            showNotice({ tone: "success", message: `${deleteState.label} を削除しました。` });
             setDeleteState(null);
             await loadAll();
         } catch (error) {
-            showNotice({ tone: "error", message: error instanceof Error ? error.message : "Delete failed." });
+            showNotice({ tone: "error", message: error instanceof Error ? error.message : "削除に失敗しました。" });
         } finally {
             setSaving(false);
         }
@@ -410,7 +410,7 @@ export default function Playground() {
             </main>
 
             {modal?.type === "account" ? (
-                <Modal title={modal.mode === "create" ? "New Account" : "Edit Account"} onClose={() => setModal(null)}>
+                <Modal title={modal.mode === "create" ? "新規取引先" : "取引先を編集"} onClose={() => setModal(null)}>
                     <form onSubmit={saveAccount}>
                         <div className="slds-modal__content slds-p-around_medium">
                             <AccountFormFields value={accountForm} onChange={setAccountForm} />
@@ -421,7 +421,7 @@ export default function Playground() {
             ) : null}
 
             {modal?.type === "contact" ? (
-                <Modal title={modal.mode === "create" ? "New Contact" : "Edit Contact"} onClose={() => setModal(null)}>
+                <Modal title={modal.mode === "create" ? "新規取引先責任者" : "取引先責任者を編集"} onClose={() => setModal(null)}>
                     <form onSubmit={saveContact}>
                         <div className="slds-modal__content slds-p-around_medium">
                             <ContactFormFields value={contactForm} accounts={accountOptions} onChange={setContactForm} />
@@ -432,18 +432,18 @@ export default function Playground() {
             ) : null}
 
             {deleteState ? (
-                <Modal title="Confirm Delete" onClose={() => setDeleteState(null)} narrow>
+                <Modal title="削除の確認" onClose={() => setDeleteState(null)} narrow>
                     <div className="slds-modal__content slds-p-around_medium">
                         <p>
-                            Delete <strong>{deleteState.label}</strong>? This directly removes the record from Salesforce.
+                            <strong>{deleteState.label}</strong> を削除しますか？ Salesforce からレコードを直接削除します。
                         </p>
                     </div>
                     <div className="slds-modal__footer">
                         <button className="slds-button slds-button_neutral" type="button" onClick={() => setDeleteState(null)}>
-                            Cancel
+                            キャンセル
                         </button>
                         <button className="slds-button slds-button_destructive" type="button" onClick={confirmDelete} disabled={saving}>
-                            {saving ? "Deleting..." : "Delete"}
+                            {saving ? "削除中..." : "削除"}
                         </button>
                     </div>
                 </Modal>

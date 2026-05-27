@@ -17,7 +17,7 @@ export function ObjectHomeHeader({
     onCreate: () => void;
     onRefresh: () => void;
 }) {
-    const objectLabel = activeTab === "accounts" ? "Account" : "Contact";
+    const objectLabel = activeTab === "accounts" ? "取引先" : "取引先責任者";
     const recordCount = activeTab === "accounts" ? accountsCount : contactsCount;
 
     return (
@@ -33,8 +33,8 @@ export function ObjectHomeHeader({
                                 <div className="slds-page-header__name-title">
                                     <p className="slds-text-title_caps">{objectLabel}</p>
                                     <h1>
-                                        <span className="slds-page-header__title slds-truncate" title="Recently Viewed">
-                                            Recently Viewed
+                                        <span className="slds-page-header__title slds-truncate" title="最近参照したデータ">
+                                            最近参照したデータ
                                         </span>
                                     </h1>
                                 </div>
@@ -45,14 +45,14 @@ export function ObjectHomeHeader({
                 <div className="slds-page-header__col-actions">
                     <div className="slds-page-header__controls">
                         <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="Refresh" onClick={onRefresh} disabled={loading}>
+                            <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="更新" onClick={onRefresh} disabled={loading}>
                                 <UtilityButtonIcon name="refresh" label="" />
-                                <span className="slds-assistive-text">Refresh</span>
+                                <span className="slds-assistive-text">更新</span>
                             </button>
                         </div>
                         <div className="slds-page-header__control">
                             <button className="slds-button slds-button_brand heroku-brand-action" type="button" onClick={onCreate}>
-                                New {objectLabel}
+                                新規{objectLabel}
                             </button>
                         </div>
                     </div>
@@ -61,7 +61,7 @@ export function ObjectHomeHeader({
             <div className="slds-page-header__row">
                 <div className="slds-page-header__col-meta">
                     <p className="slds-page-header__meta-text">
-                        {recordCount} {recordCount === 1 ? "item" : "items"} - Updated just now
+                        {recordCount} 件 - たった今更新
                     </p>
                 </div>
             </div>
@@ -91,15 +91,15 @@ export function IntegrationPanel({
                     <div className="slds-page-header__col-title">
                         <div className="slds-media">
                             <div className="slds-media__figure">
-                                <StandardPageHeaderIcon tab="integration" label="Integration" />
+                                <StandardPageHeaderIcon tab="integration" label="連携" />
                             </div>
                             <div className="slds-media__body">
                                 <div className="slds-page-header__name">
                                     <div className="slds-page-header__name-title">
-                                        <p className="slds-text-title_caps">Integration</p>
+                                        <p className="slds-text-title_caps">連携</p>
                                         <h1>
-                                            <span className="slds-page-header__title slds-truncate" title="Integration User Account Create">
-                                                Integration User Account Create
+                                            <span className="slds-page-header__title slds-truncate" title="連携ユーザーによる取引先作成">
+                                                連携ユーザーによる取引先作成
                                             </span>
                                         </h1>
                                     </div>
@@ -110,9 +110,9 @@ export function IntegrationPanel({
                     <div className="slds-page-header__col-actions">
                         <div className="slds-page-header__controls">
                             <div className="slds-page-header__control">
-                                <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="Refresh" onClick={onRefresh} disabled={loading}>
+                                <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="更新" onClick={onRefresh} disabled={loading}>
                                     <UtilityButtonIcon name="refresh" label="" />
-                                    <span className="slds-assistive-text">Refresh</span>
+                                    <span className="slds-assistive-text">更新</span>
                                 </button>
                             </div>
                         </div>
@@ -120,18 +120,18 @@ export function IntegrationPanel({
                 </div>
                 <div className="slds-page-header__row">
                     <div className="slds-page-header__col-meta">
-                        <p className="slds-page-header__meta-text">Create Account records with Client Credentials Flow.</p>
+                        <p className="slds-page-header__meta-text">Client Credentials Flow で取引先レコードを作成します。</p>
                     </div>
                 </div>
             </div>
 
             <div className="slds-m-top_small">
                 <form className="slds-box slds-theme_default" onSubmit={onCreateAccount}>
-                    <div className="slds-text-heading_small slds-m-bottom_medium">New Account</div>
+                    <div className="slds-text-heading_small slds-m-bottom_medium">新規取引先</div>
                     <AccountFormFields value={accountForm} onChange={onAccountFormChange} />
                     <div className="slds-m-top_medium slds-text-align_right">
                         <button className="slds-button slds-button_brand heroku-brand-action" type="submit" disabled={saving}>
-                            {saving ? "Creating..." : "Create Account"}
+                            {saving ? "作成中..." : "取引先を作成"}
                         </button>
                     </div>
                 </form>
@@ -162,12 +162,12 @@ export function HomePanel({
                     <div className="slds-page-header__col-title">
                         <div className="slds-media">
                             <div className="slds-media__figure">
-                                <StandardPageHeaderIcon tab="home" label="Home" />
+                                <StandardPageHeaderIcon tab="home" label="ホーム" />
                             </div>
                             <div className="slds-media__body">
                                 <div className="slds-page-header__name">
                                     <div className="slds-page-header__name-title">
-                                        <p className="slds-text-title_caps">Home</p>
+                                        <p className="slds-text-title_caps">ホーム</p>
                                         <h1>
                                             <span className="slds-page-header__title slds-truncate" title="Salesforce API Playground">
                                                 Salesforce API Playground
@@ -181,9 +181,9 @@ export function HomePanel({
                     <div className="slds-page-header__col-actions">
                         <div className="slds-page-header__controls">
                             <div className="slds-page-header__control">
-                                <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="Refresh" onClick={onRefresh} disabled={loading}>
+                                <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="更新" onClick={onRefresh} disabled={loading}>
                                     <UtilityButtonIcon name="refresh" label="" />
-                                    <span className="slds-assistive-text">Refresh</span>
+                                    <span className="slds-assistive-text">更新</span>
                                 </button>
                             </div>
                         </div>
@@ -191,17 +191,17 @@ export function HomePanel({
                 </div>
                 <div className="slds-page-header__row">
                     <div className="slds-page-header__col-meta">
-                        <p className="slds-page-header__meta-text">OAuth と REST API で Account / Contact を直接操作する学習アプリ</p>
+                        <p className="slds-page-header__meta-text">OAuth と REST API で取引先 / 取引先責任者を直接操作する学習アプリ</p>
                     </div>
                 </div>
             </div>
 
             <div className="slds-p-around_medium">
                 <div className="slds-grid slds-wrap slds-gutters">
-                    <StatusSummary label="Connection" value={connected ? "Connected" : "Not connected"} tone={connected ? "success" : "default"} />
-                    <StatusSummary label="Accounts" value={String(accountsCount)} />
-                    <StatusSummary label="Contacts" value={String(contactsCount)} />
-                    <StatusSummary label="Instance" value={connected ? instanceUrl ?? "-" : "OAuth required"} />
+                    <StatusSummary label="接続" value={connected ? "接続済み" : "未接続"} tone={connected ? "success" : "default"} />
+                    <StatusSummary label="取引先" value={String(accountsCount)} />
+                    <StatusSummary label="取引先責任者" value={String(contactsCount)} />
+                    <StatusSummary label="インスタンス" value={connected ? instanceUrl ?? "-" : "OAuth が必要です"} />
                 </div>
             </div>
         </>

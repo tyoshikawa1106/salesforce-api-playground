@@ -48,7 +48,7 @@ describe("apiRequest", () => {
 
         await expect(promise).rejects.toBeInstanceOf(PlaygroundApiError);
         await expect(promise).rejects.toMatchObject({
-            message: "Request failed.",
+            message: "リクエストに失敗しました。",
             status: 503
         });
     });

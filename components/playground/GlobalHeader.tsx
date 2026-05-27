@@ -74,7 +74,7 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                 <div className="slds-global-header__item slds-global-header__item_search slds-show_medium">
                     <div className="slds-form-element slds-lookup slds-is-close">
                         <label className="slds-assistive-text" htmlFor="global-search">
-                            Search
+                            検索
                         </label>
                         <div className="slds-form-element__control slds-input-has-icon slds-input-has-icon_left slds-global-search__form-element">
                             <Image
@@ -89,7 +89,7 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                                 id="global-search"
                                 className="slds-input slds-lookup__search-input"
                                 type="search"
-                                placeholder="Search Salesforce"
+                                placeholder="Salesforce を検索"
                                 disabled={!connected}
                             />
                         </div>
@@ -97,37 +97,37 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                 </div>
                 <div className="slds-global-header__item">
                     {connected ? (
-                        <ul className="slds-global-actions" aria-label="Global actions">
+                        <ul className="slds-global-actions" aria-label="グローバルアクション">
                             <GlobalActionButton
                                 icon={utilityIcons.add}
-                                label="Global Actions"
-                                popupMessage="Global Actions"
-                                popupOpen={activeActionPopover === "Global Actions"}
-                                onClick={(event) => showActionPopover("Global Actions", event)}
+                                label="グローバルアクション"
+                                popupMessage="グローバルアクション"
+                                popupOpen={activeActionPopover === "グローバルアクション"}
+                                onClick={(event) => showActionPopover("グローバルアクション", event)}
                                 onMouseEnter={cancelActionPopoverClose}
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
                             <GlobalActionButton
                                 icon={utilityIcons.help}
-                                label="Help"
-                                popupMessage="Help"
-                                popupOpen={activeActionPopover === "Help"}
-                                onClick={(event) => showActionPopover("Help", event)}
+                                label="ヘルプ"
+                                popupMessage="ヘルプ"
+                                popupOpen={activeActionPopover === "ヘルプ"}
+                                onClick={(event) => showActionPopover("ヘルプ", event)}
                                 onMouseEnter={cancelActionPopoverClose}
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
                             <GlobalActionButton
                                 icon={utilityIcons.settings}
-                                label="Setup"
-                                popupMessage="Setup"
-                                popupOpen={activeActionPopover === "Setup"}
-                                onClick={(event) => showActionPopover("Setup", event)}
+                                label="設定"
+                                popupMessage="設定"
+                                popupOpen={activeActionPopover === "設定"}
+                                onClick={(event) => showActionPopover("設定", event)}
                                 onMouseEnter={cancelActionPopoverClose}
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
                             <GlobalActionButton
                                 icon={utilityIcons.notification}
-                                label="Notifications"
+                                label="通知"
                                 notificationCount={showNotificationBadge ? 1 : undefined}
                                 pressed={showNotificationBadge}
                                 onClick={(event) => {
@@ -146,7 +146,7 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                                     <button
                                         className="slds-button slds-global-actions__avatar slds-global-actions__item-action"
                                         type="button"
-                                        title="User profile"
+                                        title="ユーザープロファイル"
                                         aria-haspopup="true"
                                         aria-expanded={profileMenuOpen}
                                         onClick={(event) => {
@@ -164,10 +164,10 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                                                 aria-hidden="true"
                                             />
                                         </span>
-                                        <span className="slds-assistive-text">User profile</span>
+                                        <span className="slds-assistive-text">ユーザープロファイル</span>
                                     </button>
                                     <div className="slds-dropdown slds-dropdown_right slds-dropdown_actions slds-dropdown_small playground-profile-dropdown">
-                                        <ul className="slds-dropdown__list" role="menu" aria-label="User profile menu">
+                                        <ul className="slds-dropdown__list" role="menu" aria-label="ユーザープロファイルメニュー">
                                             <li className="slds-dropdown__item" role="presentation">
                                                 <form action="/api/auth/logout" method="post">
                                                     <button
@@ -185,8 +185,8 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                                                                 aria-hidden="true"
                                                             />
                                                         </span>
-                                                        <span className="slds-truncate" title="Log Out">
-                                                            Log Out
+                                                        <span className="slds-truncate" title="ログアウト">
+                                                            ログアウト
                                                         </span>
                                                     </button>
                                                 </form>
@@ -198,7 +198,7 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                         </ul>
                     ) : (
                         <a className="slds-button slds-button_brand heroku-brand-action" href="/api/auth/login">
-                            Connect Salesforce
+                            Salesforce に接続
                         </a>
                     )}
                 </div>

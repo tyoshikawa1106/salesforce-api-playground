@@ -14,22 +14,22 @@ type TextFieldDefinition<TFieldName extends string> = {
 };
 
 const accountFieldLabels: Record<AccountFieldName, string> = {
-    Name: "Account Name",
-    Phone: "Phone",
-    Website: "Website",
-    Industry: "Industry",
-    Type: "Type",
-    BillingCity: "Billing City",
-    BillingCountry: "Billing Country"
+    Name: "取引先名",
+    Phone: "電話",
+    Website: "Web サイト",
+    Industry: "業種",
+    Type: "種別",
+    BillingCity: "請求先市区郡",
+    BillingCountry: "請求先国"
 };
 
 const contactFieldLabels: Record<ContactFieldName, string> = {
-    FirstName: "First Name",
-    LastName: "Last Name",
-    Email: "Email",
-    Phone: "Phone",
-    Title: "Title",
-    AccountId: "Account"
+    FirstName: "名",
+    LastName: "姓",
+    Email: "メール",
+    Phone: "電話",
+    Title: "役職",
+    AccountId: "取引先"
 };
 
 const accountTextFields: Array<TextFieldDefinition<AccountFieldName>> = accountFieldNames.map((key) => ({
@@ -131,7 +131,7 @@ export function ContactFormFields({
             ))}
             <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
                 <label className="slds-form-element__label" htmlFor="contact-account">
-                    Account
+                    取引先
                 </label>
                 <div className="slds-form-element__control">
                     <select
@@ -140,7 +140,7 @@ export function ContactFormFields({
                         value={value.AccountId}
                         onChange={(event) => onChange({ ...value, AccountId: event.target.value })}
                     >
-                        <option value="">No Account</option>
+                        <option value="">取引先なし</option>
                         {accounts.map((account) => (
                             <option key={account.Id} value={account.Id}>
                                 {account.Name}
@@ -170,7 +170,7 @@ function TextField({
     return (
         <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
             <label className="slds-form-element__label" htmlFor={id}>
-                {required ? <abbr className="slds-required" title="required">*</abbr> : null}
+                {required ? <abbr className="slds-required" title="必須">*</abbr> : null}
                 {label}
             </label>
             <div className="slds-form-element__control">

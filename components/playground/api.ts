@@ -33,7 +33,7 @@ function getErrorMessage(data: unknown): string {
         return data.error;
     }
 
-    return "Request failed.";
+    return "リクエストに失敗しました。";
 }
 
 export async function apiRequest<T>({ url, init }: PlaygroundApiRequest): Promise<T> {
