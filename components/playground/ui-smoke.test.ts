@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { LoginPage } from "./LoginPage";
-import { IntegrationPanel } from "./ObjectHome";
+import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
 import type { Account, Contact } from "./types";
@@ -125,7 +125,45 @@ describe("playground UI smoke rendering", () => {
         );
 
         expect(markup).toContain("Integration User Account Create");
+        expect(markup).toContain("slds-page-header__meta-text");
         expect(markup).toContain("Create Account");
         expect(markup).toContain("Account Name");
+    });
+
+    it("renders list view page header meta text in the SLDS meta row", () => {
+        const markup = renderToStaticMarkup(
+            createElement(ObjectHomeHeader, {
+                activeTab: "accounts",
+                accountsCount: 15,
+                contactsCount: 0,
+                loading: false,
+                onCreate: noop,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("15 items - Updated just now");
+        expect(markup).toContain("slds-page-header__meta-text");
+        expect(markup).not.toContain("slds-page-header__name-meta");
+    });
+
+    it("renders the Home page header with SLDS meta text and refresh icon button", () => {
+        const markup = renderToStaticMarkup(
+            createElement(HomePanel, {
+                accountsCount: 2,
+                contactsCount: 3,
+                connected: true,
+                instanceUrl: "https://example.my.salesforce.com",
+                loading: false,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("slds-text-title_caps\">Home");
+        expect(markup).toContain("slds-page-header__meta-text");
+        expect(markup).toContain("OAuth と REST API で Account / Contact を直接操作する学習アプリ");
+        expect(markup).toContain("slds-button_icon-border-filled");
+        expect(markup).toContain("slds-button__icon");
+        expect(markup).not.toContain("slds-text-title_caps\">App");
     });
 });

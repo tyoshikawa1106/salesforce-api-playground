@@ -81,6 +81,10 @@ body {
     object-fit: contain;
 }
 
+.playground-utility-button-icon {
+    filter: brightness(0) saturate(100%) invert(27%) sepia(10%) saturate(569%) hue-rotate(174deg) brightness(94%) contrast(87%);
+}
+
 .heroku-context-bar {
     border-bottom-color: var(--heroku-purple);
 }

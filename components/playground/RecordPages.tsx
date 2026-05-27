@@ -3,7 +3,7 @@
 import { type ReactNode, useState } from "react";
 import type { Account, Contact, ActiveTab } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
-import { StandardPageHeaderIcon } from "./Navigation";
+import { StandardPageHeaderIcon, UtilityButtonIcon } from "./Navigation";
 
 function DetailBlock({ label, value }: { label: string; value: string }) {
     return (
@@ -207,8 +207,15 @@ function RecordPageHeader({
                             </button>
                         </div>
                         <div className="slds-page-header__control playground-record-header-action">
-                            <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onRefresh} disabled={loading}>
-                                Refresh
+                            <button
+                                className="slds-button slds-button_icon slds-button_icon-border-filled playground-record-header-button"
+                                type="button"
+                                title="Refresh"
+                                onClick={onRefresh}
+                                disabled={loading}
+                            >
+                                <UtilityButtonIcon name="refresh" label="" />
+                                <span className="slds-assistive-text">Refresh</span>
                             </button>
                         </div>
                         <div className="slds-page-header__control playground-record-header-action">
