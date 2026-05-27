@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_SALESFORCE_API_VERSION } from "./api-version";
 import {
     SalesforceApiError,
+    exchangeClientCredentialsForToken,
     exchangeCodeForToken,
     jsonWithSession,
     refreshAccessToken,
@@ -9,7 +10,10 @@ import {
     salesforceApiErrorFromResponse,
     salesforceErrorResponse
 } from "./client";
-import { getSalesforceConfig } from "./config";
+import {
+    getSalesforceConfig,
+    getSalesforceIntegrationConfig
+} from "./config";
 import {
     clearSessionCookie,
     clearStateCookie,
@@ -17,7 +21,8 @@ import {
 } from "./session";
 
 vi.mock("./config", () => ({
-    getSalesforceConfig: vi.fn()
+    getSalesforceConfig: vi.fn(),
+    getSalesforceIntegrationConfig: vi.fn()
 }));
 
 vi.mock("./session", () => ({
@@ -29,6 +34,7 @@ vi.mock("./session", () => ({
 const clearSessionCookieMock = vi.mocked(clearSessionCookie);
 const clearStateCookieMock = vi.mocked(clearStateCookie);
 const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
+const getSalesforceIntegrationConfigMock = vi.mocked(getSalesforceIntegrationConfig);
 const setSessionCookieMock = vi.mocked(setSessionCookie);
 
 const salesforceConfig = {
@@ -45,6 +51,14 @@ const salesforceSession = {
     refreshToken: "refresh-token",
     instanceUrl: "https://example.my.salesforce.com",
     issuedAt: 100
+};
+
+const salesforceIntegrationConfig = {
+    clientId: "integration-client-id",
+    clientSecret: "integration-client-secret",
+    loginUrl: "https://login.salesforce.com",
+    apiVersion: DEFAULT_SALESFORCE_API_VERSION,
+    apiKey: "integration-api-key"
 };
 
 afterEach(() => {
@@ -138,6 +152,56 @@ describe("exchangeCodeForToken", () => {
         await expect(exchangeCodeForToken("oauth-code")).rejects.toMatchObject({
             message: "Bad Request",
             status: 400,
+            details
+        });
+    });
+});
+
+describe("exchangeClientCredentialsForToken", () => {
+    it("exchanges client credentials for an integration user session", async () => {
+        getSalesforceIntegrationConfigMock.mockReturnValue(salesforceIntegrationConfig);
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+            Response.json({
+                access_token: "integration-access-token",
+                instance_url: "https://example.my.salesforce.com",
+                issued_at: "300",
+                id: "https://login.salesforce.com/id/00Dxx0000000001/005xx0000099999"
+            })
+        );
+        vi.stubGlobal("fetch", fetchMock);
+
+        await expect(exchangeClientCredentialsForToken()).resolves.toEqual({
+            accessToken: "integration-access-token",
+            refreshToken: undefined,
+            instanceUrl: "https://example.my.salesforce.com",
+            issuedAt: 300,
+            userId: "005xx0000099999",
+            organizationId: "00Dxx0000000001"
+        });
+        expect(fetchMock).toHaveBeenCalledWith(
+            "https://login.salesforce.com/services/oauth2/token",
+            expect.objectContaining({
+                method: "POST",
+                headers: {
+                    "content-type": "application/x-www-form-urlencoded"
+                },
+                cache: "no-store"
+            })
+        );
+        expect(fetchMock.mock.calls[0]?.[0]).not.toContain(salesforceIntegrationConfig.clientSecret);
+    });
+
+    it("returns Salesforce OAuth errors when client credentials exchange fails", async () => {
+        getSalesforceIntegrationConfigMock.mockReturnValue(salesforceIntegrationConfig);
+        const details = { error: "invalid_client", error_description: "invalid client credentials" };
+        const fetchMock = vi
+            .fn<typeof fetch>()
+            .mockResolvedValue(Response.json(details, { status: 401, statusText: "Unauthorized" }));
+        vi.stubGlobal("fetch", fetchMock);
+
+        await expect(exchangeClientCredentialsForToken()).rejects.toMatchObject({
+            message: "Unauthorized",
+            status: 401,
             details
         });
     });
@@ -283,6 +347,23 @@ describe("salesforceErrorResponse", () => {
         await expect(response.json()).resolves.toEqual({
             error: "Salesforce session expired. Please connect again.",
             details
+        });
+    });
+
+    it("can return raw 401 errors for integration routes without clearing session cookies", async () => {
+        clearSessionCookieMock.mockClear();
+        clearStateCookieMock.mockClear();
+
+        const response = salesforceErrorResponse(
+            new SalesforceApiError("Invalid integration API key.", 401),
+            { normalizeExpiredSession: false }
+        );
+
+        expect(response.status).toBe(401);
+        expect(clearSessionCookieMock).not.toHaveBeenCalled();
+        expect(clearStateCookieMock).not.toHaveBeenCalled();
+        await expect(response.json()).resolves.toEqual({
+            error: "Invalid integration API key."
         });
     });
 });

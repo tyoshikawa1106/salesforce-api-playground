@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import {
     buildAuthorizationCodeTokenEndpointUrl,
     buildAuthorizationCodeTokenParams,
+    buildClientCredentialsTokenEndpointUrl,
+    buildClientCredentialsTokenParams,
     buildRefreshTokenRequest,
     buildRevokeEndpointUrl,
     buildRevokeParams,
@@ -14,7 +16,7 @@ import {
     tokenResponseToSession
 } from "./client-core";
 import type { TokenResponse } from "./client-core";
-import { getSalesforceConfig } from "./config";
+import { getSalesforceConfig, getSalesforceIntegrationConfig } from "./config";
 import {
     SalesforceSession,
     clearSessionCookie,
@@ -46,6 +48,22 @@ export async function exchangeCodeForToken(code: string): Promise<SalesforceSess
     const params = buildAuthorizationCodeTokenParams(config, code);
     const response = await fetch(
         buildAuthorizationCodeTokenEndpointUrl(config),
+        buildTokenRequestInit(params)
+    );
+
+    if (!response.ok) {
+        throw await salesforceApiErrorFromResponse(response);
+    }
+
+    const token = (await response.json()) as TokenResponse;
+    return tokenResponseToSession(token);
+}
+
+export async function exchangeClientCredentialsForToken(): Promise<SalesforceSession> {
+    const config = getSalesforceIntegrationConfig();
+    const params = buildClientCredentialsTokenParams(config);
+    const response = await fetch(
+        buildClientCredentialsTokenEndpointUrl(config),
         buildTokenRequestInit(params)
     );
 
@@ -92,6 +110,10 @@ export function jsonWithSession<T>(data: T, session: SalesforceSession, status =
     return response;
 }
 
+type SalesforceErrorResponseOptions = {
+    normalizeExpiredSession?: boolean;
+};
+
 function isExpiredSessionError(error: SalesforceApiError): boolean {
     const detailsText = error.details ? JSON.stringify(error.details) : "";
     return (
@@ -101,9 +123,14 @@ function isExpiredSessionError(error: SalesforceApiError): boolean {
     );
 }
 
-export function salesforceErrorResponse(error: unknown): NextResponse {
+export function salesforceErrorResponse(
+    error: unknown,
+    options: SalesforceErrorResponseOptions = {}
+): NextResponse {
+    const { normalizeExpiredSession = true } = options;
+
     if (error instanceof SalesforceApiError) {
-        if (isExpiredSessionError(error)) {
+        if (normalizeExpiredSession && isExpiredSessionError(error)) {
             const response = NextResponse.json(
                 {
                     error: "Salesforce session expired. Please connect again.",

@@ -38,6 +38,11 @@ type RefreshTokenParamsConfig = {
     clientSecret: string;
 };
 
+type ClientCredentialsTokenParamsConfig = {
+    clientId: string;
+    clientSecret: string;
+};
+
 type RevokeEndpointConfig = {
     instanceUrl: string;
 };
@@ -125,6 +130,22 @@ export function buildRefreshTokenRequest(
         url: buildRefreshTokenEndpointUrl(config),
         init: buildTokenRequestInit(params)
     };
+}
+
+export function buildClientCredentialsTokenEndpointUrl(
+    config: TokenEndpointConfig
+): string {
+    return buildSalesforceTokenEndpointUrl(config);
+}
+
+export function buildClientCredentialsTokenParams(
+    config: ClientCredentialsTokenParamsConfig
+): URLSearchParams {
+    return new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: config.clientId,
+        client_secret: config.clientSecret
+    });
 }
 
 export function buildRevokeEndpointUrl(config: RevokeEndpointConfig): string {

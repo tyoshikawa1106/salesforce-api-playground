@@ -3,14 +3,22 @@ import {
     DEFAULT_SALESFORCE_API_VERSION,
     toJsforceApiVersion
 } from "@/lib/salesforce/api-version";
-import { getSalesforceConfig } from "@/lib/salesforce/config";
+import {
+    getSalesforceConfig,
+    getSalesforceIntegrationConfig
+} from "@/lib/salesforce/config";
 import type { SalesforceSession } from "@/lib/salesforce/session";
-import { SalesforceApiError } from "@/lib/salesforce/client";
+import {
+    SalesforceApiError,
+    exchangeClientCredentialsForToken
+} from "@/lib/salesforce/client";
 import { getSession } from "@/lib/salesforce/session";
 import {
     createAccount,
+    createIntegrationAccount,
     deleteAccount,
     listAccounts,
+    updateIntegrationAccount,
     updateContact
 } from "./records";
 
@@ -36,7 +44,8 @@ vi.mock("jsforce", () => ({
 }));
 
 vi.mock("@/lib/salesforce/config", () => ({
-    getSalesforceConfig: vi.fn()
+    getSalesforceConfig: vi.fn(),
+    getSalesforceIntegrationConfig: vi.fn()
 }));
 
 vi.mock("@/lib/salesforce/client", () => {
@@ -52,6 +61,7 @@ vi.mock("@/lib/salesforce/client", () => {
 
     return {
         SalesforceApiError,
+        exchangeClientCredentialsForToken: vi.fn(),
         refreshAccessToken: vi.fn()
     };
 });
@@ -62,6 +72,8 @@ vi.mock("@/lib/salesforce/session", () => ({
 
 const getSessionMock = vi.mocked(getSession);
 const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
+const getSalesforceIntegrationConfigMock = vi.mocked(getSalesforceIntegrationConfig);
+const exchangeClientCredentialsForTokenMock = vi.mocked(exchangeClientCredentialsForToken);
 
 const session: SalesforceSession = {
     accessToken: "access-token",
@@ -79,6 +91,19 @@ beforeEach(() => {
         loginUrl: "https://login.salesforce.com",
         redirectUri: "https://app.example.test/api/auth/callback",
         sessionSecret: "session-secret"
+    });
+    getSalesforceIntegrationConfigMock.mockReturnValue({
+        apiVersion: DEFAULT_SALESFORCE_API_VERSION,
+        apiKey: "integration-api-key",
+        clientId: "integration-client-id",
+        clientSecret: "integration-client-secret",
+        loginUrl: "https://login.salesforce.com"
+    });
+    exchangeClientCredentialsForTokenMock.mockResolvedValue({
+        accessToken: "integration-access-token",
+        instanceUrl: "https://example.my.salesforce.com",
+        issuedAt: 1700000000000,
+        userId: "005xx0000099999"
     });
 });
 
@@ -163,5 +188,40 @@ describe("Salesforce record services", () => {
         });
 
         expect(jsforceMocks.destroy).toHaveBeenCalledWith("001xx000003DGbY");
+    });
+
+    it("uses client credentials for integration account creates", async () => {
+        jsforceMocks.create.mockResolvedValue({ id: "001xx000003DGbY", success: true });
+
+        await expect(createIntegrationAccount({ Name: "Integration Acme" })).resolves.toEqual({
+            data: { id: "001xx000003DGbY", success: true }
+        });
+
+        expect(exchangeClientCredentialsForTokenMock).toHaveBeenCalledWith();
+        expect(jsforceMocks.connection).toHaveBeenCalledWith({
+            accessToken: "integration-access-token",
+            instanceUrl: "https://example.my.salesforce.com",
+            loginUrl: "https://login.salesforce.com",
+            oauth2: {
+                clientId: "integration-client-id",
+                clientSecret: "integration-client-secret",
+                loginUrl: "https://login.salesforce.com"
+            },
+            version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
+        });
+        expect(jsforceMocks.create).toHaveBeenCalledWith({ Name: "Integration Acme" });
+    });
+
+    it("uses client credentials for integration account updates", async () => {
+        jsforceMocks.update.mockResolvedValue({ success: true });
+
+        await expect(updateIntegrationAccount("001xx000003DGbY", { Phone: "03-1234-5678" })).resolves.toEqual({
+            data: {}
+        });
+
+        expect(jsforceMocks.update).toHaveBeenCalledWith({
+            Id: "001xx000003DGbY",
+            Phone: "03-1234-5678"
+        });
     });
 });

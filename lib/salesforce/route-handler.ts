@@ -23,3 +23,14 @@ export async function handleSalesforceRoute<T>(
         return salesforceErrorResponse(error);
     }
 }
+
+export async function handleSalesforceIntegrationRoute<T>(
+    handler: () => Promise<T>,
+    status = 200
+): Promise<NextResponse> {
+    try {
+        return Response.json(await handler(), { status }) as NextResponse;
+    } catch (error) {
+        return salesforceErrorResponse(error, { normalizeExpiredSession: false });
+    }
+}
