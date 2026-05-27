@@ -308,7 +308,7 @@ export default function Playground() {
             <AppNavigation activeTab={activeTab} connected={session.connected} onChange={setActiveTab} />
 
             <main className="slds-template_default">
-                <section className={activeTab === "home" ? "slds-card" : "slds-theme_shade slds-p-around_small playground-workspace"}>
+                <section className={activeTab === "home" ? "slds-card" : "playground-workspace"}>
                     {activeTab === "home" ? (
                         <HomePanel
                             accountsCount={accounts.length}
