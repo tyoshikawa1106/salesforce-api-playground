@@ -64,11 +64,11 @@ SALESFORCE_CLIENT_ID=
 SALESFORCE_CLIENT_SECRET=
 SALESFORCE_REDIRECT_URI=http://localhost:3000/api/auth/callback
 SALESFORCE_LOGIN_URL=https://login.salesforce.com
-SALESFORCE_API_VERSION=v66.0
 SESSION_SECRET=replace-with-at-least-32-random-characters
 ```
 
 `SESSION_SECRET` は Cookie 暗号化用のランダム文字列です。Salesforce の値ではありません。
+Salesforce API バージョンは `lib/salesforce/api-version.ts` でコード側に固定管理します。
 
 ```bash
 openssl rand -base64 48
