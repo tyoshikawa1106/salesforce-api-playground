@@ -1,24 +1,19 @@
 import type { Account, Contact } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
-import { UtilityButtonIcon } from "./Navigation";
 
 function ListViewToolbar({
     count,
-    loading,
-    objectLabel,
-    onRefresh
+    objectLabel
 }: {
     count: number;
-    loading: boolean;
     objectLabel: string;
-    onRefresh: () => void;
 }) {
     return (
-        <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_medium slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
+        <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
             <div className="slds-text-title_bold">
                 {count} {count === 1 ? "item" : "items"} - View: My {objectLabel}
             </div>
-            <div className="slds-grid slds-grid_vertical-align-center slds-gutters_x-small">
+            <div className="slds-grid slds-grid_vertical-align-center">
                 <div className="slds-form-element">
                     <label className="slds-assistive-text" htmlFor={`${objectLabel.toLowerCase()}-list-search`}>
                         Search this list
@@ -32,26 +27,6 @@ function ListViewToolbar({
                             placeholder="Search this list..."
                         />
                     </div>
-                </div>
-                <div className="slds-button-group" role="group" aria-label={`${objectLabel} display controls`}>
-                    <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="List view controls">
-                        <UtilityButtonIcon name="settings" label="" />
-                        <span className="slds-assistive-text">List view controls</span>
-                    </button>
-                    <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="Display as table">
-                        <UtilityButtonIcon name="table" label="" />
-                        <span className="slds-assistive-text">Display as table</span>
-                    </button>
-                    <button
-                        className="slds-button slds-button_icon slds-button_icon-border-filled"
-                        type="button"
-                        title="Refresh list"
-                        onClick={onRefresh}
-                        disabled={loading}
-                    >
-                        <UtilityButtonIcon name="refresh" label="" />
-                        <span className="slds-assistive-text">Refresh list</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -77,7 +52,7 @@ export function AccountPanel({
 }) {
     return (
         <div className="slds-theme_default">
-            <ListViewToolbar count={accounts.length} loading={loading} objectLabel="Accounts" onRefresh={onRefresh} />
+            <ListViewToolbar count={accounts.length} objectLabel="Accounts" />
             {loading ? <EmptyState message="Loading Accounts..." /> : null}
             {!loading && accounts.length === 0 ? <EmptyState message={connected ? "No Accounts found." : "Connect Salesforce to load Accounts."} /> : null}
             {!loading && accounts.length > 0 ? (
@@ -164,7 +139,7 @@ export function ContactPanel({
 }) {
     return (
         <div className="slds-theme_default">
-            <ListViewToolbar count={contacts.length} loading={loading} objectLabel="Contacts" onRefresh={onRefresh} />
+            <ListViewToolbar count={contacts.length} objectLabel="Contacts" />
             {loading ? <EmptyState message="Loading Contacts..." /> : null}
             {!loading && contacts.length === 0 ? <EmptyState message={connected ? "No Contacts found." : "Connect Salesforce to load Contacts."} /> : null}
             {!loading && contacts.length > 0 ? (

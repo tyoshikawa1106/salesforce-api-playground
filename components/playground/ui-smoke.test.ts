@@ -69,6 +69,10 @@ describe("playground UI smoke rendering", () => {
         );
 
         expect(accountMarkup).toContain("Acme");
+        expect(accountMarkup).toContain("Search this list...");
+        expect(accountMarkup).not.toContain("List view controls");
+        expect(accountMarkup).not.toContain("Display as table");
+        expect(accountMarkup).not.toContain("Refresh list");
         expect(accountMarkup).toContain("Edit");
         expect(accountMarkup).toContain("Delete");
         expect(contactMarkup).toContain("Taro Yamada");
