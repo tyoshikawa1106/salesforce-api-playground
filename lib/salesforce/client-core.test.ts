@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_SALESFORCE_API_VERSION } from "./api-version";
 import {
     buildAuthorizationCodeTokenEndpointUrl,
     buildAuthorizationCodeTokenParams,
@@ -25,7 +26,7 @@ const salesforceConfig = {
     clientSecret: "client-secret",
     loginUrl: "https://login.salesforce.com",
     redirectUri: "https://app.example.test/api/auth/callback",
-    apiVersion: "v62.0",
+    apiVersion: DEFAULT_SALESFORCE_API_VERSION,
     sessionSecret: "session-secret"
 };
 

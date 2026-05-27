@@ -139,7 +139,7 @@ Cookie 属性は `httpOnly: true`、`sameSite: "lax"`、`path: "/"` です。`se
 | `SALESFORCE_CLIENT_SECRET` | 必須 | なし | OAuth client secret |
 | `SALESFORCE_REDIRECT_URI` | 必須 | なし | OAuth callback URL |
 | `SALESFORCE_LOGIN_URL` | 任意 | `https://login.salesforce.com` | Salesforce login / token endpoint の基点 |
-| `SALESFORCE_API_VERSION` | 任意 | `v60.0` | `jsforce.Connection` の API version |
+| `SALESFORCE_API_VERSION` | 任意 | `v66.0` | `jsforce.Connection` の API version |
 | `SESSION_SECRET` | 必須 | なし | Cookie 暗号化キーの元文字列。32 文字以上必須 |
 
 ## TODO / 未確認
