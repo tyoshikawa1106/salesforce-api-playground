@@ -3,6 +3,8 @@ import { DEFAULT_SALESFORCE_API_VERSION } from "./api-version";
 import {
     buildAuthorizationCodeTokenEndpointUrl,
     buildAuthorizationCodeTokenParams,
+    buildClientCredentialsTokenEndpointUrl,
+    buildClientCredentialsTokenParams,
     buildAuthorizationEndpointUrl,
     buildAuthorizationUrl,
     buildAuthorizationUrlParams,
@@ -125,6 +127,29 @@ describe("buildRefreshTokenRequest", () => {
                 cache: "no-store"
             }
         });
+    });
+});
+
+describe("buildClientCredentialsTokenEndpointUrl", () => {
+    it("builds the token endpoint URL for client credentials exchange", () => {
+        expect(buildClientCredentialsTokenEndpointUrl(salesforceConfig)).toBe(
+            "https://login.salesforce.com/services/oauth2/token"
+        );
+    });
+});
+
+describe("buildClientCredentialsTokenParams", () => {
+    it("builds form params for client credentials exchange", () => {
+        const params = buildClientCredentialsTokenParams(salesforceConfig);
+
+        expect(Object.fromEntries(params)).toEqual({
+            grant_type: "client_credentials",
+            client_id: "client-id",
+            client_secret: "client-secret"
+        });
+        expect(params.toString()).toBe(
+            "grant_type=client_credentials&client_id=client-id&client_secret=client-secret"
+        );
     });
 });
 

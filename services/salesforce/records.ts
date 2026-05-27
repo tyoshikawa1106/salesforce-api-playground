@@ -11,6 +11,7 @@ import type {
 import {
     createdSalesforceResult,
     emptySalesforceResult,
+    withIntegrationConnection,
     withStandardObjectConnection
 } from "./client";
 
@@ -49,6 +50,20 @@ async function deleteStandardObject(objectName: string, id: string) {
     });
 }
 
+async function createIntegrationStandardObject<TInput extends object>(objectName: string, input: TInput) {
+    return withIntegrationConnection(async (connection) => {
+        const result = await connection.sobject(objectName).create(input);
+        return createdSalesforceResult(result);
+    });
+}
+
+async function updateIntegrationStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
+    return withIntegrationConnection(async (connection) => {
+        const result = await connection.sobject(objectName).update({ Id: id, ...input });
+        return emptySalesforceResult(result);
+    });
+}
+
 export async function listAccounts() {
     return withStandardObjectConnection(async (connection) => {
         const response = await connection.query<AccountRecord>(accountListQuery);
@@ -66,6 +81,14 @@ export async function updateAccount(id: string, input: AccountUpdateInput) {
 
 export async function deleteAccount(id: string) {
     return deleteStandardObject("Account", id);
+}
+
+export async function createIntegrationAccount(input: AccountInput) {
+    return createIntegrationStandardObject("Account", input);
+}
+
+export async function updateIntegrationAccount(id: string, input: AccountUpdateInput) {
+    return updateIntegrationStandardObject("Account", id, input);
 }
 
 export async function listContacts() {

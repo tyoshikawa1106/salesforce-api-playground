@@ -6,7 +6,7 @@
 
 ## 全体方針
 
-API Routes は Next.js App Router の `app/api` 配下にあります。ブラウザから直接 Salesforce API を呼ばず、API Routes が暗号化済みセッション Cookie を読み取り、`services/salesforce` 経由で `jsforce.Connection` を使って Salesforce へ接続します。
+API Routes は Next.js App Router の `app/api` 配下にあります。ブラウザから直接 Salesforce API を呼ばず、通常の Playground API は暗号化済みセッション Cookie を読み取り、`services/salesforce` 経由で `jsforce.Connection` を使って Salesforce へ接続します。`/api/integration/*` は Cookie セッションを使わず、Client Credentials Flow で連携用ユーザーの access token を取得して Salesforce へ接続します。
 
 Salesforce 連携の主要な責務は以下に分かれています。
 
@@ -16,9 +16,10 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | `lib/salesforce/route-handler.ts` | Salesforce 系 Route の共通レスポンス / エラーハンドリング |
 | `lib/salesforce/request-payloads.ts` | Account / Contact の入力検証と正規化 |
 | `lib/salesforce/request-security.ts` | state 変更リクエストの Origin / Referer 検証、Salesforce レコード ID 検証 |
+| `lib/salesforce/integration-security.ts` | `/api/integration/*` の `x-integration-api-key` 検証 |
 | `lib/salesforce/session.ts` | 暗号化 Cookie によるセッション保存 / 読み取り |
-| `lib/salesforce/client.ts` | OAuth token 交換、refresh、revoke、共通エラー変換 |
-| `services/salesforce/client.ts` | `jsforce.Connection` 作成と access token refresh 後の再試行 |
+| `lib/salesforce/client.ts` | OAuth token 交換、Client Credentials token 交換、refresh、revoke、共通エラー変換 |
+| `services/salesforce/client.ts` | `jsforce.Connection` 作成、access token refresh 後の再試行、連携用 Connection 作成 |
 | `services/salesforce/records.ts` | Account / Contact の SOQL と CRUD 操作 |
 
 ## API Route 一覧
@@ -37,6 +38,8 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | `/api/contacts` | `POST` | Contact を作成 | `{ id, success }` with `201` | Origin / Referer 不一致 `403`、入力エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/contacts/[id]` | `PATCH` | Contact を更新 | `{}` | Origin / Referer 不一致 `403`、ID / 入力エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/contacts/[id]` | `DELETE` | Contact を削除 | `{}` | Origin / Referer 不一致 `403`、ID エラー `400`、未接続 `401`、Salesforce API エラー |
+| `/api/integration/accounts` | `POST` | 連携用ユーザーで Account を作成 | `{ id, success }` with `201` | API key 不一致 `401`、入力エラー `400`、Salesforce API エラー |
+| `/api/integration/accounts/[id]` | `PATCH` | 連携用ユーザーで Account を更新 | `{}` | API key 不一致 `401`、ID / 入力エラー `400`、Salesforce API エラー |
 
 ## 認証系 API
 
@@ -187,6 +190,57 @@ Account を更新します。許可フィールドは作成時と同じです。
 Account を削除します。成功時は空オブジェクトを返します。
 
 `id` は 15 桁または 18 桁の英数字で、Account の `001` prefix のみ許可します。
+
+```json
+{}
+```
+
+## Integration Account API
+
+`/api/integration/accounts` は Salesforce Integration ライセンスの連携用ユーザーを Run As にした外部クライアントアプリケーションを前提にします。ブラウザの Connect セッション、`sf_playground_session` Cookie、refresh token は使いません。
+
+各リクエストは `x-integration-api-key` ヘッダーが `INTEGRATION_API_KEY` と一致する場合のみ処理します。認証後、Salesforce token endpoint に Client Credentials Flow の form body を送信します。
+
+| パラメータ | 値 |
+| --- | --- |
+| `grant_type` | `client_credentials` |
+| `client_id` | `SALESFORCE_INTEGRATION_CLIENT_ID` |
+| `client_secret` | `SALESFORCE_INTEGRATION_CLIENT_SECRET` |
+
+token response の `access_token` と `instance_url` で `jsforce.Connection` を作成し、Account の `create` / `update` を実行します。Client Credentials Flow は refresh token を返さないため、現行実装では API 呼び出しごとに access token を取得します。
+
+### `POST /api/integration/accounts`
+
+連携用ユーザーで Account を作成します。入力フィールドと検証ルールは `POST /api/accounts` と同じです。
+
+```bash
+curl -X POST http://localhost:3000/api/integration/accounts \
+    -H "content-type: application/json" \
+    -H "x-integration-api-key: <INTEGRATION_API_KEY>" \
+    -d '{"Name":"Integration Sample Account","Phone":"000-0000-0000"}'
+```
+
+レスポンス概要:
+
+```json
+{
+    "id": "未記載",
+    "success": true
+}
+```
+
+### `PATCH /api/integration/accounts/[id]`
+
+連携用ユーザーで Account を更新します。入力フィールドと検証ルールは `PATCH /api/accounts/[id]` と同じです。`id` は Account の `001` prefix のみ許可します。
+
+```bash
+curl -X PATCH http://localhost:3000/api/integration/accounts/001xxxxxxxxxxxx \
+    -H "content-type: application/json" \
+    -H "x-integration-api-key: <INTEGRATION_API_KEY>" \
+    -d '{"Phone":"03-1234-5678"}'
+```
+
+成功時は空オブジェクトを返します。
 
 ```json
 {}

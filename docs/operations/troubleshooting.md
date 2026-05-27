@@ -33,6 +33,18 @@ CI の coverage は GitHub Actions の `Summary` で確認します。GitHub Pag
 | PKCE 関連のエラーが出る | Salesforce 外部クライアントアプリケーションで PKCE 要求を有効にしていないか | このアプリは PKCE を実装していない |
 | 接続済みなのに API が `401` | Cookie が削除 / 期限切れしていないか、refresh token が失効していないか | session Cookie maxAge は 8 時間。refresh 失敗時は Cookie を削除して `401` を返す |
 
+## Client Credentials Flow / Integration API
+
+Salesforce Integration ユーザー、外部クライアントアプリケーション、権限セットの設定手順は [Salesforce Integration ユーザー連携設定](../setup/salesforce-integration-client-credentials.md) を参照してください。
+
+| 事象 | 確認すること | 対処 |
+| --- | --- | --- |
+| `Invalid integration API key.` | `x-integration-api-key` が `.env.local` または Heroku Config Vars の `INTEGRATION_API_KEY` と一致しているか | `<INTEGRATION_API_KEY>` はプレースホルダー。実際の値をヘッダーに指定する |
+| `request not supported on this domain` | `SALESFORCE_INTEGRATION_LOGIN_URL` が My Domain URL か | `login.salesforce.com` / `test.salesforce.com` ではなく、`https://<my-domain>.my.salesforce.com` を使う |
+| `invalid_app_access` | Integration 用外部クライアントアプリケーションへのアクセスが連携用ユーザーに許可されているか | 権限セットの External Client App Access / 接続アプリケーションアクセスで許可する |
+| `このユーザーライセンスでは次の権限は許可されません: 取引先の作成` | ユーザーに `Salesforce API Integration` 権限セットライセンスが割り当てられているか | ユーザー詳細の `権限セットライセンスの割り当て` で追加する |
+| `NOT_FOUND` / `The requested resource does not exist` | token 取得後の Salesforce REST API 呼び出しで、Account 権限、項目権限、API バージョンが有効か | まず Account の Object / Field 権限を確認し、必要なら API バージョンを確認する |
+
 ## セッション Cookie
 
 | 事象 | 確認すること | 対処 |

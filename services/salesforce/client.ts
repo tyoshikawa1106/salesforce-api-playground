@@ -1,9 +1,13 @@
 import { Connection } from "jsforce";
 import type { SaveResult } from "jsforce";
 import { toJsforceApiVersion } from "@/lib/salesforce/api-version";
-import { getSalesforceConfig } from "@/lib/salesforce/config";
+import {
+    getSalesforceConfig,
+    getSalesforceIntegrationConfig
+} from "@/lib/salesforce/config";
 import {
     SalesforceApiError,
+    exchangeClientCredentialsForToken,
     refreshAccessToken
 } from "@/lib/salesforce/client";
 import type { SalesforceSession } from "@/lib/salesforce/session";
@@ -12,6 +16,10 @@ import { getSession } from "@/lib/salesforce/session";
 export type SalesforceServiceResult<T> = {
     data: T;
     session: SalesforceSession;
+};
+
+export type SalesforceIntegrationServiceResult<T> = {
+    data: T;
 };
 
 async function requireSalesforceSession(): Promise<SalesforceSession> {
@@ -44,6 +52,23 @@ function createConnection(session: SalesforceSession): Connection {
         },
         refreshToken: session.refreshToken,
         version: toJsforceApiVersion(apiVersion)
+    });
+}
+
+async function createIntegrationConnection(): Promise<Connection> {
+    const config = getSalesforceIntegrationConfig();
+    const session = await exchangeClientCredentialsForToken();
+
+    return new Connection({
+        accessToken: session.accessToken,
+        instanceUrl: session.instanceUrl,
+        loginUrl: config.loginUrl,
+        oauth2: {
+            clientId: config.clientId,
+            clientSecret: config.clientSecret,
+            loginUrl: config.loginUrl
+        },
+        version: toJsforceApiVersion(config.apiVersion)
     });
 }
 
@@ -111,6 +136,17 @@ export async function withStandardObjectConnection<T>(
     operation: (connection: Connection) => Promise<T>
 ): Promise<SalesforceServiceResult<T>> {
     return withSalesforceConnection(operation);
+}
+
+export async function withIntegrationConnection<T>(
+    operation: (connection: Connection) => Promise<T>
+): Promise<SalesforceIntegrationServiceResult<T>> {
+    try {
+        const data = await operation(await createIntegrationConnection());
+        return { data };
+    } catch (error) {
+        throw salesforceErrorFromUnknown(error);
+    }
 }
 
 export async function salesforceRequest<T>(

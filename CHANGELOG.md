@@ -1,10 +1,19 @@
 # CHANGELOG
 
+## 2026-05-28
+
+### Added
+
+- Client Credentials Flow の実地確認結果をもとに、外部クライアントアプリケーション、Integration ユーザー、権限セットライセンス、権限セットの設定手順を `docs/setup/salesforce-integration-client-credentials.md` に追加。
+- Client Credentials Flow の My Domain URL、管理者事前承認、`Salesforce API Integration` 権限セットライセンス、Account 権限のトラブルシューティングを追加。
+
 ## 2026-05-27
 
 ### Added
 
 - 実装ベースで API Route 一覧、OAuth フロー、セッション Cookie、Account / Contact 操作、ローカル確認コマンド、トラブルシューティングを開発ドキュメントへ追記。
+- Salesforce Client Credentials Flow で連携用ユーザーとして Account 作成 / 更新を行う `/api/integration/accounts` API を追加。
+- Client Credentials Flow 用外部クライアントアプリケーションの画面設定を `docs/security/oauth-flow.md` に整理。
 - `docs/architecture/system-overview.md` にシステム構成、OAuth、Account / Contact 操作の Mermaid 図を追加。
 - Heroku 実運用で確認できた起動方式、Config Vars、PR merge 後の確認観点、OAuth callback、Cookie、ロールバック時の確認観点を `docs/deployment/heroku.md` と `docs/operations/troubleshooting.md` に整理。
 

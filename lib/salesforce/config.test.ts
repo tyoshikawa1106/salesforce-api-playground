@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_SALESFORCE_API_VERSION } from "./api-version";
-import { getSalesforceConfig } from "./config";
+import {
+    getSalesforceConfig,
+    getSalesforceIntegrationConfig
+} from "./config";
 
 const baseEnv = {
     SALESFORCE_CLIENT_ID: "test-client-id",
@@ -70,6 +73,42 @@ describe("getSalesforceConfig", () => {
 
         expect(() => getSalesforceConfig()).toThrow(
             "SESSION_SECRET must be at least 32 characters."
+        );
+    });
+});
+
+describe("getSalesforceIntegrationConfig", () => {
+    it("returns client credentials settings", () => {
+        vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_ID", "integration-client-id");
+        vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_SECRET", "integration-client-secret");
+        vi.stubEnv("SALESFORCE_INTEGRATION_LOGIN_URL", "https://login.example.test");
+        vi.stubEnv("INTEGRATION_API_KEY", "integration-api-key");
+
+        expect(getSalesforceIntegrationConfig()).toEqual({
+            clientId: "integration-client-id",
+            clientSecret: "integration-client-secret",
+            loginUrl: "https://login.example.test",
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION,
+            apiKey: "integration-api-key"
+        });
+    });
+
+    it("does not fall back to the shared Salesforce login URL", () => {
+        vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_ID", "integration-client-id");
+        vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_SECRET", "integration-client-secret");
+        vi.stubEnv("SALESFORCE_LOGIN_URL", "https://test.salesforce.com");
+        vi.stubEnv("INTEGRATION_API_KEY", "integration-api-key");
+
+        expect(() => getSalesforceIntegrationConfig()).toThrow(
+            "Missing required environment variables: loginUrl"
+        );
+    });
+
+    it("throws when integration environment variables are missing", () => {
+        vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_ID", "integration-client-id");
+
+        expect(() => getSalesforceIntegrationConfig()).toThrow(
+            "Missing required environment variables: clientSecret, loginUrl, apiKey"
         );
     });
 });
