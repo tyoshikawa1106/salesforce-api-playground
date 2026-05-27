@@ -146,7 +146,7 @@ Salesforce API version は環境変数ではなく、`lib/salesforce/api-version
 ## TODO / 未確認
 
 - Salesforce 組織ごとの validation rule、権限、必須項目追加による挙動は、組織設定に依存するため未確認。API エラーの確認観点は [API 概要](../api/api-overview.md) と [トラブルシューティング](../operations/troubleshooting.md) を参照。
-- `organizationId` は session 型に存在しますが、現在の `tokenResponseToSession()` では設定されていません。現時点でレスポンスや API 呼び出しに使用していないため、保存する必要性は TODO。
+- `organizationId` は OAuth token response の `id` URL から session に保存します。現時点でレスポンスや API 呼び出しには使用していません。
 - Heroku release と GitHub merge commit の対応、dyno 起動状態、ロールバック手順の確認観点は [Heroku デプロイ](../deployment/heroku.md) を参照。
 
 ## 関連ドキュメント

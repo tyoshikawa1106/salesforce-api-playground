@@ -189,12 +189,15 @@ export function tokenResponseToSession(
     token: TokenResponse,
     issuedAtFallback = Date.now()
 ): SalesforceSession {
+    const [, organizationId, userId] = token.id?.match(/\/id\/([^/]+)\/([^/]+)$/) ?? [];
+
     return {
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
         instanceUrl: token.instance_url,
         issuedAt: token.issued_at ? Number(token.issued_at) : issuedAtFallback,
-        userId: token.id?.split("/").at(-1)
+        userId,
+        organizationId
     };
 }
 
