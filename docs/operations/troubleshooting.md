@@ -125,6 +125,8 @@ Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認は 
 | coverage test が失敗する | 失敗テストと差分 | `npm run test:coverage` を確認 |
 | build が失敗する | Next.js build エラー、環境変数依存 | `npm run build` を確認。build 時に実 Salesforce 接続は不要 |
 
+Next.js 16 では Turbopack が標準ですが、SLDS CSS の selector 互換性のため、このプロジェクトでは webpack build を使用します。`npm run build` は `next build --webpack` を実行します。
+
 ## ローカル確認コマンド
 
 docs / template のみ:
