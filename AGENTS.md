@@ -37,6 +37,7 @@
 - PR マージ後は `main` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
+- Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
 
 ## アプリケーション設計
 
