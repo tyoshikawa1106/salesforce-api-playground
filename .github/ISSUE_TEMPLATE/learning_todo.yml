@@ -1,0 +1,27 @@
+name: 学習 TODO
+description: 学習中に調べたいことや後で試したいことを記録する
+title: "[Learning] "
+labels:
+  - type:maintenance
+body:
+  - type: textarea
+    id: topic
+    attributes:
+      label: テーマ
+      description: 調べたいこと、試したいことを書いてください。
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: 背景
+      description: どこで気になったか、関連する作業があれば書いてください。
+    validations:
+      required: false
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件
+      description: 何が分かれば完了とするかを書いてください。
+    validations:
+      required: false
