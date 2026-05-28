@@ -70,6 +70,17 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - Issue には、可能な範囲で milestone と label を設定する。
 - 個人学習用のため、Assignee は必要な場合のみ手動で設定する。
 - Issue が Pull Request で解決される場合は、PR 本文やコメントで Issue 番号を参照する。
+- Issue template は `.github/ISSUE_TEMPLATE` 配下で管理する。
+- Issue template は入力項目を増やしすぎず、概要、対象範囲、補足など最小限の項目にする。
+
+### Issue template の使い分け
+
+| Template | 用途 |
+| --- | --- |
+| `不具合報告` | 動作不良や想定外の挙動を記録する |
+| `改善メモ` | 機能改善、UI 改善、運用改善を記録する |
+| `ドキュメント改善` | README や docs の追加・修正を記録する |
+| `学習 TODO` | 学習中に調べたいことや後で試したいことを記録する |
 
 ## Pull Request 運用
 
@@ -89,6 +100,23 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 - Dependabot PR のうち、CI pass、mergeable、差分確認済みで、ユーザーが対象 PR を明示して承認したものは、エージェントが merge してよい。
 - エージェントが Dependabot PR を merge した後は、`main` に戻して GitHub と同期し、残った Dependabot PR / branch と CI 状態を確認する。
 - 依存関係更新でアプリケーション挙動に影響する可能性がある場合は、通常のコード変更と同じ確認コマンドを実行する。
+
+## Repository 設定
+
+このリポジトリの GitHub repository settings は、2026-05-29 時点で以下の状態を基準にします。
+
+| 項目 | 状態 | 運用方針 |
+| --- | --- | --- |
+| Issues | 有効 | 作業予定、学習 TODO、改善メモを Issue で管理する |
+| Projects | 有効 | Issue / PR の進行状況を整理する |
+| Wiki | 無効 | 一次情報は `README.md` と `docs` 配下に集約する |
+| Discussions | 無効 | 個人学習リポジトリのため、議論は Issue / PR に集約する |
+| Merge commit | 有効 | 通常の PR merge 方法として使う |
+| Squash merge | 有効 | 必要な場合に選べるが、通常は merge commit を使う |
+| Rebase merge | 有効 | 必要な場合に選べるが、通常は merge commit を使う |
+| Delete branch on merge | 無効 | PR merge 後に、エージェントまたはユーザーが不要 branch を確認して削除する |
+| Auto-merge | 無効 | merge はユーザー判断を基本にし、Dependabot PR のみ条件付きでエージェントが実行できる |
+| Update branch | 無効 | 必要な場合は手動で rebase / merge する |
 
 ## Security 設定
 
