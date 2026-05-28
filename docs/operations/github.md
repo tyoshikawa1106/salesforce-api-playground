@@ -87,6 +87,30 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 - Dependabot PR は内容を確認し、CI が pass してからマージする。
 - 依存関係更新でアプリケーション挙動に影響する可能性がある場合は、通常のコード変更と同じ確認コマンドを実行する。
 
+## Security 設定
+
+このリポジトリは public repository として運用します。GitHub の Security 設定は、2026-05-29 時点で以下の状態を基準にします。
+
+| 項目 | 状態 | 補足 |
+| --- | --- | --- |
+| Dependabot alerts | 有効 | 脆弱性 alert を Security タブで確認する |
+| Dependabot security updates | 有効 | 脆弱性修正 PR は通常の Dependabot PR と同じく CI pass 後に確認する |
+| Secret scanning | 有効 | alert が出た場合は値の失効、再発行、履歴影響を確認する |
+| Secret scanning push protection | 有効 | push protection により検出された秘密情報はコミットしない |
+| Secret scanning non-provider patterns | 無効 | GitHub API 上は disabled。必要性が出た場合に再確認する |
+| CodeQL default setup | 有効 | JavaScript / TypeScript の code scanning を GitHub 側の default setup で実行する |
+
+GitHub Actions の `GITHUB_TOKEN` default workflow permissions は `read` とし、workflow から Pull Request review を承認できない設定にします。
+
+public repository に載せない情報は以下です。
+
+- Heroku app 名、Web URL、Git URL、Owner などの実運用値。
+- Heroku API Key、Salesforce access token / refresh token、Salesforce Client Secret。
+- 実 Salesforce 組織に紐づく My Domain URL、client id、callback URL。
+- 個人環境固有の値や、ローカル `.env` の実値。
+
+`.env.example`、README、docs には placeholder または localhost / example domain のみを記載します。Security alert や secret scanning alert が出た場合は、Issue または PR に検知内容と対応結果を秘密情報を含まない形で記録します。
+
 ## 運用例
 
 | 作業 | Labels | Milestone |
