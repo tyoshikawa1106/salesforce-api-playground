@@ -68,8 +68,8 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 - これから行う作業や検討事項は Issue として作成する。
 - Issue には、可能な範囲で milestone と label を設定する。
-- 新規 Issue は `.github/workflows/auto-assign-issues.yml` により、作成時に owner へ自動 assign する。
-- Issue の assignee を変更する場合は、workflow の `ISSUE_ASSIGNEE` を変更する。
+- 新規 Issue と Pull Request は `.github/workflows/auto-assign.yml` により、作成時に owner へ自動 assign する。
+- Issue / Pull Request の assignee を変更する場合は、workflow の `ASSIGNEE` を変更する。
 - Issue が Pull Request で解決される場合は、PR 本文やコメントで Issue 番号を参照する。
 - Issue template は `.github/ISSUE_TEMPLATE` 配下で管理する。
 - Issue template は入力項目を増やしすぎず、概要、対象範囲、補足など最小限の項目にする。

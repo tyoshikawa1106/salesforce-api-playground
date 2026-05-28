@@ -1,0 +1,45 @@
+name: Auto assign
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request:
+    types:
+      - opened
+
+permissions:
+  issues: write
+
+jobs:
+  assign-issue:
+    name: Assign issue owner
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+
+    env:
+      ASSIGNEE: tyoshikawa1106
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Assign issue
+        run: gh issue edit "$ISSUE_NUMBER" --repo "$REPOSITORY" --add-assignee "$ASSIGNEE"
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPOSITORY: ${{ github.repository }}
+
+  assign-pull-request:
+    name: Assign pull request owner
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    env:
+      ASSIGNEE: tyoshikawa1106
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Assign pull request
+        run: gh issue edit "$PR_NUMBER" --repo "$REPOSITORY" --add-assignee "$ASSIGNEE"
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
