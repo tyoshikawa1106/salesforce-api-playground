@@ -91,6 +91,28 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
 
+## main 品質チェック
+
+`main` の現在状態を確認する場合は、以下のコマンドを実行します。
+
+| コマンド | 用途 |
+| --- | --- |
+| `npm run lint` | ESLint によるコード品質確認 |
+| `npm run slds:lint` | SLDS 利用ルールの確認 |
+| `npm run typecheck` | TypeScript 型チェック |
+| `npm run test:coverage` | Vitest と coverage の確認 |
+| `npm run build` | Next.js production build の確認 |
+
+2026-05-29 に `main` から作成した `codex/issue-84-main-quality-check` で確認した結果は以下です。
+
+| コマンド | 結果 | 備考 |
+| --- | --- | --- |
+| `npm run lint` | 正常 | ESLint error なし |
+| `npm run slds:lint` | 正常 | SLDS violation なし |
+| `npm run typecheck` | 正常 | TypeScript error なし |
+| `npm run test:coverage` | 正常 | 15 files / 133 tests passed、Statements 99.32%、Branches 93.95%、Functions 100%、Lines 99.32% |
+| `npm run build` | 正常 | Next.js production build 成功 |
+
 ## Dependabot 運用
 
 Dependabot version updates は `.github/dependabot.yml` で管理します。
