@@ -1,3 +1,8 @@
+---
+title: Salesforce Integration ユーザー連携設定
+nav_order: 50
+---
+
 # Salesforce Integration ユーザー連携設定
 
 ## 目的

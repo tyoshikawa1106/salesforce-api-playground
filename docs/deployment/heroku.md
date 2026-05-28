@@ -1,3 +1,8 @@
+---
+title: Heroku デプロイ
+nav_order: 70
+---
+
 # Heroku デプロイ
 
 ## 目的
