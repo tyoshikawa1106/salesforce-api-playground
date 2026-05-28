@@ -77,6 +77,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - Reviewers は、レビューを依頼する相手がいる場合に設定する。個人作業では空でもよい。
 - Assignee は、マージまで見る担当者を明示したい場合に手動で設定する。
 - マージ済み PR にも、後から milestone と label を設定してよい。
+- Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
 
 ## Dependabot 運用
 
@@ -85,6 +86,8 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 - npm 依存関係と GitHub Actions を週次で確認する。
 - Dependabot PR には `area:github` と `type:maintenance` を付ける。
 - Dependabot PR は内容を確認し、CI が pass してからマージする。
+- Dependabot PR のうち、CI pass、mergeable、差分確認済みで、ユーザーが対象 PR を明示して承認したものは、エージェントが merge してよい。
+- エージェントが Dependabot PR を merge した後は、`main` に戻して GitHub と同期し、残った Dependabot PR / branch と CI 状態を確認する。
 - 依存関係更新でアプリケーション挙動に影響する可能性がある場合は、通常のコード変更と同じ確認コマンドを実行する。
 
 ## Security 設定
