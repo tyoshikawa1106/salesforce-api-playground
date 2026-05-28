@@ -78,6 +78,15 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - Assignee は、マージまで見る担当者を明示したい場合に手動で設定する。
 - マージ済み PR にも、後から milestone と label を設定してよい。
 
+## Dependabot 運用
+
+Dependabot version updates は `.github/dependabot.yml` で管理します。
+
+- npm 依存関係と GitHub Actions を週次で確認する。
+- Dependabot PR には `area:github` と `type:maintenance` を付ける。
+- Dependabot PR は内容を確認し、CI が pass してからマージする。
+- 依存関係更新でアプリケーション挙動に影響する可能性がある場合は、通常のコード変更と同じ確認コマンドを実行する。
+
 ## 運用例
 
 | 作業 | Labels | Milestone |
