@@ -32,7 +32,9 @@
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
 - PR title に `codex` プレフィックスを付けない。
-- PR のマージはユーザーが行う。通常は merge commit でマージする。
+- PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
+- 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
+- Dependabot PR をエージェントが merge する場合も、`main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
 - PR マージ前に GitHub Actions が pass していることを確認する。
 - PR マージ後は `main` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
