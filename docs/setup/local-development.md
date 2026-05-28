@@ -182,6 +182,7 @@ Salesforce 組織や OAuth 設定を変更した場合、既存の localhost Coo
 - 実 Salesforce 接続は Codex 作業では行わない。
 - 新しい依存は原則追加しない。必要な場合は理由を説明し、ユーザー承認後に追加する。
 - SLDS の CSS と assets は `@salesforce-ux/design-system` を npm dependency として管理し、アプリでは `app/globals.css` から読み込む。
+- Next.js 16 では Turbopack が標準ですが、SLDS CSS の selector 互換性のため、このプロジェクトでは `next dev --webpack` / `next build --webpack` を使用します。
 - 公式リソースを手作業でコピーして固定化しない。
 - SLDS の互換性チェックと修正支援には `@salesforce-ux/slds-linter` を使う。
 
