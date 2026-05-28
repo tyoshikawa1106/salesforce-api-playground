@@ -1,0 +1,12 @@
+title: Salesforce API Playground
+description: Salesforce OAuth と REST API の学習用ドキュメント
+remote_theme: just-the-docs/just-the-docs@v0.12.0
+
+url: https://tyoshikawa1106.github.io
+baseurl: /salesforce-api-playground
+
+search_enabled: true
+heading_anchors: true
+
+aux_links:
+  GitHub Repository: https://github.com/tyoshikawa1106/salesforce-api-playground
