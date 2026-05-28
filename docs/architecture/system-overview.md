@@ -28,8 +28,10 @@ flowchart LR
     Jsforce --> Salesforce["Salesforce REST API"]
     Api --> OAuthClient["lib/salesforce/client.ts<br/>token exchange / refresh / revoke"]
     OAuthClient --> SalesforceOAuth["Salesforce OAuth endpoints"]
-    Api --> IntegrationApi["/api/integration/*<br/>x-integration-api-key"]
+    Api --> IntegrationApi["/api/integration/accounts<br/>x-integration-api-key"]
+    Api --> IntegrationUiApi["/api/integration/ui/accounts<br/>session + Origin / Referer"]
     IntegrationApi --> OAuthClient
+    IntegrationUiApi --> OAuthClient
     Heroku["Heroku<br/>GitHub main から自動デプロイ"] --> App
 ```
 
@@ -47,7 +49,7 @@ flowchart LR
 | Salesforce service | `services/salesforce/client.ts` | `jsforce.Connection` 作成、未接続検出、access token refresh 後の再試行、連携用ユーザーの Connection 作成 |
 | Salesforce records | `services/salesforce/records.ts` | Account / Contact の SOQL、create、update、delete |
 | 入力検証 | `lib/salesforce/request-payloads.ts`, `lib/salesforce/record-fields.ts` | 許可フィールド、必須フィールド、文字列 / null の検証 |
-| 連携 API 保護 | `lib/salesforce/integration-security.ts` | `x-integration-api-key` と `INTEGRATION_API_KEY` の照合 |
+| 連携 API 保護 | `lib/salesforce/integration-security.ts` | サーバー間連携 API の `x-integration-api-key` と `INTEGRATION_API_KEY` の照合 |
 
 ## OAuth フロー
 
@@ -153,7 +155,7 @@ Cookie 属性は `httpOnly: true`、`sameSite: "lax"`、`path: "/"` です。`se
 | `SALESFORCE_INTEGRATION_CLIENT_ID` | 連携 API 利用時は必須 | なし | Client Credentials Flow 用 OAuth client id |
 | `SALESFORCE_INTEGRATION_CLIENT_SECRET` | 連携 API 利用時は必須 | なし | Client Credentials Flow 用 OAuth client secret |
 | `SALESFORCE_INTEGRATION_LOGIN_URL` | 連携 API 利用時は必須 | なし | 連携用 token endpoint の基点。Client Credentials Flow では My Domain URL を指定する |
-| `INTEGRATION_API_KEY` | 連携 API 利用時は必須 | なし | `/api/integration/*` の呼び出し元検証用共有鍵 |
+| `INTEGRATION_API_KEY` | サーバー間連携 API 利用時は必須 | なし | `/api/integration/accounts` と `/api/integration/accounts/[id]` の呼び出し元検証用共有鍵 |
 
 Salesforce API version は環境変数ではなく、`lib/salesforce/api-version.ts` の `DEFAULT_SALESFORCE_API_VERSION` を唯一の定義元として管理します。`jsforce.Connection` には `toJsforceApiVersion()` で先頭 `v` を除いた値を渡します。
 

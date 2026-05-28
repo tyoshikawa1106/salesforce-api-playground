@@ -11,7 +11,7 @@ nav_order: 20
 
 ## 全体方針
 
-API Routes は Next.js App Router の `app/api` 配下にあります。ブラウザから直接 Salesforce API を呼ばず、通常の Playground API は暗号化済みセッション Cookie を読み取り、`services/salesforce` 経由で `jsforce.Connection` を使って Salesforce へ接続します。`/api/integration/*` は Cookie セッションを使わず、Client Credentials Flow で連携用ユーザーの access token を取得して Salesforce へ接続します。
+API Routes は Next.js App Router の `app/api` 配下にあります。ブラウザから直接 Salesforce API を呼ばず、通常の Playground API は暗号化済みセッション Cookie を読み取り、`services/salesforce` 経由で `jsforce.Connection` を使って Salesforce へ接続します。サーバー間連携 API の `/api/integration/accounts` と `/api/integration/accounts/[id]` は Cookie セッションを使わず、`x-integration-api-key` を検証したうえで Client Credentials Flow により連携用ユーザーの access token を取得します。画面の Integration タブ用 `/api/integration/ui/accounts` は、API key をブラウザへ出さず、通常の画面操作 API と同じく接続セッションと Origin / Referer を検証してから Client Credentials Flow で Salesforce へ接続します。
 
 Salesforce 連携の主要な責務は以下に分かれています。
 
@@ -21,7 +21,7 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | `lib/salesforce/route-handler.ts` | Salesforce 系 Route の共通レスポンス / エラーハンドリング |
 | `lib/salesforce/request-payloads.ts` | Account / Contact の入力検証と正規化 |
 | `lib/salesforce/request-security.ts` | state 変更リクエストの Origin / Referer 検証、Salesforce レコード ID 検証 |
-| `lib/salesforce/integration-security.ts` | `/api/integration/*` の `x-integration-api-key` 検証 |
+| `lib/salesforce/integration-security.ts` | サーバー間連携 API の `x-integration-api-key` 検証 |
 | `lib/salesforce/session.ts` | 暗号化 Cookie によるセッション保存 / 読み取り |
 | `lib/salesforce/client.ts` | OAuth token 交換、Client Credentials token 交換、refresh、revoke、共通エラー変換 |
 | `services/salesforce/client.ts` | `jsforce.Connection` 作成、access token refresh 後の再試行、連携用 Connection 作成 |
@@ -203,9 +203,9 @@ Account を削除します。成功時は空オブジェクトを返します。
 
 ## Integration Account API
 
-`/api/integration/accounts` は Salesforce Integration ライセンスの連携用ユーザーを Run As にした外部クライアントアプリケーションを前提にします。ブラウザの Connect セッション、`sf_playground_session` Cookie、refresh token は使いません。
+`/api/integration/accounts` と `/api/integration/accounts/[id]` は Salesforce Integration ライセンスの連携用ユーザーを Run As にした外部クライアントアプリケーションを前提にします。ブラウザの Connect セッション、`sf_playground_session` Cookie、refresh token は使いません。
 
-各リクエストは `x-integration-api-key` ヘッダーが `INTEGRATION_API_KEY` と一致する場合のみ処理します。認証後、Salesforce token endpoint に Client Credentials Flow の form body を送信します。
+これらのサーバー間連携リクエストは `x-integration-api-key` ヘッダーが `INTEGRATION_API_KEY` と一致する場合のみ処理します。認証後、Salesforce token endpoint に Client Credentials Flow の form body を送信します。
 
 | パラメータ | 値 |
 | --- | --- |

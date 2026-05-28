@@ -7,7 +7,7 @@ nav_order: 50
 
 ## 目的
 
-このドキュメントは、Salesforce Integration ライセンスの連携用ユーザーを使い、Client Credentials Flow で `/api/integration/*` を実行するための Salesforce 側設定を整理します。
+このドキュメントは、Salesforce Integration ライセンスの連携用ユーザーを使い、Client Credentials Flow でサーバー間連携 API の `/api/integration/accounts` と `/api/integration/accounts/[id]` を実行するための Salesforce 側設定を整理します。画面の Integration タブ用 `/api/integration/ui/accounts` も同じ Salesforce 側設定を使いますが、`x-integration-api-key` はブラウザへ公開しません。
 
 この設定は、既存の `Connect Salesforce` ボタンで使う Authorization Code Flow とは別の外部クライアントアプリケーションを使う前提です。
 
@@ -167,7 +167,7 @@ INTEGRATION_API_KEY=replace-with-random-server-to-server-api-key
 
 `SALESFORCE_INTEGRATION_LOGIN_URL` は My Domain URL にします。Client Credentials Flow では `https://login.salesforce.com` と `https://test.salesforce.com` は使えません。
 
-`INTEGRATION_API_KEY` は Salesforce の値ではありません。このアプリの `/api/integration/*` 呼び出し元を検証するための共有鍵です。検証中に共有した場合は作り直します。
+`INTEGRATION_API_KEY` は Salesforce の値ではありません。このアプリのサーバー間連携 API 呼び出し元を検証するための共有鍵です。検証中に共有した場合は作り直します。
 
 `.env.local` を変更したら、ローカル dev server を再起動します。
 
