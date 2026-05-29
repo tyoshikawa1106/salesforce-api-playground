@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { LoginPage } from "./LoginPage";
 import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
-import { AccountPanel, ContactPanel } from "./RecordLists";
+import { AccountPanel, ContactPanel, filterAccounts, filterContacts } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
 import type { Account, Contact } from "./types";
 
@@ -75,6 +75,35 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).toContain("削除");
         expect(contactMarkup).toContain("Taro Yamada");
         expect(contactMarkup).toContain("Manager");
+    });
+
+    it("filters account and contact list records by visible list values", () => {
+        const anotherAccount: Account = {
+            ...account,
+            Id: "001xx000003DGbZ",
+            Name: "Global Media",
+            Phone: "03-9999-9999",
+            Website: "https://global.example.test",
+            Industry: "Media",
+            BillingCity: "Osaka"
+        };
+        const anotherContact: Contact = {
+            ...contact,
+            Id: "003xx000004TmiR",
+            FirstName: "Hanako",
+            LastName: "Suzuki",
+            Email: "hanako@example.test",
+            Title: "Designer",
+            AccountId: anotherAccount.Id,
+            Account: {
+                Name: anotherAccount.Name
+            }
+        };
+
+        expect(filterAccounts([account, anotherAccount], "media")).toEqual([anotherAccount]);
+        expect(filterAccounts([account, anotherAccount], " TOKYO ")).toEqual([account]);
+        expect(filterContacts([contact, anotherContact], "designer")).toEqual([anotherContact]);
+        expect(filterContacts([contact, anotherContact], "acme")).toEqual([contact]);
     });
 
     it("renders account and contact record pages with detail sections", () => {
