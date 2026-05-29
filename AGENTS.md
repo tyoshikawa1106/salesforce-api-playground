@@ -21,12 +21,15 @@
 
 ## Git / GitHub 運用
 
-- `main` は GitHub と同期済みの安定ブランチとして扱う。
-- Heroku は GitHub `main` から自動デプロイされる。
-- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。PR を作成し、CI pass 後に ready for review へ変更して、`main` へマージすると自動デプロイされる旨を案内する。
+- `main` は本番デプロイ用の安定ブランチとして扱う。
+- `stage` は本番前確認用ブランチとして扱う。
+- 通常の開発 PR は `codex/...` などの作業ブランチから `stage` に向ける。
+- Staging 確認後、`stage` から `main` へ PR を作成して本番反映する。
+- Heroku は Staging app を GitHub `stage` から、Production app を GitHub `main` から自動デプロイする。
+- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。通常開発では PR を `stage` に作成し、CI pass 後に ready for review へ変更して、`stage` へマージすると Staging app に自動デプロイされる旨を案内する。本番反映は `stage` から `main` への PR を経由する。
 - Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
 - 作業ブランチは `codex/...` の形式にする。
-- `main` へ直接コミットしない。
+- `stage` / `main` へ直接コミットしない。
 - コミットは作業単位で分割し、コミットメッセージは日本語で書く。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
@@ -34,9 +37,9 @@
 - PR title に `codex` プレフィックスを付けない。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
 - 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
-- Dependabot PR をエージェントが merge する場合も、`main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
+- Dependabot PR をエージェントが merge する場合も、`stage` / `main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
 - PR マージ前に GitHub Actions が pass していることを確認する。
-- PR マージ後は `main` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。
+- 通常開発 PR のマージ後は `stage` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。本番反映 PR のマージ後は `main` に戻して GitHub と同期する。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
