@@ -86,14 +86,18 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 ## Pull Request 運用
 
 - Pull Request には、変更内容に合う milestone と label を設定する。
+- 通常の開発 PR は `codex/...` などの作業ブランチから `stage` に向ける。
+- Staging 確認後、`stage` から `main` へ本番反映 PR を作成する。
+- `stage` / `main` ともに直接 push ではなく、PR と CI を経由して更新する。
+- Heroku は Staging app を `stage` から、Production app を `main` から自動デプロイする。
 - Reviewers は、レビューを依頼する相手がいる場合に設定する。個人作業では空でもよい。
 - Assignee は、マージまで見る担当者を明示したい場合に手動で設定する。
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
 
-## main 品質チェック
+## stage / main 品質チェック
 
-`main` の現在状態を確認する場合は、以下のコマンドを実行します。
+`stage` / `main` の現在状態を確認する場合は、以下のコマンドを実行します。
 
 | コマンド | 用途 |
 | --- | --- |
@@ -119,9 +123,9 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 
 - npm 依存関係と GitHub Actions を週次で確認する。
 - Dependabot PR には `area:github` と `type:maintenance` を付ける。
-- Dependabot PR は内容を確認し、CI が pass してからマージする。
+- Dependabot PR は `stage` に向けて作成し、内容を確認し、CI が pass してからマージする。
 - Dependabot PR のうち、CI pass、mergeable、差分確認済みで、ユーザーが対象 PR を明示して承認したものは、エージェントが merge してよい。
-- エージェントが Dependabot PR を merge した後は、`main` に戻して GitHub と同期し、残った Dependabot PR / branch と CI 状態を確認する。
+- エージェントが Dependabot PR を merge した後は、`stage` に戻して GitHub と同期し、残った Dependabot PR / branch と CI 状態を確認する。本番反映は通常と同じく `stage` から `main` への PR で行う。
 - 依存関係更新でアプリケーション挙動に影響する可能性がある場合は、通常のコード変更と同じ確認コマンドを実行する。
 
 ## Repository 設定
@@ -140,6 +144,20 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 | Delete branch on merge | 無効 | PR merge 後に、エージェントまたはユーザーが不要 branch を確認して削除する |
 | Auto-merge | 無効 | merge はユーザー判断を基本にし、Dependabot PR のみ条件付きでエージェントが実行できる |
 | Update branch | 無効 | 必要な場合は手動で rebase / merge する |
+
+## Branch protection / Ruleset
+
+`stage` / `main` はどちらも直接 push ではなく PR と CI を経由して更新します。GitHub repository settings では、少なくとも以下を `stage` と `main` の両方に適用する方針です。
+
+| 項目 | 方針 |
+| --- | --- |
+| Pull request 必須 | 有効 |
+| Required status checks | CI を必須にする |
+| Require branches to be up to date before merging | 必要に応じて有効化する |
+| Restrict deletions | 有効 |
+| Allow force pushes | 無効 |
+
+Ruleset / branch protection の実設定は GitHub settings で確認します。設定内容を PR や docs に記録する場合は、repository 固有の秘密情報を含めない範囲にします。
 
 ## Security 設定
 
