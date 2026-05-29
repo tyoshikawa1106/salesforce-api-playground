@@ -41,8 +41,7 @@ export function AccountPanel({
     connected,
     onOpen,
     onEdit,
-    onDelete,
-    onRefresh
+    onDelete
 }: {
     accounts: Account[];
     loading: boolean;
@@ -50,7 +49,6 @@ export function AccountPanel({
     onOpen: (record: Account) => void;
     onEdit: (record: Account) => void;
     onDelete: (record: Account) => void;
-    onRefresh: () => void;
 }) {
     return (
         <div className="slds-theme_default">
@@ -128,8 +126,7 @@ export function ContactPanel({
     connected,
     onOpen,
     onEdit,
-    onDelete,
-    onRefresh
+    onDelete
 }: {
     contacts: Contact[];
     loading: boolean;
@@ -137,7 +134,6 @@ export function ContactPanel({
     onOpen: (record: Contact) => void;
     onEdit: (record: Contact) => void;
     onDelete: (record: Contact) => void;
-    onRefresh: () => void;
 }) {
     return (
         <div className="slds-theme_default">
