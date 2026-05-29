@@ -19,6 +19,7 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | --- | --- |
 | `app/api/**/route.ts` | HTTP メソッドごとのエントリポイント |
 | `lib/salesforce/route-handler.ts` | Salesforce 系 Route の共通レスポンス / エラーハンドリング |
+| `lib/salesforce/error-sanitizer.ts` | Salesforce エラー詳細やサーバーログから token / secret 系の値をマスク |
 | `lib/salesforce/request-payloads.ts` | Account / Contact の入力検証と正規化 |
 | `lib/salesforce/request-security.ts` | state 変更リクエストの Origin / Referer 検証、Salesforce レコード ID 検証 |
 | `lib/salesforce/integration-security.ts` | サーバー間連携 API の `x-integration-api-key` 検証 |
@@ -366,6 +367,7 @@ Contact を削除します。成功時は空オブジェクトを返します。
 | --- | --- | --- |
 | 未接続 | `401` | `{ "error": "Not connected to Salesforce." }` |
 | セッション期限切れ、refresh 失敗 | `401` | `{ "error": "Salesforce session expired. Please connect again.", "details": ... }` |
+| JSON body が壊れている | `400` | `{ "error": "Request body must be valid JSON." }` |
 | JSON body が object ではない | `400` | `{ "error": "Request body must be a JSON object." }` |
 | 未許可フィールド | `400` | `{ "error": "Unexpected Account field: ... ." }` または `{ "error": "Unexpected Contact field: ... ." }` |
 | 必須フィールド不足 | `400` | `{ "error": "Name is required." }` または `{ "error": "LastName is required." }` |
@@ -373,12 +375,13 @@ Contact を削除します。成功時は空オブジェクトを返します。
 | Account / Contact ID 形式不正 | `400` | `{ "error": "Invalid Account id." }` または `{ "error": "Invalid Contact id." }` |
 | Origin / Referer 不一致 | `403` | `{ "error": "Invalid request origin." }` |
 | Salesforce API エラー | Salesforce 側 status | `{ "error": "...", "details": ... }` |
-| 想定外エラー | `500` | `{ "error": "..." }` |
+| 想定外エラー | `500` | `{ "error": "Unexpected server error." }` |
 
 Salesforce 組織依存エラーの扱い:
 
 - validation rule、権限不足、参照整合性、選択リスト値、組織側で追加された必須項目は Salesforce 組織設定に依存します。
 - 現行実装では jsforce / Salesforce から受け取ったエラーを `SalesforceApiError` に変換し、`details` を保持して API レスポンスへ含めます。
+- `details` とサーバーログは、`access_token`、`refreshToken`、`clientSecret`、`apiKey`、`Authorization: Bearer ...` など token / secret 系のキーまたは文字列を `"[REDACTED]"` にマスクします。
 - UI 表示では `details` をそのまま説明文にせず、秘密情報や内部情報を不用意に出さない文言へ変換します。
 - 変換対象の候補は `REQUIRED_FIELD_MISSING`、`FIELD_CUSTOM_VALIDATION_EXCEPTION`、`INSUFFICIENT_ACCESS_OR_READONLY`、`INVALID_CROSS_REFERENCE_KEY` です。
 

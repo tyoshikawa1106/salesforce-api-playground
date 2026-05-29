@@ -326,12 +326,36 @@ describe("salesforceErrorResponse", () => {
         });
     });
 
+    it("redacts token and secret fields from Salesforce API error details", async () => {
+        const response = salesforceErrorResponse(new SalesforceApiError("bad request", 400, {
+            message: "failed with authorization=Bearer abc123",
+            access_token: "access-token",
+            nested: {
+                clientSecret: "client-secret",
+                refreshToken: "refresh-token"
+            }
+        }));
+
+        expect(response.status).toBe(400);
+        await expect(response.json()).resolves.toEqual({
+            error: "bad request",
+            details: {
+                message: "failed with authorization=[REDACTED]",
+                access_token: "[REDACTED]",
+                nested: {
+                    clientSecret: "[REDACTED]",
+                    refreshToken: "[REDACTED]"
+                }
+            }
+        });
+    });
+
     it("serializes unexpected errors without Salesforce details", async () => {
-        const response = salesforceErrorResponse(new Error("Unexpected failure"));
+        const response = salesforceErrorResponse(new Error("Unexpected failure with access_token=secret"));
 
         expect(response.status).toBe(500);
         await expect(response.json()).resolves.toEqual({
-            error: "Unexpected failure"
+            error: "Unexpected server error."
         });
     });
 
