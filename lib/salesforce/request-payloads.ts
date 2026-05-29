@@ -88,7 +88,14 @@ async function readSalesforcePayload<T>(
     request: JsonRequest,
     options: SalesforcePayloadOptions
 ): Promise<T> {
-    const body = await request.json();
+    let body: unknown;
+
+    try {
+        body = await request.json();
+    } catch {
+        throw badPayload("Request body must be valid JSON.");
+    }
+
     return validateSalesforcePayload(body, options) as T;
 }
 

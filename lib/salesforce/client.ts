@@ -23,6 +23,7 @@ import {
     clearStateCookie,
     setSessionCookie
 } from "./session";
+import { sanitizeSalesforceDetails } from "./error-sanitizer";
 
 export type { SalesforceErrorPayload, TokenResponse } from "./client-core";
 
@@ -130,11 +131,13 @@ export function salesforceErrorResponse(
     const { normalizeExpiredSession = true } = options;
 
     if (error instanceof SalesforceApiError) {
+        const details = sanitizeSalesforceDetails(error.details);
+
         if (normalizeExpiredSession && isExpiredSessionError(error)) {
             const response = NextResponse.json(
                 {
                     error: "Salesforce session expired. Please connect again.",
-                    details: error.details
+                    details
                 },
                 { status: 401 }
             );
@@ -146,7 +149,7 @@ export function salesforceErrorResponse(
         return NextResponse.json(
             {
                 error: error.message,
-                details: error.details
+                details
             },
             { status: error.status }
         );
@@ -154,7 +157,7 @@ export function salesforceErrorResponse(
 
     return NextResponse.json(
         {
-            error: error instanceof Error ? error.message : "Unexpected server error."
+            error: "Unexpected server error."
         },
         { status: 500 }
     );

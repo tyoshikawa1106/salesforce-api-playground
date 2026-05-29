@@ -74,6 +74,17 @@ describe("Salesforce request payload readers", () => {
         });
     });
 
+    it("rejects invalid JSON bodies as request errors", async () => {
+        await expect(readAccountCreatePayload({
+            json: async () => {
+                throw new SyntaxError("Unexpected end of JSON input");
+            }
+        })).rejects.toMatchObject({
+            message: "Request body must be valid JSON.",
+            status: 400
+        });
+    });
+
     it("rejects unexpected fields before calling Salesforce", async () => {
         await expect(
             readContactCreatePayload(jsonRequest({ LastName: "Yamada", OwnerId: "005xx0000012345" }))

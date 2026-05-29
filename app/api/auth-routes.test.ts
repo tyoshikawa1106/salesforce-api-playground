@@ -322,7 +322,16 @@ describe("Logout API route", () => {
 
         const response = await logoutRoute.POST(request);
 
-        expect(consoleErrorMock).toHaveBeenCalledWith("Salesforce token revocation failed during logout.", error);
+        expect(consoleErrorMock).toHaveBeenCalledWith(
+            "Salesforce token revocation failed during logout.",
+            {
+                name: "Error",
+                message: "Revoke failed",
+                status: undefined,
+                details: undefined,
+                cause: undefined
+            }
+        );
         expect(salesforceErrorResponseMock).not.toHaveBeenCalled();
         expect(clearSessionCookieMock).toHaveBeenCalledWith(response);
         expect(clearStateCookieMock).toHaveBeenCalledWith(response);
