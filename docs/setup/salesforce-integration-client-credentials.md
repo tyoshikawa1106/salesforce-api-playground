@@ -234,4 +234,5 @@ curl -X PATCH http://localhost:3000/api/integration/accounts/<ACCOUNT_ID> \
 - [OAuth フロー](../security/oauth-flow.md)
 - [API 概要](../api/api-overview.md)
 - [ローカル開発](local-development.md)
+- [Salesforce 手動確認](salesforce-manual-verification.md)
 - [トラブルシューティング](../operations/troubleshooting.md)

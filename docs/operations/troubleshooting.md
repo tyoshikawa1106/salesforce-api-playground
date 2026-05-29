@@ -163,6 +163,7 @@ npm run build
 ## 関連ドキュメント
 
 - [ローカル開発](../setup/local-development.md)
+- [Salesforce 手動確認](../setup/salesforce-manual-verification.md)
 - [Heroku デプロイ](../deployment/heroku.md)
 - [OAuth フロー](../security/oauth-flow.md)
 - [API 概要](../api/api-overview.md)
