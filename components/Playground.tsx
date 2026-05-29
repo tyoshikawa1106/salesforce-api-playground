@@ -344,7 +344,6 @@ export default function Playground() {
                                 onOpen={(record) => setSelectedAccountId(record.Id)}
                                 onEdit={openAccountModal}
                                 onDelete={(record) => setDeleteState({ type: "account", id: record.Id, label: record.Name })}
-                                onRefresh={loadAll}
                             />
                         </>
                     ) : null}
@@ -379,7 +378,6 @@ export default function Playground() {
                                 onDelete={(record) =>
                                     setDeleteState({ type: "contact", id: record.Id, label: `${record.FirstName ?? ""} ${record.LastName}`.trim() })
                                 }
-                                onRefresh={loadAll}
                             />
                         </>
                     ) : null}

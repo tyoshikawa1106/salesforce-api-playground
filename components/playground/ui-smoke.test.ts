@@ -52,8 +52,7 @@ describe("playground UI smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
-                onOpen: noop,
-                onRefresh: noop
+                onOpen: noop
             })
         );
         const contactMarkup = renderToStaticMarkup(
@@ -63,8 +62,7 @@ describe("playground UI smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
-                onOpen: noop,
-                onRefresh: noop
+                onOpen: noop
             })
         );
 
@@ -105,6 +103,8 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).toContain("slds-m-top_small playground-record-body");
         expect(accountMarkup).toContain("slds-tabs_default slds-tabs_card playground-record-tabs");
         expect(accountMarkup).toContain("slds-tabs_default__content slds-show slds-p-around_x-small");
+        expect(accountMarkup).toContain("aria-controls=\"record-related-panel\"");
+        expect(accountMarkup).toContain("aria-labelledby=\"record-related-tab\"");
         expect(accountMarkup).toContain("slds-box slds-box_x-small slds-theme_default slds-m-bottom_x-small");
         expect(accountMarkup).toContain("slds-card slds-card_boundary playground-record-related-card");
         expect(accountMarkup).not.toContain("新規取引先責任者");

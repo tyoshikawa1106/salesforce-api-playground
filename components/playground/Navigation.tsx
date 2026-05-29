@@ -62,6 +62,7 @@ function NavigationItem({ active, label, onClick }: { active: boolean; label: st
             <button
                 className={`slds-button_reset slds-context-bar__label-action ${active ? "heroku-context-bar__label-action_active" : ""}`}
                 type="button"
+                aria-current={active ? "page" : undefined}
                 onClick={onClick}
             >
                 <span className="slds-truncate" title={label}>
@@ -91,5 +92,5 @@ export function StandardPageHeaderIcon({ tab, label }: { tab: ActiveTab; label: 
 }
 
 export function UtilityButtonIcon({ name, label }: { name: keyof typeof utilityIcons; label: string }) {
-    return <Image className="slds-button__icon playground-utility-button-icon" src={utilityIcons[name]} alt={label} width={16} height={16} />;
+    return <Image className="slds-button__icon playground-utility-button-icon" src={utilityIcons[name]} alt="" width={16} height={16} aria-hidden="true" />;
 }

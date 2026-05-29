@@ -231,6 +231,10 @@ function RecordMainTabs({
     detailContent: ReactNode;
 }) {
     const [activeRecordTab, setActiveRecordTab] = useState<"related" | "details">("related");
+    const relatedTabId = "record-related-tab";
+    const relatedPanelId = "record-related-panel";
+    const detailsTabId = "record-details-tab";
+    const detailsPanelId = "record-details-panel";
 
     return (
         <div className="slds-tabs_default slds-tabs_card playground-record-tabs">
@@ -240,7 +244,9 @@ function RecordMainTabs({
                         className="slds-tabs_default__link slds-button_reset"
                         type="button"
                         role="tab"
+                        id={relatedTabId}
                         aria-selected={activeRecordTab === "related"}
+                        aria-controls={relatedPanelId}
                         onClick={() => setActiveRecordTab("related")}
                     >
                         関連
@@ -251,14 +257,21 @@ function RecordMainTabs({
                         className="slds-tabs_default__link slds-button_reset"
                         type="button"
                         role="tab"
+                        id={detailsTabId}
                         aria-selected={activeRecordTab === "details"}
+                        aria-controls={detailsPanelId}
                         onClick={() => setActiveRecordTab("details")}
                     >
                         詳細
                     </button>
                 </li>
             </ul>
-            <div className="slds-tabs_default__content slds-show slds-p-around_x-small" role="tabpanel">
+            <div
+                className="slds-tabs_default__content slds-show slds-p-around_x-small"
+                role="tabpanel"
+                id={activeRecordTab === "related" ? relatedPanelId : detailsPanelId}
+                aria-labelledby={activeRecordTab === "related" ? relatedTabId : detailsTabId}
+            >
                 {activeRecordTab === "related" ? relatedContent : detailContent}
             </div>
         </div>
@@ -384,18 +397,32 @@ function ActivityCard() {
                 <div className="slds-tabs_default">
                     <ul className="slds-tabs_default__nav" role="tablist">
                         <li className="slds-tabs_default__item slds-is-active" role="presentation">
-                            <a className="slds-tabs_default__link" href="#activity" role="tab" aria-selected="true">
+                            <button
+                                className="slds-tabs_default__link slds-button_reset"
+                                type="button"
+                                role="tab"
+                                id="activity-tab"
+                                aria-selected="true"
+                                aria-controls="activity-panel"
+                            >
                                 活動
-                            </a>
+                            </button>
                         </li>
                         <li className="slds-tabs_default__item" role="presentation">
-                            <a className="slds-tabs_default__link" href="#chatter" role="tab" aria-selected="false">
+                            <button
+                                className="slds-tabs_default__link slds-button_reset"
+                                type="button"
+                                role="tab"
+                                id="chatter-tab"
+                                aria-selected="false"
+                                aria-controls="activity-panel"
+                            >
                                 Chatter
-                            </a>
+                            </button>
                         </li>
                     </ul>
                 </div>
-                <div className="slds-illustration slds-illustration_small slds-p-around_medium">
+                <div className="slds-illustration slds-illustration_small slds-p-around_medium" role="tabpanel" id="activity-panel" aria-labelledby="activity-tab">
                     <div className="slds-text-align_center">
                         <h3 className="slds-text-heading_small">表示する活動はありません。</h3>
                         <p className="slds-text-color_weak slds-m-top_x-small">メール送信や ToDo の予定作成で作業を記録できます。</p>
