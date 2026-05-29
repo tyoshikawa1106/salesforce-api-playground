@@ -197,5 +197,6 @@ Salesforce 組織や OAuth 設定を変更した場合、既存の localhost Coo
 - [システム概要](../architecture/system-overview.md)
 - [OAuth フロー](../security/oauth-flow.md)
 - [Salesforce Integration ユーザー連携設定](salesforce-integration-client-credentials.md)
+- [Salesforce 手動確認](salesforce-manual-verification.md)
 - [API 概要](../api/api-overview.md)
 - [トラブルシューティング](../operations/troubleshooting.md)

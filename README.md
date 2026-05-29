@@ -42,6 +42,7 @@ cp .env.example .env.local
 `.env.local` に Salesforce 外部クライアントアプリケーションの値を設定してください。`.env` や `.env.*` はコミットしないでください。
 
 Salesforce 側の設定やローカル開発の詳細は [ローカル開発](docs/setup/local-development.md) と [OAuth フロー](docs/security/oauth-flow.md) を参照してください。
+実 Salesforce 組織に接続した後の操作フローは [Salesforce 手動確認](docs/setup/salesforce-manual-verification.md) を参照してください。
 
 ## 起動方法
 
@@ -101,6 +102,7 @@ Heroku は GitHub `main` から自動デプロイされる運用です。Heroku 
 - 開発
     - [ローカル開発](docs/setup/local-development.md)
     - [Salesforce Integration ユーザー連携設定](docs/setup/salesforce-integration-client-credentials.md)
+    - [Salesforce 手動確認](docs/setup/salesforce-manual-verification.md)
     - [意思決定記録](docs/decisions/README.md)
 - 運用
     - [Heroku デプロイ](docs/deployment/heroku.md)

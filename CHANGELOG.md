@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-05-29
+
+### Added
+
+- 実 Salesforce 接続後にユーザーが手動確認する OAuth、Account / Contact、紐づけ、Client Credentials Flow の操作観点を `docs/setup/salesforce-manual-verification.md` に追加。
+
 ## 2026-05-28
 
 ### Added
