@@ -22,9 +22,9 @@
 ## Git / GitHub 運用
 
 - `main` は本番デプロイ用の安定ブランチとして扱う。
-- `develop` は Git Flow の長期統合ブランチとして扱う。
-- `release/*` はリリースごとに `develop` から作成し、`main` への本番反映後に `develop` へ merge back して削除する一時ブランチとして扱う。
-- `hotfix/*` は緊急修正用に `main` から作成し、`main` への反映後に `develop` へ戻す一時ブランチとして扱う。
+- `develop` は次リリース向けの開発統合ブランチとして扱う。Staging app が `develop` から自動デプロイされる場合は、Staging 確認にも利用する。
+- `release/*` はリリース候補を固定するために `develop` から作成し、`main` への本番反映後に `develop` へ戻して削除する一時ブランチとして扱う。`release/*` では原則として新機能追加を行わず、リリース前の修正、バージョン調整、ドキュメント修正に限定する。
+- `hotfix/*` は緊急修正用に `main` から作成し、`main` への反映後に `develop` へ戻して削除する一時ブランチとして扱う。
 - 通常の開発 PR は `codex/...` などの作業ブランチから `develop` に向ける。
 - 本番反映 PR は `release/*` から `main` に向ける。
 - hotfix PR は `hotfix/*` から `main` に向ける。
@@ -50,8 +50,8 @@
 - PR マージ前に GitHub Actions が pass していることを確認する。
 - 通常開発 PR が `develop` にマージ済みであることを確認したら、`develop` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。本番反映する場合は `develop` から `release/*` ブランチを作成し、`release/*` から `main` への本番反映 PR を作成する。
 - 本番反映 PR のマージ後は `main` に戻して GitHub と同期する。
-- 本番反映 PR のマージ後は、release branch を `develop` へ merge back する。hotfix の場合は `main` または hotfix branch を `develop` へ戻す。
-- merge back は PR と CI を経由して行う。`develop` への direct push は行わない。
+- 本番反映 PR のマージ後は、Git Flow の考え方に従って同じ `release/*` branch から `develop` への PR を作成し、release branch の内容を `develop` へ戻す。hotfix の場合も同じ `hotfix/*` branch から `develop` への PR を作成し、`main` に反映した修正を `develop` へ戻す。
+- `develop` へ戻す作業も PR と CI を経由して行う。`develop` への direct push は行わない。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。

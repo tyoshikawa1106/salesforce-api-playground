@@ -32,7 +32,7 @@ flowchart LR
     Api --> IntegrationUiApi["/api/integration/ui/accounts<br/>session + Origin / Referer"]
     IntegrationApi --> OAuthClient
     IntegrationUiApi --> OAuthClient
-    StageHeroku["Staging Heroku app<br/>GitHub stage から自動デプロイ"] --> App
+    StageHeroku["Staging Heroku app<br/>GitHub develop から自動デプロイ"] --> App
     ProductionHeroku["Production Heroku app<br/>GitHub main から自動デプロイ"] --> App
 ```
 

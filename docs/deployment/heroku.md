@@ -63,7 +63,7 @@ Staging app の作成有無、GitHub auto deploy の対象ブランチ、Config 
 | GitHub ブランチ | Heroku app | 用途 | merge 後の確認 |
 | --- | --- | --- | --- |
 | `develop` | Staging app | 通常開発の統合確認 | `develop` push workflow、Staging release、Staging dyno |
-| `release/*` | なし | リリース候補の最終調整、本番反映 PR の head | PR checks |
+| `release/*` | なし | リリース候補の固定、リリース前の最終調整、本番反映 PR の head | PR checks |
 | `main` | Production app | 本番反映 | `main` push workflow、Production release、Production dyno |
 
 通常開発の流れ:
@@ -72,10 +72,12 @@ Staging app の作成有無、GitHub auto deploy の対象ブランチ、Config 
 2. GitHub Actions が pass したら ready for review にする。
 3. ユーザーが `develop` へ merge する。
 4. Staging app の release、dyno、必要な手動確認を行う。
-5. 本番反映するタイミングで `develop` から `release/*` を作成し、`release/*` から `main` へ PR を作成する。
-6. GitHub Actions が pass し、ユーザーが `main` へ merge する。
-7. Production app の release、dyno、必要な手動確認を行う。
-8. `release/*` を `develop` へ merge back し、release branch を削除する。
+5. リリース対象が揃ったら `develop` から `release/*` を作成し、以後のリリース候補を `release/*` 上で固定する。
+6. `release/*` から `main` へ PR を作成する。
+7. GitHub Actions が pass し、ユーザーが `main` へ merge する。
+8. Production app の release、dyno、必要な手動確認を行う。
+9. 同じ `release/*` から `develop` へ PR を作成し、release branch で行った最終修正を `develop` へ戻す。
+10. `release/*` が `main` と `develop` の両方に取り込まれたら、release branch を削除する。
 
 ## 必要な Config Vars
 
