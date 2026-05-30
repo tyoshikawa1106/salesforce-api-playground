@@ -3,6 +3,7 @@ import * as accountRoute from "./accounts/route";
 import * as accountRecordRoute from "./accounts/[id]/route";
 import * as contactRoute from "./contacts/route";
 import * as contactRecordRoute from "./contacts/[id]/route";
+import * as searchRoute from "./search/route";
 import {
     jsonWithSession,
     salesforceErrorResponse
@@ -20,6 +21,7 @@ import {
     deleteContact,
     listAccounts,
     listContacts,
+    searchAccountsAndContacts,
     updateAccount,
     updateContact
 } from "@/services/salesforce/records";
@@ -64,6 +66,7 @@ vi.mock("@/services/salesforce/records", () => ({
     deleteContact: vi.fn(),
     listAccounts: vi.fn(),
     listContacts: vi.fn(),
+    searchAccountsAndContacts: vi.fn(),
     updateAccount: vi.fn(),
     updateContact: vi.fn()
 }));
@@ -80,6 +83,7 @@ const deleteAccountMock = vi.mocked(deleteAccount);
 const deleteContactMock = vi.mocked(deleteContact);
 const listAccountsMock = vi.mocked(listAccounts);
 const listContactsMock = vi.mocked(listContacts);
+const searchAccountsAndContactsMock = vi.mocked(searchAccountsAndContacts);
 const updateAccountMock = vi.mocked(updateAccount);
 const updateContactMock = vi.mocked(updateContact);
 
@@ -282,6 +286,36 @@ describe("Contact API route", () => {
         expect(updateContactMock).not.toHaveBeenCalled();
         expect(response.status).toBe(400);
         await expectJson(response, { error: "Invalid Contact id." });
+    });
+});
+
+describe("Global search API route", () => {
+    it("searches accounts and contacts through the Salesforce service", async () => {
+        const results = [
+            {
+                type: "account" as const,
+                record: { Id: "001xx000003DGbY", Name: "Acme" }
+            }
+        ];
+        searchAccountsAndContactsMock.mockResolvedValue({ data: { results }, session });
+
+        const response = await searchRoute.GET(
+            new Request("https://app.example.test/api/search?q=Acme")
+        );
+
+        expect(searchAccountsAndContactsMock).toHaveBeenCalledWith("Acme");
+        expect(jsonWithSessionMock).toHaveBeenCalledWith({ results }, session);
+        await expectJson(response, { results });
+    });
+
+    it("rejects short search queries before calling Salesforce", async () => {
+        const response = await searchRoute.GET(
+            new Request("https://app.example.test/api/search?q=A")
+        );
+
+        expect(searchAccountsAndContactsMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(400);
+        await expectJson(response, { error: "検索キーワードは 2 文字以上で入力してください。" });
     });
 });
 

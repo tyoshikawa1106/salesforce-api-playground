@@ -25,6 +25,38 @@ body {
     filter: brightness(0) saturate(100%) invert(32%) sepia(6%) saturate(498%) hue-rotate(174deg) brightness(92%) contrast(86%);
 }
 
+.playground-global-search-results {
+    display: block;
+    overflow-y: auto;
+}
+
+.playground-global-search-result__button {
+    color: inherit;
+    display: block;
+    text-align: left;
+}
+
+.playground-global-search-result__button:focus,
+.playground-global-search-result__button:hover,
+.playground-global-search-result_active .playground-global-search-result__button {
+    background-color: var(--slds-g-color-neutral-base-95);
+    text-decoration: none;
+}
+
+.playground-global-search-result__icon {
+    display: block;
+}
+
+.playground-global-search-result__label,
+.playground-global-search-result__meta {
+    display: block;
+}
+
+.playground-global-search-result__meta {
+    color: var(--slds-g-color-neutral-base-40);
+    font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+}
+
 .playground-global-action {
     position: relative;
 }

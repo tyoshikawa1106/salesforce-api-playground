@@ -17,7 +17,9 @@ import {
     createAccount,
     createIntegrationAccount,
     deleteAccount,
+    buildGlobalSearchSosl,
     listAccounts,
+    searchAccountsAndContacts,
     updateIntegrationAccount,
     updateContact
 } from "./records";
@@ -25,11 +27,13 @@ import {
 const jsforceMocks = vi.hoisted(() => ({
     query: vi.fn(),
     create: vi.fn(),
+    search: vi.fn(),
     update: vi.fn(),
     destroy: vi.fn(),
     connection: vi.fn(function Connection(this: unknown) {
         return {
             query: jsforceMocks.query,
+            search: jsforceMocks.search,
             sobject: vi.fn(() => ({
                 create: jsforceMocks.create,
                 update: jsforceMocks.update,
@@ -188,6 +192,61 @@ describe("Salesforce record services", () => {
         });
 
         expect(jsforceMocks.destroy).toHaveBeenCalledWith("001xx000003DGbY");
+    });
+
+    it("searches accounts and contacts with SOSL", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.search.mockResolvedValue({
+            searchRecords: [
+                {
+                    attributes: { type: "Account" },
+                    Id: "001xx000003DGbY",
+                    Name: "Acme",
+                    BillingCity: "Tokyo"
+                },
+                {
+                    attributes: { type: "Contact" },
+                    Id: "003xx000004TmiQ",
+                    FirstName: "Taro",
+                    LastName: "Yamada",
+                    Email: "taro@example.test",
+                    Account: { Name: "Acme" }
+                }
+            ]
+        });
+
+        await expect(searchAccountsAndContacts("Acme")).resolves.toEqual({
+            data: {
+                results: [
+                    {
+                        type: "account",
+                        record: {
+                            Id: "001xx000003DGbY",
+                            Name: "Acme",
+                            BillingCity: "Tokyo"
+                        }
+                    },
+                    {
+                        type: "contact",
+                        record: {
+                            Id: "003xx000004TmiQ",
+                            FirstName: "Taro",
+                            LastName: "Yamada",
+                            Email: "taro@example.test",
+                            Account: { Name: "Acme" }
+                        }
+                    }
+                ]
+            },
+            session
+        });
+        expect(jsforceMocks.search).toHaveBeenCalledWith(
+            "FIND {Acme*} IN ALL FIELDS RETURNING Account(Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate LIMIT 5), Contact(Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate LIMIT 5)"
+        );
+    });
+
+    it("escapes SOSL reserved characters in search terms", () => {
+        expect(buildGlobalSearchSosl("Acme + Tokyo")).toContain("FIND {Acme \\+ Tokyo*}");
     });
 
     it("uses client credentials for integration account creates", async () => {

@@ -10,7 +10,7 @@ import {
     playgroundApiPaths
 } from "@/lib/playground-api";
 import type { SessionInfo } from "@/lib/playground-api";
-import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
+import type { AccountForm, ContactForm, SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest, PlaygroundApiError, saveRecord } from "./playground/api";
 import { AppNavigation } from "./playground/Navigation";
 import { GlobalHeader } from "./playground/GlobalHeader";
@@ -126,6 +126,27 @@ export default function Playground() {
         setSelectedContactId(null);
         void loadAll();
     }, [loadAll]);
+
+    const openSearchResult = useCallback((result: SearchResultItem) => {
+        if (result.type === "account") {
+            setAccounts((currentAccounts) => [
+                result.record,
+                ...currentAccounts.filter((account) => account.Id !== result.record.Id)
+            ]);
+            setSelectedContactId(null);
+            setSelectedAccountId(result.record.Id);
+            setActiveTab("accounts");
+            return;
+        }
+
+        setContacts((currentContacts) => [
+            result.record,
+            ...currentContacts.filter((contact) => contact.Id !== result.record.Id)
+        ]);
+        setSelectedAccountId(null);
+        setSelectedContactId(result.record.Id);
+        setActiveTab("contacts");
+    }, []);
 
     useEffect(() => {
         void loadAll();
@@ -311,7 +332,7 @@ export default function Playground() {
     return (
         <div>
             {notice ? <NoticeBanner notice={notice} /> : null}
-            <GlobalHeader connected={session.connected} />
+            <GlobalHeader connected={session.connected} onSelectSearchResult={openSearchResult} />
             <AppNavigation activeTab={activeTab} connected={session.connected} onChange={changeTab} />
 
             <main className="slds-template_default">
