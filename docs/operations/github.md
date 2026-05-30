@@ -88,6 +88,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - 新規 Issue と Pull Request は `.github/workflows/auto-assign.yml` により、作成時に owner へ自動 assign する。
 - Issue / Pull Request の assignee を変更する場合は、workflow の `ASSIGNEE` を変更する。
 - Issue が Pull Request で解決される場合は、PR 本文やコメントで Issue 番号を参照する。
+- GitHub の Issue 自動クローズは default branch へのマージ時に closing keyword を解釈するため、本番反映 PR が Issue を完了させる場合は `Closes #<Issue番号>` などを PR body に記載する。
 - Issue template は `.github/ISSUE_TEMPLATE` 配下で管理する。
 - Issue template は入力項目を増やしすぎず、概要、対象範囲、補足など最小限の項目にする。
 
@@ -177,6 +178,14 @@ release: Dependabot 設定を更新
 ## 対象変更
 
 - #107 docs: 本番反映 PR title ルールを調整
+```
+
+本番反映 PR が Issue を完了させる場合は、`関連 Issue` などの見出しを設け、GitHub の closing keyword を記載します。このリポジトリでは通常開発 PR は `stage` 向け、本番反映 PR は default branch の `main` 向けであるため、Issue の自動クローズは本番反映 PR 側で行います。
+
+```markdown
+## 関連 Issue
+
+Closes #96
 ```
 
 複数の PR をまとめて本番反映する場合も、`対象変更` にすべて列挙します。
