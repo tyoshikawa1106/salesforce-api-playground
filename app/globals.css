@@ -152,6 +152,11 @@ body {
     min-height: calc(100vh - 6.25rem);
 }
 
+.playground-list-selection-summary {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+}
+
 .playground-record-header-row {
     gap: 0.75rem;
 }

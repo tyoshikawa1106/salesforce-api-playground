@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { LoginPage } from "./LoginPage";
 import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
-import { AccountPanel, ContactPanel, filterAccounts, filterContacts } from "./RecordLists";
+import { AccountPanel, ContactPanel, filterAccounts, filterContacts, getSelectionState } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
 import { GlobalHeader } from "./GlobalHeader";
 import type { Account, Contact } from "./types";
@@ -69,6 +69,7 @@ describe("playground UI smoke rendering", () => {
 
         expect(accountMarkup).toContain("Acme");
         expect(accountMarkup).toContain("このリストを検索...");
+        expect(accountMarkup).toContain("aria-label=\"表示中の取引先をすべて選択\"");
         expect(accountMarkup).not.toContain("List view controls");
         expect(accountMarkup).not.toContain("Display as table");
         expect(accountMarkup).not.toContain("Refresh list");
@@ -76,6 +77,7 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).toContain("削除");
         expect(contactMarkup).toContain("Taro Yamada");
         expect(contactMarkup).toContain("Manager");
+        expect(contactMarkup).toContain("aria-label=\"表示中の取引先責任者をすべて選択\"");
     });
 
     it("filters account and contact list records by visible list values", () => {
@@ -105,6 +107,30 @@ describe("playground UI smoke rendering", () => {
         expect(filterAccounts([account, anotherAccount], " TOKYO ")).toEqual([account]);
         expect(filterContacts([contact, anotherContact], "designer")).toEqual([anotherContact]);
         expect(filterContacts([contact, anotherContact], "acme")).toEqual([contact]);
+    });
+
+    it("reports visible list selection state for checked and mixed header checkboxes", () => {
+        const anotherAccount: Account = {
+            ...account,
+            Id: "001xx000003DGbZ",
+            Name: "Global Media"
+        };
+
+        expect(getSelectionState([account, anotherAccount], new Set([account.Id]))).toEqual({
+            allVisibleSelected: false,
+            someVisibleSelected: true,
+            selectedVisibleCount: 1
+        });
+        expect(getSelectionState([account, anotherAccount], new Set([account.Id, anotherAccount.Id]))).toEqual({
+            allVisibleSelected: true,
+            someVisibleSelected: false,
+            selectedVisibleCount: 2
+        });
+        expect(getSelectionState([anotherAccount], new Set([account.Id]))).toEqual({
+            allVisibleSelected: false,
+            someVisibleSelected: false,
+            selectedVisibleCount: 0
+        });
     });
 
     it("renders account and contact record pages with detail sections", () => {
