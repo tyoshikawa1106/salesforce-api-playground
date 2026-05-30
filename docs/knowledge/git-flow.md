@@ -383,3 +383,116 @@ Issue は `develop` マージ時ではなく、本番反映される `release/..
 - hotfix は `main`、`develop`、および存在する `release` に反映する
 - リリース候補の確認を行ってから本番反映する
 - 本番反映後は結果を確認する
+
+## 手作業で実行するコマンド例
+
+以下は、通常開発から `develop` へのマージ、release ブランチ作成、`main` への本番反映、release ブランチ削除までを手作業で進める場合のコマンド例です。
+
+Issue 番号、ブランチ名、commit message は実際の作業内容に合わせて置き換えます。
+
+### 通常開発ブランチを作成する
+
+```bash
+git switch develop
+git pull --ff-only origin develop
+
+git switch -c feature/example-change
+```
+
+このリポジトリでエージェントが作業する場合は、`feature/example-change` の代わりに `codex/example-change` を使います。
+
+### 変更を確認してコミットする
+
+```bash
+git diff
+git diff --check
+git status --short --branch
+
+git add <変更したファイル>
+git commit -m "docs: 変更内容を簡潔に書く"
+```
+
+docs や template のみを変更する場合は、`git diff --check` を確認コマンドとして使います。コード変更を含む場合は、変更内容に応じて `npm run lint`、`npm run typecheck`、`npm run test:coverage`、`npm run build` なども実行します。
+
+### develop 向け PR を作成する
+
+```bash
+git push -u origin feature/example-change
+```
+
+GitHub で `feature/example-change` から `develop` への Draft PR を作成します。
+
+Issue への参照は、通常開発 PR では以下のように書きます。
+
+```text
+Refs #123
+```
+
+CI が pass したら Ready for Review に変更し、レビュー完了後に `develop` へマージします。
+
+### develop マージ後に作業ブランチを削除する
+
+```bash
+git switch develop
+git pull --ff-only origin develop
+
+git branch -d feature/example-change
+git push origin --delete feature/example-change
+```
+
+GitHub の自動削除機能を利用している場合、remote branch の削除は不要なことがあります。
+
+### release ブランチを作成する
+
+```bash
+git switch develop
+git pull --ff-only origin develop
+
+git switch -c release/2026.06
+git push -u origin release/2026.06
+```
+
+GitHub で `release/2026.06` から `main` への Draft PR を作成します。
+
+本番反映時に Issue を閉じる場合は、release PR に closing keyword を書きます。
+
+```text
+Closes #123
+```
+
+CI / CodeQL が pass したら Ready for Review に変更し、レビュー完了後に `main` へマージします。
+
+### main マージ後に同期する
+
+```bash
+git switch main
+git pull --ff-only origin main
+```
+
+### release から develop へ戻す差分を確認する
+
+release ブランチで追加修正を行った場合は、同じ `release/...` から `develop` への PR を作成して戻します。
+
+差分の有無は以下で確認できます。
+
+```bash
+git log --oneline develop..release/2026.06
+git diff --stat develop..release/2026.06
+```
+
+何も表示されない場合は、`develop` に戻す差分がないため戻し PR は不要です。
+
+### release ブランチを削除する
+
+`main` へのマージと `develop` への戻しが完了した、または戻す差分がないことを確認してから release ブランチを削除します。
+
+```bash
+git branch -d release/2026.06
+git push origin --delete release/2026.06
+```
+
+### 最終確認を行う
+
+```bash
+git status --short --branch
+```
