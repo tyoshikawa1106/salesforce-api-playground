@@ -41,6 +41,9 @@ export const playgroundApiPaths = {
     accounts: "/api/accounts",
     contacts: "/api/contacts",
     integrationAccounts: "/api/integration/ui/accounts",
+    search(query: string): string {
+        return `/api/search?q=${encodeURIComponent(query)}`;
+    },
     record(resource: PlaygroundApiResource, id: string): string {
         return `/api/${resource}/${id}`;
     }
