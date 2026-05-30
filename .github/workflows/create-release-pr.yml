@@ -1,0 +1,160 @@
+name: Create release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: "Release branch name. Example: release/2026.06"
+        required: true
+        type: string
+      release_title:
+        description: "Release PR title body without the release: prefix."
+        required: true
+        type: string
+      issue_number:
+        description: "Issue number closed by the release PR."
+        required: true
+        type: string
+      source_prs:
+        description: "Reviewed source PRs. Example: #152 docs: Git Flow 手順にコマンド例を追加"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-release-pr:
+    name: Create release branch and draft PR
+    runs-on: ubuntu-latest
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_BRANCH: ${{ inputs.release_branch }}
+      RELEASE_TITLE: ${{ inputs.release_title }}
+      ISSUE_NUMBER: ${{ inputs.issue_number }}
+      SOURCE_PRS: ${{ inputs.source_prs }}
+
+    steps:
+      - name: Check out develop
+        uses: actions/checkout@v6
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Validate inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$RELEASE_BRANCH" =~ ^release/[A-Za-z0-9._/-]+$ ]]; then
+            echo "::error::release_branch must start with release/ and contain only letters, numbers, dots, underscores, slashes, or hyphens."
+            exit 1
+          fi
+
+          if [[ "$RELEASE_BRANCH" == */*/* || "$RELEASE_BRANCH" == *".."* ]]; then
+            echo "::error::release_branch must not contain nested path segments or consecutive dots."
+            exit 1
+          fi
+
+          if [[ -z "${RELEASE_TITLE// }" ]]; then
+            echo "::error::release_title is required."
+            exit 1
+          fi
+
+          if [[ "$RELEASE_TITLE" == release:* ]]; then
+            echo "::error::release_title must not include the release: prefix."
+            exit 1
+          fi
+
+          if [[ ! "$ISSUE_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "::error::issue_number must be numeric."
+            exit 1
+          fi
+
+          if [[ -z "${SOURCE_PRS// }" ]]; then
+            echo "::error::source_prs is required."
+            exit 1
+          fi
+
+      - name: Check release branch does not exist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" > /dev/null; then
+            echo "::error::Remote branch $RELEASE_BRANCH already exists."
+            exit 1
+          fi
+
+      - name: Create and push release branch from develop
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git switch -c "$RELEASE_BRANCH" origin/develop
+          git push origin "HEAD:refs/heads/$RELEASE_BRANCH"
+
+      - name: Build release PR body
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          {
+            echo "## 概要"
+            echo
+            echo "develop の最新状態から \`$RELEASE_BRANCH\` を作成し、main 向けに本番反映する Draft PR です。"
+            echo
+            echo "## 関連 Issue"
+            echo
+            echo "Closes #$ISSUE_NUMBER"
+            echo
+            echo "## 対象変更"
+            echo
+            while IFS= read -r source_pr; do
+              [[ -z "${source_pr// }" ]] && continue
+              if [[ "$source_pr" == "-"* ]]; then
+                echo "$source_pr"
+              else
+                echo "- $source_pr"
+              fi
+            done <<< "$SOURCE_PRS"
+            echo
+            echo "## 変更内容"
+            echo
+            echo "- \`develop\` の内容を \`$RELEASE_BRANCH\` として固定"
+            echo "- \`$RELEASE_BRANCH\` から \`main\` への本番反映 PR を作成"
+            echo
+            echo "## レビュー観点"
+            echo
+            echo "- PR title が \`release: <変更内容>\` 形式になっていること"
+            echo "- \`対象変更\` に本番反映対象のレビュー済み PR が列挙されていること"
+            echo "- \`Closes #$ISSUE_NUMBER\` が本番反映で完了する Issue を指していること"
+            echo "- CI pass 後に手動で Ready for review へ変更し、ユーザー判断で main へ merge すること"
+            echo
+            echo "## 動作確認"
+            echo
+            echo "| コマンド / 確認項目 | 結果 | 備考 |"
+            echo "| --- | --- | --- |"
+            echo "| Create release PR workflow | 正常 | \`$RELEASE_BRANCH\` の作成と Draft PR 作成が完了 |"
+            echo
+            echo "## 未実行の確認"
+            echo
+            echo "| 確認項目 | 理由 |"
+            echo "| --- | --- |"
+            echo "| release PR の CI | PR 作成後に GitHub Actions で確認する |"
+          } > release-pr-body.md
+
+      - name: Create draft release PR
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base main \
+            --head "$RELEASE_BRANCH" \
+            --title "release: $RELEASE_TITLE" \
+            --body-file release-pr-body.md \
+            --draft

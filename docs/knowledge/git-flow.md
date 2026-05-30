@@ -204,6 +204,8 @@ GitHub の自動削除機能を利用している場合は不要です。
 
 リリース対象が揃ったら `develop` から release ブランチを作成します。
 
+このリポジトリでは、GitHub Actions の `Create release PR` workflow を手動実行すると、`develop` の最新状態から release ブランチを作成し、`main` 向け Draft PR を作成できます。
+
 ```bash
 git switch develop
 git pull --ff-only origin develop
@@ -259,6 +261,8 @@ Issue を本番反映時に閉じる場合は closing keyword を記載します
 ```text
 Closes #123
 ```
+
+`Create release PR` workflow を使う場合は、`release_title` に `release:` prefix を含めずに入力します。workflow が `release: <release_title>` 形式の title と、関連 Issue、対象変更、レビュー観点、動作確認、未実行の確認を含む PR body を作成します。
 
 ## 13. release PR の CI を確認する
 
