@@ -128,9 +128,9 @@ codex/... -> stage -> main
 3. Staging 確認後、`stage` から `main` へ本番反映 PR を作成する。
 4. CI pass 後、本番反映 PR を `main` へ merge する。
 5. Production app の自動デプロイを確認する。
-6. `main` に作成された release merge commit を `stage` へ fast-forward で戻し、今後の開発履歴と本番履歴を同期する。
+6. `main` に作成された release merge commit を `stage` へ戻し、今後の開発履歴と本番履歴を同期する。
 
-このモデルでは、通常開発の変更は必ず PR と CI を経由します。一方、本番反映後の `main -> stage` は、ファイル差分を追加しない履歴同期として扱います。
+このモデルでは、通常開発の変更は必ず PR と CI を経由します。一方、本番反映後の `main -> stage` は GitFlow の merge back に相当する履歴同期として扱います。fast-forward できる場合は direct push の例外として処理し、分岐している場合は同期 PR を作成します。
 
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
@@ -148,7 +148,9 @@ codex/... -> stage -> main
 
 `stage` から `main` への本番反映 PR を merge commit でマージすると、release merge commit は `main` にだけ作成されます。この状態を放置すると、後続作業で `main` から作業ブランチを切って `stage` へ PR を作成したときに、過去の release merge commit が PR の commit list に混ざることがあります。
 
-これを避けるため、本番反映 PR のマージ後は、`stage` を `main` に fast-forward して履歴を同期します。この同期はファイル内容を変更せず、`stage` に `main` の release merge commit を履歴として取り込むだけの操作です。
+これを避けるため、本番反映 PR のマージ後は、`main` の release merge commit を `stage` へ戻して履歴を同期します。GitFlow では release 後に `main` を `develop` へ merge back するのが自然な形であり、このリポジトリでは `stage` が `develop` に相当します。
+
+`stage` が `main` の祖先で、`origin/stage..origin/main` にファイル差分がない場合は、`stage` を `main` へ fast-forward できます。この場合は、ファイル内容を変更せず `stage` に `main` の release merge commit を履歴として取り込むだけの操作です。
 
 同期前に以下を確認します。
 
@@ -169,9 +171,13 @@ git merge --ff-only main
 git push origin stage
 ```
 
-この `git push origin stage` は、ファイル差分なしの fast-forward 履歴同期に限る例外です。通常のコード変更、ドキュメント変更、設定変更を `stage` へ直接 push してはいけません。上記の確認で条件を満たさない場合は、push せずに分岐理由を確認します。
+この `git push origin stage` は、ファイル差分なしの fast-forward 履歴同期に限る例外です。通常のコード変更、ドキュメント変更、設定変更を `stage` へ直接 push してはいけません。
 
-この履歴同期は Maintain / Admin 権限の担当者が行います。GitHub ruleset の `stage` bypass は、通常変更の direct push を許可するためのものではなく、本番反映後の fast-forward 履歴同期に限定して使います。
+上記の確認で条件を満たさない場合、つまり `stage` と `main` が分岐して fast-forward できない場合は、direct push せず `main` から `stage` への同期 PR を作成します。この同期 PR は通常の PR と同じく CI とレビューを経由して merge します。
+
+緊急修正は `main` への直接コミットではなく、原則として `hotfix/...` から `main` への PR として扱います。hotfix 後も、`stage` が `main` の祖先なら fast-forward で同期し、`stage` も別の開発で進んで分岐している場合は `main` から `stage` への同期 PR を作成します。
+
+この履歴同期は Maintain / Admin 権限の担当者が行います。GitHub ruleset の `stage` bypass は、通常変更の direct push を許可するためのものではなく、本番反映後または hotfix 後の fast-forward 履歴同期に限定して使います。分岐している場合は bypass を使わず、同期 PR を使います。
 
 ### 通常開発 PR マージ後
 
@@ -315,9 +321,9 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 | Ruleset | 対象 | 主なルール | Bypass |
 | --- | --- | --- | --- |
 | `Protect main` | `refs/heads/main` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | なし |
-| `Protect stage` | `refs/heads/stage` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | Maintain / Admin は本番反映後の fast-forward 履歴同期に限り direct push 可能 |
+| `Protect stage` | `refs/heads/stage` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | Maintain / Admin は本番反映後または hotfix 後の fast-forward 履歴同期に限り direct push 可能 |
 
-`main` は bypass を設定せず、PR と required status checks を経由して更新します。`stage` の bypass は `main -> stage` の履歴同期専用であり、通常変更の direct push には使いません。
+`main` は bypass を設定せず、PR と required status checks を経由して更新します。`stage` の bypass は fast-forward 可能な `main -> stage` の履歴同期専用であり、通常変更の direct push には使いません。`stage` と `main` が分岐している場合は、bypass ではなく `main -> stage` の同期 PR を作成します。
 
 Ruleset / branch protection の実設定は GitHub settings で確認します。設定内容を PR や docs に記録する場合は、repository 固有の秘密情報を含めない範囲にします。
 

@@ -49,9 +49,10 @@
 - PR マージ前に GitHub Actions が pass していることを確認する。
 - 通常開発 PR が `stage` にマージ済みであることを確認したら、`stage` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除したうえで、`stage` から `main` への本番反映 PR を作成する。
 - 本番反映 PR のマージ後は `main` に戻して GitHub と同期する。
-- 本番反映 PR のマージ後、`stage` が `main` の祖先で、`origin/stage..origin/main` にファイル差分がない場合に限り、履歴同期として `stage` を `main` へ fast-forward してよい。この同期は新しい変更を追加しないため、通常開発 PR とは分けて扱う。
-- 上記の履歴同期では、事前に `git merge-base --is-ancestor origin/stage origin/main` と `git diff --stat origin/stage..origin/main` を確認する。条件を満たさない場合は同期せず、原因を確認する。
-- 本番反映後の `stage` 履歴同期は Maintain / Admin 権限の担当者が行う。
+- 本番反映 PR のマージ後は、`main` の release merge commit を `stage` へ戻す。これは GitFlow の merge back に相当する履歴同期であり、通常開発 PR とは分けて扱う。
+- `stage` が `main` の祖先で、`origin/stage..origin/main` にファイル差分がない場合は、Maintain / Admin 権限の担当者が `stage` を `main` へ fast-forward してよい。事前に `git merge-base --is-ancestor origin/stage origin/main` と `git diff --stat origin/stage..origin/main` を確認する。
+- `stage` と `main` が分岐して fast-forward できない場合は、`main` から `stage` への同期 PR を作成し、CI とレビューを経由して `stage` へ取り込む。
+- 緊急修正は `main` への直接コミットではなく、原則 `hotfix/...` から `main` への PR として扱う。hotfix 後も同様に、fast-forward 可能なら `stage` を同期し、分岐している場合は `main` から `stage` への同期 PR を作成する。
 - `stage` への通常変更は引き続き PR 経由に限定する。履歴同期のために GitHub ruleset の bypass を使う場合も、fast-forward 可能かつファイル差分なしの `stage` 更新だけに限定する。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
