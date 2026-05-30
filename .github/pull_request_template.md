@@ -4,6 +4,8 @@
 
 ## レビュー観点
 
+- PR title が `docs: ...` などの type prefix 付きで、`codex` prefix を含まないこと
+
 ## 動作確認
 
 | コマンド / 確認項目 | 結果 | 備考 |
