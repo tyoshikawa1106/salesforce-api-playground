@@ -126,11 +126,21 @@ ci: docs-only 変更時の CI を軽量化
 chore: Dependabot の対象ブランチを整理
 ```
 
-本番反映 PR は、`stage` から `main` への反映であることが分かるように `release:` prefix を付けます。
+本番反映 PR は、`stage` から `main` への反映であることが分かるように `release:` prefix を付けます。title には単にブランチ間の反映であることだけでなく、本番反映する変更内容も含めます。
 
 ```text
-release: stage の変更を main へ反映
+release: <本番反映する変更内容>
 ```
+
+本番反映 PR title 例:
+
+```text
+release: PR title 命名規則を本番反映
+release: Account 検索フォームを本番反映
+release: Dependabot 設定更新を本番反映
+```
+
+`release: stage の変更を main へ反映` のような title は、反映内容が履歴から読み取りにくいため避けます。
 
 `codex/...` は作業ブランチ名に使う prefix です。PR title には `codex` prefix を付けません。
 
