@@ -1,19 +1,24 @@
 "use client";
 
 import Image, { type StaticImageData } from "next/image";
-import { type MouseEvent, useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, type MouseEvent, useEffect, useRef, useState } from "react";
 import { salesforceLogo, utilityIcons } from "./icons";
+
+const actionPopoverIds = {
+    "グローバルアクション": "global-action-popover",
+    ヘルプ: "global-help-popover",
+    設定: "global-settings-popover"
+} as const;
+
+type ActionPopoverLabel = keyof typeof actionPopoverIds;
 
 export function GlobalHeader({ connected }: { connected: boolean }) {
     const actionPopoverCloseTimer = useRef<number | null>(null);
     const profileMenuCloseTimer = useRef<number | null>(null);
-    const [activeActionPopover, setActiveActionPopover] = useState<string | null>(null);
+    const headerRef = useRef<HTMLElement | null>(null);
+    const [activeActionPopover, setActiveActionPopover] = useState<ActionPopoverLabel | null>(null);
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [showNotificationBadge, setShowNotificationBadge] = useState(false);
-
-    function blurGlobalAction(event: MouseEvent<HTMLButtonElement>): void {
-        event.currentTarget.blur();
-    }
 
     function cancelProfileMenuClose(): void {
         if (profileMenuCloseTimer.current) {
@@ -37,6 +42,13 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
         }
     }
 
+    function closeMenus(): void {
+        cancelActionPopoverClose();
+        cancelProfileMenuClose();
+        setActiveActionPopover(null);
+        setProfileMenuOpen(false);
+    }
+
     function scheduleActionPopoverClose(): void {
         cancelActionPopoverClose();
         actionPopoverCloseTimer.current = window.setTimeout(() => {
@@ -45,21 +57,58 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
         }, 250);
     }
 
-    function showActionPopover(label: string, event: MouseEvent<HTMLButtonElement>): void {
+    function toggleActionPopover(label: ActionPopoverLabel): void {
         cancelActionPopoverClose();
-        setActiveActionPopover(label);
-        event.currentTarget.blur();
+        setProfileMenuOpen(false);
+        setActiveActionPopover((currentLabel) => (currentLabel === label ? null : label));
+    }
+
+    function toggleProfileMenu(): void {
+        cancelProfileMenuClose();
+        setActiveActionPopover(null);
+        setProfileMenuOpen((isOpen) => !isOpen);
+    }
+
+    function closeOnEscape(event: KeyboardEvent): void {
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        closeMenus();
     }
 
     useEffect(() => {
+        function closeOnPointerDown(event: PointerEvent): void {
+            if (!headerRef.current?.contains(event.target as Node)) {
+                if (actionPopoverCloseTimer.current) {
+                    window.clearTimeout(actionPopoverCloseTimer.current);
+                    actionPopoverCloseTimer.current = null;
+                }
+                if (profileMenuCloseTimer.current) {
+                    window.clearTimeout(profileMenuCloseTimer.current);
+                    profileMenuCloseTimer.current = null;
+                }
+                setActiveActionPopover(null);
+                setProfileMenuOpen(false);
+            }
+        }
+
+        document.addEventListener("pointerdown", closeOnPointerDown);
         return () => {
-            cancelActionPopoverClose();
-            cancelProfileMenuClose();
+            document.removeEventListener("pointerdown", closeOnPointerDown);
+            if (actionPopoverCloseTimer.current) {
+                window.clearTimeout(actionPopoverCloseTimer.current);
+                actionPopoverCloseTimer.current = null;
+            }
+            if (profileMenuCloseTimer.current) {
+                window.clearTimeout(profileMenuCloseTimer.current);
+                profileMenuCloseTimer.current = null;
+            }
         };
     }, []);
 
     return (
-        <header className="slds-global-header_container playground-global-header-container">
+        <header ref={headerRef} className="slds-global-header_container playground-global-header-container" onKeyDown={closeOnEscape}>
             <div className="slds-global-header slds-grid slds-grid_align-spread">
                 <div className="slds-global-header__item">
                     <Image
@@ -101,27 +150,30 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                             <GlobalActionButton
                                 icon={utilityIcons.add}
                                 label="グローバルアクション"
+                                popupId={actionPopoverIds["グローバルアクション"]}
                                 popupMessage="グローバルアクション"
                                 popupOpen={activeActionPopover === "グローバルアクション"}
-                                onClick={(event) => showActionPopover("グローバルアクション", event)}
+                                onClick={() => toggleActionPopover("グローバルアクション")}
                                 onMouseEnter={cancelActionPopoverClose}
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
                             <GlobalActionButton
                                 icon={utilityIcons.help}
                                 label="ヘルプ"
+                                popupId={actionPopoverIds["ヘルプ"]}
                                 popupMessage="ヘルプ"
                                 popupOpen={activeActionPopover === "ヘルプ"}
-                                onClick={(event) => showActionPopover("ヘルプ", event)}
+                                onClick={() => toggleActionPopover("ヘルプ")}
                                 onMouseEnter={cancelActionPopoverClose}
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
                             <GlobalActionButton
                                 icon={utilityIcons.settings}
                                 label="設定"
+                                popupId={actionPopoverIds["設定"]}
                                 popupMessage="設定"
                                 popupOpen={activeActionPopover === "設定"}
-                                onClick={(event) => showActionPopover("設定", event)}
+                                onClick={() => toggleActionPopover("設定")}
                                 onMouseEnter={cancelActionPopoverClose}
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
@@ -147,12 +199,10 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                                         className="slds-button slds-global-actions__avatar slds-global-actions__item-action"
                                         type="button"
                                         title="ユーザープロファイル"
-                                        aria-haspopup="true"
+                                        aria-controls="profile-menu"
+                                        aria-haspopup="menu"
                                         aria-expanded={profileMenuOpen}
-                                        onClick={(event) => {
-                                            setProfileMenuOpen(true);
-                                            event.currentTarget.blur();
-                                        }}
+                                        onClick={toggleProfileMenu}
                                     >
                                         <span className="slds-avatar slds-avatar_circle slds-avatar_medium">
                                             <Image
@@ -166,10 +216,13 @@ export function GlobalHeader({ connected }: { connected: boolean }) {
                                         </span>
                                         <span className="slds-assistive-text">ユーザープロファイル</span>
                                     </button>
-                                    <div className="slds-dropdown slds-dropdown_right slds-dropdown_actions slds-dropdown_small playground-profile-dropdown">
+                                    <div
+                                        id="profile-menu"
+                                        className="slds-dropdown slds-dropdown_right slds-dropdown_actions slds-dropdown_small playground-profile-dropdown"
+                                    >
                                         <ul className="slds-dropdown__list" role="menu" aria-label="ユーザープロファイルメニュー">
                                             <li className="slds-dropdown__item" role="presentation">
-                                                <form action="/api/auth/logout" method="post">
+                                                <form action="/api/auth/logout" method="post" role="presentation">
                                                     <button
                                                         className="slds-button_reset slds-size_full slds-p-vertical_x-small slds-p-horizontal_small playground-logout-action"
                                                         type="submit"
@@ -214,6 +267,7 @@ function GlobalActionButton({
     onClick,
     onMouseEnter,
     onMouseLeave,
+    popupId,
     popupMessage,
     popupOpen = false,
     pressed
@@ -224,6 +278,7 @@ function GlobalActionButton({
     onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
+    popupId?: string;
     popupMessage?: string;
     popupOpen?: boolean;
     pressed?: boolean;
@@ -241,7 +296,8 @@ function GlobalActionButton({
                     className="slds-button slds-button_icon slds-button_icon-container slds-global-actions__item-action playground-global-action"
                     type="button"
                     title={label}
-                    aria-haspopup={popupMessage ? true : undefined}
+                    aria-controls={popupMessage ? popupId : undefined}
+                    aria-haspopup={popupMessage ? "dialog" : undefined}
                     aria-expanded={popupMessage ? popupOpen : undefined}
                     aria-pressed={pressed}
                     onClick={onClick}
@@ -251,7 +307,7 @@ function GlobalActionButton({
                     <span className="slds-assistive-text">{label}</span>
                 </button>
                 {popupMessage ? (
-                    <div className="slds-dropdown slds-dropdown_right slds-dropdown_small playground-global-action-popup">
+                    <div id={popupId} className="slds-dropdown slds-dropdown_right slds-dropdown_small playground-global-action-popup">
                         <div className="slds-p-around_small slds-text-body_regular">{popupMessage}</div>
                     </div>
                 ) : null}
