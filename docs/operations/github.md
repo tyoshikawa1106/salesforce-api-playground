@@ -105,7 +105,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 ### ブランチモデル
 
-このリポジトリは Git Flow として運用します。長期ブランチは `main` と `develop` です。`release/*` はリリースごとに `develop` から作成して削除する一時ブランチ、`hotfix/*` は緊急修正ごとに `main` から作成して削除する一時ブランチとして扱います。
+このリポジトリは Git Flow として運用します。長期ブランチは `main` と `develop` です。`release/*` はリリース候補を固定するために `develop` から作成して削除する一時ブランチ、`hotfix/*` は緊急修正ごとに `main` から作成して削除する一時ブランチとして扱います。
 
 移行後、Heroku Staging app は `develop` から、Production app は `main` から自動デプロイする方針です。現行の `stage` 連携が残る場合は移行中の互換設定として扱い、Git Flow の中核ブランチには含めません。
 
@@ -122,8 +122,8 @@ hotfix/* -> main
 | ブランチ | 役割 | デプロイ |
 | --- | --- | --- |
 | `codex/...` | 個別作業ブランチ | なし |
-| `develop` | Git Flow の長期統合ブランチ。通常開発を統合する | Staging app |
-| `release/*` | リリースごとの一時ブランチ。リリース候補の最終調整と本番反映に使う | なし |
+| `develop` | 次リリース向けの開発統合ブランチ。Staging app が `develop` から自動デプロイされる場合は Staging 確認にも利用する | Staging app |
+| `release/*` | リリース候補を固定するための一時ブランチ。原則として新機能追加は行わず、リリース前の修正、バージョン調整、ドキュメント修正に限定する | なし |
 | `hotfix/*` | 緊急修正ごとの一時ブランチ。`main` から作成して本番修正に使う | なし |
 | `main` | 本番に反映済みの安定版 | Production app |
 
@@ -131,12 +131,12 @@ hotfix/* -> main
 
 1. `codex/...` から `develop` へ通常開発 PR を作成する。
 2. CI pass 後に通常開発 PR を `develop` へ merge し、Staging app で確認する。
-3. 本番反映するタイミングで `develop` から `release/<識別子>` を作成する。
+3. リリース対象が揃ったら `develop` から `release/<識別子>` を作成し、以後のリリース候補を `release/*` 上で固定する。
 4. `release/*` で必要な最終調整を行い、CI pass 後に `release/*` から `main` へ本番反映 PR を作成する。
 5. 本番反映 PR を `main` へ merge し、Production app の自動デプロイを確認する。
-6. `release/*` を `develop` へ merge back し、release branch を削除する。
+6. 同じ `release/*` から `develop` への PR を作成し、release branch で行った最終修正を `develop` へ戻してから release branch を削除する。
 
-このモデルでは、通常開発、release、hotfix、merge back のいずれも PR と CI を経由します。`develop` や `main` へ直接 push しません。
+このモデルでは、通常開発、release、hotfix、`develop` へ戻す作業のいずれも PR と CI を経由します。`develop` や `main` へ直接 push しません。
 
 移行時に必要な後続作業は以下です。
 
@@ -152,7 +152,8 @@ hotfix/* -> main
 - Pull Request 作成後は、Project への追加漏れ、milestone の設定漏れ、label の設定漏れがないか確認する。
 - 通常の開発 PR は `codex/...` などの作業ブランチから `develop` に向ける。
 - 本番反映 PR は `release/*` から `main` に向ける。
-- hotfix PR は `hotfix/*` から `main` に向け、反映後に `develop` へ戻す。
+- release 後に `develop` へ戻す PR は、同じ `release/*` から `develop` に向ける。
+- hotfix PR は `hotfix/*` から `main` に向け、反映後は同じ `hotfix/*` から `develop` へ戻す。
 - `develop` / `main` ともに直接 push ではなく、PR と CI を経由して更新する。
 - Heroku は移行後、Staging app を `develop` から、Production app を `main` から自動デプロイする。
 - Reviewers は、レビューを依頼する相手がいる場合に設定する。個人作業では空でもよい。
@@ -160,11 +161,11 @@ hotfix/* -> main
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
 
-### release / hotfix 後の merge back
+### release / hotfix 後に develop へ戻す
 
-Git Flow では、release branch は本番反映後に `develop` へ merge back します。release branch 上で行った最終調整や、本番反映時の履歴を `develop` へ戻すためです。
+Git Flow では、release branch は本番反映後に `develop` へ戻します。これは `main` の merge commit を戻すというより、release branch 上で行った最終修正を `develop` へ戻す意味合いが強いです。release branch 上で追加修正をしていない場合は差分がほぼないこともありますが、`release/*` は `main` と `develop` の両方に戻してから削除します。
 
-hotfix の場合は、`main` に反映した修正を `develop` へ戻します。`develop` に戻さないと、後続リリースで hotfix が欠落したり、同じ修正を再実装するリスクがあります。
+hotfix の場合は、同じ `hotfix/*` から `develop` への PR を作成し、`main` に反映した修正を `develop` へ戻します。`develop` に戻さないと、後続リリースで hotfix が欠落したり、同じ修正を再実装するリスクがあります。
 
 release 後の基本手順:
 
@@ -177,7 +178,7 @@ git push -u origin release/<識別子>
 
 1. `release/*` から `main` への本番反映 PR を作成する。
 2. CI pass 後にユーザーが `main` へ merge する。
-3. `release/*` から `develop` への merge back PR を作成する。
+3. 同じ `release/*` から `develop` への PR を作成する。
 4. CI pass 後にユーザーが `develop` へ merge する。
 5. merge 済みの `release/*` branch を削除する。
 
@@ -192,11 +193,11 @@ git push -u origin hotfix/<識別子>
 
 1. `hotfix/*` から `main` への hotfix PR を作成する。
 2. CI pass 後にユーザーが `main` へ merge する。
-3. `main` または `hotfix/*` から `develop` への merge back PR を作成する。
+3. 同じ `hotfix/*` から `develop` への PR を作成する。
 4. CI pass 後にユーザーが `develop` へ merge する。
 5. merge 済みの `hotfix/*` branch を削除する。
 
-merge back は通常 PR と同じ扱いです。GitHub ruleset の bypass や direct push は使いません。
+`release/*` / `hotfix/*` を `develop` へ戻す PR は通常 PR と同じ扱いです。GitHub ruleset の bypass や direct push は使いません。
 
 ### 通常開発 PR マージ後
 
