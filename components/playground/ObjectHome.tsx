@@ -33,8 +33,8 @@ export function ObjectHomeHeader({
                                 <div className="slds-page-header__name-title">
                                     <p className="slds-text-title_caps">{objectLabel}</p>
                                     <h1>
-                                        <span className="slds-page-header__title slds-truncate" title="最近参照したデータ">
-                                            最近参照したデータ
+                                        <span className="slds-page-header__title slds-truncate" title="レコード一覧">
+                                            レコード一覧
                                         </span>
                                     </h1>
                                 </div>
