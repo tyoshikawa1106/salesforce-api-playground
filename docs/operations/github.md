@@ -103,17 +103,75 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 ## Pull Request 運用
 
+### ブランチモデル
+
+このリポジトリは、GitFlow を簡略化した GitFlow-lite として運用します。GitFlow の `develop` に相当する長寿命ブランチを `stage` とし、Staging app の自動デプロイ元にします。`main` は Production app の自動デプロイ元です。
+
+標準の流れは以下です。
+
+```text
+codex/... -> stage -> main
+                 ↓
+          main -> stage
+```
+
+| ブランチ | 役割 | デプロイ |
+| --- | --- | --- |
+| `codex/...` | 個別作業ブランチ | なし |
+| `stage` | GitFlow の `develop` 相当。次の本番候補を統合し、Staging 確認する | Staging app |
+| `main` | 本番に反映済みの安定版 | Production app |
+
+運用手順は以下です。
+
+1. `codex/...` から `stage` へ通常開発 PR を作成する。
+2. CI pass 後に通常開発 PR を `stage` へ merge し、Staging app で確認する。
+3. Staging 確認後、`stage` から `main` へ本番反映 PR を作成する。
+4. CI pass 後、Maintain / Admin 権限の担当者が本番反映 PR を `main` へ merge する。
+5. Production app の自動デプロイを確認する。
+6. `main` に作成された release merge commit を `stage` へ fast-forward で戻し、今後の開発履歴と本番履歴を同期する。
+
+このモデルでは、通常開発の変更は必ず PR と CI を経由します。一方、本番反映後の `main -> stage` は、ファイル差分を追加しない履歴同期として扱います。
+
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Pull Request 作成後は、Project への追加漏れ、milestone の設定漏れ、label の設定漏れがないか確認する。
 - 通常の開発 PR は `codex/...` などの作業ブランチから `stage` に向ける。
 - Staging 確認後、`stage` から `main` へ本番反映 PR を作成する。
-- `stage` / `main` ともに直接 push ではなく、PR と CI を経由して更新する。
+- `stage` / `main` ともに通常変更は直接 push ではなく、PR と CI を経由して更新する。
 - Heroku は Staging app を `stage` から、Production app を `main` から自動デプロイする。
 - Reviewers は、レビューを依頼する相手がいる場合に設定する。個人作業では空でもよい。
 - Assignee は、マージまで見る担当者を明示したい場合に手動で設定する。
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
+
+### 本番反映 PR マージ後の履歴同期
+
+`stage` から `main` への本番反映 PR を merge commit でマージすると、release merge commit は `main` にだけ作成されます。この状態を放置すると、後続作業で `main` から作業ブランチを切って `stage` へ PR を作成したときに、過去の release merge commit が PR の commit list に混ざることがあります。
+
+これを避けるため、本番反映 PR のマージ後は、`stage` を `main` に fast-forward して履歴を同期します。この同期はファイル内容を変更せず、`stage` に `main` の release merge commit を履歴として取り込むだけの操作です。
+
+同期前に以下を確認します。
+
+| コマンド | 期待結果 |
+| --- | --- |
+| `git fetch origin main stage` | `origin/main` と `origin/stage` を最新化できる |
+| `git merge-base --is-ancestor origin/stage origin/main` | 終了コード 0。`stage` が `main` の祖先である |
+| `git diff --stat origin/stage..origin/main` | 出力なし。ファイル差分がない |
+
+条件を満たす場合のみ、以下の操作を行います。
+
+```bash
+git switch main
+git pull --ff-only origin main
+git switch stage
+git pull --ff-only origin stage
+git merge --ff-only main
+git push origin stage
+```
+
+この `git push origin stage` は、ファイル差分なしの fast-forward 履歴同期に限る例外です。通常のコード変更、ドキュメント変更、設定変更を `stage` へ直接 push してはいけません。上記の確認で条件を満たさない場合は、push せずに分岐理由を確認します。
+
+この履歴同期は Maintain / Admin 権限の担当者が行います。GitHub ruleset の `stage` bypass は、通常変更の direct push を許可するためのものではなく、本番反映後の fast-forward 履歴同期に限定して使います。
 
 ### 通常開発 PR マージ後
 
@@ -252,15 +310,14 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 
 ## Branch protection / Ruleset
 
-`stage` / `main` はどちらも直接 push ではなく PR と CI を経由して更新します。GitHub repository settings では、少なくとも以下を `stage` と `main` の両方に適用する方針です。
+`stage` / `main` は通常変更を直接 push せず、PR と CI を経由して更新します。GitHub repository settings では、`main` と `stage` の ruleset を分けます。
 
-| 項目 | 方針 |
-| --- | --- |
-| Pull request 必須 | 有効 |
-| Required status checks | CI を必須にする |
-| Require branches to be up to date before merging | 必要に応じて有効化する |
-| Restrict deletions | 有効 |
-| Allow force pushes | 無効 |
+| Ruleset | 対象 | 主なルール | Bypass |
+| --- | --- | --- | --- |
+| `Protect main` | `refs/heads/main` | Pull request 必須、required status checks、update 制限、deletion 禁止、non-fast-forward 禁止 | Maintain / Admin は PR 経由の更新のみ可能 |
+| `Protect stage` | `refs/heads/stage` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | Maintain / Admin は本番反映後の fast-forward 履歴同期に限り direct push 可能 |
+
+`main` の `update` 制限により、本番反映 PR の merge は Maintain / Admin 権限の担当者が行います。`stage` の bypass は `main -> stage` の履歴同期専用であり、通常変更の direct push には使いません。
 
 Ruleset / branch protection の実設定は GitHub settings で確認します。設定内容を PR や docs に記録する場合は、repository 固有の秘密情報を含めない範囲にします。
 
