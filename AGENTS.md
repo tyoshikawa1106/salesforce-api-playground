@@ -47,6 +47,9 @@
 - PR マージ前に GitHub Actions が pass していることを確認する。
 - 通常開発 PR が `stage` にマージ済みであることを確認したら、`stage` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除したうえで、`stage` から `main` への本番反映 PR を作成する。
 - 本番反映 PR のマージ後は `main` に戻して GitHub と同期する。
+- 本番反映 PR のマージ後、`stage` が `main` の祖先で、`origin/stage..origin/main` にファイル差分がない場合に限り、履歴同期として `stage` を `main` へ fast-forward してよい。この同期は新しい変更を追加しないため、通常開発 PR とは分けて扱う。
+- 上記の履歴同期では、事前に `git merge-base --is-ancestor origin/stage origin/main` と `git diff --stat origin/stage..origin/main` を確認する。条件を満たさない場合は同期せず、原因を確認する。
+- `stage` への通常変更は引き続き PR 経由に限定する。履歴同期のために GitHub ruleset の bypass を使う場合も、fast-forward 可能かつファイル差分なしの `stage` 更新だけに限定する。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
