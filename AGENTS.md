@@ -38,6 +38,8 @@
 - 本番反映 PR の title は `release: <変更内容>` の形式にする。例: `release: PR title 運用ルールを更新`。
 - 本番反映 PR の body には `対象変更` として、元のレビュー済み PR 番号と title を列挙する。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
+- Issue / PR は原則として適切な milestone と Project `Salesforce API Playground` に紐付ける。
+- PR が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
 - 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
 - Dependabot PR をエージェントが merge する場合も、`stage` / `main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
