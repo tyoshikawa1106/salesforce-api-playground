@@ -44,7 +44,7 @@ nav_order: 20
 - `ObjectHomeHeader` に件数、更新ボタン、新規作成ボタンを表示する。
 - 一覧は SLDS table で、行番号、選択チェックボックス、主要項目、最終更新日、編集 / 削除ボタンを表示する。
 - レコード名を押すと詳細ページへ遷移する。
-- 一覧検索 input は表示のみで、現時点では絞り込み処理を持たない。
+- 一覧検索 input は、表示中の Account / Contact をクライアント側で絞り込む。
 
 ### Account / Contact 作成と編集
 
@@ -84,10 +84,9 @@ nav_order: 20
 
 | 優先度 | 候補 | 理由 |
 | --- | --- | --- |
-| 高 | 一覧検索 input の絞り込み実装または非表示化 | 現在は UI だけ表示され、入力しても一覧が変わらないため操作期待とずれる。分割 Issue: [#95](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/95) |
+| 高 | GlobalHeader の検索欄を SOSL ベースの候補検索として実装 | 現在は検索欄を入力できるが検索結果や遷移動作を持たないため、Account / Contact を横断検索して候補選択からレコードページへ移動できるようにする |
+| 高 | 一覧の行選択チェックボックスに一括操作を追加 | 現在は選択状態を使う後続操作がないため、選択状態管理と一括操作を実装して UI の期待に合わせる |
 | 中 | GlobalHeader のポップオーバー / profile menu のキーボード操作改善 | hover と click 中心で、閉じる操作や menuitem 移動の挙動が限定的。分割 Issue: [#97](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/97) |
-| 中 | レコード詳細から関連 Account / Contact へ移動する導線 | 関連カードは表示のみで、レコード間の探索は一覧に戻る必要がある |
-| 低 | 一覧の行選択チェックボックスに一括操作を追加するか非表示化 | 現在は選択状態を使う後続操作がない |
 
 ## 確認対象
 
