@@ -142,6 +142,24 @@ release: Dependabot 設定更新を本番反映
 
 `release: stage の変更を main へ反映` のような title は、反映内容が履歴から読み取りにくいため避けます。
 
+本番反映 PR の body には、元のレビュー済み PR との関連が追えるように `対象変更` を設け、PR 番号と title を列挙します。title は本番反映する内容の要約、body は反映元 PR との対応を確認する場所として使います。
+
+```markdown
+## 対象変更
+
+- #107 docs: 本番反映 PR title ルールを調整
+```
+
+複数の PR をまとめて本番反映する場合も、`対象変更` にすべて列挙します。
+
+```markdown
+## 対象変更
+
+- #101 feat: Account 一覧に検索フォームを追加
+- #102 fix: OAuth callback の state エラー表示を修正
+- #107 docs: 本番反映 PR title ルールを調整
+```
+
 `codex/...` は作業ブランチ名に使う prefix です。PR title には `codex` prefix を付けません。
 
 ## stage / main 品質チェック

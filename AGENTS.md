@@ -36,6 +36,7 @@
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
 - 通常開発 PR の title は `<type>: <変更内容を日本語で簡潔に書く>` の形式にする。例: `feat: Account 一覧に検索フォームを追加`。
 - 本番反映 PR の title は `release: <本番反映する変更内容>` の形式にする。例: `release: PR title 命名規則を本番反映`。
+- 本番反映 PR の body には `対象変更` として、元のレビュー済み PR 番号と title を列挙する。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
 - 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
