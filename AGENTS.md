@@ -35,7 +35,7 @@
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
 - 通常開発 PR の title は `<type>: <変更内容を日本語で簡潔に書く>` の形式にする。例: `feat: Account 一覧に検索フォームを追加`。
-- 本番反映 PR の title は `release: <本番反映する変更内容>` の形式にする。例: `release: PR title 命名規則を本番反映`。
+- 本番反映 PR の title は `release: <変更内容>` の形式にする。例: `release: PR title 運用ルールを更新`。
 - 本番反映 PR の body には `対象変更` として、元のレビュー済み PR 番号と title を列挙する。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
