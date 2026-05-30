@@ -126,7 +126,7 @@ codex/... -> stage -> main
 1. `codex/...` から `stage` へ通常開発 PR を作成する。
 2. CI pass 後に通常開発 PR を `stage` へ merge し、Staging app で確認する。
 3. Staging 確認後、`stage` から `main` へ本番反映 PR を作成する。
-4. CI pass 後、Maintain / Admin 権限の担当者が本番反映 PR を `main` へ merge する。
+4. CI pass 後、本番反映 PR を `main` へ merge する。
 5. Production app の自動デプロイを確認する。
 6. `main` に作成された release merge commit を `stage` へ fast-forward で戻し、今後の開発履歴と本番履歴を同期する。
 
@@ -314,10 +314,10 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 
 | Ruleset | 対象 | 主なルール | Bypass |
 | --- | --- | --- | --- |
-| `Protect main` | `refs/heads/main` | Pull request 必須、required status checks、update 制限、deletion 禁止、non-fast-forward 禁止 | Maintain / Admin は PR 経由の更新のみ可能 |
+| `Protect main` | `refs/heads/main` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | なし |
 | `Protect stage` | `refs/heads/stage` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | Maintain / Admin は本番反映後の fast-forward 履歴同期に限り direct push 可能 |
 
-`main` の `update` 制限により、本番反映 PR の merge は Maintain / Admin 権限の担当者が行います。`stage` の bypass は `main -> stage` の履歴同期専用であり、通常変更の direct push には使いません。
+`main` は bypass を設定せず、PR と required status checks を経由して更新します。`stage` の bypass は `main -> stage` の履歴同期専用であり、通常変更の direct push には使いません。
 
 Ruleset / branch protection の実設定は GitHub settings で確認します。設定内容を PR や docs に記録する場合は、repository 固有の秘密情報を含めない範囲にします。
 
