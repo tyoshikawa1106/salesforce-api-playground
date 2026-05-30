@@ -214,6 +214,9 @@ describe("playground UI smoke rendering", () => {
             })
         );
 
+        expect(markup).toContain("title=\"レコード一覧\"");
+        expect(markup).toContain("レコード一覧");
+        expect(markup).not.toContain("最近参照したデータ");
         expect(markup).toContain("15 件 - たった今更新");
         expect(markup).toContain("slds-page-header__meta-text");
         expect(markup).not.toContain("slds-page-header__name-meta");
