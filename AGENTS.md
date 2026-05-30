@@ -22,16 +22,17 @@
 ## Git / GitHub 運用
 
 - `main` は本番デプロイ用の安定ブランチとして扱う。
-- `stage` は GitFlow の `develop` 相当として扱い、本番前確認用の統合ブランチとする。
-- このリポジトリは GitFlow-lite として、`codex/...` → `stage` → `main` → `stage` の流れで運用する。
-- 通常の開発 PR は `codex/...` などの作業ブランチから `stage` に向ける。
-- Staging 確認後、`stage` から `main` へ PR を作成して本番反映する。
-- 本番反映後は、`main` に作成された release merge commit を `stage` へ戻し、今後の開発履歴と本番履歴を同期する。
-- Heroku は Staging app を GitHub `stage` から、Production app を GitHub `main` から自動デプロイする。
-- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。通常開発では PR を `stage` に作成し、CI pass 後に ready for review へ変更して、`stage` へマージすると Staging app に自動デプロイされる旨を案内する。本番反映は `stage` から `main` への PR を経由する。
+- `develop` は Git Flow の長期統合ブランチとして扱う。
+- `release/*` はリリースごとに `develop` から作成し、`main` への本番反映後に `develop` へ merge back して削除する一時ブランチとして扱う。
+- `hotfix/*` は緊急修正用に `main` から作成し、`main` への反映後に `develop` へ戻す一時ブランチとして扱う。
+- 通常の開発 PR は `codex/...` などの作業ブランチから `develop` に向ける。
+- 本番反映 PR は `release/*` から `main` に向ける。
+- hotfix PR は `hotfix/*` から `main` に向ける。
+- Heroku は移行後、Staging app を GitHub `develop` から、Production app を GitHub `main` から自動デプロイする方針とする。現行の `stage` 連携が残る場合は移行中の互換設定として扱い、Git Flow の中核ブランチには含めない。
+- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。通常開発では PR を `develop` に作成し、CI pass 後に ready for review へ変更して、`develop` へマージすると Staging app に自動デプロイされる旨を案内する。本番反映は `release/*` から `main` への PR を経由する。
 - Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
 - 作業ブランチは `codex/...` の形式にする。
-- `stage` / `main` へ直接コミットしない。
+- `develop` / `main` へ直接コミットしない。
 - コミットは作業単位で分割し、コミットメッセージは日本語で書く。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
@@ -45,14 +46,12 @@
 - PR が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
 - 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
-- Dependabot PR をエージェントが merge する場合も、`stage` / `main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
+- Dependabot PR をエージェントが merge する場合も、`develop` / `main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
 - PR マージ前に GitHub Actions が pass していることを確認する。
-- 通常開発 PR が `stage` にマージ済みであることを確認したら、`stage` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除したうえで、`stage` から `main` への本番反映 PR を作成する。
+- 通常開発 PR が `develop` にマージ済みであることを確認したら、`develop` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。本番反映する場合は `develop` から `release/*` ブランチを作成し、`release/*` から `main` への本番反映 PR を作成する。
 - 本番反映 PR のマージ後は `main` に戻して GitHub と同期する。
-- 本番反映 PR のマージ後、`stage` が `main` の祖先で、`origin/stage..origin/main` にファイル差分がない場合に限り、履歴同期として `stage` を `main` へ fast-forward してよい。この同期は新しい変更を追加しないため、通常開発 PR とは分けて扱う。
-- 上記の履歴同期では、事前に `git merge-base --is-ancestor origin/stage origin/main` と `git diff --stat origin/stage..origin/main` を確認する。条件を満たさない場合は同期せず、原因を確認する。
-- 本番反映後の `stage` 履歴同期は Maintain / Admin 権限の担当者が行う。
-- `stage` への通常変更は引き続き PR 経由に限定する。履歴同期のために GitHub ruleset の bypass を使う場合も、fast-forward 可能かつファイル差分なしの `stage` 更新だけに限定する。
+- 本番反映 PR のマージ後は、release branch を `develop` へ merge back する。hotfix の場合は `main` または hotfix branch を `develop` へ戻す。
+- merge back は PR と CI を経由して行う。`develop` への direct push は行わない。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
