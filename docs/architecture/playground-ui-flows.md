@@ -59,6 +59,12 @@ nav_order: 20
 - 確認後に DELETE API を呼び、成功時は再取得して success toast を表示する。
 - 失敗時は error toast を表示する。
 
+### モーダルのキーボード操作
+
+- modal open 時は、作成 / 編集 modal では先頭の入力項目、削除確認 modal ではキャンセルボタンへ初期フォーカスを移す。
+- `Escape` で modal を閉じる。
+- `Tab` / `Shift+Tab` は modal 内の有効なリンク、ボタン、フォーム項目を循環し、背後の画面へフォーカスが移らないようにする。
+
 ### loading / success / error 表示
 
 - 初回または再取得中は loading state を持ち、未接続時は login loading、一覧では empty state 風の loading 文言を表示する。
@@ -72,13 +78,13 @@ nav_order: 20
 - レコード詳細の `関連` / `詳細` タブに `id`、`aria-controls`、tabpanel 側の `aria-labelledby` を追加した。
 - 活動カードのダミータブをページ内リンクから button に変更し、tabpanel との関連を明示した。
 - Account / Contact 一覧コンポーネントの未使用 `onRefresh` props を削除した。
+- 作成 / 編集 / 削除確認 modal の初期フォーカス、Escape クローズ、フォーカストラップを `Modal` コンポーネントに集約した。
 
 ## 改善候補
 
 | 優先度 | 候補 | 理由 |
 | --- | --- | --- |
 | 高 | 一覧検索 input の絞り込み実装または非表示化 | 現在は UI だけ表示され、入力しても一覧が変わらないため操作期待とずれる。分割 Issue: [#95](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/95) |
-| 中 | モーダルの初期フォーカス、Escape、フォーカストラップ対応 | SLDS modal としてキーボード操作の完成度を上げられる。分割 Issue: [#96](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/96) |
 | 中 | GlobalHeader のポップオーバー / profile menu のキーボード操作改善 | hover と click 中心で、閉じる操作や menuitem 移動の挙動が限定的。分割 Issue: [#97](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/97) |
 | 中 | レコード詳細から関連 Account / Contact へ移動する導線 | 関連カードは表示のみで、レコード間の探索は一覧に戻る必要がある |
 | 低 | 一覧の行選択チェックボックスに一括操作を追加するか非表示化 | 現在は選択状態を使う後続操作がない |

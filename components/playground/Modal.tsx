@@ -1,4 +1,31 @@
-import type { ReactNode } from "react";
+"use client";
+
+import type { KeyboardEvent, ReactNode } from "react";
+import { useEffect, useId, useRef } from "react";
+
+const focusableSelector = [
+    "a[href]",
+    "button:not([disabled])",
+    "textarea:not([disabled])",
+    "input:not([disabled]):not([type='hidden'])",
+    "select:not([disabled])",
+    "[tabindex]:not([tabindex='-1'])"
+].join(",");
+
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+    return Array.from(container.querySelectorAll<HTMLElement>(focusableSelector)).filter((element) => {
+        const isHidden = element.hidden || element.getAttribute("aria-hidden") === "true" || element.offsetParent === null;
+        return !isHidden;
+    });
+}
+
+function getInitialFocusElement(container: HTMLElement): HTMLElement {
+    const preferredElement = container.querySelector<HTMLElement>(
+        "input:not([disabled]):not([type='hidden']), select:not([disabled]), textarea:not([disabled]), button:not([disabled]):not(.slds-modal__close)"
+    );
+
+    return preferredElement ?? getFocusableElements(container)[0] ?? container;
+}
 
 export function Modal({
     title,
@@ -11,15 +38,90 @@ export function Modal({
     narrow?: boolean;
     children: ReactNode;
 }) {
+    const titleId = useId();
+    const modalRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const modalElement = modalRef.current;
+
+        if (modalElement) {
+            getInitialFocusElement(modalElement).focus();
+        }
+
+        function handleDocumentKeyDown(event: globalThis.KeyboardEvent) {
+            if (event.key === "Escape") {
+                event.preventDefault();
+                onClose();
+            }
+        }
+
+        document.addEventListener("keydown", handleDocumentKeyDown);
+
+        return () => {
+            document.removeEventListener("keydown", handleDocumentKeyDown);
+            activeElement?.focus();
+        };
+    }, [onClose]);
+
+    function handleModalKeyDown(event: KeyboardEvent<HTMLElement>) {
+        if (event.key !== "Tab") {
+            return;
+        }
+
+        const modalElement = modalRef.current;
+
+        if (!modalElement) {
+            return;
+        }
+
+        const focusableElements = getFocusableElements(modalElement);
+
+        if (focusableElements.length === 0) {
+            event.preventDefault();
+            modalElement.focus();
+            return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const activeElement = document.activeElement;
+
+        if (event.shiftKey && activeElement === firstElement) {
+            event.preventDefault();
+            lastElement.focus();
+            return;
+        }
+
+        if (!event.shiftKey && activeElement === lastElement) {
+            event.preventDefault();
+            firstElement.focus();
+            return;
+        }
+
+        if (!(activeElement instanceof Node) || !modalElement.contains(activeElement)) {
+            event.preventDefault();
+            firstElement.focus();
+        }
+    }
+
     return (
         <>
-            <section className={`slds-modal slds-fade-in-open ${narrow ? "slds-modal_small" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
+            <section
+                ref={modalRef}
+                className={`slds-modal slds-fade-in-open ${narrow ? "slds-modal_small" : ""}`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                onKeyDown={handleModalKeyDown}
+            >
                 <div className="slds-modal__container">
                     <header className="slds-modal__header">
                         <button className="slds-button slds-button_icon slds-modal__close" type="button" onClick={onClose} aria-label="閉じる">
                             <span aria-hidden="true">×</span>
                         </button>
-                        <h2 className="slds-modal__title slds-hyphenate">{title}</h2>
+                        <h2 id={titleId} className="slds-modal__title slds-hyphenate">{title}</h2>
                     </header>
                     {children}
                 </div>
