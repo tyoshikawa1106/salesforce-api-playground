@@ -202,12 +202,10 @@ describe("playground UI smoke rendering", () => {
         expect(markup).not.toContain("slds-theme_default slds-p-vertical_medium");
     });
 
-    it("renders list view page header meta text in the SLDS meta row", () => {
+    it("renders list view page header without the stale update meta text", () => {
         const markup = renderToStaticMarkup(
             createElement(ObjectHomeHeader, {
                 activeTab: "accounts",
-                accountsCount: 15,
-                contactsCount: 0,
                 loading: false,
                 onCreate: noop,
                 onRefresh: noop
@@ -217,8 +215,8 @@ describe("playground UI smoke rendering", () => {
         expect(markup).toContain("title=\"レコード一覧\"");
         expect(markup).toContain("レコード一覧");
         expect(markup).not.toContain("最近参照したデータ");
-        expect(markup).toContain("15 件 - たった今更新");
-        expect(markup).toContain("slds-page-header__meta-text");
+        expect(markup).not.toContain("たった今更新");
+        expect(markup).not.toContain("slds-page-header__meta-text");
         expect(markup).not.toContain("slds-page-header__name-meta");
     });
 

@@ -4,21 +4,16 @@ import { AccountFormFields } from "./Forms";
 
 export function ObjectHomeHeader({
     activeTab,
-    accountsCount,
-    contactsCount,
     loading,
     onCreate,
     onRefresh
 }: {
     activeTab: "accounts" | "contacts";
-    accountsCount: number;
-    contactsCount: number;
     loading: boolean;
     onCreate: () => void;
     onRefresh: () => void;
 }) {
     const objectLabel = activeTab === "accounts" ? "取引先" : "取引先責任者";
-    const recordCount = activeTab === "accounts" ? accountsCount : contactsCount;
 
     return (
         <div className="slds-page-header slds-page-header_object-home slds-page-header_joined">
@@ -56,13 +51,6 @@ export function ObjectHomeHeader({
                             </button>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div className="slds-page-header__row">
-                <div className="slds-page-header__col-meta">
-                    <p className="slds-page-header__meta-text">
-                        {recordCount} 件 - たった今更新
-                    </p>
                 </div>
             </div>
         </div>
