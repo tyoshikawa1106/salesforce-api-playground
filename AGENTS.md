@@ -37,6 +37,7 @@
 - 通常開発 PR の title は `<type>: <変更内容を日本語で簡潔に書く>` の形式にする。例: `feat: Account 一覧に検索フォームを追加`。
 - 本番反映 PR の title は `release: <変更内容>` の形式にする。例: `release: PR title 運用ルールを更新`。
 - 本番反映 PR の body には `対象変更` として、元のレビュー済み PR 番号と title を列挙する。
+- 本番反映 PR が Issue を完了させる場合は、body に `Closes #<Issue番号>` などの GitHub closing keyword を記載し、`main` へのマージ時に Issue が自動クローズされるようにする。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
 - Issue / PR は原則として適切な milestone と Project `Salesforce API Playground` に紐付ける。
 - PR が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
