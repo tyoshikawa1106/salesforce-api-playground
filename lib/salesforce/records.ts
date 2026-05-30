@@ -64,3 +64,13 @@ export type ContactUpdateInput = Partial<{
 export type ContactForm = {
     [K in keyof ContactInput]-?: string;
 };
+
+export type SearchResultItem =
+    | {
+        type: "account";
+        record: AccountRecord;
+    }
+    | {
+        type: "contact";
+        record: ContactRecord;
+    };
