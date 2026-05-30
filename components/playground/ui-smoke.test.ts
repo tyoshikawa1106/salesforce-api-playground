@@ -5,6 +5,7 @@ import { LoginPage } from "./LoginPage";
 import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel, filterAccounts, filterContacts } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
+import { GlobalHeader } from "./GlobalHeader";
 import type { Account, Contact } from "./types";
 
 const account: Account = {
@@ -210,5 +211,20 @@ describe("playground UI smoke rendering", () => {
         expect(markup).toContain("slds-button_icon-border-filled");
         expect(markup).toContain("slds-button__icon");
         expect(markup).not.toContain("slds-text-title_caps\">App");
+    });
+
+    it("renders GlobalHeader menus with explicit popup and menu relationships", () => {
+        const markup = renderToStaticMarkup(createElement(GlobalHeader, { connected: true }));
+
+        expect(markup).toContain("aria-controls=\"global-action-popover\"");
+        expect(markup).toContain("aria-controls=\"global-help-popover\"");
+        expect(markup).toContain("aria-controls=\"global-settings-popover\"");
+        expect(markup).toContain("aria-haspopup=\"dialog\"");
+        expect(markup).toContain("aria-controls=\"profile-menu\"");
+        expect(markup).toContain("aria-haspopup=\"menu\"");
+        expect(markup).toContain("id=\"profile-menu\"");
+        expect(markup).toContain("role=\"menu\"");
+        expect(markup).toContain("role=\"menuitem\"");
+        expect(markup).toContain("role=\"presentation\"");
     });
 });
