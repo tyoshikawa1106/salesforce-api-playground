@@ -352,8 +352,6 @@ export default function Playground() {
                         <>
                             <ObjectHomeHeader
                                 activeTab="accounts"
-                                accountsCount={accounts.length}
-                                contactsCount={contacts.length}
                                 loading={loading}
                                 onCreate={() => openAccountModal()}
                                 onRefresh={loadAll}
@@ -384,8 +382,6 @@ export default function Playground() {
                         <>
                             <ObjectHomeHeader
                                 activeTab="contacts"
-                                accountsCount={accounts.length}
-                                contactsCount={contacts.length}
                                 loading={loading}
                                 onCreate={() => openContactModal()}
                                 onRefresh={loadAll}
