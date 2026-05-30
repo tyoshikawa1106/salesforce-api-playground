@@ -106,6 +106,8 @@ Heroku へデプロイする場合は、Heroku Config Vars と Salesforce 外部
     - [Salesforce Integration ユーザー連携設定](docs/setup/salesforce-integration-client-credentials.md)
     - [Salesforce 手動確認](docs/setup/salesforce-manual-verification.md)
     - [意思決定記録](docs/decisions/README.md)
+- ナレッジ
+    - [Git Flow 開発手順メモ](docs/knowledge/git-flow.md)
 - 運用
     - [Heroku デプロイ](docs/deployment/heroku.md)
     - [トラブルシューティング](docs/operations/troubleshooting.md)
