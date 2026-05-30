@@ -176,6 +176,19 @@ git switch -c release/<識別子>
 git push -u origin release/<識別子>
 ```
 
+release branch と本番反映 PR は、GitHub Actions の `Create release PR` workflow から手動作成できます。workflow は `develop` の最新状態から `release/*` branch を作成し、`release/*` から `main` への Draft PR を作成するところまでを担当します。CI pass 後に Ready for review へ変更する作業、`main` への merge、本番反映後に `develop` へ戻す作業は自動実行しません。
+
+手動実行時の入力項目:
+
+| Input | 内容 | 例 |
+| --- | --- | --- |
+| `release_branch` | 作成する release branch。`release/` で始める | `release/2026.06` |
+| `release_title` | 本番反映 PR title の本文。`release:` prefix は workflow が付ける | `Git Flow 手順にコマンド例を追加` |
+| `issue_number` | 本番反映 PR で close する Issue 番号 | `151` |
+| `source_prs` | `対象変更` に記載するレビュー済み PR | `#152 docs: Git Flow 手順にコマンド例を追加` |
+
+workflow の実行結果として作成される PR は Draft のままにします。PR 作成後に CI と PR body を確認し、問題がなければ手動で Ready for review に変更します。
+
 1. `release/*` から `main` への本番反映 PR を作成する。
 2. CI pass 後にユーザーが `main` へ merge する。
 3. 同じ `release/*` から `develop` への PR を作成する。
