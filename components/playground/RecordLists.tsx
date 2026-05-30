@@ -1,14 +1,23 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import type { Account, Contact } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
 
 function ListViewToolbar({
     count,
+    searchId,
+    searchValue,
     objectLabel,
-    objectLabelPlural
+    objectLabelPlural,
+    onSearchChange
 }: {
     count: number;
+    searchId: string;
+    searchValue: string;
     objectLabel: string;
     objectLabelPlural: string;
+    onSearchChange: (value: string) => void;
 }) {
     return (
         <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
@@ -17,16 +26,18 @@ function ListViewToolbar({
             </div>
             <div className="slds-grid slds-grid_vertical-align-center">
                 <div className="slds-form-element">
-                    <label className="slds-assistive-text" htmlFor={`${objectLabel.toLowerCase()}-list-search`}>
+                    <label className="slds-assistive-text" htmlFor={searchId}>
                         このリストを検索
                     </label>
                     <div className="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
                         <span className="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_left" aria-hidden="true" />
                         <input
-                            id={`${objectLabel.toLowerCase()}-list-search`}
+                            id={searchId}
                             className="slds-input slds-max-medium-size_full playground-list-search"
                             type="search"
+                            value={searchValue}
                             placeholder="このリストを検索..."
+                            onChange={(event) => onSearchChange(event.target.value)}
                         />
                     </div>
                 </div>
@@ -50,12 +61,25 @@ export function AccountPanel({
     onEdit: (record: Account) => void;
     onDelete: (record: Account) => void;
 }) {
+    const [searchTerm, setSearchTerm] = useState("");
+    const filteredAccounts = useMemo(() => filterAccounts(accounts, searchTerm), [accounts, searchTerm]);
+    const hasAccounts = accounts.length > 0;
+    const hasFilteredAccounts = filteredAccounts.length > 0;
+
     return (
         <div className="slds-theme_default">
-            <ListViewToolbar count={accounts.length} objectLabel="取引先" objectLabelPlural="取引先" />
+            <ListViewToolbar
+                count={filteredAccounts.length}
+                searchId="account-list-search"
+                searchValue={searchTerm}
+                objectLabel="取引先"
+                objectLabelPlural="取引先"
+                onSearchChange={setSearchTerm}
+            />
             {loading ? <EmptyState message="取引先を読み込んでいます..." /> : null}
-            {!loading && accounts.length === 0 ? <EmptyState message={connected ? "取引先が見つかりません。" : "Salesforce に接続すると取引先を読み込めます。"} /> : null}
-            {!loading && accounts.length > 0 ? (
+            {!loading && !hasAccounts ? <EmptyState message={connected ? "取引先が見つかりません。" : "Salesforce に接続すると取引先を読み込めます。"} /> : null}
+            {!loading && hasAccounts && !hasFilteredAccounts ? <EmptyState message="検索条件に一致する取引先が見つかりません。" /> : null}
+            {!loading && hasFilteredAccounts ? (
                 <div className="slds-scrollable_x">
                     <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
                         <thead>
@@ -79,7 +103,7 @@ export function AccountPanel({
                             </tr>
                         </thead>
                         <tbody>
-                            {accounts.map((account, index) => (
+                            {filteredAccounts.map((account, index) => (
                                 <tr className="slds-hint-parent" key={account.Id}>
                                     <td className="slds-cell-shrink slds-text-align_center">{index + 1}</td>
                                     <td className="slds-cell-shrink slds-text-align_center">
@@ -135,12 +159,25 @@ export function ContactPanel({
     onEdit: (record: Contact) => void;
     onDelete: (record: Contact) => void;
 }) {
+    const [searchTerm, setSearchTerm] = useState("");
+    const filteredContacts = useMemo(() => filterContacts(contacts, searchTerm), [contacts, searchTerm]);
+    const hasContacts = contacts.length > 0;
+    const hasFilteredContacts = filteredContacts.length > 0;
+
     return (
         <div className="slds-theme_default">
-            <ListViewToolbar count={contacts.length} objectLabel="取引先責任者" objectLabelPlural="取引先責任者" />
+            <ListViewToolbar
+                count={filteredContacts.length}
+                searchId="contact-list-search"
+                searchValue={searchTerm}
+                objectLabel="取引先責任者"
+                objectLabelPlural="取引先責任者"
+                onSearchChange={setSearchTerm}
+            />
             {loading ? <EmptyState message="取引先責任者を読み込んでいます..." /> : null}
-            {!loading && contacts.length === 0 ? <EmptyState message={connected ? "取引先責任者が見つかりません。" : "Salesforce に接続すると取引先責任者を読み込めます。"} /> : null}
-            {!loading && contacts.length > 0 ? (
+            {!loading && !hasContacts ? <EmptyState message={connected ? "取引先責任者が見つかりません。" : "Salesforce に接続すると取引先責任者を読み込めます。"} /> : null}
+            {!loading && hasContacts && !hasFilteredContacts ? <EmptyState message="検索条件に一致する取引先責任者が見つかりません。" /> : null}
+            {!loading && hasFilteredContacts ? (
                 <div className="slds-scrollable_x">
                     <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
                         <thead>
@@ -164,7 +201,7 @@ export function ContactPanel({
                             </tr>
                         </thead>
                         <tbody>
-                            {contacts.map((contact, index) => (
+                            {filteredContacts.map((contact, index) => (
                                 <tr className="slds-hint-parent" key={contact.Id}>
                                     <td className="slds-cell-shrink slds-text-align_center">{index + 1}</td>
                                     <td className="slds-cell-shrink slds-text-align_center">
@@ -203,6 +240,46 @@ export function ContactPanel({
             ) : null}
         </div>
     );
+}
+
+export function filterAccounts(accounts: Account[], searchTerm: string) {
+    return filterRecords(accounts, searchTerm, (account) => [
+        account.Name,
+        account.Phone,
+        account.Website,
+        account.Industry,
+        getAccountBilling(account)
+    ]);
+}
+
+export function filterContacts(contacts: Contact[], searchTerm: string) {
+    return filterRecords(contacts, searchTerm, (contact) => [
+        getContactName(contact),
+        contact.Title,
+        contact.Account?.Name,
+        contact.Email,
+        contact.Phone
+    ]);
+}
+
+function filterRecords<Record>(
+    records: Record[],
+    searchTerm: string,
+    getSearchValues: (record: Record) => Array<string | undefined>
+) {
+    const normalizedSearchTerm = normalizeSearchTerm(searchTerm);
+
+    if (!normalizedSearchTerm) {
+        return records;
+    }
+
+    return records.filter((record) =>
+        getSearchValues(record).some((value) => normalizeSearchTerm(value).includes(normalizedSearchTerm))
+    );
+}
+
+function normalizeSearchTerm(value?: string) {
+    return (value || "").trim().toLocaleLowerCase();
 }
 
 function TableCell({ value }: { value?: string }) {

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-05-30
+
+### Changed
+
+- `stage` ブランチ導入に合わせて CI / Dependabot 対象ブランチ、Heroku デプロイ運用、Git / GitHub 運用ルール、関連 docs を更新。
+
 ## 2026-05-29
 
 ### Added
