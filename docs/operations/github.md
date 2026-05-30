@@ -105,83 +105,108 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 ### ブランチモデル
 
-このリポジトリは、GitFlow を簡略化した GitFlow-lite として運用します。GitFlow の `develop` に相当する長寿命ブランチを `stage` とし、Staging app の自動デプロイ元にします。`main` は Production app の自動デプロイ元です。
+このリポジトリは Git Flow として運用します。長期ブランチは `main` と `develop` です。`release/*` はリリースごとに `develop` から作成して削除する一時ブランチ、`hotfix/*` は緊急修正ごとに `main` から作成して削除する一時ブランチとして扱います。
+
+移行後、Heroku Staging app は `develop` から、Production app は `main` から自動デプロイする方針です。現行の `stage` 連携が残る場合は移行中の互換設定として扱い、Git Flow の中核ブランチには含めません。
 
 標準の流れは以下です。
 
 ```text
-codex/... -> stage -> main
-                 ↓
-          main -> stage
+codex/... -> develop -> release/* -> main
+                         └────────-> develop
+
+hotfix/* -> main
+     └──-> develop
 ```
 
 | ブランチ | 役割 | デプロイ |
 | --- | --- | --- |
 | `codex/...` | 個別作業ブランチ | なし |
-| `stage` | GitFlow の `develop` 相当。次の本番候補を統合し、Staging 確認する | Staging app |
+| `develop` | Git Flow の長期統合ブランチ。通常開発を統合する | Staging app |
+| `release/*` | リリースごとの一時ブランチ。リリース候補の最終調整と本番反映に使う | なし |
+| `hotfix/*` | 緊急修正ごとの一時ブランチ。`main` から作成して本番修正に使う | なし |
 | `main` | 本番に反映済みの安定版 | Production app |
 
 運用手順は以下です。
 
-1. `codex/...` から `stage` へ通常開発 PR を作成する。
-2. CI pass 後に通常開発 PR を `stage` へ merge し、Staging app で確認する。
-3. Staging 確認後、`stage` から `main` へ本番反映 PR を作成する。
-4. CI pass 後、本番反映 PR を `main` へ merge する。
-5. Production app の自動デプロイを確認する。
-6. `main` に作成された release merge commit を `stage` へ fast-forward で戻し、今後の開発履歴と本番履歴を同期する。
+1. `codex/...` から `develop` へ通常開発 PR を作成する。
+2. CI pass 後に通常開発 PR を `develop` へ merge し、Staging app で確認する。
+3. 本番反映するタイミングで `develop` から `release/<識別子>` を作成する。
+4. `release/*` で必要な最終調整を行い、CI pass 後に `release/*` から `main` へ本番反映 PR を作成する。
+5. 本番反映 PR を `main` へ merge し、Production app の自動デプロイを確認する。
+6. `release/*` を `develop` へ merge back し、release branch を削除する。
 
-このモデルでは、通常開発の変更は必ず PR と CI を経由します。一方、本番反映後の `main -> stage` は、ファイル差分を追加しない履歴同期として扱います。
+このモデルでは、通常開発、release、hotfix、merge back のいずれも PR と CI を経由します。`develop` や `main` へ直接 push しません。
+
+移行時に必要な後続作業は以下です。
+
+- `main` と同じ commit から `develop` branch を作成する。
+- GitHub ruleset / branch protection に `develop` を追加する。
+- Dependabot の target branch を `develop` に変更する。
+- Heroku Staging app の GitHub 自動デプロイ対象を `develop` に変更する。
+- 既存の `stage` branch は移行中の互換ブランチとして扱い、Heroku / GitHub 設定の移行後に削除または凍結方針を決める。
+- `release/*` で Staging app を使って release candidate を確認する必要がある場合は、Heroku の自動デプロイ設定を一時的に切り替えるか、別の review app / pipeline 方針を決める。
 
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Pull Request 作成後は、Project への追加漏れ、milestone の設定漏れ、label の設定漏れがないか確認する。
-- 通常の開発 PR は `codex/...` などの作業ブランチから `stage` に向ける。
-- Staging 確認後、`stage` から `main` へ本番反映 PR を作成する。
-- `stage` / `main` ともに通常変更は直接 push ではなく、PR と CI を経由して更新する。
-- Heroku は Staging app を `stage` から、Production app を `main` から自動デプロイする。
+- 通常の開発 PR は `codex/...` などの作業ブランチから `develop` に向ける。
+- 本番反映 PR は `release/*` から `main` に向ける。
+- hotfix PR は `hotfix/*` から `main` に向け、反映後に `develop` へ戻す。
+- `develop` / `main` ともに直接 push ではなく、PR と CI を経由して更新する。
+- Heroku は移行後、Staging app を `develop` から、Production app を `main` から自動デプロイする。
 - Reviewers は、レビューを依頼する相手がいる場合に設定する。個人作業では空でもよい。
 - Assignee は、マージまで見る担当者を明示したい場合に手動で設定する。
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
 
-### 本番反映 PR マージ後の履歴同期
+### release / hotfix 後の merge back
 
-`stage` から `main` への本番反映 PR を merge commit でマージすると、release merge commit は `main` にだけ作成されます。この状態を放置すると、後続作業で `main` から作業ブランチを切って `stage` へ PR を作成したときに、過去の release merge commit が PR の commit list に混ざることがあります。
+Git Flow では、release branch は本番反映後に `develop` へ merge back します。release branch 上で行った最終調整や、本番反映時の履歴を `develop` へ戻すためです。
 
-これを避けるため、本番反映 PR のマージ後は、`stage` を `main` に fast-forward して履歴を同期します。この同期はファイル内容を変更せず、`stage` に `main` の release merge commit を履歴として取り込むだけの操作です。
+hotfix の場合は、`main` に反映した修正を `develop` へ戻します。`develop` に戻さないと、後続リリースで hotfix が欠落したり、同じ修正を再実装するリスクがあります。
 
-同期前に以下を確認します。
+release 後の基本手順:
 
-| コマンド | 期待結果 |
-| --- | --- |
-| `git fetch origin main stage` | `origin/main` と `origin/stage` を最新化できる |
-| `git merge-base --is-ancestor origin/stage origin/main` | 終了コード 0。`stage` が `main` の祖先である |
-| `git diff --stat origin/stage..origin/main` | 出力なし。ファイル差分がない |
+```bash
+git switch develop
+git pull --ff-only origin develop
+git switch -c release/<識別子>
+git push -u origin release/<識別子>
+```
 
-条件を満たす場合のみ、以下の操作を行います。
+1. `release/*` から `main` への本番反映 PR を作成する。
+2. CI pass 後にユーザーが `main` へ merge する。
+3. `release/*` から `develop` への merge back PR を作成する。
+4. CI pass 後にユーザーが `develop` へ merge する。
+5. merge 済みの `release/*` branch を削除する。
+
+hotfix 後の基本手順:
 
 ```bash
 git switch main
 git pull --ff-only origin main
-git switch stage
-git pull --ff-only origin stage
-git merge --ff-only main
-git push origin stage
+git switch -c hotfix/<識別子>
+git push -u origin hotfix/<識別子>
 ```
 
-この `git push origin stage` は、ファイル差分なしの fast-forward 履歴同期に限る例外です。通常のコード変更、ドキュメント変更、設定変更を `stage` へ直接 push してはいけません。上記の確認で条件を満たさない場合は、push せずに分岐理由を確認します。
+1. `hotfix/*` から `main` への hotfix PR を作成する。
+2. CI pass 後にユーザーが `main` へ merge する。
+3. `main` または `hotfix/*` から `develop` への merge back PR を作成する。
+4. CI pass 後にユーザーが `develop` へ merge する。
+5. merge 済みの `hotfix/*` branch を削除する。
 
-この履歴同期は Maintain / Admin 権限の担当者が行います。GitHub ruleset の `stage` bypass は、通常変更の direct push を許可するためのものではなく、本番反映後の fast-forward 履歴同期に限定して使います。
+merge back は通常 PR と同じ扱いです。GitHub ruleset の bypass や direct push は使いません。
 
 ### 通常開発 PR マージ後
 
-通常開発 PR が `stage` にマージ済みであることを確認したら、以下の順に後続作業を行います。
+通常開発 PR が `develop` にマージ済みであることを確認したら、以下の順に後続作業を行います。
 
-1. ローカルを `stage` に戻し、GitHub と同期する。
+1. ローカルを `develop` に戻し、GitHub と同期する。
 2. マージ済みの `codex/...` 作業ブランチを削除する。
-3. `stage` から `main` への本番反映 PR を作成する。
+3. 本番反映する場合は `develop` から `release/*` branch を作成する。
 
-これにより、Staging 反映後に本番反映 PR の作成漏れを防ぎます。
+これにより、通常開発の統合と本番反映準備を分けて扱います。
 
 ### PR title
 
@@ -214,7 +239,7 @@ ci: docs-only 変更時の CI を軽量化
 chore: Dependabot の対象ブランチを整理
 ```
 
-本番反映 PR は、`stage` から `main` への反映であることが分かるように `release:` prefix を付けます。`release:` 自体が本番反映を表すため、title 本文には本番反映する変更内容を簡潔に書きます。
+本番反映 PR は、`release/*` から `main` への反映であることが分かるように `release:` prefix を付けます。`release:` 自体が本番反映を表すため、title 本文には本番反映する変更内容を簡潔に書きます。
 
 ```text
 release: <変更内容>
@@ -228,7 +253,7 @@ release: Account 検索フォームを追加
 release: Dependabot 設定を更新
 ```
 
-`release: stage の変更を main へ反映` のような title は、反映内容が履歴から読み取りにくいため避けます。`release: PR title 命名規則を本番反映` のように `release:` と title 本文で本番反映の意味が重複する title も避けます。
+`release: release ブランチを main へ反映` のような title は、反映内容が履歴から読み取りにくいため避けます。`release: PR title 命名規則を本番反映` のように `release:` と title 本文で本番反映の意味が重複する title も避けます。
 
 本番反映 PR の body には、元のレビュー済み PR との関連が追えるように `対象変更` を設け、PR 番号と title を列挙します。title は本番反映する内容の要約、body は反映元 PR との対応を確認する場所として使います。
 
@@ -238,7 +263,7 @@ release: Dependabot 設定を更新
 - #107 docs: 本番反映 PR title ルールを調整
 ```
 
-本番反映 PR が Issue を完了させる場合は、`関連 Issue` などの見出しを設け、GitHub の closing keyword を記載します。このリポジトリでは通常開発 PR は `stage` 向け、本番反映 PR は default branch の `main` 向けであるため、Issue の自動クローズは本番反映 PR 側で行います。
+本番反映 PR が Issue を完了させる場合は、`関連 Issue` などの見出しを設け、GitHub の closing keyword を記載します。このリポジトリでは通常開発 PR は `develop` 向け、本番反映 PR は default branch の `main` 向けであるため、Issue の自動クローズは本番反映 PR 側で行います。
 
 ```markdown
 ## 関連 Issue
@@ -258,9 +283,9 @@ Closes #96
 
 `codex/...` は作業ブランチ名に使う prefix です。PR title には `codex` prefix を付けません。
 
-## stage / main 品質チェック
+## develop / main 品質チェック
 
-`stage` / `main` の現在状態を確認する場合は、以下のコマンドを実行します。
+`develop` / `main` の現在状態を確認する場合は、以下のコマンドを実行します。
 
 | コマンド | 用途 |
 | --- | --- |
@@ -286,9 +311,9 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 
 - npm 依存関係と GitHub Actions を週次で確認する。
 - Dependabot PR には `area:github` と `type:maintenance` を付ける。
-- Dependabot PR は `stage` に向けて作成し、内容を確認し、CI が pass してからマージする。
+- Dependabot PR は `develop` に向けて作成し、内容を確認し、CI が pass してからマージする。
 - Dependabot PR のうち、CI pass、mergeable、差分確認済みで、ユーザーが対象 PR を明示して承認したものは、エージェントが merge してよい。
-- エージェントが Dependabot PR を merge した後は、`stage` に戻して GitHub と同期し、残った Dependabot PR / branch と CI 状態を確認する。本番反映は通常と同じく `stage` から `main` への PR で行う。
+- エージェントが Dependabot PR を merge した後は、`develop` に戻して GitHub と同期し、残った Dependabot PR / branch と CI 状態を確認する。本番反映は通常と同じく `release/*` から `main` への PR で行う。
 - 依存関係更新でアプリケーション挙動に影響する可能性がある場合は、通常のコード変更と同じ確認コマンドを実行する。
 
 ## Repository 設定
@@ -310,14 +335,15 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 
 ## Branch protection / Ruleset
 
-`stage` / `main` は通常変更を直接 push せず、PR と CI を経由して更新します。GitHub repository settings では、`main` と `stage` の ruleset を分けます。
+`develop` / `main` は通常変更を直接 push せず、PR と CI を経由して更新します。GitHub repository settings では、`main` と `develop` の ruleset を分けます。`release/*` と `hotfix/*` も PR と CI を経由して `main` / `develop` に取り込みます。
 
 | Ruleset | 対象 | 主なルール | Bypass |
 | --- | --- | --- | --- |
 | `Protect main` | `refs/heads/main` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | なし |
-| `Protect stage` | `refs/heads/stage` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | Maintain / Admin は本番反映後の fast-forward 履歴同期に限り direct push 可能 |
+| `Protect develop` | `refs/heads/develop` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | なし |
+| `Protect release/hotfix` | `refs/heads/release/*`, `refs/heads/hotfix/*` | required status checks、deletion 方針は運用に合わせて設定 | なし |
 
-`main` は bypass を設定せず、PR と required status checks を経由して更新します。`stage` の bypass は `main -> stage` の履歴同期専用であり、通常変更の direct push には使いません。
+`main` と `develop` は bypass を設定せず、PR と required status checks を経由して更新します。移行前の `stage` ruleset が残る場合も、Git Flow 移行後は新規開発の入口として使いません。
 
 Ruleset / branch protection の実設定は GitHub settings で確認します。設定内容を PR や docs に記録する場合は、repository 固有の秘密情報を含めない範囲にします。
 
