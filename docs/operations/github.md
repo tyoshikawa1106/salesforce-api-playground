@@ -95,6 +95,16 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
 
+### 通常開発 PR マージ後
+
+通常開発 PR が `stage` にマージ済みであることを確認したら、以下の順に後続作業を行います。
+
+1. ローカルを `stage` に戻し、GitHub と同期する。
+2. マージ済みの `codex/...` 作業ブランチを削除する。
+3. `stage` から `main` への本番反映 PR を作成する。
+
+これにより、Staging 反映後に本番反映 PR の作成漏れを防ぎます。
+
 ### PR title
 
 通常の開発 PR は、変更種別が分かる type prefix を付けて、以下の形式にします。
@@ -126,10 +136,38 @@ ci: docs-only 変更時の CI を軽量化
 chore: Dependabot の対象ブランチを整理
 ```
 
-本番反映 PR は、`stage` から `main` への反映であることが分かるように `release:` prefix を付けます。
+本番反映 PR は、`stage` から `main` への反映であることが分かるように `release:` prefix を付けます。title には単にブランチ間の反映であることだけでなく、本番反映する変更内容も含めます。
 
 ```text
-release: stage の変更を main へ反映
+release: <本番反映する変更内容>
+```
+
+本番反映 PR title 例:
+
+```text
+release: PR title 命名規則を本番反映
+release: Account 検索フォームを本番反映
+release: Dependabot 設定更新を本番反映
+```
+
+`release: stage の変更を main へ反映` のような title は、反映内容が履歴から読み取りにくいため避けます。
+
+本番反映 PR の body には、元のレビュー済み PR との関連が追えるように `対象変更` を設け、PR 番号と title を列挙します。title は本番反映する内容の要約、body は反映元 PR との対応を確認する場所として使います。
+
+```markdown
+## 対象変更
+
+- #107 docs: 本番反映 PR title ルールを調整
+```
+
+複数の PR をまとめて本番反映する場合も、`対象変更` にすべて列挙します。
+
+```markdown
+## 対象変更
+
+- #101 feat: Account 一覧に検索フォームを追加
+- #102 fix: OAuth callback の state エラー表示を修正
+- #107 docs: 本番反映 PR title ルールを調整
 ```
 
 `codex/...` は作業ブランチ名に使う prefix です。PR title には `codex` prefix を付けません。
