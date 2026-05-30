@@ -22,9 +22,11 @@
 ## Git / GitHub 運用
 
 - `main` は本番デプロイ用の安定ブランチとして扱う。
-- `stage` は本番前確認用ブランチとして扱う。
+- `stage` は GitFlow の `develop` 相当として扱い、本番前確認用の統合ブランチとする。
+- このリポジトリは GitFlow-lite として、`codex/...` → `stage` → `main` → `stage` の流れで運用する。
 - 通常の開発 PR は `codex/...` などの作業ブランチから `stage` に向ける。
 - Staging 確認後、`stage` から `main` へ PR を作成して本番反映する。
+- 本番反映後は、`main` に作成された release merge commit を `stage` へ戻し、今後の開発履歴と本番履歴を同期する。
 - Heroku は Staging app を GitHub `stage` から、Production app を GitHub `main` から自動デプロイする。
 - ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。通常開発では PR を `stage` に作成し、CI pass 後に ready for review へ変更して、`stage` へマージすると Staging app に自動デプロイされる旨を案内する。本番反映は `stage` から `main` への PR を経由する。
 - Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
@@ -49,6 +51,7 @@
 - 本番反映 PR のマージ後は `main` に戻して GitHub と同期する。
 - 本番反映 PR のマージ後、`stage` が `main` の祖先で、`origin/stage..origin/main` にファイル差分がない場合に限り、履歴同期として `stage` を `main` へ fast-forward してよい。この同期は新しい変更を追加しないため、通常開発 PR とは分けて扱う。
 - 上記の履歴同期では、事前に `git merge-base --is-ancestor origin/stage origin/main` と `git diff --stat origin/stage..origin/main` を確認する。条件を満たさない場合は同期せず、原因を確認する。
+- `main` への本番反映 PR の merge と、本番反映後の `stage` 履歴同期は Maintain / Admin 権限の担当者が行う。
 - `stage` への通常変更は引き続き PR 経由に限定する。履歴同期のために GitHub ruleset の bypass を使う場合も、fast-forward 可能かつファイル差分なしの `stage` 更新だけに限定する。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
