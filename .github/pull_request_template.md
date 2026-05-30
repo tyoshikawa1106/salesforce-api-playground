@@ -5,6 +5,7 @@
 ## レビュー観点
 
 - PR title が `docs: ...` などの type prefix 付きで、`codex` prefix を含まないこと
+- milestone、Project `Salesforce API Playground`、label が設定されていること
 
 ## 動作確認
 
