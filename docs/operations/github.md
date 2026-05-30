@@ -95,6 +95,45 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
 
+### PR title
+
+通常の開発 PR は、変更種別が分かる type prefix を付けて、以下の形式にします。
+
+```text
+<type>: <変更内容を日本語で簡潔に書く>
+```
+
+想定する type は以下です。
+
+| Type | 用途 |
+| --- | --- |
+| `feat` | 機能追加 |
+| `fix` | バグ修正 |
+| `docs` | ドキュメント変更 |
+| `test` | テスト追加 / 修正 |
+| `refactor` | 挙動を変えない整理 |
+| `chore` | 依存関係、設定、運用保守 |
+| `ci` | GitHub Actions など CI 変更 |
+| `style` | UI / CSS / 表示調整 |
+
+通常の開発 PR title 例:
+
+```text
+feat: Account 一覧に検索フォームを追加
+fix: OAuth callback の state エラー表示を修正
+docs: GitHub 運用ルールを更新
+ci: docs-only 変更時の CI を軽量化
+chore: Dependabot の対象ブランチを整理
+```
+
+本番反映 PR は、`stage` から `main` への反映であることが分かるように `release:` prefix を付けます。
+
+```text
+release: stage の変更を main へ反映
+```
+
+`codex/...` は作業ブランチ名に使う prefix です。PR title には `codex` prefix を付けません。
+
 ## stage / main 品質チェック
 
 `stage` / `main` の現在状態を確認する場合は、以下のコマンドを実行します。
