@@ -27,8 +27,8 @@
 - Pull Request は原則として `codex/...` などの作業ブランチから `main` に向ける。
 - `develop` は旧 Git Flow 運用の統合ブランチとして凍結扱いにする。新規開発の base には使わない。
 - `release/*` と `hotfix/*` は旧 Git Flow 運用の一時ブランチとして凍結扱いにする。新規作成しない。
-- Heroku は GitHub `main` への merge 後に自動デプロイされる運用を基本とする。Staging app を使う場合も、GitHub Flow の PR / `main` 中心の運用と矛盾しない方法を別途明記する。
-- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。通常開発では PR を `main` に作成し、CI pass 後に ready for review へ変更して、ユーザーが `main` へマージすると Heroku へ自動デプロイされる旨を案内する。
+- Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本とする。
+- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy / promote しない。通常開発では PR を `main` に作成し、CI pass 後に ready for review へ変更して、ユーザーが `main` へマージすると Staging app へ自動デプロイされる旨と、Production 反映は Heroku Pipeline の promote をユーザー判断で行う旨を案内する。
 - Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
 - `main` へ直接コミットしない。
 - コミットは作業単位で分割し、コミットメッセージは日本語で書く。

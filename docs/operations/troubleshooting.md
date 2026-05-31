@@ -101,7 +101,8 @@ Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認は 
 
 | 事象 | 確認すること | 対処 |
 | --- | --- | --- |
-| GitHub `main` merge 後に Heroku release が作成されない | PR merge 後の `main` push workflow が pass しているか、Heroku app の GitHub 自動デプロイ設定が `main` になっているか | Heroku release 履歴で commit hash との対応を見る |
+| GitHub `main` merge 後に Staging release が作成されない | PR merge 後の `main` push workflow が pass しているか、Staging app の GitHub 自動デプロイ設定が `main` になっているか | Heroku release 履歴で commit hash との対応を見る |
+| Staging から Production へ promote できない | Heroku Pipeline に Staging app と Production app が正しい stage で追加されているか | `heroku pipelines --json` と `heroku pipelines:info <pipeline-name> --json` で確認する |
 | Heroku build が失敗する | CI と同じ `npm ci`, `npm run lint`, `npm run slds:lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build` が通るか | build log は Heroku Dashboard の Activity / build 詳細画面で確認する |
 | Heroku 起動に失敗する | `Procfile` が `web: npm run start` か、`npm run start` が `next start -p ${PORT:-3000}` か、Config Vars が揃っているか | `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`, `SALESFORCE_REDIRECT_URI`, `SESSION_SECRET` を確認 |
 | Heroku dyno が `up` にならない | `heroku ps --app <app-name>` で `web` dyno と起動コマンドを確認する | Heroku runtime は `PORT` を渡し、Next.js は `npm run start` で起動する |
@@ -110,7 +111,7 @@ Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認は 
 | Heroku で Cookie が保存されない | HTTPS でアクセスしているか、ブラウザが `Secure` Cookie を受け取っているか | production では session / state Cookie に `Secure` が付くため HTTP では保存されない |
 | Heroku で logout 後も Salesforce 側 token が残る | revoke endpoint へのリクエストが失敗していないか | 実装は revoke 失敗時も Cookie 削除と redirect を継続し、サーバーログに記録する |
 | ロールバックしたい | 戻す release 番号、commit hash、GitHub `main` との差分を確認する | Codex 作業では rollback を実行しない |
-| Pipeline の利用有無を確認したい | `heroku pipelines` で参照可能な Pipeline を確認する | 参照可能な Pipeline がないことを確認済み |
+| Pipeline の利用有無を確認したい | `heroku pipelines --json` で参照可能な Pipeline を確認する | 2026-06-01 時点では Pipeline 0 件を確認済み |
 
 実 URL、Heroku API Key、Salesforce token、Client Secret は記録しないでください。
 

@@ -109,7 +109,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 `develop` は旧 Git Flow 運用の統合ブランチとして凍結扱いにします。`release/*` と `hotfix/*` も旧 Git Flow 運用の一時ブランチとして凍結扱いにし、新規作成しません。
 
-Heroku は GitHub `main` への merge 後に自動デプロイされる運用を基本とします。Staging app を使う場合は、`main` merge 前の PR 確認、Heroku Review Apps、または別途定義した手動確認など、GitHub Flow と矛盾しない方法を採用します。未確認の Staging 自動デプロイ構成は推測で記載しません。
+Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本とします。GitHub Flow のブランチモデルは `main` に集約し、環境昇格は Heroku Pipeline の stage と promote で扱います。
 
 標準の流れは以下です。
 
@@ -120,7 +120,7 @@ main -> codex/... -> main
 | ブランチ | 役割 | デプロイ |
 | --- | --- | --- |
 | `codex/...` | 個別作業ブランチ | なし |
-| `main` | 唯一の長期ブランチ。常にデプロイ可能な安定版 | Heroku app |
+| `main` | 唯一の長期ブランチ。常にデプロイ可能な安定版 | Staging app へ自動デプロイし、確認後に Production app へ promote |
 | `develop` | 旧 Git Flow 運用の統合ブランチ。凍結扱いで新規開発の base には使わない | なし |
 | `release/*` | 旧 Git Flow 運用の一時ブランチ。凍結扱いで新規作成しない | なし |
 | `hotfix/*` | 旧 Git Flow 運用の一時ブランチ。凍結扱いで新規作成しない | なし |
@@ -133,8 +133,9 @@ main -> codex/... -> main
 4. 作業ブランチから `main` へ Draft PR を作成する。
 5. GitHub Actions が pass したら Ready for review にする。
 6. ユーザーが PR を `main` へ merge する。
-7. `main` push workflow と Heroku の自動デプロイ結果を確認する。
-8. `main` を同期し、マージ済みの `codex/...` 作業ブランチを削除する。
+7. `main` push workflow と Staging app の自動デプロイ結果を確認する。
+8. Staging app で必要な確認を行い、Production 反映が必要な場合は Heroku Pipeline で Production app へ promote する。
+9. `main` を同期し、マージ済みの `codex/...` 作業ブランチを削除する。
 
 このモデルでは、すべての変更を `main` への PR と CI で確認します。`main` へ直接 push しません。
 
@@ -144,7 +145,7 @@ main -> codex/... -> main
 - 通常の開発 PR は `codex/...` などの作業ブランチから `main` に向ける。
 - 緊急修正も `main` から作業ブランチを作成し、`main` への PR と CI を経由して取り込む。
 - PR が Issue を完了させる場合は、PR body に `Closes #<Issue番号>` などの closing keyword を記載する。
-- Heroku は `main` への merge 後に自動デプロイされる運用を基本とする。
+- Heroku は `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本とする。
 - Reviewers は、レビューを依頼する相手がいる場合に設定する。個人作業では空でもよい。
 - Assignee は、マージまで見る担当者を明示したい場合に手動で設定する。
 - マージ済み PR にも、後から milestone と label を設定してよい。
@@ -164,7 +165,8 @@ git switch -c codex/<作業内容>
 
 1. ローカルを `main` に戻し、GitHub と同期する。
 2. マージ済みの `codex/...` 作業ブランチを削除する。
-3. Heroku の自動デプロイ結果や必要な runtime 確認を記録する。
+3. Staging app の自動デプロイ結果や必要な runtime 確認を記録する。
+4. Production 反映が必要な場合は、Heroku Pipeline の promote 結果を記録する。
 
 ### PR title
 
@@ -271,6 +273,20 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 `main` は bypass を設定せず、PR と required status checks を経由して更新します。移行前の `stage` ruleset や `develop` ruleset が残る場合も、GitHub Flow 移行後は新規開発の入口として使いません。
 
 Ruleset / branch protection の実設定は GitHub settings で確認します。設定内容を PR や docs に記録する場合は、repository 固有の秘密情報を含めない範囲にします。
+
+### GitHub Flow 移行後の確認結果
+
+2026-06-01 に確認した GitHub repository settings は以下です。
+
+| 項目 | 確認結果 | 判断 |
+| --- | --- | --- |
+| default branch | `main` | GitHub Flow の運用と一致 |
+| `main` ruleset | `Protect main` が active。deletion / non-fast-forward 禁止、Pull Request 必須、`Lint, typecheck, and build` required status check | GitHub Flow の運用と一致 |
+| `develop` ruleset | `Protect develop` が active。旧 Git Flow ブランチとして保護されたまま | 新規開発の base には使わない |
+| `stage` ruleset | `Protect stage` が active。旧運用由来の ruleset として残存 | 新規開発の入口には使わない |
+| `release/*` / `hotfix/*` ruleset | 専用 ruleset は未確認 | 新規作成しない運用で扱う |
+| repository merge methods | merge commit / squash merge / rebase merge が有効 | 通常は merge commit を使う |
+| delete branch on merge | 無効 | PR merge 後に手動で不要 branch を確認して削除する |
 
 ## Security 設定
 

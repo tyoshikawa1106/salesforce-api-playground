@@ -87,7 +87,7 @@ Sandbox 組織へ接続する場合は `SALESFORCE_LOGIN_URL=https://test.salesf
 
 ## デプロイ方法
 
-Heroku は GitHub `main` への merge 後に自動デプロイされる運用を基本にします。通常の開発 PR は作業ブランチから `main` に向け、CI pass 後にユーザーが merge します。
+Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本にします。通常の開発 PR は作業ブランチから `main` に向け、CI pass 後にユーザーが merge します。
 
 Heroku へデプロイする場合は、Heroku Config Vars と Salesforce 外部クライアントアプリケーションのコールバック URL を Staging / Production ごとに分けて設定します。
 
