@@ -10,7 +10,6 @@ function ListViewToolbar({
     searchId,
     searchValue,
     objectLabel,
-    objectLabelPlural,
     onClearSelection,
     onSearchChange
 }: {
@@ -19,7 +18,6 @@ function ListViewToolbar({
     searchId: string;
     searchValue: string;
     objectLabel: string;
-    objectLabelPlural: string;
     onClearSelection: () => void;
     onSearchChange: (value: string) => void;
 }) {
@@ -27,7 +25,7 @@ function ListViewToolbar({
         <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
             <div>
                 <div className="slds-text-title_bold">
-                    {count} 件 - ビュー: 自分の{objectLabelPlural}
+                    {count} 件
                 </div>
                 {selectedCount > 0 ? (
                     <div className="slds-grid slds-grid_vertical-align-center slds-m-top_xx-small playground-list-selection-summary">
@@ -87,7 +85,6 @@ export function AccountPanel({
                 searchId="account-list-search"
                 searchValue={listState.searchTerm}
                 objectLabel="取引先"
-                objectLabelPlural="取引先"
                 onClearSelection={listState.clearSelection}
                 onSearchChange={listState.setSearchTerm}
             />
@@ -188,7 +185,6 @@ export function ContactPanel({
                 searchId="contact-list-search"
                 searchValue={listState.searchTerm}
                 objectLabel="取引先責任者"
-                objectLabelPlural="取引先責任者"
                 onClearSelection={listState.clearSelection}
                 onSearchChange={listState.setSearchTerm}
             />
