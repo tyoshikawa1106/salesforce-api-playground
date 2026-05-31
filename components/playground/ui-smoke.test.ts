@@ -41,12 +41,12 @@ describe("playground UI smoke rendering", () => {
     it("renders an environment label banner for non-production environments", () => {
         const markup = renderToStaticMarkup(
             createElement(EnvironmentLabelBanner, {
-                environmentLabel: { label: "Staging" }
+                environmentLabel: { label: "STAGING" }
             })
         );
 
-        expect(markup).toContain("Staging");
-        expect(markup).toContain("本番環境ではありません");
+        expect(markup).toContain("STAGING");
+        expect(markup).not.toContain("本番環境ではありません");
     });
 
     it("does not render an environment label banner without label data", () => {

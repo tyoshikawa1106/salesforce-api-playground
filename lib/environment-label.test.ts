@@ -18,8 +18,8 @@ describe("getEnvironmentLabel", () => {
     });
 
     it("prefers APP_ENV_LABEL when it is set", () => {
-        expect(getEnvironmentLabel({ APP_ENV: "develop", APP_ENV_LABEL: "Staging" })).toEqual({
-            label: "Staging"
+        expect(getEnvironmentLabel({ APP_ENV: "develop", APP_ENV_LABEL: "STAGING" })).toEqual({
+            label: "STAGING"
         });
     });
 });

@@ -22,6 +22,8 @@ body {
 }
 
 .playground-environment-label {
+    background: var(--slds-g-color-neutral-base-95);
+    color: var(--slds-g-color-neutral-base-10);
     justify-content: center;
     min-height: var(--slds-g-sizing-9, 2rem);
     position: sticky;
@@ -30,6 +32,9 @@ body {
 }
 
 .playground-environment-label__badge {
+    background: var(--slds-g-color-neutral-base-100);
+    border: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-neutral-base-80);
+    color: var(--slds-g-color-neutral-base-10);
     letter-spacing: 0;
 }
 
