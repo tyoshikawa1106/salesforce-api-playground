@@ -6,7 +6,7 @@
 
 - PR title が `docs: ...` などの type prefix 付きで、`codex` prefix を含まないこと
 - milestone、Project `Salesforce API Playground`、label が設定されていること
-- 本番反映 PR が Issue を完了させる場合は、`Closes #...` などの closing keyword が記載されていること
+- PR が Issue を完了させる場合は、`Closes #...` などの closing keyword が記載されていること
 
 ## 動作確認
 
