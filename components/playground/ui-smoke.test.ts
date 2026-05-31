@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { LoginPage } from "./LoginPage";
+import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel, filterAccounts, filterContacts, getSelectionState } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
@@ -37,6 +38,27 @@ const contact: Contact = {
 const noop = () => {};
 
 describe("playground UI smoke rendering", () => {
+    it("renders an environment label banner for non-production environments", () => {
+        const markup = renderToStaticMarkup(
+            createElement(EnvironmentLabelBanner, {
+                environmentLabel: { label: "Staging" }
+            })
+        );
+
+        expect(markup).toContain("Staging");
+        expect(markup).toContain("本番環境ではありません");
+    });
+
+    it("does not render an environment label banner without label data", () => {
+        const markup = renderToStaticMarkup(
+            createElement(EnvironmentLabelBanner, {
+                environmentLabel: null
+            })
+        );
+
+        expect(markup).toBe("");
+    });
+
     it("renders the login page without losing the primary action", () => {
         const markup = renderToStaticMarkup(createElement(LoginPage));
 
