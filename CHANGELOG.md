@@ -4,6 +4,7 @@
 
 ### Changed
 
+- GitHub Flow の運用に合わせて、`main` ruleset の required status checks に `CodeQL` を追加し、確認結果を GitHub 運用 docs に記録。
 - Heroku Pipeline 作成後の運用前提に合わせて、Heroku デプロイとトラブルシューティング docs の古い Pipeline 記述を更新。
 
 ## 2026-05-30
