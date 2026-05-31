@@ -1,6 +1,8 @@
 import { readAccountCreatePayload } from "@/lib/salesforce/request-payloads";
-import { assertSameOriginRequest } from "@/lib/salesforce/request-security";
-import { handleSalesforceRoute } from "@/lib/salesforce/route-handler";
+import {
+    handleSalesforceCreateRoute,
+    handleSalesforceRoute
+} from "@/lib/salesforce/route-handler";
 import { createAccount, listAccounts } from "@/services/salesforce/records";
 
 export async function GET() {
@@ -8,9 +10,5 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    return handleSalesforceRoute(async () => {
-        assertSameOriginRequest(request);
-        const input = await readAccountCreatePayload(request);
-        return createAccount(input);
-    }, 201);
+    return handleSalesforceCreateRoute(request, readAccountCreatePayload, createAccount);
 }

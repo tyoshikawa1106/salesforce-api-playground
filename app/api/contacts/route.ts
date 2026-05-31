@@ -1,6 +1,8 @@
 import { readContactCreatePayload } from "@/lib/salesforce/request-payloads";
-import { assertSameOriginRequest } from "@/lib/salesforce/request-security";
-import { handleSalesforceRoute } from "@/lib/salesforce/route-handler";
+import {
+    handleSalesforceCreateRoute,
+    handleSalesforceRoute
+} from "@/lib/salesforce/route-handler";
 import { createContact, listContacts } from "@/services/salesforce/records";
 
 export async function GET() {
@@ -8,9 +10,5 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    return handleSalesforceRoute(async () => {
-        assertSameOriginRequest(request);
-        const input = await readContactCreatePayload(request);
-        return createContact(input);
-    }, 201);
+    return handleSalesforceCreateRoute(request, readContactCreatePayload, createContact);
 }
