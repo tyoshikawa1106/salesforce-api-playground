@@ -9,9 +9,11 @@ import {
     buildPlaygroundApiRequest,
     playgroundApiPaths
 } from "@/lib/playground-api";
+import type { EnvironmentLabel } from "@/lib/environment-label";
 import type { SessionInfo } from "@/lib/playground-api";
 import type { AccountForm, ContactForm, SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest, PlaygroundApiError, saveRecord } from "./playground/api";
+import { EnvironmentLabelBanner } from "./playground/EnvironmentLabelBanner";
 import { AppNavigation } from "./playground/Navigation";
 import { GlobalHeader } from "./playground/GlobalHeader";
 import { LoginPage } from "./playground/LoginPage";
@@ -31,7 +33,7 @@ import { Modal, ModalFooter } from "./playground/Modal";
 import { getContactName } from "./playground/formatting";
 import type { Account, ActiveTab, Contact, DeleteState, ModalState, Notice } from "./playground/types";
 
-export default function Playground() {
+export default function Playground({ environmentLabel = null }: { environmentLabel?: EnvironmentLabel | null }) {
     const [session, setSession] = useState<SessionInfo>({ connected: false });
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [contacts, setContacts] = useState<Contact[]>([]);
@@ -163,6 +165,7 @@ export default function Playground() {
     if (loading && !session.connected) {
         return (
             <div>
+                <EnvironmentLabelBanner environmentLabel={environmentLabel} />
                 {notice ? <NoticeBanner notice={notice} /> : null}
                 <LoginPage loading />
             </div>
@@ -172,6 +175,7 @@ export default function Playground() {
     if (!session.connected) {
         return (
             <div>
+                <EnvironmentLabelBanner environmentLabel={environmentLabel} />
                 {notice ? <NoticeBanner notice={notice} /> : null}
                 <LoginPage />
             </div>
@@ -331,6 +335,7 @@ export default function Playground() {
 
     return (
         <div>
+            <EnvironmentLabelBanner environmentLabel={environmentLabel} />
             {notice ? <NoticeBanner notice={notice} /> : null}
             <GlobalHeader connected={session.connected} onSelectSearchResult={openSearchResult} />
             <AppNavigation activeTab={activeTab} connected={session.connected} onChange={changeTab} />
