@@ -46,7 +46,11 @@ describe("playground UI smoke rendering", () => {
         );
 
         expect(markup).toContain("STAGING");
+        expect(markup).toContain("role=\"alert\"");
+        expect(markup).toContain("<h2");
         expect(markup).not.toContain("slds-badge");
+        expect(markup).not.toContain("slds-icon_container");
+        expect(markup).not.toContain("slds-notify__close");
         expect(markup).not.toContain("本番環境ではありません");
     });
 
