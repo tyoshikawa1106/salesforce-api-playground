@@ -1,7 +1,7 @@
 import { SalesforceApiError } from "./client";
 import { getConfiguredAppOrigin } from "./urls";
 
-type SalesforceObjectLabel = "Account" | "Contact";
+export type SalesforceObjectLabel = "Account" | "Contact";
 
 const salesforceRecordIdPattern = /^[a-zA-Z0-9]{15}([a-zA-Z0-9]{3})?$/;
 const recordIdPrefixes: Record<SalesforceObjectLabel, string> = {
