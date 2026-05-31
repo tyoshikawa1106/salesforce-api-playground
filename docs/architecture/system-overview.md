@@ -32,8 +32,7 @@ flowchart LR
     Api --> IntegrationUiApi["/api/integration/ui/accounts<br/>session + Origin / Referer"]
     IntegrationApi --> OAuthClient
     IntegrationUiApi --> OAuthClient
-    StageHeroku["Staging Heroku app<br/>GitHub develop から自動デプロイ"] --> App
-    ProductionHeroku["Production Heroku app<br/>GitHub main から自動デプロイ"] --> App
+    Heroku["Heroku app<br/>GitHub main から自動デプロイ"] --> App
 ```
 
 ## 主要コンポーネント
@@ -164,7 +163,7 @@ Salesforce API version は環境変数ではなく、`lib/salesforce/api-version
 
 - Salesforce 組織ごとの validation rule、権限、参照整合性、必須項目追加による挙動は、組織設定に依存します。API エラー表示方針と rate limit 方針は [API 概要](../api/api-overview.md) と [トラブルシューティング](../operations/troubleshooting.md) を参照。
 - `organizationId` は OAuth token response の `id` URL から session に保存します。レスポンスや API 呼び出しには使用していません。
-- Staging / Production の Heroku release と GitHub merge commit の対応、dyno 起動状態、ロールバック手順の確認観点は [Heroku デプロイ](../deployment/heroku.md) を参照。
+- Heroku release と GitHub merge commit の対応、dyno 起動状態、ロールバック手順の確認観点は [Heroku デプロイ](../deployment/heroku.md) を参照。
 
 ## 関連ドキュメント
 

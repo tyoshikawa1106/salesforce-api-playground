@@ -21,37 +21,30 @@
 
 ## Git / GitHub 運用
 
-- `main` は本番デプロイ用の安定ブランチとして扱う。
-- `develop` は次リリース向けの開発統合ブランチとして扱う。Staging app が `develop` から自動デプロイされる場合は、Staging 確認にも利用する。
-- `release/*` はリリース候補を固定するために `develop` から作成し、`main` への本番反映後に `develop` へ戻して削除する一時ブランチとして扱う。`release/*` では原則として新機能追加を行わず、リリース前の修正、バージョン調整、ドキュメント修正に限定する。
-- `hotfix/*` は緊急修正用に `main` から作成し、`main` への反映後に `develop` へ戻して削除する一時ブランチとして扱う。
-- 通常の開発 PR は `codex/...` などの作業ブランチから `develop` に向ける。
-- 本番反映 PR は `release/*` から `main` に向ける。
-- hotfix PR は `hotfix/*` から `main` に向ける。
-- Heroku は移行後、Staging app を GitHub `develop` から、Production app を GitHub `main` から自動デプロイする方針とする。現行の `stage` 連携が残る場合は移行中の互換設定として扱い、Git Flow の中核ブランチには含めない。
-- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。通常開発では PR を `develop` に作成し、CI pass 後に ready for review へ変更して、`develop` へマージすると Staging app に自動デプロイされる旨を案内する。本番反映は `release/*` から `main` への PR を経由する。
+- このリポジトリは GitHub Flow として運用する。
+- `main` は唯一の長期ブランチとして扱い、常にデプロイ可能な安定状態を保つ。
+- 作業ブランチは `main` から `codex/...` の形式で作成する。
+- Pull Request は原則として `codex/...` などの作業ブランチから `main` に向ける。
+- `develop` は旧 Git Flow 運用の統合ブランチとして凍結扱いにする。新規開発の base には使わない。
+- `release/*` と `hotfix/*` は旧 Git Flow 運用の一時ブランチとして凍結扱いにする。新規作成しない。
+- Heroku は GitHub `main` への merge 後に自動デプロイされる運用を基本とする。Staging app を使う場合も、GitHub Flow の PR / `main` 中心の運用と矛盾しない方法を別途明記する。
+- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy しない。通常開発では PR を `main` に作成し、CI pass 後に ready for review へ変更して、ユーザーが `main` へマージすると Heroku へ自動デプロイされる旨を案内する。
 - Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
-- 作業ブランチは `codex/...` の形式にする。
-- `develop` / `main` へ直接コミットしない。
+- `main` へ直接コミットしない。
 - コミットは作業単位で分割し、コミットメッセージは日本語で書く。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
 - 通常開発 PR の title は `<type>: <変更内容を日本語で簡潔に書く>` の形式にする。例: `feat: Account 一覧に検索フォームを追加`。
-- 本番反映 PR の title は `release: <変更内容>` の形式にする。例: `release: PR title 運用ルールを更新`。
-- 本番反映 PR の body には `対象変更` として、元のレビュー済み PR 番号と title を列挙する。
-- 本番反映 PR が Issue を完了させる場合は、body に `Closes #<Issue番号>` などの GitHub closing keyword を記載し、`main` へのマージ時に Issue が自動クローズされるようにする。
+- PR が Issue を完了させる場合は、body に `Closes #<Issue番号>` などの GitHub closing keyword を記載し、`main` へのマージ時に Issue が自動クローズされるようにする。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
 - Issue / PR は原則として適切な milestone と Project `Salesforce API Playground` に紐付ける。
 - PR が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
 - 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
-- Dependabot PR をエージェントが merge する場合も、`develop` / `main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
+- Dependabot PR をエージェントが merge する場合も、`main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
 - PR マージ前に GitHub Actions が pass していることを確認する。
-- 通常開発 PR が `develop` にマージ済みであることを確認したら、`develop` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。本番反映する場合は `develop` から `release/*` ブランチを作成し、`release/*` から `main` への本番反映 PR を作成する。
-- 本番反映 PR のマージ後は `main` に戻して GitHub と同期する。
-- 本番反映 PR のマージ後は、Git Flow の考え方に従って同じ `release/*` branch から `develop` への PR を作成し、release branch の内容を `develop` へ戻す。hotfix の場合も同じ `hotfix/*` branch から `develop` への PR を作成し、`main` に反映した修正を `develop` へ戻す。
-- `develop` へ戻す作業も PR と CI を経由して行う。`develop` への direct push は行わない。
+- PR が `main` にマージ済みであることを確認したら、`main` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
