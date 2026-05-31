@@ -77,43 +77,31 @@ export function AccountPanel({
     onEdit: (record: Account) => void;
     onDelete: (record: Account) => void;
 }) {
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedAccountIds, setSelectedAccountIds] = useState<Set<string>>(new Set());
-    const filteredAccounts = useMemo(() => filterAccounts(accounts, searchTerm), [accounts, searchTerm]);
-    const selectionState = getSelectionState(filteredAccounts, selectedAccountIds);
-    const hasAccounts = accounts.length > 0;
-    const hasFilteredAccounts = filteredAccounts.length > 0;
-
-    useEffect(() => {
-        setSelectedAccountIds((currentIds) => pruneSelection(currentIds, accounts.map((account) => account.Id)));
-    }, [accounts]);
-
-    function toggleAccountSelection(accountId: string) {
-        setSelectedAccountIds((currentIds) => toggleSelectedId(currentIds, accountId));
-    }
-
-    function toggleVisibleAccounts() {
-        setSelectedAccountIds((currentIds) =>
-            toggleVisibleSelection(currentIds, filteredAccounts.map((account) => account.Id))
-        );
-    }
+    const listState = useRecordListState(accounts, filterAccounts);
 
     return (
         <div className="slds-theme_default">
             <ListViewToolbar
-                count={filteredAccounts.length}
-                selectedCount={selectedAccountIds.size}
+                count={listState.filteredRecords.length}
+                selectedCount={listState.selectedIds.size}
                 searchId="account-list-search"
-                searchValue={searchTerm}
+                searchValue={listState.searchTerm}
                 objectLabel="取引先"
                 objectLabelPlural="取引先"
-                onClearSelection={() => setSelectedAccountIds(new Set())}
-                onSearchChange={setSearchTerm}
+                onClearSelection={listState.clearSelection}
+                onSearchChange={listState.setSearchTerm}
             />
-            {loading ? <EmptyState message="取引先を読み込んでいます..." /> : null}
-            {!loading && !hasAccounts ? <EmptyState message={connected ? "取引先が見つかりません。" : "Salesforce に接続すると取引先を読み込めます。"} /> : null}
-            {!loading && hasAccounts && !hasFilteredAccounts ? <EmptyState message="検索条件に一致する取引先が見つかりません。" /> : null}
-            {!loading && hasFilteredAccounts ? (
+            <RecordListEmptyStates
+                loading={loading}
+                hasRecords={listState.hasRecords}
+                hasFilteredRecords={listState.hasFilteredRecords}
+                connected={connected}
+                loadingMessage="取引先を読み込んでいます..."
+                emptyMessage="取引先が見つかりません。"
+                disconnectedMessage="Salesforce に接続すると取引先を読み込めます。"
+                filteredEmptyMessage="検索条件に一致する取引先が見つかりません。"
+            />
+            {!loading && listState.hasFilteredRecords ? (
                 <div className="slds-scrollable_x">
                     <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
                         <thead>
@@ -124,9 +112,9 @@ export function AccountPanel({
                                 <th className="slds-cell-shrink slds-text-align_center" scope="col">
                                     <SelectionCheckbox
                                         ariaLabel="表示中の取引先をすべて選択"
-                                        checked={selectionState.allVisibleSelected}
-                                        mixed={selectionState.someVisibleSelected}
-                                        onChange={toggleVisibleAccounts}
+                                        checked={listState.selectionState.allVisibleSelected}
+                                        mixed={listState.selectionState.someVisibleSelected}
+                                        onChange={listState.toggleVisibleSelection}
                                     />
                                 </th>
                                 <th scope="col">取引先名</th>
@@ -139,15 +127,15 @@ export function AccountPanel({
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredAccounts.map((account, index) => (
+                            {listState.filteredRecords.map((account, index) => (
                                 <tr className="slds-hint-parent" key={account.Id}>
                                     <td className="slds-cell-shrink slds-text-align_center">{index + 1}</td>
                                     <td className="slds-cell-shrink slds-text-align_center">
                                         <SelectionCheckbox
                                             ariaLabel={`${account.Name} を選択`}
-                                            checked={selectedAccountIds.has(account.Id)}
+                                            checked={listState.selectedIds.has(account.Id)}
                                             mixed={false}
-                                            onChange={() => toggleAccountSelection(account.Id)}
+                                            onChange={() => listState.toggleSelection(account.Id)}
                                         />
                                     </td>
                                     <th scope="row">
@@ -163,14 +151,7 @@ export function AccountPanel({
                                     <TableCell value={getAccountBilling(account)} />
                                     <TableCell value={formatDate(account.LastModifiedDate)} />
                                     <td>
-                                        <div className="slds-button-group" role="group">
-                                            <button className="slds-button slds-button_neutral" type="button" onClick={() => onEdit(account)}>
-                                                編集
-                                            </button>
-                                            <button className="slds-button slds-button_destructive" type="button" onClick={() => onDelete(account)}>
-                                                削除
-                                            </button>
-                                        </div>
+                                        <RecordTableActions record={account} onEdit={onEdit} onDelete={onDelete} />
                                     </td>
                                 </tr>
                             ))}
@@ -197,43 +178,31 @@ export function ContactPanel({
     onEdit: (record: Contact) => void;
     onDelete: (record: Contact) => void;
 }) {
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
-    const filteredContacts = useMemo(() => filterContacts(contacts, searchTerm), [contacts, searchTerm]);
-    const selectionState = getSelectionState(filteredContacts, selectedContactIds);
-    const hasContacts = contacts.length > 0;
-    const hasFilteredContacts = filteredContacts.length > 0;
-
-    useEffect(() => {
-        setSelectedContactIds((currentIds) => pruneSelection(currentIds, contacts.map((contact) => contact.Id)));
-    }, [contacts]);
-
-    function toggleContactSelection(contactId: string) {
-        setSelectedContactIds((currentIds) => toggleSelectedId(currentIds, contactId));
-    }
-
-    function toggleVisibleContacts() {
-        setSelectedContactIds((currentIds) =>
-            toggleVisibleSelection(currentIds, filteredContacts.map((contact) => contact.Id))
-        );
-    }
+    const listState = useRecordListState(contacts, filterContacts);
 
     return (
         <div className="slds-theme_default">
             <ListViewToolbar
-                count={filteredContacts.length}
-                selectedCount={selectedContactIds.size}
+                count={listState.filteredRecords.length}
+                selectedCount={listState.selectedIds.size}
                 searchId="contact-list-search"
-                searchValue={searchTerm}
+                searchValue={listState.searchTerm}
                 objectLabel="取引先責任者"
                 objectLabelPlural="取引先責任者"
-                onClearSelection={() => setSelectedContactIds(new Set())}
-                onSearchChange={setSearchTerm}
+                onClearSelection={listState.clearSelection}
+                onSearchChange={listState.setSearchTerm}
             />
-            {loading ? <EmptyState message="取引先責任者を読み込んでいます..." /> : null}
-            {!loading && !hasContacts ? <EmptyState message={connected ? "取引先責任者が見つかりません。" : "Salesforce に接続すると取引先責任者を読み込めます。"} /> : null}
-            {!loading && hasContacts && !hasFilteredContacts ? <EmptyState message="検索条件に一致する取引先責任者が見つかりません。" /> : null}
-            {!loading && hasFilteredContacts ? (
+            <RecordListEmptyStates
+                loading={loading}
+                hasRecords={listState.hasRecords}
+                hasFilteredRecords={listState.hasFilteredRecords}
+                connected={connected}
+                loadingMessage="取引先責任者を読み込んでいます..."
+                emptyMessage="取引先責任者が見つかりません。"
+                disconnectedMessage="Salesforce に接続すると取引先責任者を読み込めます。"
+                filteredEmptyMessage="検索条件に一致する取引先責任者が見つかりません。"
+            />
+            {!loading && listState.hasFilteredRecords ? (
                 <div className="slds-scrollable_x">
                     <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
                         <thead>
@@ -244,9 +213,9 @@ export function ContactPanel({
                                 <th className="slds-cell-shrink slds-text-align_center" scope="col">
                                     <SelectionCheckbox
                                         ariaLabel="表示中の取引先責任者をすべて選択"
-                                        checked={selectionState.allVisibleSelected}
-                                        mixed={selectionState.someVisibleSelected}
-                                        onChange={toggleVisibleContacts}
+                                        checked={listState.selectionState.allVisibleSelected}
+                                        mixed={listState.selectionState.someVisibleSelected}
+                                        onChange={listState.toggleVisibleSelection}
                                     />
                                 </th>
                                 <th scope="col">氏名</th>
@@ -259,15 +228,15 @@ export function ContactPanel({
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredContacts.map((contact, index) => (
+                            {listState.filteredRecords.map((contact, index) => (
                                 <tr className="slds-hint-parent" key={contact.Id}>
                                     <td className="slds-cell-shrink slds-text-align_center">{index + 1}</td>
                                     <td className="slds-cell-shrink slds-text-align_center">
                                         <SelectionCheckbox
                                             ariaLabel={`${getContactName(contact)} を選択`}
-                                            checked={selectedContactIds.has(contact.Id)}
+                                            checked={listState.selectedIds.has(contact.Id)}
                                             mixed={false}
-                                            onChange={() => toggleContactSelection(contact.Id)}
+                                            onChange={() => listState.toggleSelection(contact.Id)}
                                         />
                                     </td>
                                     <th scope="row">
@@ -283,14 +252,7 @@ export function ContactPanel({
                                     <TableCell value={contact.Phone} />
                                     <TableCell value={formatDate(contact.LastModifiedDate)} />
                                     <td>
-                                        <div className="slds-button-group" role="group">
-                                            <button className="slds-button slds-button_neutral" type="button" onClick={() => onEdit(contact)}>
-                                                編集
-                                            </button>
-                                            <button className="slds-button slds-button_destructive" type="button" onClick={() => onDelete(contact)}>
-                                                削除
-                                            </button>
-                                        </div>
+                                        <RecordTableActions record={contact} onEdit={onEdit} onDelete={onDelete} />
                                     </td>
                                 </tr>
                             ))}
@@ -334,6 +296,34 @@ export function getSelectionState<Record extends { Id: string }>(visibleRecords:
     };
 }
 
+function useRecordListState<Record extends { Id: string }>(
+    records: Record[],
+    filterListRecords: (records: Record[], searchTerm: string) => Record[]
+) {
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const filteredRecords = useMemo(() => filterListRecords(records, searchTerm), [records, searchTerm, filterListRecords]);
+    const selectionState = getSelectionState(filteredRecords, selectedIds);
+
+    useEffect(() => {
+        setSelectedIds((currentIds) => pruneSelection(currentIds, records.map((record) => record.Id)));
+    }, [records]);
+
+    return {
+        searchTerm,
+        setSearchTerm,
+        selectedIds,
+        selectionState,
+        filteredRecords,
+        hasRecords: records.length > 0,
+        hasFilteredRecords: filteredRecords.length > 0,
+        clearSelection: () => setSelectedIds(new Set()),
+        toggleSelection: (recordId: string) => setSelectedIds((currentIds) => toggleSelectedId(currentIds, recordId)),
+        toggleVisibleSelection: () =>
+            setSelectedIds((currentIds) => toggleVisibleSelection(currentIds, filteredRecords.map((record) => record.Id)))
+    };
+}
+
 function filterRecords<Record>(
     records: Record[],
     searchTerm: string,
@@ -347,6 +337,61 @@ function filterRecords<Record>(
 
     return records.filter((record) =>
         getSearchValues(record).some((value) => normalizeSearchTerm(value).includes(normalizedSearchTerm))
+    );
+}
+
+function RecordListEmptyStates({
+    loading,
+    hasRecords,
+    hasFilteredRecords,
+    connected,
+    loadingMessage,
+    emptyMessage,
+    disconnectedMessage,
+    filteredEmptyMessage
+}: {
+    loading: boolean;
+    hasRecords: boolean;
+    hasFilteredRecords: boolean;
+    connected: boolean;
+    loadingMessage: string;
+    emptyMessage: string;
+    disconnectedMessage: string;
+    filteredEmptyMessage: string;
+}) {
+    if (loading) {
+        return <EmptyState message={loadingMessage} />;
+    }
+
+    if (!hasRecords) {
+        return <EmptyState message={connected ? emptyMessage : disconnectedMessage} />;
+    }
+
+    if (!hasFilteredRecords) {
+        return <EmptyState message={filteredEmptyMessage} />;
+    }
+
+    return null;
+}
+
+function RecordTableActions<Record>({
+    record,
+    onEdit,
+    onDelete
+}: {
+    record: Record;
+    onEdit: (record: Record) => void;
+    onDelete: (record: Record) => void;
+}) {
+    return (
+        <div className="slds-button-group" role="group">
+            <button className="slds-button slds-button_neutral" type="button" onClick={() => onEdit(record)}>
+                編集
+            </button>
+            <button className="slds-button slds-button_destructive" type="button" onClick={() => onDelete(record)}>
+                削除
+            </button>
+        </div>
     );
 }
 
