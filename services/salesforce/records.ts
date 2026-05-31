@@ -1,4 +1,4 @@
-import type { SaveResult } from "jsforce";
+import type { Connection, SaveResult } from "jsforce";
 import type {
     AccountInput,
     AccountRecord,
@@ -37,6 +37,12 @@ type SalesforceSearchRecord = Partial<AccountRecord & ContactRecord> & {
         type?: string;
     };
 };
+
+type CreatedRecordResult = ReturnType<typeof createdSalesforceResult>;
+type EmptyRecordResult = ReturnType<typeof emptySalesforceResult>;
+type SalesforceRecordConnectionRunner<TData, TResult> = (
+    operation: (connection: Connection) => Promise<TData>
+) => Promise<TResult>;
 
 function escapeSoslTerm(term: string): string {
     return term.replace(soslReservedCharacters, "\\$&");
@@ -95,39 +101,58 @@ function toSearchResultItem(record: SalesforceSearchRecord): SearchResultItem | 
     return null;
 }
 
-async function createStandardObject<TInput extends object>(objectName: string, input: TInput) {
-    return withStandardObjectConnection(async (connection) => {
+function createObject<TInput extends object, TResult>(
+    runWithConnection: SalesforceRecordConnectionRunner<CreatedRecordResult, TResult>,
+    objectName: string,
+    input: TInput
+) {
+    return runWithConnection(async (connection) => {
         const result = await connection.sobject(objectName).create(input);
         return createdSalesforceResult(result);
     });
 }
 
-async function updateStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
-    return withStandardObjectConnection(async (connection) => {
+function updateObject<TInput extends object, TResult>(
+    runWithConnection: SalesforceRecordConnectionRunner<EmptyRecordResult, TResult>,
+    objectName: string,
+    id: string,
+    input: TInput
+) {
+    return runWithConnection(async (connection) => {
         const result = await connection.sobject(objectName).update({ Id: id, ...input });
         return emptySalesforceResult(result);
     });
 }
 
-async function deleteStandardObject(objectName: string, id: string) {
-    return withStandardObjectConnection(async (connection) => {
+function deleteObject<TResult>(
+    runWithConnection: SalesforceRecordConnectionRunner<EmptyRecordResult, TResult>,
+    objectName: string,
+    id: string
+) {
+    return runWithConnection(async (connection) => {
         const result = await connection.sobject(objectName).destroy(id);
         return emptySalesforceResult(result);
     });
 }
 
-async function createIntegrationStandardObject<TInput extends object>(objectName: string, input: TInput) {
-    return withIntegrationConnection(async (connection) => {
-        const result = await connection.sobject(objectName).create(input);
-        return createdSalesforceResult(result);
-    });
+function createStandardObject<TInput extends object>(objectName: string, input: TInput) {
+    return createObject(withStandardObjectConnection, objectName, input);
 }
 
-async function updateIntegrationStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
-    return withIntegrationConnection(async (connection) => {
-        const result = await connection.sobject(objectName).update({ Id: id, ...input });
-        return emptySalesforceResult(result);
-    });
+function updateStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
+    return updateObject(withStandardObjectConnection, objectName, id, input);
+}
+
+function deleteStandardObject(objectName: string, id: string) {
+    return deleteObject(withStandardObjectConnection, objectName, id);
+}
+
+function createIntegrationStandardObject<TInput extends object>(objectName: string, input: TInput) {
+    return createObject(withIntegrationConnection, objectName, input);
+}
+
+function updateIntegrationStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
+    return updateObject(withIntegrationConnection, objectName, id, input);
 }
 
 export async function listAccounts() {
