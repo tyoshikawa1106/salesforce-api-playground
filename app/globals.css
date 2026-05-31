@@ -21,6 +21,18 @@ body {
     position: sticky;
 }
 
+.playground-environment-label {
+    justify-content: center;
+    min-height: var(--slds-g-sizing-9, 2rem);
+    position: sticky;
+    top: 0;
+    z-index: 8000;
+}
+
+.playground-environment-label__text {
+    letter-spacing: 0;
+}
+
 .playground-global-search-icon {
     filter: brightness(0) saturate(100%) invert(32%) sepia(6%) saturate(498%) hue-rotate(174deg) brightness(92%) contrast(86%);
 }

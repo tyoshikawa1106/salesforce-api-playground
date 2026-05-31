@@ -92,12 +92,16 @@ Staging app の作成有無、GitHub auto deploy の対象ブランチ、Config 
 | `SALESFORCE_INTEGRATION_CLIENT_SECRET` | 連携 API 利用時は必須 | 記載しない | Client Credentials Flow 用の外部クライアントアプリケーションの client secret。絶対にコミットしない |
 | `SALESFORCE_INTEGRATION_LOGIN_URL` | 連携 API 利用時は必須 | `https://<my-domain>.my.salesforce.com` | Client Credentials Flow 用 token endpoint の基点。My Domain URL を指定する |
 | `INTEGRATION_API_KEY` | サーバー間連携 API 利用時は必須 | 記載しない | `/api/integration/accounts` と `/api/integration/accounts/[id]` の `x-integration-api-key` 検証用共有鍵。秘密情報として扱う |
+| `APP_ENV` | 任意 | Production: `main` / Staging: `develop` | 画面上部の環境ラベル表示判定に使う。未設定、`main`、`production`、`prod` の場合は表示しない |
+| `APP_ENV_LABEL` | 任意 | Staging: `STAGING` / Local: `LOCAL` | `APP_ENV` が `main` 相当以外の場合に画面上部へ表示するラベル。未設定時は `APP_ENV` を表示する |
 
 Salesforce API バージョンは Config Vars ではなく、`lib/salesforce/api-version.ts` の `DEFAULT_SALESFORCE_API_VERSION` で固定管理します。Heroku 側に `SALESFORCE_API_VERSION` が設定されていても、アプリの挙動には影響しません。
 
 `SESSION_SECRET` は Salesforce の値ではありません。Heroku 上で変更すると、既存の `sf_playground_session` Cookie は復号できなくなるため、利用者は再接続が必要になります。
 
 Client Credentials Flow では `SALESFORCE_INTEGRATION_LOGIN_URL` に `https://login.salesforce.com` や `https://test.salesforce.com` は使えません。
+
+`APP_ENV` は Heroku Staging / Production の識別用です。`NODE_ENV` はどちらの Heroku app でも `production` になるため、環境ラベルの判定には使いません。
 
 ## Staging デプロイ確認手順
 
