@@ -1,6 +1,8 @@
 import { StandardPageHeaderIcon, UtilityButtonIcon } from "./Navigation";
 import type { AccountForm } from "@/lib/salesforce/records";
 import { AccountFormFields } from "./Forms";
+import type { ActiveTab } from "./types";
+import type { FormEvent, ReactNode } from "react";
 
 export function ObjectHomeHeader({
     activeTab,
@@ -16,44 +18,24 @@ export function ObjectHomeHeader({
     const objectLabel = activeTab === "accounts" ? "取引先" : "取引先責任者";
 
     return (
-        <div className="slds-page-header slds-page-header_object-home slds-page-header_joined">
-            <div className="slds-page-header__row">
-                <div className="slds-page-header__col-title">
-                    <div className="slds-media">
-                        <div className="slds-media__figure">
-                            <StandardPageHeaderIcon tab={activeTab} label={objectLabel} />
-                        </div>
-                        <div className="slds-media__body">
-                            <div className="slds-page-header__name">
-                                <div className="slds-page-header__name-title">
-                                    <p className="slds-text-title_caps">{objectLabel}</p>
-                                    <h1>
-                                        <span className="slds-page-header__title slds-truncate" title="レコード一覧">
-                                            レコード一覧
-                                        </span>
-                                    </h1>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="slds-page-header__col-actions">
-                    <div className="slds-page-header__controls">
-                        <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="更新" onClick={onRefresh} disabled={loading}>
-                                <UtilityButtonIcon name="refresh" label="" />
-                                <span className="slds-assistive-text">更新</span>
-                            </button>
-                        </div>
-                        <div className="slds-page-header__control">
-                            <button className="slds-button slds-button_brand heroku-brand-action" type="button" onClick={onCreate}>
-                                新規{objectLabel}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <PageHeader
+            tab={activeTab}
+            eyebrow={objectLabel}
+            title="レコード一覧"
+            className="slds-page-header_object-home slds-page-header_joined"
+            actions={
+                <>
+                    <PageHeaderControl>
+                        <RefreshButton loading={loading} onRefresh={onRefresh} />
+                    </PageHeaderControl>
+                    <PageHeaderControl>
+                        <button className="slds-button slds-button_brand heroku-brand-action" type="button" onClick={onCreate}>
+                            新規{objectLabel}
+                        </button>
+                    </PageHeaderControl>
+                </>
+            }
+        />
     );
 }
 
@@ -69,49 +51,22 @@ export function IntegrationPanel({
     loading: boolean;
     saving: boolean;
     onAccountFormChange: (value: AccountForm) => void;
-    onCreateAccount: (event: React.FormEvent<HTMLFormElement>) => void;
+    onCreateAccount: (event: FormEvent<HTMLFormElement>) => void;
     onRefresh: () => void;
 }) {
     return (
         <>
-            <div className="slds-page-header slds-page-header_joined">
-                <div className="slds-page-header__row">
-                    <div className="slds-page-header__col-title">
-                        <div className="slds-media">
-                            <div className="slds-media__figure">
-                                <StandardPageHeaderIcon tab="integration" label="連携" />
-                            </div>
-                            <div className="slds-media__body">
-                                <div className="slds-page-header__name">
-                                    <div className="slds-page-header__name-title">
-                                        <p className="slds-text-title_caps">連携</p>
-                                        <h1>
-                                            <span className="slds-page-header__title slds-truncate" title="連携ユーザーによる取引先作成">
-                                                連携ユーザーによる取引先作成
-                                            </span>
-                                        </h1>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="slds-page-header__col-actions">
-                        <div className="slds-page-header__controls">
-                            <div className="slds-page-header__control">
-                                <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="更新" onClick={onRefresh} disabled={loading}>
-                                    <UtilityButtonIcon name="refresh" label="" />
-                                    <span className="slds-assistive-text">更新</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="slds-page-header__row">
-                    <div className="slds-page-header__col-meta">
-                        <p className="slds-page-header__meta-text">Client Credentials Flow で取引先レコードを作成します。</p>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                tab="integration"
+                eyebrow="連携"
+                title="連携ユーザーによる取引先作成"
+                metaText="Client Credentials Flow で取引先レコードを作成します。"
+                actions={
+                    <PageHeaderControl>
+                        <RefreshButton loading={loading} onRefresh={onRefresh} />
+                    </PageHeaderControl>
+                }
+            />
 
             <div className="slds-m-top_small">
                 <form className="slds-box slds-theme_default" onSubmit={onCreateAccount}>
@@ -145,44 +100,17 @@ export function HomePanel({
 }) {
     return (
         <>
-            <div className="slds-page-header slds-page-header_joined">
-                <div className="slds-page-header__row">
-                    <div className="slds-page-header__col-title">
-                        <div className="slds-media">
-                            <div className="slds-media__figure">
-                                <StandardPageHeaderIcon tab="home" label="ホーム" />
-                            </div>
-                            <div className="slds-media__body">
-                                <div className="slds-page-header__name">
-                                    <div className="slds-page-header__name-title">
-                                        <p className="slds-text-title_caps">ホーム</p>
-                                        <h1>
-                                            <span className="slds-page-header__title slds-truncate" title="Salesforce API Playground">
-                                                Salesforce API Playground
-                                            </span>
-                                        </h1>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="slds-page-header__col-actions">
-                        <div className="slds-page-header__controls">
-                            <div className="slds-page-header__control">
-                                <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="更新" onClick={onRefresh} disabled={loading}>
-                                    <UtilityButtonIcon name="refresh" label="" />
-                                    <span className="slds-assistive-text">更新</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="slds-page-header__row">
-                    <div className="slds-page-header__col-meta">
-                        <p className="slds-page-header__meta-text">OAuth と REST API で取引先 / 取引先責任者を直接操作する学習アプリ</p>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                tab="home"
+                eyebrow="ホーム"
+                title="Salesforce API Playground"
+                metaText="OAuth と REST API で取引先 / 取引先責任者を直接操作する学習アプリ"
+                actions={
+                    <PageHeaderControl>
+                        <RefreshButton loading={loading} onRefresh={onRefresh} />
+                    </PageHeaderControl>
+                }
+            />
 
             <div className="slds-p-around_medium">
                 <div className="slds-grid slds-wrap slds-gutters">
@@ -193,6 +121,79 @@ export function HomePanel({
                 </div>
             </div>
         </>
+    );
+}
+
+function PageHeader({
+    tab,
+    eyebrow,
+    title,
+    actions,
+    metaText,
+    className = "slds-page-header_joined"
+}: {
+    tab: ActiveTab;
+    eyebrow: string;
+    title: string;
+    actions?: ReactNode;
+    metaText?: string;
+    className?: string;
+}) {
+    return (
+        <div className={`slds-page-header ${className}`}>
+            <div className="slds-page-header__row">
+                <div className="slds-page-header__col-title">
+                    <div className="slds-media">
+                        <div className="slds-media__figure">
+                            <StandardPageHeaderIcon tab={tab} label={eyebrow} />
+                        </div>
+                        <div className="slds-media__body">
+                            <div className="slds-page-header__name">
+                                <div className="slds-page-header__name-title">
+                                    <p className="slds-text-title_caps">{eyebrow}</p>
+                                    <h1>
+                                        <span className="slds-page-header__title slds-truncate" title={title}>
+                                            {title}
+                                        </span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {actions ? (
+                    <div className="slds-page-header__col-actions">
+                        <div className="slds-page-header__controls">{actions}</div>
+                    </div>
+                ) : null}
+            </div>
+            {metaText ? (
+                <div className="slds-page-header__row">
+                    <div className="slds-page-header__col-meta">
+                        <p className="slds-page-header__meta-text">{metaText}</p>
+                    </div>
+                </div>
+            ) : null}
+        </div>
+    );
+}
+
+function PageHeaderControl({ children }: { children: ReactNode }) {
+    return <div className="slds-page-header__control">{children}</div>;
+}
+
+function RefreshButton({
+    loading,
+    onRefresh
+}: {
+    loading: boolean;
+    onRefresh: () => void;
+}) {
+    return (
+        <button className="slds-button slds-button_icon slds-button_icon-border-filled" type="button" title="更新" onClick={onRefresh} disabled={loading}>
+            <UtilityButtonIcon name="refresh" label="" />
+            <span className="slds-assistive-text">更新</span>
+        </button>
     );
 }
 
