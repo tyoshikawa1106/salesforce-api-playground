@@ -46,6 +46,7 @@ describe("playground UI smoke rendering", () => {
         );
 
         expect(markup).toContain("STAGING");
+        expect(markup).not.toContain("slds-badge");
         expect(markup).not.toContain("本番環境ではありません");
     });
 
