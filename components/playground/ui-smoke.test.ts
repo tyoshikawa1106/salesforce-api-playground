@@ -95,16 +95,20 @@ describe("playground UI smoke rendering", () => {
         );
 
         expect(accountMarkup).toContain("Acme");
+        expect(accountMarkup).toContain("1 件");
         expect(accountMarkup).toContain("このリストを検索...");
         expect(accountMarkup).toContain("aria-label=\"表示中の取引先をすべて選択\"");
+        expect(accountMarkup).not.toContain("ビュー: 自分の取引先");
         expect(accountMarkup).not.toContain("List view controls");
         expect(accountMarkup).not.toContain("Display as table");
         expect(accountMarkup).not.toContain("Refresh list");
         expect(accountMarkup).toContain("編集");
         expect(accountMarkup).toContain("削除");
         expect(contactMarkup).toContain("Taro Yamada");
+        expect(contactMarkup).toContain("1 件");
         expect(contactMarkup).toContain("Manager");
         expect(contactMarkup).toContain("aria-label=\"表示中の取引先責任者をすべて選択\"");
+        expect(contactMarkup).not.toContain("ビュー: 自分の取引先責任者");
     });
 
     it("filters account and contact list records by visible list values", () => {
