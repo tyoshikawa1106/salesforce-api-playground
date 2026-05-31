@@ -192,6 +192,23 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         setModal(record ? { type: "contact", mode: "edit", record } : { type: "contact", mode: "create" });
     }
 
+    async function runSaveMutation(
+        runMutation: () => Promise<string>,
+        fallbackErrorMessage: string,
+        onSuccess: () => Promise<void> | void
+    ) {
+        setSaving(true);
+        try {
+            const saveNotice = await saveRecord(runMutation, fallbackErrorMessage);
+            showNotice(saveNotice);
+            if (saveNotice.tone === "success") {
+                await onSuccess();
+            }
+        } finally {
+            setSaving(false);
+        }
+    }
+
     async function saveAccount(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!accountForm.Name.trim()) {
@@ -199,40 +216,34 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             return;
         }
 
-        setSaving(true);
-        try {
-            const saveNotice = await saveRecord(
-                async () => {
-                    if (modal?.type === "account" && modal.mode === "edit") {
-                        const payload = buildAccountUpdatePayload(accountForm);
-                        await apiRequest(
-                            buildPlaygroundApiRequest(playgroundApiPaths.record("accounts", modal.record.Id), {
-                                method: "PATCH",
-                                body: payload
-                            })
-                        );
-                        return "取引先を更新しました。";
-                    }
-
-                    const payload = buildAccountCreatePayload(accountForm);
+        await runSaveMutation(
+            async () => {
+                if (modal?.type === "account" && modal.mode === "edit") {
+                    const payload = buildAccountUpdatePayload(accountForm);
                     await apiRequest(
-                        buildPlaygroundApiRequest(playgroundApiPaths.accounts, {
-                            method: "POST",
+                        buildPlaygroundApiRequest(playgroundApiPaths.record("accounts", modal.record.Id), {
+                            method: "PATCH",
                             body: payload
                         })
                     );
-                    return "取引先を作成しました。";
-                },
-                "取引先の保存に失敗しました。"
-            );
-            showNotice(saveNotice);
-            if (saveNotice.tone === "success") {
+                    return "取引先を更新しました。";
+                }
+
+                const payload = buildAccountCreatePayload(accountForm);
+                await apiRequest(
+                    buildPlaygroundApiRequest(playgroundApiPaths.accounts, {
+                        method: "POST",
+                        body: payload
+                    })
+                );
+                return "取引先を作成しました。";
+            },
+            "取引先の保存に失敗しました。",
+            async () => {
                 setModal(null);
                 await loadAll();
             }
-        } finally {
-            setSaving(false);
-        }
+        );
     }
 
     async function saveContact(event: FormEvent<HTMLFormElement>) {
@@ -242,40 +253,34 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             return;
         }
 
-        setSaving(true);
-        try {
-            const saveNotice = await saveRecord(
-                async () => {
-                    if (modal?.type === "contact" && modal.mode === "edit") {
-                        const payload = buildContactUpdatePayload(contactForm);
-                        await apiRequest(
-                            buildPlaygroundApiRequest(playgroundApiPaths.record("contacts", modal.record.Id), {
-                                method: "PATCH",
-                                body: payload
-                            })
-                        );
-                        return "取引先責任者を更新しました。";
-                    }
-
-                    const payload = buildContactCreatePayload(contactForm);
+        await runSaveMutation(
+            async () => {
+                if (modal?.type === "contact" && modal.mode === "edit") {
+                    const payload = buildContactUpdatePayload(contactForm);
                     await apiRequest(
-                        buildPlaygroundApiRequest(playgroundApiPaths.contacts, {
-                            method: "POST",
+                        buildPlaygroundApiRequest(playgroundApiPaths.record("contacts", modal.record.Id), {
+                            method: "PATCH",
                             body: payload
                         })
                     );
-                    return "取引先責任者を作成しました。";
-                },
-                "取引先責任者の保存に失敗しました。"
-            );
-            showNotice(saveNotice);
-            if (saveNotice.tone === "success") {
+                    return "取引先責任者を更新しました。";
+                }
+
+                const payload = buildContactCreatePayload(contactForm);
+                await apiRequest(
+                    buildPlaygroundApiRequest(playgroundApiPaths.contacts, {
+                        method: "POST",
+                        body: payload
+                    })
+                );
+                return "取引先責任者を作成しました。";
+            },
+            "取引先責任者の保存に失敗しました。",
+            async () => {
                 setModal(null);
                 await loadAll();
             }
-        } finally {
-            setSaving(false);
-        }
+        );
     }
 
     async function createIntegrationAccountFromTab(event: FormEvent<HTMLFormElement>) {
@@ -285,29 +290,23 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             return;
         }
 
-        setSaving(true);
-        try {
-            const saveNotice = await saveRecord(
-                async () => {
-                    const payload = buildAccountCreatePayload(integrationAccountForm);
-                    await apiRequest(
-                        buildPlaygroundApiRequest(playgroundApiPaths.integrationAccounts, {
-                            method: "POST",
-                            body: payload
-                        })
-                    );
-                    return "連携ユーザーで取引先を作成しました。";
-                },
-                "連携ユーザーでの取引先作成に失敗しました。"
-            );
-            showNotice(saveNotice);
-            if (saveNotice.tone === "success") {
+        await runSaveMutation(
+            async () => {
+                const payload = buildAccountCreatePayload(integrationAccountForm);
+                await apiRequest(
+                    buildPlaygroundApiRequest(playgroundApiPaths.integrationAccounts, {
+                        method: "POST",
+                        body: payload
+                    })
+                );
+                return "連携ユーザーで取引先を作成しました。";
+            },
+            "連携ユーザーでの取引先作成に失敗しました。",
+            async () => {
                 setIntegrationAccountForm(blankAccount);
                 await loadAll();
             }
-        } finally {
-            setSaving(false);
-        }
+        );
     }
 
     async function confirmDelete() {
