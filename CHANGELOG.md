@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-01
+
+### Changed
+
+- Heroku Pipeline 作成後の運用前提に合わせて、Heroku デプロイとトラブルシューティング docs の古い Pipeline 記述を更新。
+
 ## 2026-05-30
 
 ### Changed
