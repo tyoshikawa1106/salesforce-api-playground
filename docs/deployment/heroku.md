@@ -55,9 +55,9 @@ Heroku 構成の確認観点は Staging / Production で共通です。
 | Node.js | `package.json` の `engines.node` により `24.x` |
 | npm | `package.json` の `engines.npm` により `>=10` |
 | Heroku Webhooks | 未設定を確認済み |
-| Pipeline | 2026-06-01 時点では `heroku pipelines --json` で Pipeline 0 件を確認済み。設定予定 |
+| Pipeline | Staging app を `staging` stage、Production app を `production` stage に紐付け済み |
 
-Staging app / Production app の作成有無、Pipeline stage、GitHub auto deploy の対象ブランチ、Config Vars の実値は Heroku Dashboard で確認します。GitHub Flow では `main` への merge を Staging deploy の起点にし、Production 反映は Pipeline promote で扱います。Heroku app 名、Git URL、Web URL、Owner などの実運用値はこのドキュメントに記載しません。
+Staging app / Production app の作成有無、Pipeline stage、GitHub auto deploy の対象ブランチ、Config Vars の実値は Heroku Dashboard で確認します。GitHub Flow では `main` への merge を Staging deploy の起点にし、Production 反映は Pipeline promote で扱います。Heroku app 名、Git URL、Web URL、Owner、Pipeline 名などの実運用値はこのドキュメントに記載しません。
 
 ## ブランチとデプロイ先
 
@@ -91,12 +91,12 @@ Heroku Pipeline は、同じコードベースを共有する複数の Heroku ap
 
 設定方針:
 
-- Pipeline を 1 つ作成し、Staging app を `staging` stage、Production app を `production` stage に追加する。
+- Pipeline を 1 つ使い、Staging app を `staging` stage、Production app を `production` stage に追加する。
 - Staging app だけを GitHub `main` の自動デプロイ対象にする。
 - Production app は GitHub から直接自動デプロイせず、Staging app からの promote で更新する。
 - Staging / Production の Config Vars、Salesforce 外部クライアントアプリケーション、callback URL は分離する。
 - promote 前に Staging app の GitHub Actions、release、dyno、必要な手動確認が完了していることを確認する。
-- Codex 作業では Heroku Pipeline の作成、app の stage 追加、Production promote を勝手に実行しない。必要な場合は、実行する操作と理由を明示してユーザー承認を得る。
+- Codex 作業では Heroku Pipeline の作成、app の stage 変更、Production promote を勝手に実行しない。必要な場合は、実行する操作と理由を明示してユーザー承認を得る。
 
 確認コマンド例:
 

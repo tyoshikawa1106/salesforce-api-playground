@@ -111,7 +111,7 @@ Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認は 
 | Heroku で Cookie が保存されない | HTTPS でアクセスしているか、ブラウザが `Secure` Cookie を受け取っているか | production では session / state Cookie に `Secure` が付くため HTTP では保存されない |
 | Heroku で logout 後も Salesforce 側 token が残る | revoke endpoint へのリクエストが失敗していないか | 実装は revoke 失敗時も Cookie 削除と redirect を継続し、サーバーログに記録する |
 | ロールバックしたい | 戻す release 番号、commit hash、GitHub `main` との差分を確認する | Codex 作業では rollback を実行しない |
-| Pipeline の利用有無を確認したい | `heroku pipelines --json` で参照可能な Pipeline を確認する | 2026-06-01 時点では Pipeline 0 件を確認済み |
+| Pipeline の利用有無を確認したい | `heroku pipelines --json` で参照可能な Pipeline を確認し、`heroku pipelines:info <pipeline-name> --json` で Staging / Production app の stage を確認する | Heroku app 名、Pipeline 名、実 URL は公開 docs / Issue / PR に記録しない |
 
 実 URL、Heroku API Key、Salesforce token、Client Secret は記録しないでください。
 
