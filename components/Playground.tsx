@@ -1,18 +1,9 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-    buildAccountCreatePayload,
-    buildAccountUpdatePayload,
-    buildContactCreatePayload,
-    buildContactUpdatePayload,
-    buildPlaygroundApiRequest,
-    playgroundApiPaths
-} from "@/lib/playground-api";
+import { FormEvent, useState } from "react";
 import type { EnvironmentLabel } from "@/lib/environment-label";
-import type { SessionInfo } from "@/lib/playground-api";
-import type { AccountForm, ContactForm, SearchResultItem } from "@/lib/salesforce/records";
-import { apiRequest, PlaygroundApiError, saveRecord } from "./playground/api";
+import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
+import { saveRecord } from "./playground/api";
 import { EnvironmentLabelBanner } from "./playground/EnvironmentLabelBanner";
 import { AppNavigation } from "./playground/Navigation";
 import { GlobalHeader } from "./playground/GlobalHeader";
@@ -31,136 +22,39 @@ import {
 } from "./playground/Forms";
 import { Modal, ModalFooter } from "./playground/Modal";
 import { getContactName } from "./playground/formatting";
-import type { Account, ActiveTab, Contact, DeleteState, ModalState, Notice } from "./playground/types";
+import type { Account, Contact, DeleteState, ModalState } from "./playground/types";
+import {
+    createIntegrationAccountMutation,
+    deleteRecordMutation,
+    saveAccountMutation,
+    saveContactMutation
+} from "./playground/mutations";
+import { useNotice } from "./playground/useNotice";
+import { usePlaygroundData } from "./playground/usePlaygroundData";
 
 export default function Playground({ environmentLabel = null }: { environmentLabel?: EnvironmentLabel | null }) {
-    const [session, setSession] = useState<SessionInfo>({ connected: false });
-    const [accounts, setAccounts] = useState<Account[]>([]);
-    const [contacts, setContacts] = useState<Contact[]>([]);
-    const [activeTab, setActiveTab] = useState<ActiveTab>("home");
-    const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
-    const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [notice, setNotice] = useState<Notice | null>(null);
     const [modal, setModal] = useState<ModalState | null>(null);
     const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
     const [accountForm, setAccountForm] = useState<AccountForm>(blankAccount);
     const [integrationAccountForm, setIntegrationAccountForm] = useState<AccountForm>(blankAccount);
     const [contactForm, setContactForm] = useState<ContactForm>(blankContact);
-    const noticeTimer = useRef<number | null>(null);
-
-    const accountOptions = useMemo(
-        () => [...accounts].sort((a, b) => a.Name.localeCompare(b.Name, "ja")),
-        [accounts]
-    );
-    const selectedAccount = useMemo(
-        () => accounts.find((account) => account.Id === selectedAccountId) ?? null,
-        [accounts, selectedAccountId]
-    );
-    const selectedContact = useMemo(
-        () => contacts.find((contact) => contact.Id === selectedContactId) ?? null,
-        [contacts, selectedContactId]
-    );
-
-    const showNotice = useCallback((nextNotice: Notice) => {
-        if (noticeTimer.current !== null) {
-            window.clearTimeout(noticeTimer.current);
-        }
-        setNotice(nextNotice);
-        noticeTimer.current = window.setTimeout(() => {
-            setNotice(null);
-            noticeTimer.current = null;
-        }, 5000);
-    }, []);
-
-    const loadAll = useCallback(async () => {
-        setLoading(true);
-        try {
-            const nextSession = await apiRequest<SessionInfo>(
-                buildPlaygroundApiRequest(playgroundApiPaths.session)
-            );
-            setSession(nextSession);
-            if (!nextSession.connected) {
-                setAccounts([]);
-                setContacts([]);
-                setActiveTab("home");
-                return;
-            }
-
-            const [accountResult, contactResult] = await Promise.all([
-                apiRequest<{ accounts: Account[] }>(
-                    buildPlaygroundApiRequest(playgroundApiPaths.accounts)
-                ),
-                apiRequest<{ contacts: Contact[] }>(
-                    buildPlaygroundApiRequest(playgroundApiPaths.contacts)
-                )
-            ]);
-            setAccounts(accountResult.accounts);
-            setContacts(contactResult.contacts);
-            setSelectedAccountId((currentId) =>
-                currentId && accountResult.accounts.some((account) => account.Id === currentId) ? currentId : null
-            );
-            setSelectedContactId((currentId) =>
-                currentId && contactResult.contacts.some((contact) => contact.Id === currentId) ? currentId : null
-            );
-        } catch (error) {
-            if (error instanceof PlaygroundApiError && error.status === 401) {
-                setSession({ connected: false });
-                setAccounts([]);
-                setContacts([]);
-                setActiveTab("home");
-                setSelectedAccountId(null);
-                setSelectedContactId(null);
-            }
-            showNotice({
-                tone: "error",
-                message: error instanceof Error ? error.message : "Salesforce データを読み込めませんでした。"
-            });
-        } finally {
-            setLoading(false);
-        }
-    }, [showNotice]);
-
-    const changeTab = useCallback((nextTab: ActiveTab) => {
-        setActiveTab(nextTab);
-        setSelectedAccountId(null);
-        setSelectedContactId(null);
-        void loadAll();
-    }, [loadAll]);
-
-    const openSearchResult = useCallback((result: SearchResultItem) => {
-        if (result.type === "account") {
-            setAccounts((currentAccounts) => [
-                result.record,
-                ...currentAccounts.filter((account) => account.Id !== result.record.Id)
-            ]);
-            setSelectedContactId(null);
-            setSelectedAccountId(result.record.Id);
-            setActiveTab("accounts");
-            return;
-        }
-
-        setContacts((currentContacts) => [
-            result.record,
-            ...currentContacts.filter((contact) => contact.Id !== result.record.Id)
-        ]);
-        setSelectedAccountId(null);
-        setSelectedContactId(result.record.Id);
-        setActiveTab("contacts");
-    }, []);
-
-    useEffect(() => {
-        void loadAll();
-    }, [loadAll]);
-
-    useEffect(() => {
-        return () => {
-            if (noticeTimer.current !== null) {
-                window.clearTimeout(noticeTimer.current);
-            }
-        };
-    }, []);
+    const { notice, showNotice } = useNotice();
+    const {
+        accountOptions,
+        accounts,
+        activeTab,
+        changeTab,
+        contacts,
+        loading,
+        loadAll,
+        openSearchResult,
+        selectedAccount,
+        selectedContact,
+        session,
+        setSelectedAccountId,
+        setSelectedContactId
+    } = usePlaygroundData({ showNotice });
 
     if (loading && !session.connected) {
         return (
@@ -217,27 +111,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         }
 
         await runSaveMutation(
-            async () => {
-                if (modal?.type === "account" && modal.mode === "edit") {
-                    const payload = buildAccountUpdatePayload(accountForm);
-                    await apiRequest(
-                        buildPlaygroundApiRequest(playgroundApiPaths.record("accounts", modal.record.Id), {
-                            method: "PATCH",
-                            body: payload
-                        })
-                    );
-                    return "取引先を更新しました。";
-                }
-
-                const payload = buildAccountCreatePayload(accountForm);
-                await apiRequest(
-                    buildPlaygroundApiRequest(playgroundApiPaths.accounts, {
-                        method: "POST",
-                        body: payload
-                    })
-                );
-                return "取引先を作成しました。";
-            },
+            () => saveAccountMutation(modal, accountForm),
             "取引先の保存に失敗しました。",
             async () => {
                 setModal(null);
@@ -254,27 +128,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         }
 
         await runSaveMutation(
-            async () => {
-                if (modal?.type === "contact" && modal.mode === "edit") {
-                    const payload = buildContactUpdatePayload(contactForm);
-                    await apiRequest(
-                        buildPlaygroundApiRequest(playgroundApiPaths.record("contacts", modal.record.Id), {
-                            method: "PATCH",
-                            body: payload
-                        })
-                    );
-                    return "取引先責任者を更新しました。";
-                }
-
-                const payload = buildContactCreatePayload(contactForm);
-                await apiRequest(
-                    buildPlaygroundApiRequest(playgroundApiPaths.contacts, {
-                        method: "POST",
-                        body: payload
-                    })
-                );
-                return "取引先責任者を作成しました。";
-            },
+            () => saveContactMutation(modal, contactForm),
             "取引先責任者の保存に失敗しました。",
             async () => {
                 setModal(null);
@@ -291,16 +145,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         }
 
         await runSaveMutation(
-            async () => {
-                const payload = buildAccountCreatePayload(integrationAccountForm);
-                await apiRequest(
-                    buildPlaygroundApiRequest(playgroundApiPaths.integrationAccounts, {
-                        method: "POST",
-                        body: payload
-                    })
-                );
-                return "連携ユーザーで取引先を作成しました。";
-            },
+            () => createIntegrationAccountMutation(integrationAccountForm),
             "連携ユーザーでの取引先作成に失敗しました。",
             async () => {
                 setIntegrationAccountForm(blankAccount);
@@ -316,13 +161,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
 
         setSaving(true);
         try {
-            const resource = deleteState.type === "account" ? "accounts" : "contacts";
-            await apiRequest(
-                buildPlaygroundApiRequest(playgroundApiPaths.record(resource, deleteState.id), {
-                    method: "DELETE"
-                })
-            );
-            showNotice({ tone: "success", message: `${deleteState.label} を削除しました。` });
+            showNotice({ tone: "success", message: await deleteRecordMutation(deleteState) });
             setDeleteState(null);
             await loadAll();
         } catch (error) {
