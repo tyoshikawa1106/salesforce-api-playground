@@ -107,7 +107,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 このリポジトリは GitHub Flow として運用します。長期ブランチは `main` のみです。`main` は常にデプロイ可能な安定状態を保ち、通常開発も緊急修正も作業ブランチから `main` への Pull Request で取り込みます。
 
-`develop` は旧 Git Flow 運用の統合ブランチとして凍結扱いにします。`release/*` と `hotfix/*` も旧 Git Flow 運用の一時ブランチとして凍結扱いにし、新規作成しません。
+`develop` は旧 Git Flow 運用の統合ブランチとして削除済みで、再作成しません。`release/*` と `hotfix/*` も旧 Git Flow 運用の一時ブランチとして新規作成しません。
 
 Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本とします。GitHub Flow のブランチモデルは `main` に集約し、環境昇格は Heroku Pipeline の stage と promote で扱います。
 
@@ -121,9 +121,9 @@ main -> codex/... -> main
 | --- | --- | --- |
 | `codex/...` | 個別作業ブランチ | なし |
 | `main` | 唯一の長期ブランチ。常にデプロイ可能な安定版 | Staging app へ自動デプロイし、確認後に Production app へ promote |
-| `develop` | 旧 Git Flow 運用の統合ブランチ。凍結扱いで新規開発の base には使わない | なし |
-| `release/*` | 旧 Git Flow 運用の一時ブランチ。凍結扱いで新規作成しない | なし |
-| `hotfix/*` | 旧 Git Flow 運用の一時ブランチ。凍結扱いで新規作成しない | なし |
+| `develop` | 旧 Git Flow 運用の統合ブランチ。削除済みで、再作成しない | なし |
+| `release/*` | 旧 Git Flow 運用の一時ブランチ。新規作成しない | なし |
+| `hotfix/*` | 旧 Git Flow 運用の一時ブランチ。新規作成しない | なし |
 
 運用手順は以下です。
 
@@ -263,32 +263,43 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 
 ## Branch protection / Ruleset
 
-`main` は通常変更を直接 push せず、PR と CI を経由して更新します。`develop`、`release/*`、`hotfix/*` は旧 Git Flow 運用のブランチとして凍結扱いにします。
+`main` は通常変更を直接 push せず、PR と CI を経由して更新します。`develop` は旧 Git Flow 運用のブランチとして削除済みで、再作成しません。`release/*`、`hotfix/*` は旧 Git Flow 運用へ戻る入口になるため新規作成しません。
 
 | Ruleset | 対象 | 主なルール | Bypass |
 | --- | --- | --- | --- |
 | `Protect main` | `refs/heads/main` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | なし |
-| `Protect develop` | `refs/heads/develop` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | なし |
+| `Protect develop` | `refs/heads/develop` | `develop` 削除のため削除済み | なし |
 | `Protect stage` | `refs/heads/stage` | Pull request 必須、required status checks、deletion 禁止、non-fast-forward 禁止 | Repository admin / maintain 権限 |
 | `Freeze legacy release and hotfix branches` | `refs/heads/release/*`, `refs/heads/hotfix/*` | creation 禁止、deletion 禁止、non-fast-forward 禁止 | なし |
 
-`main` は bypass を設定せず、PR と required status checks を経由して更新します。`develop` と `stage` は旧運用由来の ruleset として残しますが、GitHub Flow 移行後は新規開発の入口として使いません。`release/*` と `hotfix/*` は新規作成自体を ruleset で制限し、旧 Git Flow 運用へ戻る入口を閉じます。
+`main` は bypass を設定せず、PR と required status checks を経由して更新します。`develop` は削除済みで、削除前に deletion 禁止を解除するため `Protect develop` ruleset も削除済みです。`stage` は旧運用由来の ruleset として残しますが、GitHub Flow 移行後は新規開発の入口として使いません。`release/*` と `hotfix/*` は新規作成自体を ruleset で制限し、旧 Git Flow 運用へ戻る入口を閉じます。
 
 Ruleset / branch protection の実設定は GitHub settings で確認します。設定内容を PR や docs に記録する場合は、repository 固有の秘密情報を含めない範囲にします。
 
 ### GitHub Flow 移行後の確認結果
 
-2026-06-01 に確認した GitHub repository settings は以下です。
+2026-06-02 に確認した GitHub repository settings と削除結果は以下です。
 
 | 項目 | 確認結果 | 判断 |
 | --- | --- | --- |
 | default branch | `main` | GitHub Flow の運用と一致 |
 | `main` ruleset | `Protect main` が active。deletion / non-fast-forward 禁止、Pull Request 必須、`Lint, typecheck, and build` と `CodeQL` required status checks | GitHub Flow の運用と一致 |
-| `develop` ruleset | `Protect develop` が active。旧 Git Flow ブランチとして保護されたまま | 新規開発の base には使わない |
+| `develop` ruleset | `Protect develop` は削除済み | `develop` branch の削除と一致 |
 | `stage` ruleset | `Protect stage` が active。旧運用由来の ruleset として残存 | 新規開発の入口には使わない |
-| `release/*` / `hotfix/*` ruleset | `Freeze legacy release and hotfix branches` が active。creation / deletion / non-fast-forward 禁止、bypass なし | 旧 Git Flow 運用へ戻る入口として新規作成できないようにする |
+| `release/*` / `hotfix/*` ruleset | `Freeze legacy release and hotfix branches` が active。creation / deletion / non-fast-forward 禁止、bypass なし | 旧 Git Flow 運用へ戻る入口として新規作成できないように維持する |
 | repository merge methods | merge commit / squash merge / rebase merge が有効 | docs の運用方針どおり、通常は merge commit を使う |
 | delete branch on merge | 無効 | docs の運用方針どおり、PR merge 後に手動で不要 branch を確認して削除する |
+
+### 旧ブランチ削除結果
+
+2026-06-02 に以下を確認し、旧 Git Flow 由来の不要 branch を削除しました。
+
+| 対象 | 確認結果 | 対応 |
+| --- | --- | --- |
+| `Protect develop` ruleset | active で deletion 禁止、bypass なし | remote `develop` 削除前に ruleset を削除 |
+| local `develop` | `main` に含まれている | 削除 |
+| remote `origin/develop` | 存在 | 削除 |
+| remote `origin/codex/update-heroku-pipeline-docs` | `main` に含まれている | 削除 |
 
 ## Security 設定
 

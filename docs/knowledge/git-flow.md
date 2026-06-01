@@ -5,6 +5,8 @@ nav_order: 70
 
 # Git Flow 開発手法メモ
 
+このページは過去知識として Git Flow の考え方を整理するメモです。このリポジトリの現行運用は GitHub Flow であり、`develop`、`release/*`、`hotfix/*` は通常開発では使いません。現行運用は [GitHub 運用](../operations/github.md) を参照してください。
+
 ## 概要
 
 Git Flow は、`main`、`develop`、`feature/*`、`release/*`、`hotfix/*` など複数のブランチを役割ごとに分けて開発とリリースを進めるブランチ戦略です。

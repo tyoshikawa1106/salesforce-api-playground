@@ -66,7 +66,7 @@ Staging app / Production app の作成有無、Pipeline stage、GitHub auto depl
 | `codex/...` | なし | 個別作業ブランチ | PR checks |
 | `main` | Staging app | merge 後の自動デプロイと確認 | `main` push workflow、Staging release、Staging dyno |
 | promote | Production app | Staging 確認後の本番反映 | Production release、Production dyno |
-| `develop` / `release/*` / `hotfix/*` | なし | 旧 Git Flow 運用の凍結ブランチ | 新規開発では使わない |
+| `develop` / `release/*` / `hotfix/*` | なし | 旧 Git Flow 運用のブランチ | `develop` は削除済み。`release/*` / `hotfix/*` は新規作成しない |
 
 通常開発の流れ:
 
