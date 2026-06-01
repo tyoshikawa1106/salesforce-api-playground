@@ -55,6 +55,12 @@ body {
     text-decoration: none;
 }
 
+.playground-global-search-result__icon-container {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+}
+
 .playground-global-search-result__icon {
     display: block;
 }

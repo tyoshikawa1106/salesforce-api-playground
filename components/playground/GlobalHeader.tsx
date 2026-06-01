@@ -40,7 +40,7 @@ function getResultMeta(result: SearchResultItem): string {
 function getResultIconContainerClass(result: SearchResultItem): string {
     const objectIconClass = result.type === "account" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
 
-    return `slds-icon_container ${objectIconClass}`;
+    return `slds-icon_container ${objectIconClass} playground-global-search-result__icon-container`;
 }
 
 export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderProps) {
