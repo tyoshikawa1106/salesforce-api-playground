@@ -107,7 +107,9 @@ Heroku へデプロイする場合は、Heroku Config Vars と Salesforce 外部
     - [Salesforce 手動確認](docs/setup/salesforce-manual-verification.md)
     - [意思決定記録](docs/decisions/README.md)
 - ナレッジ
-    - [Git Flow 開発手順メモ](docs/knowledge/git-flow.md) 旧運用の記録
+    - [Git Flow 開発手法メモ](docs/knowledge/git-flow.md)
+    - [GitHub Flow 開発手法メモ](docs/knowledge/github-flow.md)
+    - [Heroku Pipeline 運用パターンメモ](docs/knowledge/heroku-pipeline.md)
 - 運用
     - [Heroku デプロイ](docs/deployment/heroku.md)
     - [トラブルシューティング](docs/operations/troubleshooting.md)
