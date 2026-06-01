@@ -10,6 +10,7 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start -p ${PORT:-3000}",
+    "secrets:scan": "node .github/scripts/scan-sensitive-values.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "slds:lint": "slds-linter lint . --config-eslint slds-linter.eslint.config.mjs",
     "slds:lint:fix": "slds-linter lint . --fix --config-eslint slds-linter.eslint.config.mjs",
