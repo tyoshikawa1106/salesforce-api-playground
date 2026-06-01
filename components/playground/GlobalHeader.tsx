@@ -40,7 +40,7 @@ function getResultMeta(result: SearchResultItem): string {
 function getResultIconContainerClass(result: SearchResultItem): string {
     const objectIconClass = result.type === "account" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
 
-    return `slds-icon_container ${objectIconClass} playground-global-search-result__icon-container`;
+    return `slds-icon_container ${objectIconClass}`;
 }
 
 export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderProps) {
@@ -327,15 +327,21 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                                 >
                                                     <span className="slds-media slds-media_center">
                                                         <span className="slds-media__figure">
-                                                            <span className={getResultIconContainerClass(result)}>
+                                                            <span
+                                                                className={getResultIconContainerClass(result)}
+                                                                title={result.type === "account" ? "取引先" : "取引先責任者"}
+                                                            >
                                                                 <Image
-                                                                    className="slds-icon slds-icon_small playground-global-search-result__icon"
+                                                                    className="slds-icon slds-icon_small"
                                                                     src={result.type === "account" ? standardIcons.accounts : standardIcons.contacts}
                                                                     alt=""
                                                                     width={24}
                                                                     height={24}
                                                                     aria-hidden="true"
                                                                 />
+                                                                <span className="slds-assistive-text">
+                                                                    {result.type === "account" ? "取引先" : "取引先責任者"}
+                                                                </span>
                                                             </span>
                                                         </span>
                                                         <span className="slds-media__body">
