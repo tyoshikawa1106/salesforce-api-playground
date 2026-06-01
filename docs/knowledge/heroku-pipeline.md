@@ -35,36 +35,6 @@ GitHub / Git push
 
 Production へ直接 build / deploy するのではなく、Staging で確認した slug を Production へ promote することで、同じ成果物を環境間で使い回せます。
 
-## Tests / Heroku CI の位置づけ
-
-Pipeline の `Tests` は、Heroku CI を有効化している場合に、Pipeline 上でテスト実行結果を確認するための機能です。
-
-Heroku CI は GitHub repository への push や pull request に合わせて、Heroku 側で一時的な test app を作り、その環境でアプリケーションのテストを実行します。Review Apps と組み合わせると、pull request ごとの変更を Heroku 環境に近い形で確認できます。
-
-Tests は Pipeline の stage や promote そのものではなく、変更を Staging / Production へ進める前に自動テスト結果を確認するための CI 領域として扱います。
-
-```text
-GitHub push / pull request
--> Heroku CI が一時環境でテストを実行
--> Pipeline の Tests で結果を確認
--> 必要に応じて Review App / Staging / Production へ進める
-```
-
-### GitHub Actions との使い分け
-
-現在のこのリポジトリでは、CI の主系統は GitHub Actions とします。
-
-GitHub Actions は、pull request 上で `npm run lint`、`npm run slds:lint`、`npm run typecheck`、`npm run test:coverage`、`npm run build` などを確認し、`main` への merge 前の品質ゲートとして使います。Heroku Pipeline は、`main` merge 後の Staging app への自動デプロイと、確認済み slug の Production promote を扱う運用基盤として使います。
-
-Heroku Tests / Heroku CI は、次のような必要が出てきた場合に追加検討します。
-
-- Review Apps を本格運用し、pull request ごとに Heroku 環境で確認したい。
-- Heroku buildpack、Config Vars、add-ons などを含む環境差分込みで統合テストを行いたい。
-- Heroku 上でだけ再現する不具合があり、GitHub Actions の実行環境との差分を減らしたい。
-- Pipeline の画面で Review Apps、CI、Staging、Production の状態をまとめて確認したい。
-
-現時点では、Heroku Tests は必須機能ではありません。GitHub Actions で merge 前の品質確認を行い、Heroku Pipeline では deploy / promote の流れを管理します。
-
 ## Staging / Production の役割
 
 | Stage | 役割 |
@@ -108,6 +78,34 @@ Heroku Pipeline は、Git Flow や GitHub Flow などのブランチ戦略と組
 - Staging と Production で外部サービスの callback URL や接続先が異なる場合は、それぞれ一致させる必要があります。
 - Promote は slug を昇格する操作であり、データベース migration や外部サービス設定の変更までは自動的に解決しません。
 - Production への promote 権限や実行タイミングは、あらかじめ運用で決めておく必要があります。
+
+## Tests / Heroku CI の位置づけ
+
+Pipeline の `Tests` は、Heroku CI を有効化している場合に、Pipeline 上でテスト実行結果を確認するための機能です。
+
+Heroku CI は GitHub repository への push や pull request に合わせて、Heroku 側で一時的な test app を作り、その環境でアプリケーションのテストを実行します。Review Apps と組み合わせると、pull request ごとの変更を Heroku 環境に近い形で確認できます。
+
+Tests は Pipeline の stage や promote そのものではなく、変更を Staging / Production へ進める前に自動テスト結果を確認するための CI 領域として扱います。
+
+```text
+GitHub push / pull request
+-> Heroku CI が一時環境でテストを実行
+-> Pipeline の Tests で結果を確認
+-> 必要に応じて Review App / Staging / Production へ進める
+```
+
+### GitHub Actions との使い分け
+
+CI の主系統を GitHub Actions に置く場合、pull request 上で lint、typecheck、test、build などを確認し、`main` への merge 前の品質ゲートとして使います。この場合、Heroku Pipeline は `main` merge 後の Staging app への自動デプロイと、確認済み slug の Production promote を扱う運用基盤として整理できます。
+
+Heroku Tests / Heroku CI は、次のような必要が出てきた場合に追加検討します。
+
+- Review Apps を本格運用し、pull request ごとに Heroku 環境で確認したい。
+- Heroku buildpack、Config Vars、add-ons などを含む環境差分込みで統合テストを行いたい。
+- Heroku 上でだけ再現する不具合があり、GitHub Actions の実行環境との差分を減らしたい。
+- Pipeline の画面で Review Apps、CI、Staging、Production の状態をまとめて確認したい。
+
+GitHub Actions で merge 前の品質確認を十分に行える場合、Heroku Tests は必須ではありません。必要に応じて、Heroku 環境に近い一時環境でテストするための追加 CI として扱います。
 
 ## コマンド例
 
