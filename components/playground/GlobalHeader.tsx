@@ -14,6 +14,17 @@ const actionPopoverIds = {
     設定: "global-settings-popover"
 } as const;
 
+const searchResultIconSymbols = {
+    account: {
+        path: "M79 51.1c.1-2.1-1.4-2.7-2-2.7H55.2c-1.9 0-2.2 2-2.2 2.2V74h26zM64 67.9a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm0-10.2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm10 10.2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm0-10.2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zM59 40.3V28.7c.1-2.1-1.4-2.7-2-2.7H23.2c-1.9 0-2.2 2-2.2 2.2V74h26V44.7s0-2.4 2.2-2.4h7.9c1.1 0 1.9-1.2 1.9-2M32 66.9a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm0-10.3a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm0-10.2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm0-10.2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm11 30.7a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm0-10.3a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm0-10.2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm0-10.2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2zm11 0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2z",
+        viewBox: "0 0 100 100"
+    },
+    contact: {
+        path: "M740 290H260c-33 0-60 27-60 60v290c0 33 27 60 60 60h480c33 0 60-27 60-60V350c0-33-27-60-60-60M486 630H314c-19 0-34-21-34-41 1-30 32-48 65-63 23-10 26-19 26-29s-6-19-14-26a68 68 0 0 1-21-50c0-38 23-70 63-70s63 32 63 70c0 20-7 38-21 50-8 7-14 16-14 26s3 19 26 28c33 14 64 34 65 64 2 20-13 41-32 41m234-70c0 11-9 20-20 20h-90c-11 0-20-9-20-20v-30c0-11 9-20 20-20h90c11 0 20 9 20 20zm0-110c0 11-9 20-20 20H550c-11 0-20-9-20-20v-30c0-11 9-20 20-20h150c11 0 20 9 20 20z",
+        viewBox: "0 0 1000 1000"
+    }
+} as const;
+
 type ActionPopoverLabel = keyof typeof actionPopoverIds;
 
 type GlobalHeaderProps = {
@@ -41,6 +52,24 @@ function getResultIconContainerClass(result: SearchResultItem): string {
     const objectIconClass = result.type === "account" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
 
     return `slds-icon_container ${objectIconClass}`;
+}
+
+function getResultIconSymbol(result: SearchResultItem) {
+    return result.type === "account" ? "account" : "contact";
+}
+
+function SearchResultIcon({ result }: { result: SearchResultItem }) {
+    const label = result.type === "account" ? "取引先" : "取引先責任者";
+    const iconSymbol = searchResultIconSymbols[getResultIconSymbol(result)];
+
+    return (
+        <span className={getResultIconContainerClass(result)} title={label}>
+            <svg className="slds-icon slds-icon_small" viewBox={iconSymbol.viewBox} aria-hidden="true">
+                <path d={iconSymbol.path} fill="#fff" />
+            </svg>
+            <span className="slds-assistive-text">{label}</span>
+        </span>
+    );
 }
 
 export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderProps) {
@@ -327,22 +356,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                                 >
                                                     <span className="slds-media slds-media_center">
                                                         <span className="slds-media__figure">
-                                                            <span
-                                                                className={getResultIconContainerClass(result)}
-                                                                title={result.type === "account" ? "取引先" : "取引先責任者"}
-                                                            >
-                                                                <Image
-                                                                    className="slds-icon slds-icon_small"
-                                                                    src={result.type === "account" ? standardIcons.accounts : standardIcons.contacts}
-                                                                    alt=""
-                                                                    width={24}
-                                                                    height={24}
-                                                                    aria-hidden="true"
-                                                                />
-                                                                <span className="slds-assistive-text">
-                                                                    {result.type === "account" ? "取引先" : "取引先責任者"}
-                                                                </span>
-                                                            </span>
+                                                            <SearchResultIcon result={result} />
                                                         </span>
                                                         <span className="slds-media__body">
                                                             <span className="slds-truncate playground-global-search-result__label">
