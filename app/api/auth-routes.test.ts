@@ -213,6 +213,19 @@ describe("Login API route", () => {
         await expectJson(response, { error: "Missing Salesforce configuration" });
         expect(setStateCookieMock).not.toHaveBeenCalled();
     });
+
+    it("returns a generic error response when OAuth startup throws a non-error value", async () => {
+        setDefaultMocks();
+        createOauthStateMock.mockImplementation(() => {
+            throw "state generation failed";
+        });
+
+        const response = await loginRoute.GET();
+
+        expect(response.status).toBe(500);
+        await expectJson(response, { error: "Failed to start OAuth flow." });
+        expect(setStateCookieMock).not.toHaveBeenCalled();
+    });
 });
 
 describe("Callback API route", () => {
