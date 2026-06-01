@@ -1,0 +1,105 @@
+---
+title: Heroku Pipeline 運用パターンメモ
+nav_order: 72
+---
+
+# Heroku Pipeline 運用パターンメモ
+
+## 概要
+
+Heroku Pipeline は、同じコードベースから作られる複数の Heroku app を stage ごとにまとめ、Staging、Production などの環境昇格を扱うための仕組みです。
+
+ブランチ戦略そのものではなく、確認済みの slug を次の環境へ promote するリリース管理のパターンとして使います。開発フローで `main` に集約した変更を Staging で確認し、問題がなければ Production へ昇格する、といった運用に向いています。
+
+## 主な構成要素
+
+| 要素 | 役割 |
+| --- | --- |
+| Pipeline | 複数の Heroku app をひとまとまりにする単位 |
+| Stage | Review、Development、Staging、Production などの環境区分 |
+| Heroku app | 各 stage に配置する実行環境 |
+| Slug | Heroku build によって作られる実行可能な成果物 |
+| Promote | ある stage の slug を次の stage へ昇格する操作 |
+| Config Vars | 環境ごとの差分を管理する設定値 |
+
+## 基本フロー
+
+```text
+GitHub / Git push
+-> Staging app にデプロイ
+-> Staging で確認
+-> Production app へ promote
+-> Production で確認
+```
+
+Production へ直接 build / deploy するのではなく、Staging で確認した slug を Production へ promote することで、同じ成果物を環境間で使い回せます。
+
+## Staging / Production の役割
+
+| Stage | 役割 |
+| --- | --- |
+| Staging | 本番反映前の確認環境。リリース候補の動作確認や設定確認を行う |
+| Production | 利用者へ提供する本番環境。確認済みの slug を反映する |
+
+Staging と Production では、同じコードを使いながら Config Vars、外部サービスの接続先、ドメイン、認証設定などを分けることがあります。
+
+## Promote の考え方
+
+Promote は、上流 stage で動作確認した slug を下流 stage に反映する操作です。
+
+```text
+Staging slug -> Production
+```
+
+Promote では Production 側で再 build せず、確認済みの slug を使います。そのため、Staging で確認した内容と Production に反映される成果物の対応を保ちやすくなります。
+
+## ブランチ戦略との関係
+
+Heroku Pipeline は、Git Flow や GitHub Flow などのブランチ戦略と組み合わせて使えます。
+
+| ブランチ戦略 | 組み合わせ例 |
+| --- | --- |
+| GitHub Flow | `main` への取り込みを Staging deploy の起点にし、確認後に Production へ promote する |
+| Git Flow | `release/*` や `main` への取り込みを Staging deploy の起点にし、確認後に Production へ promote する |
+
+どのブランチをどの stage に接続するかは、チームのリリース方針、確認手順、環境数に合わせて決めます。
+
+## 向いているケース
+
+- Staging と Production を分けて確認したい。
+- Production へ反映する前に、同じ slug を Staging で確認したい。
+- 環境ごとに Config Vars や外部サービスの接続先を分けたい。
+- GitHub 連携や Heroku CLI を使って、デプロイと環境昇格の履歴を残したい。
+
+## 注意点
+
+- Config Vars は stage ごとに別管理になるため、必要な値や差分を整理する必要があります。
+- Staging と Production で外部サービスの callback URL や接続先が異なる場合は、それぞれ一致させる必要があります。
+- Promote は slug を昇格する操作であり、データベース migration や外部サービス設定の変更までは自動的に解決しません。
+- Production への promote 権限や実行タイミングは、あらかじめ運用で決めておく必要があります。
+
+## コマンド例
+
+Pipeline の一覧を確認する例:
+
+```bash
+heroku pipelines
+```
+
+Pipeline に app を追加する例:
+
+```bash
+heroku pipelines:add <pipeline-name> --app <app-name> --stage staging
+```
+
+release 履歴を確認する例:
+
+```bash
+heroku releases --app <app-name> --num 5
+```
+
+Staging から Production へ promote する例:
+
+```bash
+heroku pipelines:promote --app <staging-app-name>
+```
