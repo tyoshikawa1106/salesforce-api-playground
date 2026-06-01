@@ -25,6 +25,22 @@ nav_order: 60
 2. 決定の背景、決定内容、代替案、影響範囲、関連 PR を記載する。
 3. 変更が実装に影響する場合は、README や関連 docs も同じ PR で更新する。
 
+## ファイル命名ルール
+
+ADR は `docs/decisions/YYYY-MM-DD-title.md` の形式で作成します。
+
+- `YYYY-MM-DD` は、その決定を記録する日付にする。
+- `title` は英小文字、数字、ハイフンのみの kebab-case にする。
+- 同じ日に複数の ADR を追加する場合も、通し番号は付けず、内容が分かる title で区別する。
+- 後から決定を見直す場合は、既存 ADR を削除せず、関連する新しい ADR から参照する。
+
+## 記録済み ADR
+
+- [GitHub Flow を通常開発のブランチモデルにする](2026-06-02-github-flow.md)
+- [Heroku Pipeline で Staging から Production へ昇格する](2026-06-02-heroku-pipeline-promotion.md)
+- [Node.js 24 を実行環境の基準にする](2026-06-02-nodejs-24-runtime.md)
+- [Salesforce 接続責務を lib と services に分離する](2026-06-02-salesforce-connection-boundaries.md)
+
 テンプレート例:
 
 以下の `TODO` は ADR 作成時に置き換えるためのプレースホルダーです。実タスクの未完了項目ではありません。
