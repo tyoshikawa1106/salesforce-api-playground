@@ -67,6 +67,21 @@ describe("assertSameOriginRequest", () => {
             assertSameOriginRequest(requestWithHeaders({ origin: "https://evil.example.test" }))
         ).toThrow("Invalid request origin.");
     });
+
+    it("rejects requests with an invalid referer URL", () => {
+        getSalesforceConfigMock.mockReturnValue({
+            clientId: "client-id",
+            clientSecret: "client-secret",
+            loginUrl: "https://login.example.test",
+            redirectUri: "https://app.example.test/api/auth/callback",
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION,
+            sessionSecret: "session-secret"
+        });
+
+        expect(() =>
+            assertSameOriginRequest(requestWithHeaders({ referer: "not a url" }))
+        ).toThrow("Invalid request origin.");
+    });
 });
 
 describe("assertSalesforceRecordId", () => {

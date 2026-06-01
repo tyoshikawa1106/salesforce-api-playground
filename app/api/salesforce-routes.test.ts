@@ -8,6 +8,7 @@ import {
     jsonWithSession,
     salesforceErrorResponse
 } from "@/lib/salesforce/client";
+import type { SearchResultItem } from "@/lib/salesforce/records";
 import {
     readAccountCreatePayload,
     readAccountUpdatePayload,
@@ -316,6 +317,29 @@ describe("Global search API route", () => {
         expect(searchAccountsAndContactsMock).not.toHaveBeenCalled();
         expect(response.status).toBe(400);
         await expectJson(response, { error: "検索キーワードは 2 文字以上で入力してください。" });
+    });
+
+    it("rejects missing search queries before calling Salesforce", async () => {
+        const response = await searchRoute.GET(
+            new Request("https://app.example.test/api/search")
+        );
+
+        expect(searchAccountsAndContactsMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(400);
+        await expectJson(response, { error: "検索キーワードを入力してください。" });
+    });
+
+    it("trims and truncates search queries before calling Salesforce", async () => {
+        const longQuery = `${"A".repeat(90)}  `;
+        const results: SearchResultItem[] = [];
+        searchAccountsAndContactsMock.mockResolvedValue({ data: { results }, session });
+
+        const response = await searchRoute.GET(
+            new Request(`https://app.example.test/api/search?q=${encodeURIComponent(longQuery)}`)
+        );
+
+        expect(searchAccountsAndContactsMock).toHaveBeenCalledWith("A".repeat(80));
+        await expectJson(response, { results });
     });
 });
 
