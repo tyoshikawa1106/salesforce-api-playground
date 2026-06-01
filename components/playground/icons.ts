@@ -4,6 +4,7 @@ import connectedAppsIcon from "@salesforce-ux/design-system/assets/icons/standar
 import contactIcon from "@salesforce-ux/design-system/assets/icons/standard/contact.svg";
 import homeIcon from "@salesforce-ux/design-system/assets/icons/standard/home.svg";
 import addIcon from "@salesforce-ux/design-system/assets/icons/utility/add.svg";
+import downIcon from "@salesforce-ux/design-system/assets/icons/utility/down.svg";
 import helpIcon from "@salesforce-ux/design-system/assets/icons/utility/help.svg";
 import logoutIcon from "@salesforce-ux/design-system/assets/icons/utility/logout.svg";
 import notificationIcon from "@salesforce-ux/design-system/assets/icons/utility/notification.svg";
@@ -26,6 +27,7 @@ export const standardIcons: Record<ActiveTab, StaticImageData> = {
 
 export const utilityIcons = {
     add: addIcon,
+    down: downIcon,
     help: helpIcon,
     logout: logoutIcon,
     notification: notificationIcon,

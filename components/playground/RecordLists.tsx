@@ -1,24 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { Account, Contact } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
+import { UtilityButtonIcon } from "./Navigation";
 
 function ListViewToolbar({
     count,
-    selectedCount,
     searchId,
     searchValue,
-    objectLabel,
-    onClearSelection,
     onSearchChange
 }: {
     count: number;
-    selectedCount: number;
     searchId: string;
     searchValue: string;
-    objectLabel: string;
-    onClearSelection: () => void;
     onSearchChange: (value: string) => void;
 }) {
     return (
@@ -27,16 +22,6 @@ function ListViewToolbar({
                 <div className="slds-text-title_bold">
                     {count} 件
                 </div>
-                {selectedCount > 0 ? (
-                    <div className="slds-grid slds-grid_vertical-align-center slds-m-top_xx-small playground-list-selection-summary">
-                        <span className="slds-text-body_small slds-m-right_small">
-                            {selectedCount} 件の{objectLabel}を選択中
-                        </span>
-                        <button className="slds-button slds-button_neutral" type="button" onClick={onClearSelection}>
-                            選択を解除
-                        </button>
-                    </div>
-                ) : null}
             </div>
             <div className="slds-grid slds-grid_vertical-align-center">
                 <div className="slds-form-element">
@@ -81,11 +66,8 @@ export function AccountPanel({
         <div className="slds-theme_default">
             <ListViewToolbar
                 count={listState.filteredRecords.length}
-                selectedCount={listState.selectedIds.size}
                 searchId="account-list-search"
                 searchValue={listState.searchTerm}
-                objectLabel="取引先"
-                onClearSelection={listState.clearSelection}
                 onSearchChange={listState.setSearchTerm}
             />
             <RecordListEmptyStates
@@ -100,34 +82,43 @@ export function AccountPanel({
             />
             {!loading && listState.hasFilteredRecords ? (
                 <div className="slds-scrollable_x">
-                    <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
+                    <table
+                        className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
+                        role="grid"
+                        aria-label="取引先一覧"
+                        aria-multiselectable="true"
+                    >
                         <thead>
-                            <tr>
-                                <th className="slds-cell-shrink slds-text-align_center" scope="col">
-                                    <span className="slds-assistive-text">行番号</span>
+                            <tr className="slds-line-height_reset">
+                                <th className="slds-text-align_right slds-cell_action-mode" role="cell" style={{ width: "3.25rem" }}>
+                                    <div className="slds-th__action slds-th__action_form">
+                                        <SelectionCheckbox
+                                            ariaLabel="表示中の取引先をすべて選択"
+                                            checked={listState.selectionState.allVisibleSelected}
+                                            mixed={listState.selectionState.someVisibleSelected}
+                                            onChange={listState.toggleVisibleSelection}
+                                        />
+                                    </div>
                                 </th>
-                                <th className="slds-cell-shrink slds-text-align_center" scope="col">
-                                    <SelectionCheckbox
-                                        ariaLabel="表示中の取引先をすべて選択"
-                                        checked={listState.selectionState.allVisibleSelected}
-                                        mixed={listState.selectionState.someVisibleSelected}
-                                        onChange={listState.toggleVisibleSelection}
-                                    />
+                                <DataTableColumnHeader label="取引先名" />
+                                <DataTableColumnHeader label="電話" />
+                                <DataTableColumnHeader label="Web サイト" />
+                                <DataTableColumnHeader label="業種" />
+                                <DataTableColumnHeader label="請求先" />
+                                <DataTableColumnHeader label="最終更新日" />
+                                <th className="slds-cell_action-mode" scope="col" style={{ width: "3.25rem" }}>
+                                    <DataTableHeader label="アクション" assistive />
                                 </th>
-                                <th scope="col">取引先名</th>
-                                <th scope="col">電話</th>
-                                <th scope="col">Web サイト</th>
-                                <th scope="col">業種</th>
-                                <th scope="col">請求先</th>
-                                <th scope="col">最終更新日</th>
-                                <th scope="col">アクション</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {listState.filteredRecords.map((account, index) => (
-                                <tr className="slds-hint-parent" key={account.Id}>
-                                    <td className="slds-cell-shrink slds-text-align_center">{index + 1}</td>
-                                    <td className="slds-cell-shrink slds-text-align_center">
+                            {listState.filteredRecords.map((account) => (
+                                <tr
+                                    className="slds-hint-parent"
+                                    key={account.Id}
+                                    aria-selected={listState.selectedIds.has(account.Id)}
+                                >
+                                    <td className="slds-text-align_right slds-cell_action-mode" data-label="選択" role="gridcell">
                                         <SelectionCheckbox
                                             ariaLabel={`${account.Name} を選択`}
                                             checked={listState.selectedIds.has(account.Id)}
@@ -135,20 +126,20 @@ export function AccountPanel({
                                             onChange={() => listState.toggleSelection(account.Id)}
                                         />
                                     </td>
-                                    <th scope="row">
+                                    <th className="slds-cell_action-mode" scope="row" data-label="取引先名">
                                         <div className="slds-truncate" title={account.Name}>
                                             <button className="slds-button_reset slds-text-link" type="button" onClick={() => onOpen(account)}>
                                                 {account.Name}
                                             </button>
                                         </div>
                                     </th>
-                                    <TableCell value={account.Phone} />
-                                    <TableCell value={account.Website} />
-                                    <TableCell value={account.Industry} />
-                                    <TableCell value={getAccountBilling(account)} />
-                                    <TableCell value={formatDate(account.LastModifiedDate)} />
-                                    <td>
-                                        <RecordTableActions record={account} onEdit={onEdit} onDelete={onDelete} />
+                                    <TableCell label="電話" value={account.Phone} />
+                                    <TableCell label="Web サイト" value={account.Website} />
+                                    <TableCell label="業種" value={account.Industry} />
+                                    <TableCell label="請求先" value={getAccountBilling(account)} />
+                                    <TableCell label="最終更新日" value={formatDate(account.LastModifiedDate)} />
+                                    <td className="slds-cell_action-mode slds-text-align_center" data-label="アクション" role="gridcell">
+                                        <RecordTableActions record={account} recordLabel={account.Name} onEdit={onEdit} onDelete={onDelete} />
                                     </td>
                                 </tr>
                             ))}
@@ -181,11 +172,8 @@ export function ContactPanel({
         <div className="slds-theme_default">
             <ListViewToolbar
                 count={listState.filteredRecords.length}
-                selectedCount={listState.selectedIds.size}
                 searchId="contact-list-search"
                 searchValue={listState.searchTerm}
-                objectLabel="取引先責任者"
-                onClearSelection={listState.clearSelection}
                 onSearchChange={listState.setSearchTerm}
             />
             <RecordListEmptyStates
@@ -200,34 +188,43 @@ export function ContactPanel({
             />
             {!loading && listState.hasFilteredRecords ? (
                 <div className="slds-scrollable_x">
-                    <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
+                    <table
+                        className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
+                        role="grid"
+                        aria-label="取引先責任者一覧"
+                        aria-multiselectable="true"
+                    >
                         <thead>
-                            <tr>
-                                <th className="slds-cell-shrink slds-text-align_center" scope="col">
-                                    <span className="slds-assistive-text">行番号</span>
+                            <tr className="slds-line-height_reset">
+                                <th className="slds-text-align_right slds-cell_action-mode" role="cell" style={{ width: "3.25rem" }}>
+                                    <div className="slds-th__action slds-th__action_form">
+                                        <SelectionCheckbox
+                                            ariaLabel="表示中の取引先責任者をすべて選択"
+                                            checked={listState.selectionState.allVisibleSelected}
+                                            mixed={listState.selectionState.someVisibleSelected}
+                                            onChange={listState.toggleVisibleSelection}
+                                        />
+                                    </div>
                                 </th>
-                                <th className="slds-cell-shrink slds-text-align_center" scope="col">
-                                    <SelectionCheckbox
-                                        ariaLabel="表示中の取引先責任者をすべて選択"
-                                        checked={listState.selectionState.allVisibleSelected}
-                                        mixed={listState.selectionState.someVisibleSelected}
-                                        onChange={listState.toggleVisibleSelection}
-                                    />
+                                <DataTableColumnHeader label="氏名" />
+                                <DataTableColumnHeader label="役職" />
+                                <DataTableColumnHeader label="取引先名" />
+                                <DataTableColumnHeader label="メール" />
+                                <DataTableColumnHeader label="電話" />
+                                <DataTableColumnHeader label="最終更新日" />
+                                <th className="slds-cell_action-mode" scope="col" style={{ width: "3.25rem" }}>
+                                    <DataTableHeader label="アクション" assistive />
                                 </th>
-                                <th scope="col">氏名</th>
-                                <th scope="col">役職</th>
-                                <th scope="col">取引先名</th>
-                                <th scope="col">メール</th>
-                                <th scope="col">電話</th>
-                                <th scope="col">最終更新日</th>
-                                <th scope="col">アクション</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {listState.filteredRecords.map((contact, index) => (
-                                <tr className="slds-hint-parent" key={contact.Id}>
-                                    <td className="slds-cell-shrink slds-text-align_center">{index + 1}</td>
-                                    <td className="slds-cell-shrink slds-text-align_center">
+                            {listState.filteredRecords.map((contact) => (
+                                <tr
+                                    className="slds-hint-parent"
+                                    key={contact.Id}
+                                    aria-selected={listState.selectedIds.has(contact.Id)}
+                                >
+                                    <td className="slds-text-align_right slds-cell_action-mode" data-label="選択" role="gridcell">
                                         <SelectionCheckbox
                                             ariaLabel={`${getContactName(contact)} を選択`}
                                             checked={listState.selectedIds.has(contact.Id)}
@@ -235,20 +232,20 @@ export function ContactPanel({
                                             onChange={() => listState.toggleSelection(contact.Id)}
                                         />
                                     </td>
-                                    <th scope="row">
+                                    <th className="slds-cell_action-mode" scope="row" data-label="氏名">
                                         <div className="slds-truncate" title={getContactName(contact)}>
                                             <button className="slds-button_reset slds-text-link" type="button" onClick={() => onOpen(contact)}>
                                                 {getContactName(contact)}
                                             </button>
                                         </div>
                                     </th>
-                                    <TableCell value={contact.Title} />
-                                    <TableCell value={contact.Account?.Name} />
-                                    <TableCell value={contact.Email} />
-                                    <TableCell value={contact.Phone} />
-                                    <TableCell value={formatDate(contact.LastModifiedDate)} />
-                                    <td>
-                                        <RecordTableActions record={contact} onEdit={onEdit} onDelete={onDelete} />
+                                    <TableCell label="役職" value={contact.Title} />
+                                    <TableCell label="取引先名" value={contact.Account?.Name} />
+                                    <TableCell label="メール" value={contact.Email} />
+                                    <TableCell label="電話" value={contact.Phone} />
+                                    <TableCell label="最終更新日" value={formatDate(contact.LastModifiedDate)} />
+                                    <td className="slds-cell_action-mode slds-text-align_center" data-label="アクション" role="gridcell">
+                                        <RecordTableActions record={contact} recordLabel={getContactName(contact)} onEdit={onEdit} onDelete={onDelete} />
                                     </td>
                                 </tr>
                             ))}
@@ -313,7 +310,6 @@ function useRecordListState<Record extends { Id: string }>(
         filteredRecords,
         hasRecords: records.length > 0,
         hasFilteredRecords: filteredRecords.length > 0,
-        clearSelection: () => setSelectedIds(new Set()),
         toggleSelection: (recordId: string) => setSelectedIds((currentIds) => toggleSelectedId(currentIds, recordId)),
         toggleVisibleSelection: () =>
             setSelectedIds((currentIds) => toggleVisibleSelection(currentIds, filteredRecords.map((record) => record.Id)))
@@ -372,21 +368,86 @@ function RecordListEmptyStates({
 
 function RecordTableActions<Record>({
     record,
+    recordLabel,
     onEdit,
     onDelete
 }: {
     record: Record;
+    recordLabel: string;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
 }) {
+    const [open, setOpen] = useState(false);
+    const menuId = useId();
+    const menuLabel = `${recordLabel} の操作`;
+
+    function runMenuAction(action: (record: Record) => void) {
+        setOpen(false);
+        action(record);
+    }
+
     return (
-        <div className="slds-button-group" role="group">
-            <button className="slds-button slds-button_neutral" type="button" onClick={() => onEdit(record)}>
-                編集
+        <div className={`slds-dropdown-trigger slds-dropdown-trigger_click${open ? " slds-is-open" : ""}`}>
+            <button
+                className="slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small"
+                type="button"
+                aria-haspopup="true"
+                aria-expanded={open}
+                aria-controls={menuId}
+                title={menuLabel}
+                onClick={() => setOpen((currentOpen) => !currentOpen)}
+            >
+                <UtilityButtonIcon name="down" label="" />
+                <span className="slds-assistive-text">{menuLabel}</span>
             </button>
-            <button className="slds-button slds-button_destructive" type="button" onClick={() => onDelete(record)}>
-                削除
-            </button>
+            <div className="slds-dropdown slds-dropdown_right" id={menuId}>
+                <ul className="slds-dropdown__list" role="menu" aria-label={menuLabel}>
+                    <li className="slds-dropdown__item" role="presentation">
+                        <a
+                            href="#"
+                            role="menuitem"
+                            tabIndex={open ? 0 : -1}
+                            onClick={(event) => {
+                                event.preventDefault();
+                                runMenuAction(onEdit);
+                            }}
+                        >
+                            <span title="編集">編集</span>
+                        </a>
+                    </li>
+                    <li className="slds-dropdown__item" role="presentation">
+                        <a
+                            href="#"
+                            role="menuitem"
+                            tabIndex={-1}
+                            onClick={(event) => {
+                                event.preventDefault();
+                                runMenuAction(onDelete);
+                            }}
+                        >
+                            <span title="削除">削除</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    );
+}
+
+function DataTableColumnHeader({ label }: { label: string }) {
+    return (
+        <th className="slds-is-resizable slds-cell_action-mode" scope="col">
+            <DataTableHeader label={label} />
+        </th>
+    );
+}
+
+function DataTableHeader({ label, assistive = false }: { label: string; assistive?: boolean }) {
+    return (
+        <div className="slds-th__action">
+            <span className={assistive ? "slds-assistive-text" : "slds-truncate"} title={label}>
+                {label}
+            </span>
         </div>
     );
 }
@@ -407,6 +468,7 @@ function SelectionCheckbox({
     onChange: () => void;
 }) {
     const checkboxRef = useRef<HTMLInputElement>(null);
+    const checkboxId = useId();
 
     useEffect(() => {
         if (checkboxRef.current) {
@@ -415,8 +477,9 @@ function SelectionCheckbox({
     }, [mixed]);
 
     return (
-        <label className="slds-checkbox">
+        <div className="slds-checkbox">
             <input
+                id={checkboxId}
                 ref={checkboxRef}
                 type="checkbox"
                 aria-checked={mixed ? "mixed" : checked}
@@ -424,8 +487,11 @@ function SelectionCheckbox({
                 checked={checked}
                 onChange={onChange}
             />
-            <span className="slds-checkbox_faux" />
-        </label>
+            <label className="slds-checkbox__label" htmlFor={checkboxId} aria-hidden="true">
+                <span className="slds-checkbox_faux" />
+                <span className="slds-form-element__label slds-assistive-text">{ariaLabel}</span>
+            </label>
+        </div>
     );
 }
 
@@ -464,10 +530,10 @@ function pruneSelection(selectedIds: Set<string>, recordIds: string[]) {
     return nextIds.size === selectedIds.size ? selectedIds : nextIds;
 }
 
-function TableCell({ value }: { value?: string }) {
+function TableCell({ label, value }: { label: string; value?: string }) {
     const displayValue = value || "-";
     return (
-        <td>
+        <td className="slds-cell_action-mode" data-label={label} role="gridcell">
             <div className="slds-truncate" title={displayValue}>
                 {displayValue}
             </div>
