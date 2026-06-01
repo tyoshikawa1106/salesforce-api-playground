@@ -177,7 +177,7 @@ session に含める値:
 | `instanceUrl` | Salesforce instance URL |
 | `issuedAt` | token response の `issued_at` または fallback の `Date.now()` |
 | `userId` | token response の `id` URL 末尾 |
-| `organizationId` | 型には存在するが、現在の token 変換では未設定 |
+| `organizationId` | token response の `id` URL から抽出した Salesforce organization ID |
 
 ## エラー時の扱い
 
