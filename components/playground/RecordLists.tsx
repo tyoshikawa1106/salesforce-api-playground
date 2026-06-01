@@ -139,7 +139,15 @@ export function AccountPanel({
                                     <TableCell label="請求先" value={getAccountBilling(account)} />
                                     <TableCell label="最終更新日" value={formatDate(account.LastModifiedDate)} />
                                     <td className="slds-cell_action-mode slds-text-align_center" data-label="アクション" role="gridcell">
-                                        <RecordTableActions record={account} recordLabel={account.Name} onEdit={onEdit} onDelete={onDelete} />
+                                        <RecordTableActions
+                                            record={account}
+                                            recordLabel={account.Name}
+                                            open={listState.openActionRecordId === account.Id}
+                                            onToggle={() => listState.toggleActionMenu(account.Id)}
+                                            onClose={listState.closeActionMenu}
+                                            onEdit={onEdit}
+                                            onDelete={onDelete}
+                                        />
                                     </td>
                                 </tr>
                             ))}
@@ -245,7 +253,15 @@ export function ContactPanel({
                                     <TableCell label="電話" value={contact.Phone} />
                                     <TableCell label="最終更新日" value={formatDate(contact.LastModifiedDate)} />
                                     <td className="slds-cell_action-mode slds-text-align_center" data-label="アクション" role="gridcell">
-                                        <RecordTableActions record={contact} recordLabel={getContactName(contact)} onEdit={onEdit} onDelete={onDelete} />
+                                        <RecordTableActions
+                                            record={contact}
+                                            recordLabel={getContactName(contact)}
+                                            open={listState.openActionRecordId === contact.Id}
+                                            onToggle={() => listState.toggleActionMenu(contact.Id)}
+                                            onClose={listState.closeActionMenu}
+                                            onEdit={onEdit}
+                                            onDelete={onDelete}
+                                        />
                                     </td>
                                 </tr>
                             ))}
@@ -295,6 +311,7 @@ function useRecordListState<Record extends { Id: string }>(
 ) {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [openActionRecordId, setOpenActionRecordId] = useState<string | null>(null);
     const filteredRecords = useMemo(() => filterListRecords(records, searchTerm), [records, searchTerm, filterListRecords]);
     const selectionState = getSelectionState(filteredRecords, selectedIds);
 
@@ -304,13 +321,21 @@ function useRecordListState<Record extends { Id: string }>(
 
     return {
         searchTerm,
-        setSearchTerm,
+        setSearchTerm: (nextSearchTerm: string) => {
+            setSearchTerm(nextSearchTerm);
+            setSelectedIds(new Set());
+            setOpenActionRecordId(null);
+        },
         selectedIds,
         selectionState,
         filteredRecords,
+        openActionRecordId,
         hasRecords: records.length > 0,
         hasFilteredRecords: filteredRecords.length > 0,
         toggleSelection: (recordId: string) => setSelectedIds((currentIds) => toggleSelectedId(currentIds, recordId)),
+        closeActionMenu: () => setOpenActionRecordId(null),
+        toggleActionMenu: (recordId: string) =>
+            setOpenActionRecordId((currentRecordId) => (currentRecordId === recordId ? null : recordId)),
         toggleVisibleSelection: () =>
             setSelectedIds((currentIds) => toggleVisibleSelection(currentIds, filteredRecords.map((record) => record.Id)))
     };
@@ -369,20 +394,25 @@ function RecordListEmptyStates({
 function RecordTableActions<Record>({
     record,
     recordLabel,
+    open,
+    onToggle,
+    onClose,
     onEdit,
     onDelete
 }: {
     record: Record;
     recordLabel: string;
+    open: boolean;
+    onToggle: () => void;
+    onClose: () => void;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
 }) {
-    const [open, setOpen] = useState(false);
     const menuId = useId();
     const menuLabel = `${recordLabel} の操作`;
 
     function runMenuAction(action: (record: Record) => void) {
-        setOpen(false);
+        onClose();
         action(record);
     }
 
@@ -395,7 +425,7 @@ function RecordTableActions<Record>({
                 aria-expanded={open}
                 aria-controls={menuId}
                 title={menuLabel}
-                onClick={() => setOpen((currentOpen) => !currentOpen)}
+                onClick={onToggle}
             >
                 <UtilityButtonIcon name="down" label="" />
                 <span className="slds-assistive-text">{menuLabel}</span>

@@ -37,6 +37,12 @@ function getResultMeta(result: SearchResultItem): string {
         .join(" / ") || "取引先責任者";
 }
 
+function getResultIconContainerClass(result: SearchResultItem): string {
+    const objectIconClass = result.type === "account" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
+
+    return `slds-icon_container ${objectIconClass}`;
+}
+
 export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderProps) {
     const actionPopoverCloseTimer = useRef<number | null>(null);
     const profileMenuCloseTimer = useRef<number | null>(null);
@@ -321,7 +327,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                                 >
                                                     <span className="slds-media slds-media_center">
                                                         <span className="slds-media__figure">
-                                                            <span className="slds-icon_container">
+                                                            <span className={getResultIconContainerClass(result)}>
                                                                 <Image
                                                                     className="slds-icon slds-icon_small playground-global-search-result__icon"
                                                                     src={result.type === "account" ? standardIcons.accounts : standardIcons.contacts}
