@@ -1,0 +1,57 @@
+{
+  "name": "Salesforce API Playground",
+  "description": "A Next.js playground for Salesforce OAuth and REST API operations.",
+  "repository": "https://github.com/tyoshikawa1106/salesforce-api-playground",
+  "keywords": ["heroku", "nextjs", "salesforce", "oauth"],
+  "env": {
+    "SALESFORCE_CLIENT_ID": {
+      "description": "Salesforce external client app consumer key.",
+      "required": true
+    },
+    "SALESFORCE_CLIENT_SECRET": {
+      "description": "Salesforce external client app consumer secret.",
+      "required": true
+    },
+    "SALESFORCE_REDIRECT_URI": {
+      "description": "OAuth callback URL. Set this to https://<heroku-app-host>/api/auth/callback and register the same URL in Salesforce.",
+      "required": true
+    },
+    "SALESFORCE_LOGIN_URL": {
+      "description": "Salesforce login base URL.",
+      "value": "https://login.salesforce.com",
+      "required": false
+    },
+    "SESSION_SECRET": {
+      "description": "Random secret used to encrypt session cookies.",
+      "generator": "secret",
+      "required": true
+    },
+    "SALESFORCE_INTEGRATION_CLIENT_ID": {
+      "description": "Salesforce client credentials flow consumer key.",
+      "required": false
+    },
+    "SALESFORCE_INTEGRATION_CLIENT_SECRET": {
+      "description": "Salesforce client credentials flow consumer secret.",
+      "required": false
+    },
+    "SALESFORCE_INTEGRATION_LOGIN_URL": {
+      "description": "Salesforce My Domain URL for client credentials flow.",
+      "required": false
+    },
+    "INTEGRATION_API_KEY": {
+      "description": "Shared API key for server-to-server integration endpoints.",
+      "generator": "secret",
+      "required": false
+    },
+    "APP_ENV": {
+      "description": "Runtime environment label source.",
+      "value": "staging",
+      "required": false
+    },
+    "APP_ENV_LABEL": {
+      "description": "Display label for non-production environments.",
+      "value": "STAGING",
+      "required": false
+    }
+  }
+}

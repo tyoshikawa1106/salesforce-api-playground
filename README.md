@@ -1,5 +1,7 @@
 # Salesforce API Playground
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy?template=https://github.com/tyoshikawa1106/salesforce-api-playground)
+
 ## システム概要
 
 Salesforce OAuth 2.0 Authorization Code Flow と Salesforce REST API を試すための個人学習用 Next.js アプリです。Developer Edition 組織や Trailhead ハンズオン組織での検証を想定しています。
@@ -90,6 +92,7 @@ Sandbox 組織へ接続する場合は `SALESFORCE_LOGIN_URL=https://test.salesf
 Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本にします。通常の開発 PR は作業ブランチから `main` に向け、CI pass 後にユーザーが merge します。
 
 Heroku へデプロイする場合は、Heroku Config Vars と Salesforce 外部クライアントアプリケーションのコールバック URL を Staging / Production ごとに分けて設定します。
+README 先頭の Heroku Button から新規アプリを作成する場合も、作成後の Heroku app host に合わせて `SALESFORCE_REDIRECT_URI` と Salesforce 側 callback URL を同じ値に設定してください。
 
 起動方式、必要な Config Vars、PR マージ後の確認、OAuth callback URL、ロールバックの未確認事項は [Heroku デプロイ](docs/deployment/heroku.md) を参照してください。
 
