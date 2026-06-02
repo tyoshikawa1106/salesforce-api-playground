@@ -23,6 +23,8 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 
 このドキュメントは、ユーザーが検証用組織で実 Salesforce 接続を確認するためのチェックリストです。Codex 作業では実 Salesforce 接続を行わないため、組織固有の validation rule、共有設定、権限セット、IP 制限に依存する挙動は確認済みの事実だけを記録してください。
 
+各表の `状態` は、手動確認の記録欄です。初期値の `未確認` は未完了タスクの一覧ではなく、検証用 Salesforce 組織で確認したときに `確認済み`、`要調査`、`対象外` などへ更新するためのプレースホルダーです。
+
 ## 事前準備
 
 1. `.env.local` に OAuth 用の `SALESFORCE_CLIENT_ID`、`SALESFORCE_CLIENT_SECRET`、`SALESFORCE_REDIRECT_URI`、`SALESFORCE_LOGIN_URL`、`SESSION_SECRET` を設定する。
@@ -33,7 +35,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 
 設定の詳細は [ローカル開発](local-development.md)、[OAuth フロー](../security/oauth-flow.md)、[Salesforce Integration ユーザー連携設定](salesforce-integration-client-credentials.md) を参照してください。
 
-## OAuth login / logout
+## OAuth login / logout チェックリスト
 
 | No. | 操作 | 期待値 | 状態 |
 | --- | --- | --- | --- |
@@ -50,7 +52,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 - PKCE は現行実装では未実装のため、Salesforce 側で PKCE 要求を有効にしない。
 - 接続先組織を変えた場合は `Disconnect` するか、`sf_playground_session` と `sf_playground_oauth_state` を削除してから再接続する。
 
-## Account 操作
+## Account 操作チェックリスト
 
 | No. | 操作 | 期待値 | 状態 |
 | --- | --- | --- | --- |
@@ -67,7 +69,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 - テスト用 Account だと分かる名前を使い、確認後に削除する。
 - Salesforce 側の validation rule や必須項目が追加されている場合、標準の期待値と異なるエラーになる可能性がある。発生時は `details` と `errorCode` を秘密情報を除いて記録する。
 
-## Contact 操作
+## Contact 操作チェックリスト
 
 | No. | 操作 | 期待値 | 状態 |
 | --- | --- | --- | --- |
@@ -84,7 +86,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 - テスト用 Contact だと分かる名前を使い、確認後に削除する。
 - `Email` などに組織固有の validation rule がある場合は、組織側のルールに従って確認する。
 
-## Contact と Account の紐づけ
+## Contact と Account の紐づけチェックリスト
 
 | No. | 操作 | 期待値 | 状態 |
 | --- | --- | --- | --- |
@@ -99,7 +101,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 - UI から確認できないエラーを調べる場合は、Network タブで Contact API の response body を確認する。
 - `INVALID_CROSS_REFERENCE_KEY` や `INSUFFICIENT_ACCESS_OR_READONLY` が返る場合は、対象 Account の存在、共有設定、接続ユーザーの参照権限を確認する。
 
-## Client Credentials Flow
+## Client Credentials Flow チェックリスト
 
 | No. | 操作 | 期待値 | 状態 |
 | --- | --- | --- | --- |
@@ -136,7 +138,8 @@ curl 例は [Salesforce Integration ユーザー連携設定](salesforce-integra
 ## 記録ルール
 
 - 実 URL、Salesforce token、Client Secret、`INTEGRATION_API_KEY`、個人環境固有の値は記録しない。
-- 実 Salesforce 接続で確認できていない項目は `未確認` と書く。
+- 実 Salesforce 接続で確認できていない項目は、チェックリストの初期状態として `未確認` と書く。
+- 確認後の状態は `確認済み`、`要調査`、`対象外` など、後から判断しやすい表記に更新する。
 - 組織固有の validation rule、権限、共有設定、IP 制限が原因と分かった場合のみ、その事実を記録する。
 - 原因が確認できない場合は断定せず、追加調査項目を `TODO` として残す。
 - 確認で作成した Account / Contact は、確認後に削除する。

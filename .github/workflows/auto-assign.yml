@@ -15,6 +15,9 @@ permissions:
   pull-requests: write
 
 env:
+  # Repository-specific GitHub Projects v2 settings.
+  # If the Project, Status field, or Done option is recreated, update these values
+  # together with docs/operations/github.md.
   PROJECT_OWNER: tyoshikawa1106
   PROJECT_NUMBER: 1
   PROJECT_ID: PVT_kwHOAB_d_84BZFlX
