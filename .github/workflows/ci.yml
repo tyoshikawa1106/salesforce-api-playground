@@ -47,6 +47,7 @@ jobs:
           fi
 
           docs_only=true
+          ui_related=false
           if [[ ! -s changed-files.txt ]]; then
             docs_only=false
           fi
@@ -57,14 +58,24 @@ jobs:
               *.md|docs/*|.github/pull_request_template.md) ;;
               *) docs_only=false ;;
             esac
+
+            case "$file" in
+              app/*.tsx|app/**/*.tsx|components/*|components/**/*|*.css|**/*.css) ui_related=true ;;
+              slds-linter.eslint.config.mjs|eslint.config.mjs|next.config.mjs) ui_related=true ;;
+              package.json|package-lock.json|npm-shrinkwrap.json) ui_related=true ;;
+              .github/workflows/ci.yml) ui_related=true ;;
+            esac
           done < changed-files.txt
 
           echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
           echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
           echo "docs_only=$docs_only" >> "$GITHUB_OUTPUT"
+          echo "ui_related=$ui_related" >> "$GITHUB_OUTPUT"
 
           echo "Changed files:"
           sed 's/^/- /' changed-files.txt
+          echo "docs_only=$docs_only"
+          echo "ui_related=$ui_related"
 
       - name: Check docs-only diff
         if: steps.changes.outputs.docs_only == 'true'
@@ -89,8 +100,12 @@ jobs:
         run: npm run lint
 
       - name: Run SLDS lint
-        if: steps.changes.outputs.docs_only != 'true'
+        if: steps.changes.outputs.docs_only != 'true' && steps.changes.outputs.ui_related == 'true'
         run: npm run slds:lint
+
+      - name: Skip SLDS lint
+        if: steps.changes.outputs.docs_only != 'true' && steps.changes.outputs.ui_related != 'true'
+        run: echo "Skipping SLDS lint because changed files are not UI, CSS, or SLDS-related."
 
       - name: Run typecheck
         if: steps.changes.outputs.docs_only != 'true'
