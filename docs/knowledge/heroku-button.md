@@ -1,13 +1,13 @@
 ---
-title: Heroku Deploy Button 仕組みメモ
+title: Heroku Button 仕組みメモ
 nav_order: 73
 ---
 
-# Heroku Deploy Button 仕組みメモ
+# Heroku Button 仕組みメモ
 
 ## 概要
 
-Heroku Deploy Button は、GitHub repository の README などに設置できる「このコードを Heroku にデプロイする」ためのリンクです。利用者はブラウザ上で Heroku app を作成し、Config Vars を入力し、source code から build / deploy できます。
+Heroku Button は、GitHub repository の README などに設置できる「このコードを Heroku にデプロイする」ためのリンクです。利用者はブラウザ上で Heroku app を作成し、Config Vars を入力し、source code から build / deploy できます。
 
 このボタンは、既存の Heroku Pipeline に deploy するためのボタンではありません。主な用途は、repository の利用者が自分の Heroku アカウントに新しい app を作り、アプリを試すための初回作成導線です。
 
@@ -65,7 +65,7 @@ Heroku は GitHub-hosted README からのクリックで repository を推測す
 
 ## Pipeline との違い
 
-| 観点 | Heroku Deploy Button | Heroku Pipeline |
+| 観点 | Heroku Button | Heroku Pipeline |
 | --- | --- | --- |
 | 主な用途 | 利用者が自分の Heroku app を初回作成する | 管理済み Staging / Production の運用 |
 | app | 新規 app を作る | 既存 app を stage ごとに管理する |
@@ -73,7 +73,7 @@ Heroku は GitHub-hosted README からのクリックで repository を推測す
 | Production 反映 | button 利用者の app に直接 deploy | Staging で確認した slug を Production へ promote |
 | Config Vars | 作成時に入力する | stage / app ごとに継続管理する |
 
-このリポジトリの通常開発では、Heroku Pipeline を使い、`main` merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote します。Heroku Deploy Button は、この運用を置き換えるものではなく、他の人が自分の Heroku 環境で試すための補助導線です。
+このリポジトリの通常開発では、Heroku Pipeline を使い、`main` merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote します。Heroku Button は、この運用を置き換えるものではなく、他の人が自分の Heroku 環境で試すための補助導線です。
 
 ## Salesforce OAuth との相性
 
