@@ -118,7 +118,8 @@ jobs:
 
       - name: Skip SLDS lint
         if: steps.changes.outputs.docs_only != 'true' && steps.changes.outputs.ui_related != 'true'
-        run: echo "Normal skip: SLDS lint is not required because changed files are not UI, CSS, SLDS config, package, or CI workflow related."
+        run: |
+          echo "Normal skip: SLDS lint is not required because changed files are not UI, CSS, SLDS config, package, or CI workflow related."
 
       - name: Run typecheck
         if: steps.changes.outputs.docs_only != 'true'
