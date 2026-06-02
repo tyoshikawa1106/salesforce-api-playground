@@ -1,6 +1,6 @@
 import Image from "next/image";
-import homeIcon from "@salesforce-ux/design-system/assets/icons/standard/home.svg";
 import { salesforceLogo } from "./icons";
+import { StandardIcon } from "./SldsIcon";
 
 export function LoginPage({ loading = false }: { loading?: boolean }) {
     return (
@@ -22,14 +22,7 @@ export function LoginPage({ loading = false }: { loading?: boolean }) {
 
                 <div className="slds-text-align_center">
                     <span className="slds-icon_container slds-icon-standard-home playground-login-icon" title="Salesforce API Playground">
-                        <Image
-                            className="slds-icon playground-page-header-icon__image"
-                            src={homeIcon}
-                            alt=""
-                            width={40}
-                            height={40}
-                            aria-hidden="true"
-                        />
+                        <StandardIcon className="slds-icon playground-page-header-icon__image" name="home" />
                         <span className="slds-assistive-text">Salesforce API Playground</span>
                     </span>
                     <h1 id="login-title" className="slds-text-heading_large slds-m-top_x-large">
