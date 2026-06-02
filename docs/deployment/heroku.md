@@ -164,13 +164,22 @@ Salesforce API バージョンは Config Vars ではなく、`lib/salesforce/api
 Client Credentials Flow では `SALESFORCE_INTEGRATION_LOGIN_URL` に `https://login.salesforce.com` や `https://test.salesforce.com` は使えません。
 
 `APP_ENV` は Heroku Staging / Production の識別用です。`NODE_ENV` はどちらの Heroku app でも `production` になるため、環境ラベルの判定には使いません。
+`APP_ENV` が未設定、`main`、`production`、`prod` の場合は環境ラベルを表示しません。Staging や Heroku Button で作成した standalone app など、本番相当ではない環境を見分けたい場合に `APP_ENV` と `APP_ENV_LABEL` を設定します。
 
 ## PR merge 前の確認手順
 
 PR merge 前:
 
 1. 作業ブランチから `main` への PR で GitHub Actions が pass していることを確認する。
-2. CI は `.github/workflows/ci.yml` に基づき、Node.js 24 で以下を実行する。
+2. CI は `.github/workflows/ci.yml` に基づき、差分範囲を判定する。
+
+    | 判定 | 対象差分 | 実行内容 |
+    | --- | --- | --- |
+    | docs-only | `*.md`、`docs/*`、`.github/pull_request_template.md`、`.github/ISSUE_TEMPLATE/*` のみ | `git diff --check` と sensitive-value scan |
+    | full check | docs-only 以外のコード、設定、workflow、依存関係 | sensitive-value scan、Node.js setup、lint、typecheck、coverage、build |
+    | UI / SLDS 関連 | `app/*.tsx`、`components/*`、CSS、SLDS / ESLint / Next.js 設定、package、CI workflow | full check に加えて `npm run slds:lint` |
+
+3. full check では Node.js 24 で以下を実行する。
 
     ```bash
     npm ci
@@ -183,7 +192,7 @@ PR merge 前:
 
     `npm run test:coverage` は Vitest の coverage threshold を含む品質ゲートとして扱う。
 
-3. ユーザーが PR を merge する。
+4. ユーザーが PR を merge する。
 
 PR merge 後:
 

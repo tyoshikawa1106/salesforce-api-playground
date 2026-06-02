@@ -1,6 +1,9 @@
 ## 概要
 
-関連 Issue: Closes #
+関連 Issue:
+
+- Closes #
+- Issue なし:
 
 ## 変更内容
 

@@ -46,6 +46,9 @@ jobs:
             fi
           fi
 
+          # Keep docs-only PRs light. Markdown, docs, and GitHub templates run
+          # whitespace diff checks plus the sensitive-value scan, but skip the
+          # Node.js full check.
           docs_only=true
           ui_related=false
           if [[ ! -s changed-files.txt ]]; then
@@ -76,6 +79,16 @@ jobs:
           sed 's/^/- /' changed-files.txt
           echo "docs_only=$docs_only"
           echo "ui_related=$ui_related"
+          if [[ "$docs_only" == "true" ]]; then
+            echo "CI scope: docs/template-only change. Running git diff --check and sensitive-value scan."
+          else
+            echo "CI scope: code or configuration change. Running Node.js full check."
+          fi
+          if [[ "$ui_related" == "true" ]]; then
+            echo "SLDS lint scope: UI, CSS, SLDS config, package, or CI workflow change detected."
+          else
+            echo "SLDS lint scope: no UI, CSS, SLDS config, package, or CI workflow change detected."
+          fi
 
       - name: Check docs-only diff
         if: steps.changes.outputs.docs_only == 'true'
@@ -105,7 +118,7 @@ jobs:
 
       - name: Skip SLDS lint
         if: steps.changes.outputs.docs_only != 'true' && steps.changes.outputs.ui_related != 'true'
-        run: echo "Skipping SLDS lint because changed files are not UI, CSS, or SLDS-related."
+        run: echo "Normal skip: SLDS lint is not required because changed files are not UI, CSS, SLDS config, package, or CI workflow related."
 
       - name: Run typecheck
         if: steps.changes.outputs.docs_only != 'true'
