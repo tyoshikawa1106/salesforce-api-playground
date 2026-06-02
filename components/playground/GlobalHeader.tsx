@@ -64,10 +64,14 @@ function SearchResultIcon({ result }: { result: SearchResultItem }) {
 
     return (
         <span className={getResultIconContainerClass(result)} title={label}>
-            <svg className="slds-icon slds-icon_small" viewBox={iconSymbol.viewBox} aria-hidden="true">
-                <path d={iconSymbol.path} fill="#fff" />
-            </svg>
-            <span className="slds-assistive-text">{label}</span>
+            {[
+                <svg key="icon" className="slds-icon slds-icon_small" viewBox={iconSymbol.viewBox} aria-hidden="true">
+                    <path d={iconSymbol.path} fill="#fff" />
+                </svg>,
+                <span key="label" className="slds-assistive-text">
+                    {label}
+                </span>
+            ]}
         </span>
     );
 }
@@ -337,12 +341,12 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                     </div>
                                 ) : null}
                                 {!searchLoading && searchResults.length > 0 ? (
-                                    <ul className="slds-lookup__list" role="presentation">
+                                    <ul className="slds-listbox slds-listbox_vertical" role="presentation">
                                         {searchResults.map((result, index) => (
                                             <li
                                                 key={`${result.type}-${result.record.Id}`}
                                                 id={`global-search-result-${index}`}
-                                                className={`slds-lookup__item playground-global-search-result ${
+                                                className={`slds-listbox__item playground-global-search-result ${
                                                     activeSearchIndex === index ? "playground-global-search-result_active" : ""
                                                 }`}
                                                 role="option"
@@ -354,15 +358,15 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                                     onMouseDown={(event) => event.preventDefault()}
                                                     onClick={() => selectSearchResult(result)}
                                                 >
-                                                    <span className="slds-media slds-media_center">
-                                                        <span className="slds-media__figure">
+                                                    <span className="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta">
+                                                        <span className="slds-media__figure slds-listbox__option-icon">
                                                             <SearchResultIcon result={result} />
                                                         </span>
                                                         <span className="slds-media__body">
-                                                            <span className="slds-truncate playground-global-search-result__label">
+                                                            <span className="slds-listbox__option-text slds-listbox__option-text_entity playground-global-search-result__label">
                                                                 {getResultLabel(result)}
                                                             </span>
-                                                            <span className="slds-truncate playground-global-search-result__meta">
+                                                            <span className="slds-listbox__option-meta slds-listbox__option-meta_entity playground-global-search-result__meta">
                                                                 {result.type === "account" ? "取引先" : "取引先責任者"} / {getResultMeta(result)}
                                                             </span>
                                                         </span>
