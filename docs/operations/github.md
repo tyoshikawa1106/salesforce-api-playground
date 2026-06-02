@@ -50,17 +50,41 @@ Project は、Issue / Pull Request の進行状況を一覧するために使い
 
 新規 Issue と Pull Request は、原則として Project `Salesforce API Playground` に追加します。PR が Issue を解決する場合は、Issue と PR の両方を Project に追加します。PR だけで完結する小さな変更でも、作業履歴を追いやすくするため Project に追加します。
 
-Project の status は、作業状況に合わせて更新します。作成直後は未着手または進行中の状態に置き、PR が merge され、関連する Issue が完了したら `Done` に移します。Project 側の status 名を変更した場合は、このドキュメントの運用表記も合わせて更新します。
+Project の status は、作業状況に合わせて更新します。作成直後は未着手または進行中の状態に置き、PR が merge され、関連する Issue が完了したら `Done` に移します。Project 側の status 名を変更した場合は、このドキュメントの運用表記と workflow の ID 設定も合わせて更新します。
 
 Codex が GitHub Connector または `gh` で Project `Salesforce API Playground` へ安全に追加できる場合は追加します。Project v2 の権限不足、API 対応範囲外、owner / project number の特定不可などで追加できない場合は、PR 本文または最終報告に未設定理由を記載し、手動設定対象として扱います。
 
-新規 Issue / Pull Request の Project 追加は `.github/workflows/auto-assign.yml` で自動化します。GitHub Projects v2 の操作には `project` scope が必要なため、repository secret `GH_PROJECT_TOKEN` に `repo` と `project` scope を持つ fine-grained または classic token を設定します。secret が未設定の場合、workflow は Project 追加をスキップし、ログに理由を出力します。
+新規 Issue / Pull Request の Project 追加と、完了時の `Done` 移動は `.github/workflows/auto-assign.yml` で自動化します。GitHub Projects v2 の操作には `project` scope が必要なため、repository secret `GH_PROJECT_TOKEN` に `repo` と `project` scope を持つ fine-grained または classic token を設定します。secret が未設定の場合、workflow は Project 追加と status 更新をスキップし、ログに理由を出力します。
+
+`Done` 移動の自動化は以下のイベントで実行します。
+
+| Event | 対象 | 動作 |
+| --- | --- | --- |
+| `issues.closed` | close された Issue | Project item を `Done` に更新する。Project item が未追加の場合は追加してから更新する |
+| `pull_request.closed` | merge 済み Pull Request | Project item を `Done` に更新する。close のみで merge されていない PR は対象外 |
+
+workflow で使う GitHub Projects v2 の ID は以下です。Project、field、option を作り直した場合は `gh project field-list 1 --owner tyoshikawa1106 --format json` と `gh project view 1 --owner tyoshikawa1106 --format json` で再確認し、workflow の env を更新します。
+
+| 項目 | 値 |
+| --- | --- |
+| Project owner | `tyoshikawa1106` |
+| Project number | `1` |
+| Project ID | `PVT_kwHOAB_d_84BZFlX` |
+| Status field ID | `PVTSSF_lAHOAB_d_84BZFlXzhUGxVc` |
+| `Done` option ID | `98236657` |
 
 手動で追加する場合は、以下を実行します。
 
 ```bash
 gh project item-add 1 --owner tyoshikawa1106 --url https://github.com/tyoshikawa1106/salesforce-api-playground/issues/<Issue番号>
 gh project item-add 1 --owner tyoshikawa1106 --url https://github.com/tyoshikawa1106/salesforce-api-playground/pull/<PR番号>
+```
+
+完了済みの Issue / Pull Request を手動で `Done` に移す場合は、対象 item ID を確認してから status を更新します。
+
+```bash
+gh project item-list 1 --owner tyoshikawa1106 --format json --limit 1000
+gh project item-edit --id <Project item ID> --project-id PVT_kwHOAB_d_84BZFlX --field-id PVTSSF_lAHOAB_d_84BZFlXzhUGxVc --single-select-option-id 98236657
 ```
 
 ## Labels
