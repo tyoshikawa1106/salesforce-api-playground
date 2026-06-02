@@ -34,7 +34,7 @@ body {
 }
 
 .playground-global-search-icon {
-    filter: brightness(0) saturate(100%) invert(32%) sepia(6%) saturate(498%) hue-rotate(174deg) brightness(92%) contrast(86%);
+    fill: currentColor;
 }
 
 .playground-global-search-results {
@@ -53,10 +53,6 @@ body {
 .playground-global-search-result_active .playground-global-search-result__button {
     background-color: var(--slds-g-color-neutral-base-95);
     text-decoration: none;
-}
-
-.playground-global-search-result__icon {
-    display: block;
 }
 
 .playground-global-search-result__label,
@@ -83,9 +79,9 @@ body {
 }
 
 .playground-global-action-icon {
+    color: var(--slds-g-color-neutral-base-50);
     display: block;
-    filter: brightness(0) saturate(100%) invert(62%) sepia(0%) saturate(78%) hue-rotate(181deg) brightness(92%) contrast(88%);
-    object-fit: contain;
+    fill: currentColor;
 }
 
 .playground-profile-dropdown {
@@ -111,7 +107,8 @@ body {
 }
 
 .playground-menu-icon {
-    filter: brightness(0) saturate(100%) invert(27%) sepia(10%) saturate(569%) hue-rotate(174deg) brightness(94%) contrast(87%);
+    color: var(--slds-g-color-neutral-base-30);
+    fill: currentColor;
 }
 
 .playground-page-header-icon {
@@ -122,11 +119,10 @@ body {
 
 .playground-page-header-icon__image {
     display: block;
-    object-fit: contain;
 }
 
 .playground-utility-button-icon {
-    filter: brightness(0) saturate(100%) invert(27%) sepia(10%) saturate(569%) hue-rotate(174deg) brightness(94%) contrast(87%);
+    fill: currentColor;
 }
 
 .heroku-context-bar {

@@ -1,12 +1,13 @@
 "use client";
 
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import { type ChangeEvent, type KeyboardEvent, type MouseEvent, useEffect, useRef, useState } from "react";
 import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-api";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest } from "./api";
 import { getContactName } from "./formatting";
-import { salesforceLogo, standardIcons, utilityIcons } from "./icons";
+import { salesforceLogo } from "./icons";
+import { StandardIcon, UtilityIcon, type UtilityIconName } from "./SldsIcon";
 
 const actionPopoverIds = {
     "グローバルアクション": "global-action-popover",
@@ -35,6 +36,24 @@ function getResultMeta(result: SearchResultItem): string {
     return [result.record.Account?.Name, result.record.Title, result.record.Email]
         .filter(Boolean)
         .join(" / ") || "取引先責任者";
+}
+
+function getResultIconContainerClass(result: SearchResultItem): string {
+    const objectIconClass = result.type === "account" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
+
+    return `slds-icon_container ${objectIconClass}`;
+}
+
+function SearchResultIcon({ result }: { result: SearchResultItem }) {
+    const label = result.type === "account" ? "取引先" : "取引先責任者";
+    const iconName = result.type === "account" ? "account" : "contact";
+
+    return (
+        <span className={getResultIconContainerClass(result)} title={label}>
+            <StandardIcon className="slds-icon slds-icon_small" name={iconName} />
+            <span className="slds-assistive-text">{label}</span>
+        </span>
+    );
 }
 
 export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderProps) {
@@ -259,14 +278,9 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                             検索
                         </label>
                         <div className="slds-form-element__control slds-input-has-icon slds-input-has-icon_left slds-global-search__form-element">
-                            <Image
-                                className="slds-input__icon slds-input__icon_left playground-global-search-icon"
-                                src={utilityIcons.search}
-                                alt=""
-                                width={16}
-                                height={16}
-                                aria-hidden="true"
-                            />
+                            <span className="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_left" aria-hidden="true">
+                                <UtilityIcon className="slds-icon slds-icon_x-small playground-global-search-icon" name="search" />
+                            </span>
                             <input
                                 id="global-search"
                                 className="slds-input slds-lookup__search-input"
@@ -302,12 +316,12 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                     </div>
                                 ) : null}
                                 {!searchLoading && searchResults.length > 0 ? (
-                                    <ul className="slds-lookup__list" role="presentation">
+                                    <ul className="slds-listbox slds-listbox_vertical" role="presentation">
                                         {searchResults.map((result, index) => (
                                             <li
                                                 key={`${result.type}-${result.record.Id}`}
                                                 id={`global-search-result-${index}`}
-                                                className={`slds-lookup__item playground-global-search-result ${
+                                                className={`slds-listbox__item playground-global-search-result ${
                                                     activeSearchIndex === index ? "playground-global-search-result_active" : ""
                                                 }`}
                                                 role="option"
@@ -319,24 +333,15 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                                     onMouseDown={(event) => event.preventDefault()}
                                                     onClick={() => selectSearchResult(result)}
                                                 >
-                                                    <span className="slds-media slds-media_center">
-                                                        <span className="slds-media__figure">
-                                                            <span className="slds-icon_container">
-                                                                <Image
-                                                                    className="slds-icon slds-icon_small playground-global-search-result__icon"
-                                                                    src={result.type === "account" ? standardIcons.accounts : standardIcons.contacts}
-                                                                    alt=""
-                                                                    width={24}
-                                                                    height={24}
-                                                                    aria-hidden="true"
-                                                                />
-                                                            </span>
+                                                    <span className="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta">
+                                                        <span className="slds-media__figure slds-listbox__option-icon">
+                                                            <SearchResultIcon result={result} />
                                                         </span>
                                                         <span className="slds-media__body">
-                                                            <span className="slds-truncate playground-global-search-result__label">
+                                                            <span className="slds-listbox__option-text slds-listbox__option-text_entity playground-global-search-result__label">
                                                                 {getResultLabel(result)}
                                                             </span>
-                                                            <span className="slds-truncate playground-global-search-result__meta">
+                                                            <span className="slds-listbox__option-meta slds-listbox__option-meta_entity playground-global-search-result__meta">
                                                                 {result.type === "account" ? "取引先" : "取引先責任者"} / {getResultMeta(result)}
                                                             </span>
                                                         </span>
@@ -359,7 +364,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                     {connected ? (
                         <ul className="slds-global-actions" aria-label="グローバルアクション">
                             <GlobalActionButton
-                                icon={utilityIcons.add}
+                                icon="add"
                                 label="グローバルアクション"
                                 popupId={actionPopoverIds["グローバルアクション"]}
                                 popupMessage="グローバルアクション"
@@ -369,7 +374,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
                             <GlobalActionButton
-                                icon={utilityIcons.help}
+                                icon="help"
                                 label="ヘルプ"
                                 popupId={actionPopoverIds["ヘルプ"]}
                                 popupMessage="ヘルプ"
@@ -379,7 +384,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
                             <GlobalActionButton
-                                icon={utilityIcons.settings}
+                                icon="settings"
                                 label="設定"
                                 popupId={actionPopoverIds["設定"]}
                                 popupMessage="設定"
@@ -389,7 +394,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                 onMouseLeave={scheduleActionPopoverClose}
                             />
                             <GlobalActionButton
-                                icon={utilityIcons.notification}
+                                icon="notification"
                                 label="通知"
                                 notificationCount={showNotificationBadge ? 1 : undefined}
                                 pressed={showNotificationBadge}
@@ -416,14 +421,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                         onClick={toggleProfileMenu}
                                     >
                                         <span className="slds-avatar slds-avatar_circle slds-avatar_medium">
-                                            <Image
-                                                className="playground-global-action-icon"
-                                                src={utilityIcons.user}
-                                                alt=""
-                                                width={32}
-                                                height={32}
-                                                aria-hidden="true"
-                                            />
+                                            <UtilityIcon className="slds-icon playground-global-action-icon" name="user" />
                                         </span>
                                         <span className="slds-assistive-text">ユーザープロファイル</span>
                                     </button>
@@ -440,14 +438,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                                         role="menuitem"
                                                     >
                                                         <span className="slds-icon_container slds-icon-utility-logout slds-m-right_x-small">
-                                                            <Image
-                                                                className="slds-icon slds-icon_x-small playground-menu-icon"
-                                                                src={utilityIcons.logout}
-                                                                alt=""
-                                                                width={16}
-                                                                height={16}
-                                                                aria-hidden="true"
-                                                            />
+                                                            <UtilityIcon className="slds-icon slds-icon_x-small playground-menu-icon" name="logout" />
                                                         </span>
                                                         <span className="slds-truncate" title="ログアウト">
                                                             ログアウト
@@ -483,7 +474,7 @@ function GlobalActionButton({
     popupOpen = false,
     pressed
 }: {
-    icon: StaticImageData;
+    icon: UtilityIconName;
     label: string;
     notificationCount?: number;
     onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
@@ -513,7 +504,7 @@ function GlobalActionButton({
                     aria-pressed={pressed}
                     onClick={onClick}
                 >
-                    <Image className="slds-button__icon playground-global-action-icon" src={icon} alt="" width={20} height={20} aria-hidden="true" />
+                    <UtilityIcon className="slds-button__icon playground-global-action-icon" name={icon} />
                     {notificationCount ? <span className="slds-notification-badge slds-show-notification">{notificationCount}</span> : null}
                     <span className="slds-assistive-text">{label}</span>
                 </button>

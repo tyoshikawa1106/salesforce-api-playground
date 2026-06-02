@@ -1,6 +1,5 @@
-import Image from "next/image";
 import type { ActiveTab } from "./types";
-import { standardIcons, utilityIcons } from "./icons";
+import { getStandardIconName, StandardIcon, UtilityIcon, type UtilityIconName } from "./SldsIcon";
 
 export function AppNavigation({
     activeTab,
@@ -85,12 +84,15 @@ export function StandardPageHeaderIcon({ tab, label }: { tab: ActiveTab; label: 
 
     return (
         <span className={`slds-icon_container playground-page-header-icon ${iconClass}`} title={label}>
-            <Image className="slds-icon slds-page-header__icon playground-page-header-icon__image" src={standardIcons[tab]} alt="" width={36} height={36} aria-hidden="true" />
+            <StandardIcon
+                className="slds-icon slds-page-header__icon playground-page-header-icon__image"
+                name={getStandardIconName(tab)}
+            />
             <span className="slds-assistive-text">{label}</span>
         </span>
     );
 }
 
-export function UtilityButtonIcon({ name, label }: { name: keyof typeof utilityIcons; label: string }) {
-    return <Image className="slds-button__icon playground-utility-button-icon" src={utilityIcons[name]} alt="" width={16} height={16} aria-hidden="true" />;
+export function UtilityButtonIcon({ name, label }: { name: UtilityIconName; label: string }) {
+    return <UtilityIcon className="slds-button__icon playground-utility-button-icon" name={name} />;
 }
