@@ -31,7 +31,13 @@ export default defineConfig({
             provider: "v8",
             reporter: ["text", "html", "json-summary"],
             include: ["app/api/**/*.ts", "lib/**/*.ts"],
-            exclude: ["**/*.test.ts", "app/api/test-helpers.ts"]
+            exclude: ["**/*.test.ts", "app/api/test-helpers.ts"],
+            thresholds: {
+                statements: 90,
+                branches: 85,
+                functions: 90,
+                lines: 90
+            }
         },
         environment: "node"
     }
