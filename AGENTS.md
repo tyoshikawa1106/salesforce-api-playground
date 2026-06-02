@@ -46,7 +46,7 @@
 - Dependabot PR をエージェントが merge する場合も、`main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
 - PR マージ前に GitHub Actions が pass していることを確認する。
 - PR が `main` にマージ済みであることを確認したら、`main` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。
-- GitHub Releases / Release notes は tag ベースで扱い、対象 tag に含まれない PR を既存 Release notes に追記しない。同じ日付の変更でも、tag 作成後に merge された PR は次回 Release に含める。
+- GitHub Releases / Release notes を正式なリリースノートとして扱う。Release notes は tag ベースで扱い、対象 tag に含まれない PR を既存 Release notes に追記しない。同じ日付の変更でも、tag 作成後に merge された PR は次回 Release に含める。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
@@ -59,7 +59,7 @@
 - Salesforce 認証と API 呼び出しは `jsforce.Connection` を利用して一元化する。
 - Salesforce のデータ操作は `services/salesforce` 配下に集約する。OAuth、session、config、型定義などの共通処理は `lib/salesforce` 配下に置く。
 - README は開発手順、利用方法、CI / 運用に影響する変更がある場合に更新する。
-- 実装変更時は、必要に応じて `README.md` / `docs` 配下 / `CHANGELOG.md` を更新する。
+- 実装変更時は、必要に応じて `README.md` / `docs` 配下を更新する。リリースノートは GitHub Releases で管理し、`CHANGELOG.md` へ個別の変更履歴を追記しない。
 
 ## UI / CSS
 
