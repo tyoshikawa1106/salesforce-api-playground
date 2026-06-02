@@ -121,9 +121,15 @@ Client Credentials Flow では `SALESFORCE_INTEGRATION_LOGIN_URL` に `https://l
 
 ## 確認コマンド
 
-変更内容に応じて実行します。
+変更内容と影響範囲に応じて、レビュー判断に必要な最小限の確認コマンドを選びます。コード変更時でも常に full check を必須とはしません。
 
-コード変更時:
+docs / template のみ変更時:
+
+```bash
+git diff --check
+```
+
+コード変更時は、差分に応じて以下から必要な確認を選択します。
 
 ```bash
 npm run lint
@@ -133,11 +139,16 @@ npm run test:coverage
 npm run build
 ```
 
-docs / template のみ変更時:
+選択基準:
 
-```bash
-git diff --check
-```
+| 変更内容 | 主な確認 |
+| --- | --- |
+| TypeScript / React / API / services の変更 | `npm run lint` / `npm run typecheck` / `npm run test:coverage` |
+| UI / CSS / SLDS 構造の変更 | `npm run slds:lint` / `npm run lint` / `npm run typecheck` / `npm run test:coverage` |
+| ビルド設定、Next.js 設定、依存関係、環境変数の扱い、広範囲な UI 変更 | 上記に加えて `npm run build` |
+| PR 作成前、外部共有前、CI 失敗後の修正確認、変更範囲が広い場合 | full check（`npm run lint` / `npm run slds:lint` / `npm run typecheck` / `npm run test:coverage` / `npm run build`）を推奨 |
+
+実行しない確認項目がある場合は、変更内容のレビュー判断に関係する項目だけ理由を PR 本文に記載します。
 
 個別の補助コマンド:
 

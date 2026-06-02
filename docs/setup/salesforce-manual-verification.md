@@ -131,7 +131,7 @@ curl 例は [Salesforce Integration ユーザー連携設定](salesforce-integra
 | `services/salesforce/records.test.ts` | jsforce sObject / SOQL 呼び出しの組み立て |
 | `components/playground/ui-smoke.test.ts` | 主要 UI の smoke test |
 
-コード変更を含まない docs 更新では `git diff --check` を実行します。コード変更を含む場合は [ローカル開発](local-development.md) の確認コマンドに従って `npm run lint`、`npm run slds:lint`、`npm run typecheck`、`npm run test:coverage`、`npm run build` を選択します。
+コード変更を含まない docs 更新では `git diff --check` を実行します。コード変更を含む場合は [ローカル開発](local-development.md) の確認コマンドに従い、変更内容と影響範囲に応じて必要な確認を選択します。
 
 ## 記録ルール
 
