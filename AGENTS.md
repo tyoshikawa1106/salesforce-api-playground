@@ -33,6 +33,7 @@
 - `main` へ直接コミットしない。
 - コミットは作業単位で分割し、コミットメッセージは日本語で書く。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
+- Draft PR を作成した通常開発作業では、最終報告前に PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
 - 通常開発 PR の title は `<type>: <変更内容を日本語で簡潔に書く>` の形式にする。例: `feat: Account 一覧に検索フォームを追加`。
@@ -49,6 +50,7 @@
 - GitHub Releases / Release notes を正式なリリースノートとして扱う。Release notes は tag ベースで扱い、対象 tag に含まれない PR を既存 Release notes に追記しない。同じ日付の変更でも、tag 作成後に merge された PR は次回 Release に含める。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
+- Codex の sandbox 内で `gh` が `error connecting to api.github.com` などのネットワーク制限由来のエラーになった場合は、同じコマンドを必要最小限の `prefix_rule` 付きで権限昇格して再実行する。権限昇格できない場合は、実行できなかった GitHub 操作と必要な手動操作を最終報告に明記する。
 - Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
 
 ## アプリケーション設計

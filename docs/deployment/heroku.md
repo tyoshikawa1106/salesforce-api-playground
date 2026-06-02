@@ -72,11 +72,12 @@ Staging app / Production app の作成有無、Pipeline stage、GitHub auto depl
 
 1. `main` から `codex/...` などの作業ブランチを作成する。
 2. 作業ブランチから `main` へ draft PR を作成する。
-3. GitHub Actions が pass したら ready for review にする。
-4. ユーザーが `main` へ merge する。
-5. Staging app の release、dyno、必要な手動確認を行う。
-6. Production 反映が必要な場合は、Heroku Pipeline で Staging app から Production app へ promote する。
-7. Production app の release、dyno、必要な手動確認を行う。
+3. GitHub Actions が pass するまで PR checks を確認する。
+4. Required checks が pass したら ready for review にし、PR が draft ではないことを再確認する。
+5. ユーザーが `main` へ merge する。
+6. Staging app の release、dyno、必要な手動確認を行う。
+7. Production 反映が必要な場合は、Heroku Pipeline で Staging app から Production app へ promote する。
+8. Production app の release、dyno、必要な手動確認を行う。
 
 ## Heroku Pipeline 方針
 
@@ -134,6 +135,7 @@ Heroku Button 利用時の注意:
 - `SALESFORCE_REDIRECT_URI` は作成後の Heroku app host に合わせて `https://<heroku-app-host>/api/auth/callback` にする。
 - Salesforce 外部クライアントアプリケーション側の callback URL も、`SALESFORCE_REDIRECT_URI` と完全一致させる。
 - Client Credentials Flow を使う場合のみ、`SALESFORCE_INTEGRATION_*` と `INTEGRATION_API_KEY` を設定する。
+- Heroku Button の初期値では `APP_ENV=playground`、`APP_ENV_LABEL=PLAYGROUND` とし、管理済みの Staging app ではないことが分かる表示にする。
 
 Heroku Button は app 作成前に最終的な Heroku app host を確定できないため、OAuth callback URL の設定は完全自動化できません。button から app を作成した後、Heroku Config Vars と Salesforce 側 callback URL を確認してください。
 
@@ -152,8 +154,8 @@ Heroku Button の一般的な仕組みは [Heroku Button 仕組みメモ](../kno
 | `SALESFORCE_INTEGRATION_CLIENT_SECRET` | 連携 API 利用時は必須 | 記載しない | Client Credentials Flow 用の外部クライアントアプリケーションの client secret。絶対にコミットしない |
 | `SALESFORCE_INTEGRATION_LOGIN_URL` | 連携 API 利用時は必須 | `https://<my-domain>.my.salesforce.com` | Client Credentials Flow 用 token endpoint の基点。My Domain URL を指定する |
 | `INTEGRATION_API_KEY` | サーバー間連携 API 利用時は必須 | 記載しない | `/api/integration/accounts` と `/api/integration/accounts/[id]` の `x-integration-api-key` 検証用共有鍵。秘密情報として扱う |
-| `APP_ENV` | 任意 | Production: `main` / Staging: `staging` | 画面上部の環境ラベル表示判定に使う。未設定、`main`、`production`、`prod` の場合は表示しない |
-| `APP_ENV_LABEL` | 任意 | Staging: `STAGING` / Local: `LOCAL` | `APP_ENV` が `main` 相当以外の場合に画面上部へ表示するラベル。未設定時は `APP_ENV` を表示する |
+| `APP_ENV` | 任意 | Production: `main` / Staging: `staging` / Heroku Button: `playground` | 画面上部の環境ラベル表示判定に使う。未設定、`main`、`production`、`prod` の場合は表示しない |
+| `APP_ENV_LABEL` | 任意 | Staging: `STAGING` / Local: `LOCAL` / Heroku Button: `PLAYGROUND` | `APP_ENV` が `main` 相当以外の場合に画面上部へ表示するラベル。未設定時は `APP_ENV` を表示する |
 
 Salesforce API バージョンは Config Vars ではなく、`lib/salesforce/api-version.ts` の `DEFAULT_SALESFORCE_API_VERSION` で固定管理します。Heroku 側に `SALESFORCE_API_VERSION` が設定されていても、アプリの挙動には影響しません。
 
