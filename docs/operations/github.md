@@ -50,6 +50,15 @@ Project は、Issue / Pull Request の進行状況を一覧するために使い
 
 Project の status は、作業状況に合わせて更新します。作成直後は未着手または進行中の状態に置き、PR が merge され、関連する Issue が完了したら `Done` に移します。Project 側の status 名を変更した場合は、このドキュメントの運用表記も合わせて更新します。
 
+新規 Issue / Pull Request の Project 追加は `.github/workflows/auto-assign.yml` で自動化します。GitHub Projects v2 の操作には `project` scope が必要なため、repository secret `GH_PROJECT_TOKEN` に `repo` と `project` scope を持つ fine-grained または classic token を設定します。secret が未設定の場合、workflow は Project 追加をスキップし、ログに理由を出力します。
+
+手動で追加する場合は、以下を実行します。
+
+```bash
+gh project item-add 1 --owner tyoshikawa1106 --url https://github.com/tyoshikawa1106/salesforce-api-playground/issues/<Issue番号>
+gh project item-add 1 --owner tyoshikawa1106 --url https://github.com/tyoshikawa1106/salesforce-api-playground/pull/<PR番号>
+```
+
 ## Labels
 
 label は、標準ラベル、`area:*`、`type:*` を組み合わせて使います。
@@ -85,7 +94,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 - これから行う作業や検討事項は Issue として作成する。
 - Issue には、milestone、Project `Salesforce API Playground`、label を設定する。
-- 新規 Issue と Pull Request は `.github/workflows/auto-assign.yml` により、作成時に owner へ自動 assign する。
+- 新規 Issue と Pull Request は `.github/workflows/auto-assign.yml` により、作成時に owner へ自動 assign し、Project `Salesforce API Playground` へ自動追加する。
 - Issue / Pull Request の assignee を変更する場合は、workflow の `ASSIGNEE` を変更する。
 - Issue が Pull Request で解決される場合は、PR 本文やコメントで Issue 番号を参照する。
 - GitHub の Issue 自動クローズは default branch へのマージ時に closing keyword を解釈するため、PR が Issue を完了させる場合は `Closes #<Issue番号>` などを PR body に記載する。
@@ -141,7 +150,7 @@ main -> codex/... -> main
 
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
-- Pull Request 作成後は、Project への追加漏れ、milestone の設定漏れ、label の設定漏れがないか確認する。
+- Pull Request 作成後は、Project への自動追加結果、milestone の設定漏れ、label の設定漏れがないか確認する。
 - 通常の開発 PR は `codex/...` などの作業ブランチから `main` に向ける。
 - 緊急修正も `main` から作業ブランチを作成し、`main` への PR と CI を経由して取り込む。
 - PR が Issue を完了させる場合は、PR body に `Closes #<Issue番号>` などの closing keyword を記載する。
