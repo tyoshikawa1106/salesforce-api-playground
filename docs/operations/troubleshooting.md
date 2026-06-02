@@ -105,6 +105,7 @@ Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認は 
 | Staging から Production へ promote できない | Heroku Pipeline に Staging app と Production app が正しい stage で追加されているか | `heroku pipelines --json` と `heroku pipelines:info <pipeline-name> --json` で確認する |
 | Heroku build が失敗する | CI と同じ `npm ci`, `npm run lint`, `npm run slds:lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build` が通るか | build log は Heroku Dashboard の Activity / build 詳細画面で確認する |
 | Heroku 起動に失敗する | `Procfile` が `web: npm run start` か、`npm run start` が `next start -p ${PORT:-3000}` か、Config Vars が揃っているか | `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`, `SALESFORCE_REDIRECT_URI`, `SESSION_SECRET` を確認 |
+| Heroku Button から作成した app で Connect が失敗する | `SALESFORCE_REDIRECT_URI` が作成後の Heroku app host になっているか、Salesforce 側 callback URL と一致しているか | Heroku Button は app 作成前に host を確定できないため、作成後に Config Vars と Salesforce 側設定を確認する |
 | Heroku dyno が `up` にならない | `heroku ps --app <app-name>` で `web` dyno と起動コマンドを確認する | Heroku runtime は `PORT` を渡し、Next.js は `npm run start` で起動する |
 | Heroku で OAuth callback が失敗する | Salesforce 側 callback URL と `SALESFORCE_REDIRECT_URI` が scheme、host、path、末尾 slash まで一致しているか | Heroku app の callback URL を Salesforce 外部クライアントアプリケーションに登録する |
 | Heroku で OAuth callback が `state_error` になる | `sf_playground_oauth_state` Cookie が保存されているか、Connect を開始したブラウザと同じブラウザで callback しているか | 古い Cookie を削除して Connect からやり直す。state 不一致時は token 交換しない |
