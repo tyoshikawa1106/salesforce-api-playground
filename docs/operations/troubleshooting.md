@@ -139,9 +139,16 @@ docs / template のみ:
 git diff --check
 ```
 
+GitHub Actions workflow を変更した場合:
+
+```bash
+npm run workflows:check
+```
+
 コード変更時に選択する候補:
 
 ```bash
+npm run workflows:check
 npm run lint
 npm run slds:lint
 npm run typecheck
