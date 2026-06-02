@@ -1,0 +1,33 @@
+changelog:
+  categories:
+    - title: 機能追加
+      labels:
+        - enhancement
+    - title: 不具合修正
+      labels:
+        - bug
+    - title: ドキュメント
+      labels:
+        - documentation
+        - area:docs
+    - title: テスト / 品質
+      labels:
+        - area:testing
+        - type:test
+    - title: UI / SLDS
+      labels:
+        - area:ui
+    - title: Salesforce API
+      labels:
+        - area:salesforce
+    - title: Heroku / 運用
+      labels:
+        - area:heroku
+    - title: GitHub / 保守
+      labels:
+        - area:github
+        - type:maintenance
+        - chore
+    - title: その他
+      labels:
+        - "*"

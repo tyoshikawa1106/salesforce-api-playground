@@ -211,6 +211,78 @@ Closes #96
 
 `codex/...` は作業ブランチ名に使う prefix です。PR title には `codex` prefix を付けません。
 
+## Release notes 運用
+
+GitHub Releases は、main に取り込まれた変更履歴を日付単位で振り返るために使います。Release notes は GitHub の自動生成機能を使い、手書きの changelog とは分けて扱います。
+
+GitHub の自動生成 Release notes は、merged pull requests、contributors、full changelog link を含められます。`.github/release.yml` を使うと、Pull Request の label に基づいてカテゴリ分けできます。詳細な仕様は GitHub Docs の Automatically generated release notes を参照します。
+
+### タグ命名
+
+このリポジトリでは、日付単位の Release tag を以下の形式で作成します。
+
+```text
+vYYYY.MM.DD
+```
+
+例:
+
+```text
+v2026.06.02
+```
+
+タグは、その日の main first-parent 履歴における最終コミットを指すようにします。同じ日に複数回 main へ merge された場合も、通常は 1 日 1 Release にまとめます。特別な節目を分けたい場合のみ、日付に加えて個別の version tag を検討します。
+
+### 作成手順
+
+Release は古いタグから順に作成します。これにより、GitHub の自動生成 Release notes が直前の Release tag との差分を使えます。
+
+```bash
+git switch main
+git pull --ff-only origin main
+git tag vYYYY.MM.DD <main上の対象commit>
+git push origin vYYYY.MM.DD
+gh release create vYYYY.MM.DD --verify-tag --title "YYYY-MM-DD" --generate-notes --notes-start-tag <前回tag>
+```
+
+初回 Release では、前回タグが存在しないため `--notes-start-tag` は指定しません。
+
+```bash
+gh release create vYYYY.MM.DD --verify-tag --title "YYYY-MM-DD" --generate-notes --latest=false
+```
+
+最新 Release は `--latest` を付け、過去 Release を追加する場合は `--latest=false` を付けます。
+
+```bash
+gh release create vYYYY.MM.DD --verify-tag --title "YYYY-MM-DD" --generate-notes --notes-start-tag <前回tag> --latest
+```
+
+GitHub 画面から作成する場合は、Release 作成画面で対象 tag と `Previous tag` を選び、`Generate release notes` を実行します。生成後の本文は、公開前に過不足がないか確認します。
+
+### カテゴリ
+
+自動生成 Release notes のカテゴリは `.github/release.yml` で管理します。カテゴリは PR の label に基づきます。Release notes に反映したい分類がある場合は、PR 作成時または merge 前に適切な label を設定します。
+
+現在のカテゴリ方針は以下です。
+
+| カテゴリ | 主な label |
+| --- | --- |
+| `機能追加` | `enhancement` |
+| `不具合修正` | `bug` |
+| `ドキュメント` | `documentation`, `area:docs` |
+| `テスト / 品質` | `area:testing`, `type:test` |
+| `UI / SLDS` | `area:ui` |
+| `Salesforce API` | `area:salesforce` |
+| `Heroku / 運用` | `area:heroku` |
+| `GitHub / 保守` | `area:github`, `type:maintenance`, `chore` |
+| `その他` | 上記に該当しない PR |
+
+### Heroku デプロイとの関係
+
+GitHub Release の作成は、Heroku への直接 deploy / promote 操作とは扱いません。通常どおり、`main` への merge 後に Staging app へ自動デプロイされ、Production 反映は Heroku Pipeline の promote をユーザー判断で行います。
+
+Release notes には、必要に応じて Staging / Production の確認結果を追記してよいですが、Release 作成を Production 反映の条件や代替操作として扱いません。
+
 ## main 品質チェック
 
 `main` の現在状態を確認する場合は、以下のコマンドを実行します。
