@@ -118,6 +118,8 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 `develop` は旧 Git Flow 運用の統合ブランチとして削除済みで、再作成しません。`release/*` と `hotfix/*` も旧 Git Flow 運用の一時ブランチとして新規作成しません。
 
+旧 Git Flow 運用で使っていた release PR 作成 workflow は廃止済みです。GitHub Actions 一覧に残さないため、無効化用 workflow も含めて `.github/workflows/create-release-pr.yml` は配置しません。
+
 Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本とします。GitHub Flow のブランチモデルは `main` に集約し、環境昇格は Heroku Pipeline の stage と promote で扱います。
 
 標準の流れは以下です。
