@@ -55,7 +55,7 @@ jobs:
           while IFS= read -r file; do
             [[ -z "$file" ]] && continue
             case "$file" in
-              *.md|docs/*|.github/pull_request_template.md) ;;
+              *.md|docs/*|.github/pull_request_template.md|.github/ISSUE_TEMPLATE/*) ;;
               *) docs_only=false ;;
             esac
 
