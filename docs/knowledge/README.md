@@ -13,6 +13,7 @@ nav_order: 69
 
 - [GitHub Flow 開発手法メモ](github-flow.md)
 - [Git Flow 開発手法メモ](git-flow.md)
+- [プロジェクト初期セットアップガイド](project-bootstrap-guide.md)
 
 ## Heroku
 
