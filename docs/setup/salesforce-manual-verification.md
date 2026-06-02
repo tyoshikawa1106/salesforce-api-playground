@@ -21,7 +21,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 | Contact と Account の紐づけ | `AccountId` の許可、payload 正規化、Contact service 呼び出しをテストで確認する | 実 Account ID を指定した Contact 作成 / 更新、紐づけ解除、参照権限エラー |
 | Client Credentials Flow | API key 検証、token request 組み立て、連携用 Account API の入力検証をテストで確認する | Integration ユーザーでの token 取得、Account 作成、Account 更新、権限不足時のエラー |
 
-実 Salesforce 接続で確認できていない項目は、このドキュメントまたは PR 本文で `未確認` として残します。組織固有の validation rule、共有設定、権限セット、IP 制限に依存する挙動は、確認できた事実だけを記録してください。
+このドキュメントは、ユーザーが検証用組織で実 Salesforce 接続を確認するためのチェックリストです。Codex 作業では実 Salesforce 接続を行わないため、組織固有の validation rule、共有設定、権限セット、IP 制限に依存する挙動は確認済みの事実だけを記録してください。
 
 ## 事前準備
 
