@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-06-02
+
+### Added
+
+- README に Heroku Button を追加し、他の利用者が自分の Heroku アカウントで検証用 app を初回作成できる導線を追加。
+- Heroku Button 用の `app.json` と、`docs/knowledge/heroku-button.md` を追加し、`app.json`、Pipeline との違い、Salesforce OAuth callback URL の注意点を整理。
+
 ## 2026-06-01
 
 ### Changed
