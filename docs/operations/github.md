@@ -230,7 +230,7 @@ Closes #96
 
 ## Release notes 運用
 
-GitHub Releases は、Release tag が指す `main` 上の commit までに含まれる変更履歴を記録するために使います。Release notes は tag ベースで扱い、手書きの changelog とは分けて扱います。
+GitHub Releases は、Release tag が指す `main` 上の commit までに含まれる変更履歴を記録するために使います。このリポジトリの正式なリリースノートは GitHub Releases に集約し、`CHANGELOG.md` には個別の変更履歴を追記しません。
 
 GitHub の自動生成 Release notes は、merged pull requests、contributors、full changelog link を含められます。`.github/release.yml` を使うと、Pull Request の label に基づいてカテゴリ分けできます。詳細な仕様は GitHub Docs の Automatically generated release notes を参照します。
 
