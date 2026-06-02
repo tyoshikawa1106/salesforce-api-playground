@@ -120,6 +120,25 @@ heroku pipelines:promote --app <staging-app-name>
 - [Pipelines | Heroku Dev Center](https://devcenter.heroku.com/articles/pipelines)
 - [GitHub Integration | Heroku Dev Center](https://devcenter.heroku.com/articles/github-integration)
 
+## Heroku Button
+
+README には、このリポジトリを他の人が自分の Heroku アカウントで試すための Heroku Button を設置します。Heroku Button は root の `app.json` を読み取り、アプリ作成時に必要な Config Vars の入力欄や自動生成値を提示します。
+
+このリポジトリでは、Heroku Button を通常運用の Staging / Production Pipeline の代替とは扱いません。既存の Staging / Production は引き続き GitHub `main` merge、Staging 自動デプロイ、Production promote の流れで管理します。Heroku Button は、fork / clone せずに検証用 app や自分用の新規環境を作るときの初期設定補助として使います。
+
+Heroku Button 利用時の注意:
+
+- `app.json` には秘密情報の実値を書かない。
+- `SESSION_SECRET` と `INTEGRATION_API_KEY` は Heroku Button の `generator: secret` で生成する。
+- `SALESFORCE_CLIENT_ID` と `SALESFORCE_CLIENT_SECRET` は Heroku Button の画面で入力する。
+- `SALESFORCE_REDIRECT_URI` は作成後の Heroku app host に合わせて `https://<heroku-app-host>/api/auth/callback` にする。
+- Salesforce 外部クライアントアプリケーション側の callback URL も、`SALESFORCE_REDIRECT_URI` と完全一致させる。
+- Client Credentials Flow を使う場合のみ、`SALESFORCE_INTEGRATION_*` と `INTEGRATION_API_KEY` を設定する。
+
+Heroku Button は app 作成前に最終的な Heroku app host を確定できないため、OAuth callback URL の設定は完全自動化できません。button から app を作成した後、Heroku Config Vars と Salesforce 側 callback URL を確認してください。
+
+Heroku Button の一般的な仕組みは [Heroku Button 仕組みメモ](../knowledge/heroku-button.md) を参照してください。
+
 ## 必要な Config Vars
 
 | Config Var | 必須 | 例 | 用途 / 注意 |
