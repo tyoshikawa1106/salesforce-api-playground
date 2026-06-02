@@ -134,6 +134,8 @@ npm run test:coverage
 npm run build
 ```
 
+`npm run test:coverage` は Vitest の coverage threshold を含む品質ゲートです。CI では docs / template のみの変更を除き、PR と `main` push で実行します。
+
 PR 作成前、共有前、ビルド設定変更、依存関係変更、広範囲な UI 変更では、上記すべての full check を推奨します。実行しない確認項目がある場合は、理由を PR 本文に記載してください。
 
 UI 実装では SLDS の標準コンポーネントとユーティリティを優先します。詳細は [ローカル開発](docs/setup/local-development.md) を参照してください。

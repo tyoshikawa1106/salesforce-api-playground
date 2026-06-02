@@ -179,6 +179,8 @@ PR merge 前:
     npm run build
     ```
 
+    `npm run test:coverage` は Vitest の coverage threshold を含む品質ゲートとして扱う。
+
 3. ユーザーが PR を merge する。
 
 PR merge 後:

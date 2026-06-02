@@ -25,7 +25,7 @@ npm run test:coverage
 npm run build
 ```
 
-CI の coverage は GitHub Actions の `Summary` で確認します。GitHub Pages への公開や HTML artifact の保存は行いません。
+`npm run test:coverage` は Vitest の coverage threshold を含む品質ゲートです。CI の coverage は GitHub Actions の `Summary` で確認します。GitHub Pages への公開や HTML artifact の保存は行いません。
 
 ## OAuth / 認証
 

@@ -96,7 +96,7 @@ jobs:
         if: steps.changes.outputs.docs_only != 'true'
         run: npm run typecheck
 
-      - name: Run unit tests with coverage
+      - name: Run unit tests with coverage threshold
         if: steps.changes.outputs.docs_only != 'true'
         run: npm run test:coverage
 
