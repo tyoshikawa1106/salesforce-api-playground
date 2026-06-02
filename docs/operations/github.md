@@ -213,9 +213,13 @@ Closes #96
 
 ## Release notes 運用
 
-GitHub Releases は、main に取り込まれた変更履歴を日付単位で振り返るために使います。Release notes は GitHub の自動生成機能を使い、手書きの changelog とは分けて扱います。
+GitHub Releases は、Release tag が指す `main` 上の commit までに含まれる変更履歴を記録するために使います。Release notes は tag ベースで扱い、手書きの changelog とは分けて扱います。
 
 GitHub の自動生成 Release notes は、merged pull requests、contributors、full changelog link を含められます。`.github/release.yml` を使うと、Pull Request の label に基づいてカテゴリ分けできます。詳細な仕様は GitHub Docs の Automatically generated release notes を参照します。
+
+Release notes に含める変更は、対象 tag に到達可能で、前回 tag より後に merge された PR に限定します。同じ日付の PR であっても、Release tag 作成後に merge された PR はその Release notes に追記せず、次回の Release tag / Release notes に含めます。
+
+公開済み Release notes の更新は、誤字修正、説明不足の補足、カテゴリ整理、対象 tag に含まれる変更の説明改善に限定します。対象 tag に含まれない変更を後から追記しません。公開済み tag の付け替えは原則行いません。
 
 ### タグ命名
 
@@ -231,7 +235,7 @@ vYYYY.MM.DD
 v2026.06.02
 ```
 
-タグは、その日の main first-parent 履歴における最終コミットを指すようにします。同じ日に複数回 main へ merge された場合も、通常は 1 日 1 Release にまとめます。特別な節目を分けたい場合のみ、日付に加えて個別の version tag を検討します。
+タグは、その日の main first-parent 履歴における Release 対象の最終コミットを指すようにします。同じ日に複数回 main へ merge された場合も、通常は 1 日 1 Release にまとめます。Release 作成後に同じ日付で追加 merge された変更は、公開済み tag に含まれないため次回 Release に含めます。特別な節目を分けたい場合のみ、日付に加えて個別の version tag を検討します。
 
 ### 作成手順
 
@@ -258,6 +262,14 @@ gh release create vYYYY.MM.DD --verify-tag --title "YYYY-MM-DD" --generate-notes
 ```
 
 GitHub 画面から作成する場合は、Release 作成画面で対象 tag と `Previous tag` を選び、`Generate release notes` を実行します。生成後の本文は、公開前に過不足がないか確認します。
+
+Release notes に特定 PR を含めたい場合は、まずその PR の merge commit が対象 tag に含まれていることを確認します。
+
+```bash
+git merge-base --is-ancestor <merge-commit> <release-tag>
+```
+
+このコマンドが成功しない場合、その PR は対象 Release notes に含めません。次回 Release tag を main の最新 commit に作成し、前回 tag から次回 tag までの差分として記録します。
 
 ### カテゴリ
 
