@@ -2,6 +2,7 @@ name: 学習 TODO
 description: 学習中に調べたいことや後で試したいことを記録する
 title: "[Learning] "
 labels:
+  - area:docs
   - type:maintenance
 body:
   - type: textarea

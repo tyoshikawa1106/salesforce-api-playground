@@ -44,13 +44,13 @@
       "required": false
     },
     "APP_ENV": {
-      "description": "Runtime environment label source.",
-      "value": "staging",
+      "description": "Runtime environment label source. The Heroku Button default marks a standalone playground app, not a managed staging environment.",
+      "value": "playground",
       "required": false
     },
     "APP_ENV_LABEL": {
       "description": "Display label for non-production environments.",
-      "value": "STAGING",
+      "value": "PLAYGROUND",
       "required": false
     }
   }
