@@ -131,13 +131,15 @@ Next.js 16 では Turbopack が標準ですが、SLDS CSS の selector 互換性
 
 ## ローカル確認コマンド
 
+通常は変更内容と影響範囲に応じて、レビュー判断に必要な最小限の確認コマンドを選びます。
+
 docs / template のみ:
 
 ```bash
 git diff --check
 ```
 
-コード変更あり:
+コード変更時に選択する候補:
 
 ```bash
 npm run lint
@@ -146,6 +148,8 @@ npm run typecheck
 npm run test:coverage
 npm run build
 ```
+
+PR 作成前、外部共有前、ビルド設定変更、依存関係変更、広範囲な UI 変更では full check を推奨します。未実行の確認がある場合は、レビュー判断に関係する項目だけ理由を PR 本文に記載します。
 
 ## 記録時の注意
 
