@@ -122,9 +122,9 @@ heroku pipelines:promote --app <staging-app-name>
 
 ## Heroku Button
 
-README には、新規 Heroku app をブラウザから作成するための Heroku Button を設置します。Heroku Button は root の `app.json` を読み取り、アプリ作成時に必要な Config Vars の入力欄や自動生成値を提示します。
+README には、このリポジトリを他の人が自分の Heroku アカウントで試すための Heroku Button を設置します。Heroku Button は root の `app.json` を読み取り、アプリ作成時に必要な Config Vars の入力欄や自動生成値を提示します。
 
-このリポジトリでは、Heroku Button を通常運用の Staging / Production Pipeline の代替とは扱いません。既存の Staging / Production は引き続き GitHub `main` merge、Staging 自動デプロイ、Production promote の流れで管理します。Heroku Button は、検証用 app や新規環境を作るときの初期設定補助として使います。
+このリポジトリでは、Heroku Button を通常運用の Staging / Production Pipeline の代替とは扱いません。既存の Staging / Production は引き続き GitHub `main` merge、Staging 自動デプロイ、Production promote の流れで管理します。Heroku Button は、fork / clone せずに検証用 app や自分用の新規環境を作るときの初期設定補助として使います。
 
 Heroku Button 利用時の注意:
 
