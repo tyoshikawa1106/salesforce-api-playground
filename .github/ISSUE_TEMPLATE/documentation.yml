@@ -27,3 +27,18 @@ body:
       description: 未確認事項や注意点があれば書いてください。
     validations:
       required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: 影響範囲
+      description: docs 以外にも関係する領域があれば選んでください。
+      options:
+        - docs / README
+        - GitHub / CI
+        - Heroku / デプロイ
+        - Salesforce / API
+        - UI / SLDS
+        - テスト
+        - 未確認
+    validations:
+      required: false

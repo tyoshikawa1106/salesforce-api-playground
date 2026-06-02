@@ -26,3 +26,17 @@ body:
       description: 何が分かれば完了とするかを書いてください。
     validations:
       required: false
+  - type: dropdown
+    id: output
+    attributes:
+      label: 整理先
+      description: 調べた結果をどこに残す想定か、分かる範囲で選んでください。
+      options:
+        - 未確認
+        - docs
+        - README
+        - Issue / PR コメント
+        - ADR
+        - 記録しない
+    validations:
+      required: false

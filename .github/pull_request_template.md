@@ -1,6 +1,16 @@
 ## 概要
 
+関連 Issue: Closes #
+
 ## 変更内容
+
+## Triage
+
+| 項目 | 内容 |
+| --- | --- |
+| 主な影響範囲 |  |
+| milestone / Project / label |  |
+| ready for review 条件 | required checks pass 後に draft 解除 |
 
 ## レビュー観点
 

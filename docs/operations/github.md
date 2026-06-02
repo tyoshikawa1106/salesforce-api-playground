@@ -85,6 +85,8 @@ Project item の追加結果は、Project 画面または `gh project item-list`
 
 workflow で使う GitHub Projects v2 の owner、Project number、field ID、option ID は `.github/workflows/auto-assign.yml` の `env` で管理します。Project、field、option を作り直した場合は、GitHub CLI で再確認して workflow の値を更新します。
 
+`.github/workflows/auto-assign.yml` の Project v2 値は、この repository の Project automation を動かすための設定値です。公開 docs では値そのものを運用手順として広げず、Project を作り直した場合に workflow の設定ブロックを更新する対象として扱います。
+
 手動で追加する場合は、以下を実行します。
 
 ```bash
@@ -138,6 +140,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - Issue template は `.github/ISSUE_TEMPLATE` 配下で管理する。
 - Issue template は入力項目を増やしすぎず、概要、対象範囲、補足など最小限の項目にする。
 - Issue template の初期 label は、作成時に判断できる範囲に限定する。影響範囲が不明な Issue は、triage 時に `area:*` を追加する。
+- Issue template の dropdown は、label を自動決定するためではなく、triage 時に `area:*` や milestone を選びやすくするための入力欄として扱う。
 
 ### Issue template の使い分け
 
@@ -192,6 +195,7 @@ main -> codex/... -> main
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Pull Request 作成後は、Project への自動追加結果、milestone の設定漏れ、label の設定漏れがないか確認する。
+- Pull Request template の Triage 欄には、主な影響範囲、milestone / Project / label の設定状態、ready for review 条件を簡潔に記載する。
 - Draft PR 作成後は、CI / CodeQL など required checks の結果を確認し、pass したら ready for review へ変更する。最終報告前に `isDraft: false` または GitHub UI 上の ready 状態を確認する。
 - CI が pending の間は ready for review にしない。時間の都合で待機を中断する場合は、draft のままであることと pending check を最終報告に明記する。
 - Codex が Pull Request の milestone / Project を設定できない場合は、PR 本文または最終報告に未設定理由を記載し、手動設定対象として扱う。
