@@ -137,6 +137,8 @@ Heroku Button 利用時の注意:
 
 Heroku Button は app 作成前に最終的な Heroku app host を確定できないため、OAuth callback URL の設定は完全自動化できません。button から app を作成した後、Heroku Config Vars と Salesforce 側 callback URL を確認してください。
 
+Heroku Button の一般的な仕組みは [Heroku Deploy Button 仕組みメモ](../knowledge/heroku-deploy-button.md) を参照してください。
+
 ## 必要な Config Vars
 
 | Config Var | 必須 | 例 | 用途 / 注意 |
