@@ -23,6 +23,29 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 
 実 Salesforce 接続で確認できていない項目は、このドキュメントまたは PR 本文で `未確認` として残します。組織固有の validation rule、共有設定、権限セット、IP 制限に依存する挙動は、確認できた事実だけを記録してください。
 
+## 確認結果サマリー
+
+| 確認日 | 確認者 | 環境 | 結果 | 備考 |
+| --- | --- | --- | --- | --- |
+| 2026-06-03 | Codex | ローカル docs review | 未確認 | Codex 作業では実 Salesforce 接続を行わないため、OAuth、Account / Contact CRUD、Client Credentials Flow の実接続確認は未実施。秘密情報、実 URL、個人環境固有値は記録していない。 |
+
+現時点で実 Salesforce 接続により確認済みとして記録できる項目はありません。ユーザーが検証用組織で確認したあと、以下の観点で結果を追記してください。
+
+- `状態` は `確認済み`、`未確認`、`組織設定依存` のいずれかを使う。
+- `未確認` として残す場合は、理由を「未実施」「権限設定待ち」「検証用データ未準備」など確認済みの事実に限定して書く。
+- `組織設定依存` とする場合は、validation rule、権限セット、共有設定、IP 制限など確認できた差分だけを匿名化して書く。
+- 失敗を記録する場合は、Salesforce の `errorCode` と安全に共有できる `details` だけを残し、token、client secret、実 URL、個人環境固有値は書かない。
+
+### 今回未確認として残す理由
+
+| 領域 | 状態 | 理由 |
+| --- | --- | --- |
+| OAuth login / logout | 未確認 | Salesforce 認可画面への遷移、callback、token 交換、revoke は実組織設定とブラウザ Cookie に依存し、Codex 作業では実接続を行わないため。 |
+| Account 一覧 / 作成 / 編集 / 削除 | 未確認 | 実 Account の取得、作成、更新、削除は接続ユーザーの object / field 権限、validation rule、共有設定に依存し、Codex 作業では実データを操作しないため。 |
+| Contact 一覧 / 作成 / 編集 / 削除 | 未確認 | 実 Contact の取得、作成、更新、削除は接続ユーザーの object / field 権限、validation rule、共有設定に依存し、Codex 作業では実データを操作しないため。 |
+| Contact と Account の紐づけ | 未確認 | 実 Account ID、参照権限、共有設定、参照整合性エラーの有無が組織設定に依存し、Codex 作業では実 Salesforce 接続を行わないため。 |
+| Client Credentials Flow | 未確認 | Integration ユーザー、外部クライアントアプリケーション、My Domain、権限セットライセンス、API key の設定に依存し、Codex 作業では token 取得や実 API 実行を行わないため。 |
+
 ## 事前準備
 
 1. `.env.local` に OAuth 用の `SALESFORCE_CLIENT_ID`、`SALESFORCE_CLIENT_SECRET`、`SALESFORCE_REDIRECT_URI`、`SALESFORCE_LOGIN_URL`、`SESSION_SECRET` を設定する。
