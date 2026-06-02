@@ -73,7 +73,7 @@ Heroku は GitHub-hosted README からのクリックで repository を推測す
 | Production 反映 | button 利用者の app に直接 deploy | Staging で確認した slug を Production へ promote |
 | Config Vars | 作成時に入力する | stage / app ごとに継続管理する |
 
-このリポジトリの通常開発では、Heroku Pipeline を使い、`main` merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote します。Heroku Button は、この運用を置き換えるものではなく、他の人が自分の Heroku 環境で試すための補助導線です。
+Heroku Pipeline は管理済みの Staging / Production 環境を段階的に進めるための仕組みです。Heroku Button は、repository を見た人が自分の Heroku 環境で試すための初回作成導線として整理できます。
 
 ## Salesforce OAuth との相性
 
@@ -105,7 +105,7 @@ https://<heroku-app-host>/api/auth/callback
 - OAuth callback URL は app 作成後に Heroku と Salesforce の両方で確認する。
 - Heroku Button は GitHub submodule を含む repository には向かない。
 - Private repository では GitHub access や `template` parameter の扱いに注意する。
-- 通常運用の Staging / Production Pipeline と混同しない。
+- Staging / Production Pipeline との役割の違いを確認する。
 - Heroku app、Salesforce 外部クライアントアプリケーション、Config Vars は利用者ごとに別管理になる。
 
 ## 参考
