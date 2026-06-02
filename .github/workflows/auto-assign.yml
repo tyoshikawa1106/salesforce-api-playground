@@ -74,7 +74,8 @@ jobs:
 
       - name: Skip project assignment
         if: env.GH_TOKEN == ''
-        run: echo "Skipping Project assignment because GH_PROJECT_TOKEN is not configured."
+        run: |
+          echo "Normal skip: Project assignment requires GH_PROJECT_TOKEN, and the secret is not configured."
 
   add-pull-request-to-project:
     name: Add pull request to project
@@ -93,7 +94,8 @@ jobs:
 
       - name: Skip project assignment
         if: env.GH_TOKEN == ''
-        run: echo "Skipping Project assignment because GH_PROJECT_TOKEN is not configured."
+        run: |
+          echo "Normal skip: Project assignment requires GH_PROJECT_TOKEN, and the secret is not configured."
 
   mark-issue-done:
     name: Mark issue project status done
@@ -123,7 +125,8 @@ jobs:
 
       - name: Skip project status update
         if: env.GH_TOKEN == ''
-        run: echo "Skipping Project status update because GH_PROJECT_TOKEN is not configured."
+        run: |
+          echo "Normal skip: Project status update requires GH_PROJECT_TOKEN, and the secret is not configured."
 
   mark-pull-request-done:
     name: Mark pull request project status done
@@ -153,4 +156,5 @@ jobs:
 
       - name: Skip project status update
         if: env.GH_TOKEN == ''
-        run: echo "Skipping Project status update because GH_PROJECT_TOKEN is not configured."
+        run: |
+          echo "Normal skip: Project status update requires GH_PROJECT_TOKEN, and the secret is not configured."
