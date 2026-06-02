@@ -72,11 +72,12 @@ Staging app / Production app の作成有無、Pipeline stage、GitHub auto depl
 
 1. `main` から `codex/...` などの作業ブランチを作成する。
 2. 作業ブランチから `main` へ draft PR を作成する。
-3. GitHub Actions が pass したら ready for review にする。
-4. ユーザーが `main` へ merge する。
-5. Staging app の release、dyno、必要な手動確認を行う。
-6. Production 反映が必要な場合は、Heroku Pipeline で Staging app から Production app へ promote する。
-7. Production app の release、dyno、必要な手動確認を行う。
+3. GitHub Actions が pass するまで PR checks を確認する。
+4. Required checks が pass したら ready for review にし、PR が draft ではないことを再確認する。
+5. ユーザーが `main` へ merge する。
+6. Staging app の release、dyno、必要な手動確認を行う。
+7. Production 反映が必要な場合は、Heroku Pipeline で Staging app から Production app へ promote する。
+8. Production app の release、dyno、必要な手動確認を行う。
 
 ## Heroku Pipeline 方針
 

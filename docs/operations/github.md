@@ -180,17 +180,20 @@ main -> codex/... -> main
 2. `main` から `codex/...` 作業ブランチを作成する。
 3. 作業ブランチで変更し、必要な確認コマンドを実行する。
 4. 作業ブランチから `main` へ Draft PR を作成する。
-5. GitHub Actions が pass したら Ready for review にする。
-6. ユーザーが PR を `main` へ merge する。
-7. `main` push workflow と Staging app の自動デプロイ結果を確認する。
-8. Staging app で必要な確認を行い、Production 反映が必要な場合は Heroku Pipeline で Production app へ promote する。
-9. `main` を同期し、マージ済みの `codex/...` 作業ブランチを削除する。
+5. GitHub Actions が pass するまで PR checks を確認する。
+6. Required checks が pass したら Ready for review にし、PR が draft ではないことを再確認する。
+7. ユーザーが PR を `main` へ merge する。
+8. `main` push workflow と Staging app の自動デプロイ結果を確認する。
+9. Staging app で必要な確認を行い、Production 反映が必要な場合は Heroku Pipeline で Production app へ promote する。
+10. `main` を同期し、マージ済みの `codex/...` 作業ブランチを削除する。
 
 このモデルでは、すべての変更を `main` への PR と CI で確認します。`main` へ直接 push しません。
 
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Pull Request 作成後は、Project への自動追加結果、milestone の設定漏れ、label の設定漏れがないか確認する。
+- Draft PR 作成後は、CI / CodeQL など required checks の結果を確認し、pass したら ready for review へ変更する。最終報告前に `isDraft: false` または GitHub UI 上の ready 状態を確認する。
+- CI が pending の間は ready for review にしない。時間の都合で待機を中断する場合は、draft のままであることと pending check を最終報告に明記する。
 - Codex が Pull Request の milestone / Project を設定できない場合は、PR 本文または最終報告に未設定理由を記載し、手動設定対象として扱う。
 - 通常の開発 PR は `codex/...` などの作業ブランチから `main` に向ける。
 - 緊急修正も `main` から作業ブランチを作成し、`main` への PR と CI を経由して取り込む。
@@ -200,6 +203,19 @@ main -> codex/... -> main
 - Assignee は、マージまで見る担当者を明示したい場合に手動で設定する。
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
+
+### Codex からの GitHub 操作
+
+Codex の sandbox ではネットワークアクセスが制限されることがあり、`gh` で `error connecting to api.github.com` が出る場合があります。この場合は GitHub の障害や repository 設定不備とは限りません。
+
+対応方針:
+
+- GitHub Connector で実行できる操作は GitHub Connector を優先する。
+- `gh pr checks`、`gh pr ready`、`gh pr edit` など Connector だけでは不足する操作は `gh` を使う。
+- sandbox のネットワーク制限で失敗した場合は、同じコマンドを必要最小限の権限昇格で再実行する。
+- 毎回同じ GitHub 操作でネットワーク制限に当たる場合は、Codex の権限昇格プロンプトで該当する `prefix_rule` を継続許可する。リポジトリ内の設定ファイルでは sandbox 権限そのものは変更できない。
+- 継続許可する prefix は操作単位に絞る。例: `gh pr view`、`gh pr checks`、`gh pr ready`、`gh pr edit`、`gh issue view`、`gh issue edit`、`gh api`、`gh project item-add`、`gh project item-list`、`gh project item-edit`、`gh run list`、`gh run view`。
+- 権限昇格できない場合は、実行できなかった操作、必要な手動操作、PR の現在状態を最終報告に明記する。
 
 ### GitHub Flow の作業開始
 
