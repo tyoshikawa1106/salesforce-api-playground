@@ -21,42 +21,64 @@ export function SessionLoadingPage() {
 
 export function LoginPage() {
     return (
-        <main className="slds-template_default slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-around_large slds-theme_shade playground-login-page">
-            <section className="slds-box slds-theme_default slds-size_1-of-1 slds-medium-size_5-of-12 slds-large-size_1-of-3 slds-p-around_x-large playground-login-panel" aria-labelledby="login-title">
-                <div className="slds-grid slds-grid_vertical-align-center slds-gutters_small slds-m-bottom_x-large">
-                    <div className="slds-col_bump-right">
+        <main className="slds-template_default slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-around_large playground-login-page">
+            <section className="slds-box slds-theme_default slds-size_1-of-1 slds-medium-size_10-of-12 slds-large-size_7-of-12 playground-login-panel" aria-labelledby="login-title">
+                <div className="slds-grid slds-wrap slds-gutters_large playground-login-panel__content">
+                    <div className="slds-col slds-size_1-of-1 slds-large-size_5-of-12 playground-login-brand">
                         <Image
-                            className="salesforce-brand-logo"
+                            className="salesforce-brand-logo playground-login-logo"
                             src={salesforceLogo}
                             alt="Salesforce"
-                            width={58}
-                            height={40}
+                            width={92}
+                            height={64}
                             priority
                         />
+                        <span className="slds-badge slds-theme_success slds-m-top_large">個人学習用</span>
+                        <h1 id="login-title" className="slds-text-heading_large slds-m-top_large">
+                            Salesforce API Playground
+                        </h1>
+                        <p className="slds-text-body_regular slds-text-color_weak slds-m-top_medium">
+                            OAuth と REST API の動きを検証用組織で確認するための学習アプリです。
+                        </p>
                     </div>
-                    <span className="slds-badge slds-theme_inverse">Heroku</span>
-                </div>
 
-                <div className="slds-text-align_center">
-                    <span className="slds-icon_container slds-icon-standard-home playground-login-icon" title="Salesforce API Playground">
-                        <StandardIcon className="slds-icon playground-page-header-icon__image" name="home" />
-                        <span className="slds-assistive-text">Salesforce API Playground</span>
-                    </span>
-                    <h1 id="login-title" className="slds-text-heading_large slds-m-top_x-large">
-                        Salesforce API Playground
-                    </h1>
-                    <p className="slds-text-body_regular slds-text-color_weak slds-m-top_medium">
-                        個人学習用アプリケーション
-                    </p>
-                </div>
+                    <div className="slds-col slds-size_1-of-1 slds-large-size_7-of-12 playground-login-form">
+                        <div className="slds-text-align_center">
+                            <span className="slds-icon_container slds-icon-standard-connected-apps playground-login-icon" title="Salesforce 接続">
+                                <StandardIcon className="slds-icon playground-page-header-icon__image" name="connectedApps" />
+                                <span className="slds-assistive-text">Salesforce 接続</span>
+                            </span>
+                            <h2 className="slds-text-heading_medium slds-m-top_large">
+                                Salesforce にログイン
+                            </h2>
+                            <p className="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                                Salesforce の認可画面へ移動します。
+                            </p>
+                        </div>
 
-                <div className="slds-m-top_x-large">
-                    <a
-                        className="slds-button slds-button_brand slds-button_stretch heroku-brand-action"
-                        href="/api/auth/login"
-                    >
-                        Salesforce に接続
-                    </a>
+                        <div className="slds-m-top_x-large">
+                            <a
+                                className="slds-button slds-button_brand slds-button_stretch"
+                                href="/api/auth/login"
+                            >
+                                Salesforce に接続
+                            </a>
+                        </div>
+
+                        <div className="slds-scoped-notification slds-media slds-media_center slds-theme_shade slds-m-top_large" role="status">
+                            <div className="slds-media__figure">
+                                <span className="slds-icon_container slds-icon-standard-home" title="Playground">
+                                    <StandardIcon className="slds-icon slds-icon_small" name="home" />
+                                    <span className="slds-assistive-text">Playground</span>
+                                </span>
+                            </div>
+                            <div className="slds-media__body">
+                                <p className="slds-text-body_small">
+                                    本番データではなく、学習・検証用の Salesforce 組織で利用してください。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>

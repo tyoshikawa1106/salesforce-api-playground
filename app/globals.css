@@ -147,7 +147,30 @@ body {
 }
 
 .playground-login-page {
+    background:
+        linear-gradient(180deg, rgba(1, 68, 134, 0.06), rgba(243, 243, 243, 0.94)),
+        var(--slds-g-color-neutral-base-95);
     min-height: 100vh;
+}
+
+.playground-login-panel {
+    border-top: var(--slds-g-sizing-1, 0.125rem) solid var(--slds-g-color-brand-base-50);
+    padding: 0;
+}
+
+.playground-login-panel__content {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.playground-login-brand,
+.playground-login-form {
+    padding: var(--slds-g-spacing-6, 2rem);
+}
+
+.playground-login-brand {
+    background: var(--slds-g-color-neutral-base-95);
+    border-right: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
 }
 
 .playground-login-icon {
@@ -195,6 +218,16 @@ body {
 }
 
 @media (max-width: 767px) {
+    .playground-login-brand,
+    .playground-login-form {
+        padding: var(--slds-g-spacing-5, 1.5rem);
+    }
+
+    .playground-login-brand {
+        border-bottom: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
+        border-right: 0;
+    }
+
     .playground-list-toolbar {
         align-items: stretch;
         flex-direction: column;
