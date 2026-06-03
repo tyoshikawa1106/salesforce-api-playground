@@ -175,6 +175,7 @@ PR merge 前:
 
     | 判定 | 対象差分 | 実行内容 |
     | --- | --- | --- |
+    | workflow YAML check | すべての PR / `main` push | `npm run workflows:check` |
     | docs-only | `*.md`、`docs/*`、`.github/pull_request_template.md`、`.github/ISSUE_TEMPLATE/*` のみ | `git diff --check` と sensitive-value scan |
     | full check | docs-only 以外のコード、設定、workflow、依存関係 | sensitive-value scan、Node.js setup、lint、typecheck、coverage、build |
     | UI / SLDS 関連 | `app/*.tsx`、`components/*`、CSS、SLDS / ESLint / Next.js 設定、package、CI workflow | full check に加えて `npm run slds:lint` |
@@ -182,6 +183,7 @@ PR merge 前:
 3. full check では Node.js 24 で以下を実行する。
 
     ```bash
+    npm run workflows:check
     npm ci
     npm run lint
     npm run slds:lint

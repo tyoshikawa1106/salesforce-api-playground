@@ -20,6 +20,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check workflow YAML syntax
+        run: npm run workflows:check
+
       - name: Detect change scope
         id: changes
         shell: bash
@@ -66,7 +69,7 @@ jobs:
               app/*.tsx|app/**/*.tsx|components/*|components/**/*|*.css|**/*.css) ui_related=true ;;
               slds-linter.eslint.config.mjs|eslint.config.mjs|next.config.mjs) ui_related=true ;;
               package.json|package-lock.json|npm-shrinkwrap.json) ui_related=true ;;
-              .github/workflows/ci.yml) ui_related=true ;;
+              .github/workflows/*) ui_related=true ;;
             esac
           done < changed-files.txt
 

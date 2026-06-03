@@ -136,9 +136,18 @@ git diff --check
 
 CI の docs-only 判定でも、`*.md`、`docs/*`、`.github/pull_request_template.md`、`.github/ISSUE_TEMPLATE/*` だけの差分は `git diff --check` と sensitive-value scan を実行し、Node.js の full check は skip します。`.github/workflows/ci.yml`、package、Next.js 設定、環境変数の扱いを変えるコードは docs-only ではありません。
 
+GitHub Actions workflow を変更する場合:
+
+```bash
+npm run workflows:check
+```
+
+`npm run workflows:check` は `.github/workflows/*.yml` を YAML として parse します。GitHub Actions の意味論をすべて検査するものではありませんが、`run: echo "Normal skip: ..."` のように YAML として壊れる変更を CI 前に検出できます。CI でも docs-only / full check の判定に関係なく実行します。
+
 コード変更時は、差分に応じて以下から必要な確認を選択します。
 
 ```bash
+npm run workflows:check
 npm run lint
 npm run slds:lint
 npm run typecheck
@@ -150,6 +159,7 @@ npm run build
 
 | 変更内容 | 主な確認 |
 | --- | --- |
+| GitHub Actions workflow の変更 | `npm run workflows:check` / `npm run lint` / `npm run typecheck` / `npm run test:coverage` / `npm run build` |
 | TypeScript / React / API / services の変更 | `npm run lint` / `npm run typecheck` / `npm run test:coverage` |
 | UI / CSS / SLDS 構造の変更 | `npm run slds:lint` / `npm run lint` / `npm run typecheck` / `npm run test:coverage` |
 | ビルド設定、Next.js 設定、依存関係、環境変数の扱い、広範囲な UI 変更 | 上記に加えて `npm run build` |
