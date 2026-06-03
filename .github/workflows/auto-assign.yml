@@ -76,6 +76,7 @@ jobs:
         if: env.GH_TOKEN == ''
         run: |
           echo "Normal skip: Project assignment requires GH_PROJECT_TOKEN, and the secret is not configured."
+          echo "Project assignment was skipped because GH_PROJECT_TOKEN is not configured." >> "$GITHUB_STEP_SUMMARY"
 
   add-pull-request-to-project:
     name: Add pull request to project
@@ -96,6 +97,7 @@ jobs:
         if: env.GH_TOKEN == ''
         run: |
           echo "Normal skip: Project assignment requires GH_PROJECT_TOKEN, and the secret is not configured."
+          echo "Project assignment was skipped because GH_PROJECT_TOKEN is not configured." >> "$GITHUB_STEP_SUMMARY"
 
   mark-issue-done:
     name: Mark issue project status done
@@ -127,6 +129,7 @@ jobs:
         if: env.GH_TOKEN == ''
         run: |
           echo "Normal skip: Project status update requires GH_PROJECT_TOKEN, and the secret is not configured."
+          echo "Project status update was skipped because GH_PROJECT_TOKEN is not configured." >> "$GITHUB_STEP_SUMMARY"
 
   mark-pull-request-done:
     name: Mark pull request project status done
@@ -158,3 +161,4 @@ jobs:
         if: env.GH_TOKEN == ''
         run: |
           echo "Normal skip: Project status update requires GH_PROJECT_TOKEN, and the secret is not configured."
+          echo "Project status update was skipped because GH_PROJECT_TOKEN is not configured." >> "$GITHUB_STEP_SUMMARY"
