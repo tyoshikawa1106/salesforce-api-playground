@@ -309,11 +309,15 @@ vYYYY.MM.DD
 v2026.06.02
 ```
 
-タグは、その日の main first-parent 履歴における Release 対象の最終コミットを指すようにします。同じ日に複数回 main へ merge された場合も、通常は 1 日 1 Release にまとめます。Release 作成後に同じ日付で追加 merge された変更は、公開済み tag に含まれないため次回 Release に含めます。特別な節目を分けたい場合のみ、日付に加えて個別の version tag を検討します。
+タグは、その日の main first-parent 履歴における Release 対象の最終コミットを指すようにします。同じ日に複数回 main へ merge された場合も、通常は 1 日 1 Release にまとめます。Release 作成後に同じ日付で追加 merge された変更は、公開済み tag に含まれないため次回 Release に含めます。
+
+同じ日に複数の Release を分ける必要がある場合のみ、`vYYYY.MM.DD-2` のような suffix 付き tag を使います。この場合も Release notes の比較元は直前の Release tag です。GitHub の自動生成が日付だけの tag を比較元として推定することがあるため、`--notes-start-tag <前回tag>` または GitHub 画面の `Previous tag` で直前 tag を明示します。
+
+特別な節目を日付 Release と別に扱いたい場合のみ、日付に加えて個別の version tag を検討します。
 
 ### 作成手順
 
-Release は古いタグから順に作成します。これにより、GitHub の自動生成 Release notes が直前の Release tag との差分を使えます。
+Release は古いタグから順に作成します。Release notes の自動生成では、必ず直前の Release tag を比較元として指定します。特に suffix 付き tag が混在する場合、GitHub の推定する比較元が直前 tag にならないことがあるため、`--notes-start-tag` を省略しません。
 
 ```bash
 git switch main
@@ -336,6 +340,8 @@ gh release create vYYYY.MM.DD --verify-tag --title "YYYY-MM-DD" --generate-notes
 ```
 
 GitHub 画面から作成する場合は、Release 作成画面で対象 tag と `Previous tag` を選び、`Generate release notes` を実行します。生成後の本文は、公開前に過不足がないか確認します。
+
+Release 作成後は、`Full Changelog` の compare URL が `<前回tag>...<今回tag>` になっていることを確認します。比較元がずれている場合は、Release notes 本文を直前 tag から今回 tag までの内容に修正します。公開済み tag 自体は、誤った commit を指している場合を除き付け替えません。
 
 Release notes に特定 PR を含めたい場合は、まずその PR の merge commit が対象 tag に含まれていることを確認します。
 
