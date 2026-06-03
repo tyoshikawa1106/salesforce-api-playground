@@ -1,5 +1,3 @@
-import Image from "next/image";
-import { salesforceLogo } from "./icons";
 import { StandardIcon } from "./SldsIcon";
 
 export function SessionLoadingPage() {
@@ -25,21 +23,10 @@ export function LoginPage() {
             <section className="slds-box slds-theme_default slds-size_1-of-1 slds-medium-size_10-of-12 slds-large-size_7-of-12 playground-login-panel" aria-labelledby="login-title">
                 <div className="slds-grid slds-wrap slds-gutters_large playground-login-panel__content">
                     <div className="slds-col slds-size_1-of-1 slds-large-size_5-of-12 playground-login-brand">
-                        <Image
-                            className="salesforce-brand-logo playground-login-logo"
-                            src={salesforceLogo}
-                            alt="Salesforce"
-                            width={92}
-                            height={64}
-                            priority
-                        />
-                        <span className="slds-badge slds-theme_success slds-m-top_large">個人学習用</span>
+                        <span className="slds-badge slds-theme_success">個人学習用</span>
                         <h1 id="login-title" className="slds-text-heading_large slds-m-top_large">
                             Salesforce API Playground
                         </h1>
-                        <p className="slds-text-body_regular slds-text-color_weak slds-m-top_medium">
-                            OAuth と REST API の動きを検証用組織で確認するための学習アプリです。
-                        </p>
                     </div>
 
                     <div className="slds-col slds-size_1-of-1 slds-large-size_7-of-12 playground-login-form">
@@ -48,15 +35,9 @@ export function LoginPage() {
                                 <StandardIcon className="slds-icon playground-page-header-icon__image" name="connectedApps" />
                                 <span className="slds-assistive-text">Salesforce 接続</span>
                             </span>
-                            <h2 className="slds-text-heading_medium slds-m-top_large">
-                                Salesforce にログイン
-                            </h2>
-                            <p className="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
-                                Salesforce の認可画面へ移動します。
-                            </p>
                         </div>
 
-                        <div className="slds-m-top_x-large">
+                        <div className="slds-m-top_large">
                             <a
                                 className="slds-button slds-button_brand slds-button_stretch"
                                 href="/api/auth/login"
