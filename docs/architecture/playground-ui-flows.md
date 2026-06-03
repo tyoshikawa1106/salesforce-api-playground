@@ -30,7 +30,7 @@ nav_order: 20
 
 ### login 前
 
-- 初回表示では `GET /api/session` を確認し、接続確認中は `LoginPage loading` を表示する。
+- 初回表示では `GET /api/session` を確認し、接続確認中はログイン導線を含まない `SessionLoadingPage` を表示する。
 - 未接続の場合は Salesforce ロゴ、Heroku バッジ、`/api/auth/login` への接続ボタンを表示する。
 - `GET /api/session` が失敗した場合は toast でエラーを表示し、未接続画面に戻す。
 
@@ -69,7 +69,7 @@ nav_order: 20
 
 ### loading / success / error 表示
 
-- 初回または再取得中は loading state を持ち、未接続時は login loading、一覧では empty state 風の loading 文言を表示する。
+- 初回の接続確認中は session 未確認状態として扱い、ログイン導線を含まない loading を表示する。接続後の再取得中は現在の画面を維持し、一覧では empty state 風の loading 文言を表示する。
 - 作成 / 更新 / 削除 / 連携作成の成功と失敗は `NoticeBanner` の toast に集約する。
 - API エラー文言は `components/playground/api.ts` と `lib/playground-api.ts` で UI 表示向けに変換する。
 

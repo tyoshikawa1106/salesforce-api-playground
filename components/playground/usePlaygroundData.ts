@@ -10,7 +10,7 @@ type UsePlaygroundDataOptions = {
 };
 
 export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
-    const [session, setSession] = useState<SessionInfo>({ connected: false });
+    const [session, setSession] = useState<SessionInfo | null>(null);
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [activeTab, setActiveTab] = useState<ActiveTab>("home");
@@ -46,11 +46,11 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
             const nextSession = await apiRequest<SessionInfo>(
                 buildPlaygroundApiRequest(playgroundApiPaths.session)
             );
-            setSession(nextSession);
             if (!nextSession.connected) {
                 resetConnectedState();
                 return;
             }
+            setSession(nextSession);
 
             const [accountResult, contactResult] = await Promise.all([
                 apiRequest<{ accounts: Account[] }>(
