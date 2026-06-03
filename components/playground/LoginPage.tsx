@@ -2,7 +2,24 @@ import Image from "next/image";
 import { salesforceLogo } from "./icons";
 import { StandardIcon } from "./SldsIcon";
 
-export function LoginPage({ loading = false }: { loading?: boolean }) {
+export function SessionLoadingPage() {
+    return (
+        <main className="slds-template_default slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-around_large slds-theme_shade playground-login-page">
+            <section className="slds-text-align_center" aria-live="polite" aria-busy="true">
+                <div className="slds-spinner slds-spinner_medium slds-spinner_brand" role="status">
+                    <span className="slds-assistive-text">接続状態を確認しています...</span>
+                    <div className="slds-spinner__dot-a" />
+                    <div className="slds-spinner__dot-b" />
+                </div>
+                <p className="slds-text-body_regular slds-text-color_weak slds-m-top_x-large">
+                    接続状態を確認しています...
+                </p>
+            </section>
+        </main>
+    );
+}
+
+export function LoginPage() {
     return (
         <main className="slds-template_default slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-around_large slds-theme_shade playground-login-page">
             <section className="slds-box slds-theme_default slds-size_1-of-1 slds-medium-size_5-of-12 slds-large-size_1-of-3 slds-p-around_x-large playground-login-panel" aria-labelledby="login-title">
@@ -35,11 +52,10 @@ export function LoginPage({ loading = false }: { loading?: boolean }) {
 
                 <div className="slds-m-top_x-large">
                     <a
-                        className={`slds-button slds-button_brand slds-button_stretch heroku-brand-action ${loading ? "slds-disabled" : ""}`}
-                        href={loading ? undefined : "/api/auth/login"}
-                        aria-disabled={loading}
+                        className="slds-button slds-button_brand slds-button_stretch heroku-brand-action"
+                        href="/api/auth/login"
                     >
-                        {loading ? "接続を確認しています..." : "Salesforce に接続"}
+                        Salesforce に接続
                     </a>
                 </div>
             </section>

@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
-import { LoginPage } from "./LoginPage";
+import { LoginPage, SessionLoadingPage } from "./LoginPage";
 import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel, filterAccounts, filterContacts, getSelectionState } from "./RecordLists";
@@ -70,6 +70,15 @@ describe("playground UI smoke rendering", () => {
         expect(markup).toContain("Salesforce API Playground");
         expect(markup).toContain("Salesforce に接続");
         expect(markup).toContain("/api/auth/login");
+    });
+
+    it("renders session loading without the login action", () => {
+        const markup = renderToStaticMarkup(createElement(SessionLoadingPage));
+
+        expect(markup).toContain("接続状態を確認しています...");
+        expect(markup).toContain("aria-busy=\"true\"");
+        expect(markup).not.toContain("/api/auth/login");
+        expect(markup).not.toContain("Salesforce に接続");
     });
 
     it("renders account and contact list views with record actions", () => {
