@@ -101,7 +101,7 @@ Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認は 
 
 | 事象 | 確認すること | 対処 |
 | --- | --- | --- |
-| GitHub `main` merge 後に Staging release が作成されない | PR merge 後の `main` push workflow が pass しているか、確認対象 app が Pipeline の `staging` stage か、Staging app の GitHub 自動デプロイ設定が `main` になっているか | Heroku release 履歴で commit hash との対応を見る。ローカル `heroku` remote が Production app を指している場合があるため、`pipeline_coupling.stage` または `heroku pipelines:info` で Staging app を特定してから確認する |
+| GitHub `main` merge 後に Staging release が作成されない | PR merge 後の `main` push workflow が pass しているか、確認対象 app が Pipeline の `staging` stage か、Staging app の GitHub 自動デプロイ設定が `main` になっているか | GitHub Actions pass 直後は Heroku 側の build / release 作成が完了していない場合があるため、数分待って release 履歴と dyno 状態を再確認する。ローカル `heroku` remote が Production app を指している場合があるため、`pipeline_coupling.stage` または `heroku pipelines:info` で Staging app を特定してから確認する。再確認後も release が進まない場合は、Heroku Dashboard の Activity / build 詳細と自動デプロイ設定を確認する |
 | Staging から Production へ promote できない | Heroku Pipeline に Staging app と Production app が正しい stage で追加されているか | `heroku pipelines --json` と `heroku pipelines:info <pipeline-name> --json` で確認する |
 | Heroku build が失敗する | CI と同じ `npm ci`, `npm run lint`, `npm run slds:lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build` が通るか | build log は Heroku Dashboard の Activity / build 詳細画面で確認する |
 | Heroku 起動に失敗する | `Procfile` が `web: npm run start` か、`npm run start` が `next start -p ${PORT:-3000}` か、Config Vars が揃っているか | `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`, `SALESFORCE_REDIRECT_URI`, `SESSION_SECRET` を確認 |
