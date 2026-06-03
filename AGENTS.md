@@ -48,6 +48,9 @@
 - PR マージ前に GitHub Actions が pass していることを確認する。
 - PR が `main` にマージ済みであることを確認したら、`main` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。
 - GitHub Releases / Release notes を正式なリリースノートとして扱う。Release notes は tag ベースで扱い、対象 tag に含まれない PR を既存 Release notes に追記しない。同じ日付の変更でも、tag 作成後に merge された PR は次回 Release に含める。
+- Release tag は原則 1 日 1 回 `vYYYY.MM.DD` として作成する。同日中に追加 Release を分ける必要がある場合のみ `vYYYY.MM.DD-2`、`vYYYY.MM.DD-3` のような連番 suffix を使う。
+- Release 作成時は、先に `git tag <tag> <commit>` と `git push origin <tag>` で tag を明示的に作成し、`gh release create` には `--verify-tag`、`--notes-start-tag <前回tag>`、`--latest` を付ける。tag 未作成のまま `gh release create` に tag を自動作成させない。
+- Release 作成後は、`Full Changelog` が `<前回tag>...<今回tag>` になっていることを確認する。比較元がずれている場合は Release notes 本文を修正し、公開済み tag は誤った commit を指している場合を除き動かさない。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - Codex の sandbox 内で `gh` が `error connecting to api.github.com` などのネットワーク制限由来のエラーになった場合は、同じコマンドを必要最小限の `prefix_rule` 付きで権限昇格して再実行する。権限昇格できない場合は、実行できなかった GitHub 操作と必要な手動操作を最終報告に明記する。
