@@ -123,6 +123,7 @@ Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認は 
 | `npm ci` が失敗する | `package-lock.json` と `package.json` の整合性 | 依存追加は原則しない。必要な場合は理由を説明して承認後に更新 |
 | ESLint が失敗する | 対象ファイルの lint エラー | `npm run lint` をローカルで確認 |
 | SLDS lint が失敗する | SLDS1 の構造 / class | `npm run slds:lint` を確認し、UI は標準 SLDS class を優先 |
+| Issue / PR が Project に自動追加されない | Auto assign workflow の `Add issue to project` / `Add pull request to project` job 内で、Project 追加 step が success か skipped か | job conclusion が success でも、`GH_PROJECT_TOKEN` 未設定時は Project 追加 step が skipped になる。Step Summary と `Normal skip` ログを確認する |
 | typecheck が失敗する | TypeScript 型エラー | `npm run typecheck` を確認 |
 | coverage test が失敗する | 失敗テストと差分 | `npm run test:coverage` を確認 |
 | build が失敗する | Next.js build エラー、環境変数依存 | `npm run build` を確認。build 時に実 Salesforce 接続は不要 |

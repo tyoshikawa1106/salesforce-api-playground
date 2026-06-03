@@ -58,7 +58,7 @@ Codex が GitHub Connector または `gh` で Project `Salesforce API Playground
 
 `GH_PROJECT_TOKEN` の設定有無は、repository 管理画面の `Settings` -> `Secrets and variables` -> `Actions` で確認します。`gh secret list --repo tyoshikawa1106/salesforce-api-playground` でも secret 名を確認できますが、権限不足の場合は一覧できないことがあります。secret の値や scope は GitHub 上でも再表示できないため、token 作成元の設定で確認します。
 
-Project 自動追加の実効状態は、workflow 全体の conclusion だけで判断しません。secret 未設定時も workflow は success になり、Project 追加 step だけが skipped になります。この skipped は正常系で、対応する `Skip project assignment` または `Skip project status update` step の echo に `Normal skip` と出ていれば、secret 未設定による意図した skip と判断します。必要に応じて対象 run の job / step 結果を確認します。
+Project 自動追加の実効状態は、workflow 全体の conclusion や job conclusion だけで判断しません。secret 未設定時も workflow と `Add issue to project` / `Add pull request to project` job は success になり、実際の Project 追加 step だけが skipped になります。この skipped は正常系で、対応する `Skip project assignment` または `Skip project status update` step の echo に `Normal skip` と出ていれば、secret 未設定による意図した skip と判断します。skip 時は GitHub Actions の Step Summary にも `GH_PROJECT_TOKEN` 未設定であることを出力します。必要に応じて対象 run の job / step 結果を確認します。
 
 ```bash
 gh run list --workflow auto-assign.yml --limit 20 --json databaseId,displayTitle,event,conclusion,createdAt,url
@@ -75,6 +75,8 @@ gh run view <Run ID> --json jobs,conclusion,event,displayTitle,url,createdAt
 | `pull_request.closed` | merge 済み PR で `Mark pull request as Done` step が success | `Mark pull request as Done` step が skipped になり、`Skip project status update` step が success。echo が `Normal skip` |
 
 Project item の追加結果は、Project 画面または `gh project item-list` で対象 Issue / Pull Request の URL を検索して確認します。自動追加が動作しない場合は、原因を workflow log で確認し、必要に応じて手動で Project に追加します。
+
+2026-06-03 時点の確認では、Issue #258 作成時と PR #260 作成時の Auto assign workflow は success でしたが、Project 追加 step は `GH_PROJECT_TOKEN` 未設定により skipped でした。そのため、Project 自動追加は workflow としては正常に skip されており、実際の Project 追加を有効にするには repository secret `GH_PROJECT_TOKEN` の設定が必要です。
 
 `Done` 移動の自動化は以下のイベントで実行します。
 
