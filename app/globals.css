@@ -154,7 +154,6 @@ body {
 }
 
 .playground-login-panel {
-    border-top: var(--slds-g-sizing-1, 0.125rem) solid var(--slds-g-color-brand-base-50);
     padding: 0;
 }
 
@@ -171,6 +170,15 @@ body {
 .playground-login-brand {
     background: var(--slds-g-color-neutral-base-95);
     border-right: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
+}
+
+.playground-login-badge {
+    min-height: var(--slds-g-sizing-8, 1.75rem);
+}
+
+.playground-login-badge_heroku {
+    background: var(--heroku-purple);
+    color: var(--slds-g-color-neutral-base-100, #fff);
 }
 
 .playground-login-icon {

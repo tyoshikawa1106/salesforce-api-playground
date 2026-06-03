@@ -23,7 +23,10 @@ export function LoginPage() {
             <section className="slds-box slds-theme_default slds-size_1-of-1 slds-medium-size_10-of-12 slds-large-size_7-of-12 playground-login-panel" aria-labelledby="login-title">
                 <div className="slds-grid slds-wrap slds-gutters_large playground-login-panel__content">
                     <div className="slds-col slds-size_1-of-1 slds-large-size_5-of-12 playground-login-brand">
-                        <span className="slds-badge slds-theme_success">個人学習用</span>
+                        <div className="slds-grid slds-wrap slds-gutters_x-small">
+                            <span className="slds-badge slds-theme_success playground-login-badge">個人学習用</span>
+                            <span className="slds-badge slds-theme_success playground-login-badge playground-login-badge_heroku">Heroku</span>
+                        </div>
                         <h1 id="login-title" className="slds-text-heading_large slds-m-top_large">
                             Salesforce API Playground
                         </h1>
@@ -44,20 +47,6 @@ export function LoginPage() {
                             >
                                 Salesforce に接続
                             </a>
-                        </div>
-
-                        <div className="slds-scoped-notification slds-media slds-media_center slds-theme_shade slds-m-top_large" role="status">
-                            <div className="slds-media__figure">
-                                <span className="slds-icon_container slds-icon-standard-home" title="Playground">
-                                    <StandardIcon className="slds-icon slds-icon_small" name="home" />
-                                    <span className="slds-assistive-text">Playground</span>
-                                </span>
-                            </div>
-                            <div className="slds-media__body">
-                                <p className="slds-text-body_small">
-                                    本番データではなく、学習・検証用の Salesforce 組織で利用してください。
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>
