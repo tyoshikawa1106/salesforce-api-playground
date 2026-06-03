@@ -147,7 +147,42 @@ body {
 }
 
 .playground-login-page {
+    background:
+        linear-gradient(180deg, rgba(1, 68, 134, 0.06), rgba(243, 243, 243, 0.94)),
+        var(--slds-g-color-neutral-base-95);
     min-height: 100vh;
+}
+
+.playground-login-panel {
+    padding: 0;
+}
+
+.playground-login-panel__content {
+    display: block;
+}
+
+.playground-login-brand,
+.playground-login-form {
+    padding: var(--slds-g-spacing-6, 2rem);
+}
+
+.playground-login-brand {
+    background: var(--slds-g-color-neutral-base-95);
+    border-bottom: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
+}
+
+.playground-login-badge {
+    min-height: var(--slds-g-sizing-8, 1.75rem);
+}
+
+.playground-login-badge_heroku {
+    background: var(--heroku-purple);
+    color: var(--slds-g-color-neutral-base-100, #fff);
+}
+
+.playground-login-action {
+    font-size: var(--slds-g-font-scale-1, 0.875rem);
+    min-height: var(--slds-g-sizing-10, 3rem);
 }
 
 .playground-login-icon {
@@ -195,6 +230,20 @@ body {
 }
 
 @media (max-width: 767px) {
+    .playground-login-page {
+        padding-left: var(--slds-g-spacing-3, 0.75rem);
+        padding-right: var(--slds-g-spacing-3, 0.75rem);
+    }
+
+    .playground-login-brand,
+    .playground-login-form {
+        padding: var(--slds-g-spacing-4, 1rem);
+    }
+
+    .playground-login-action {
+        font-size: var(--slds-g-font-scale-base, 0.8125rem);
+    }
+
     .playground-list-toolbar {
         align-items: stretch;
         flex-direction: column;
