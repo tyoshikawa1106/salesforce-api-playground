@@ -1,9 +1,21 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { Account, Contact } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
 import { UtilityButtonIcon } from "./Navigation";
+
+type RecordListColumn<Record> = {
+    label: string;
+    getValue: (record: Record) => ReactNode;
+};
+
+type RecordListMessages = {
+    loading: string;
+    empty: string;
+    disconnected: string;
+    filteredEmpty: string;
+};
 
 function ListViewToolbar({
     count,
@@ -60,102 +72,36 @@ export function AccountPanel({
     onEdit: (record: Account) => void;
     onDelete: (record: Account) => void;
 }) {
-    const listState = useRecordListState(accounts, filterAccounts);
+    const columns: Array<RecordListColumn<Account>> = [
+        { label: "電話", getValue: (account) => account.Phone },
+        { label: "Web サイト", getValue: (account) => account.Website },
+        { label: "業種", getValue: (account) => account.Industry },
+        { label: "請求先", getValue: getAccountBilling },
+        { label: "最終更新日", getValue: (account) => formatDate(account.LastModifiedDate) }
+    ];
 
     return (
-        <div className="slds-theme_default">
-            <ListViewToolbar
-                count={listState.filteredRecords.length}
-                searchId="account-list-search"
-                searchValue={listState.searchTerm}
-                onSearchChange={listState.setSearchTerm}
-            />
-            <RecordListEmptyStates
-                loading={loading}
-                hasRecords={listState.hasRecords}
-                hasFilteredRecords={listState.hasFilteredRecords}
-                connected={connected}
-                loadingMessage="取引先を読み込んでいます..."
-                emptyMessage="取引先が見つかりません。"
-                disconnectedMessage="Salesforce に接続すると取引先を読み込めます。"
-                filteredEmptyMessage="検索条件に一致する取引先が見つかりません。"
-            />
-            {!loading && listState.hasFilteredRecords ? (
-                <div className="slds-scrollable_x">
-                    <table
-                        className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
-                        role="grid"
-                        aria-label="取引先一覧"
-                        aria-multiselectable="true"
-                    >
-                        <thead>
-                            <tr className="slds-line-height_reset">
-                                <th className="slds-text-align_right slds-cell_action-mode" role="cell" style={{ width: "3.25rem" }}>
-                                    <div className="slds-th__action slds-th__action_form">
-                                        <SelectionCheckbox
-                                            ariaLabel="表示中の取引先をすべて選択"
-                                            checked={listState.selectionState.allVisibleSelected}
-                                            mixed={listState.selectionState.someVisibleSelected}
-                                            onChange={listState.toggleVisibleSelection}
-                                        />
-                                    </div>
-                                </th>
-                                <DataTableColumnHeader label="取引先名" />
-                                <DataTableColumnHeader label="電話" />
-                                <DataTableColumnHeader label="Web サイト" />
-                                <DataTableColumnHeader label="業種" />
-                                <DataTableColumnHeader label="請求先" />
-                                <DataTableColumnHeader label="最終更新日" />
-                                <th className="slds-cell_action-mode" scope="col" style={{ width: "3.25rem" }}>
-                                    <DataTableHeader label="アクション" assistive />
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {listState.filteredRecords.map((account) => (
-                                <tr
-                                    className="slds-hint-parent"
-                                    key={account.Id}
-                                    aria-selected={listState.selectedIds.has(account.Id)}
-                                >
-                                    <td className="slds-text-align_right slds-cell_action-mode" data-label="選択" role="gridcell">
-                                        <SelectionCheckbox
-                                            ariaLabel={`${account.Name} を選択`}
-                                            checked={listState.selectedIds.has(account.Id)}
-                                            mixed={false}
-                                            onChange={() => listState.toggleSelection(account.Id)}
-                                        />
-                                    </td>
-                                    <th className="slds-cell_action-mode" scope="row" data-label="取引先名">
-                                        <div className="slds-truncate" title={account.Name}>
-                                            <button className="slds-button_reset slds-text-link" type="button" onClick={() => onOpen(account)}>
-                                                {account.Name}
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <TableCell label="電話" value={account.Phone} />
-                                    <TableCell label="Web サイト" value={account.Website} />
-                                    <TableCell label="業種" value={account.Industry} />
-                                    <TableCell label="請求先" value={getAccountBilling(account)} />
-                                    <TableCell label="最終更新日" value={formatDate(account.LastModifiedDate)} />
-                                    <td className="slds-cell_action-mode slds-text-align_center" data-label="アクション" role="gridcell">
-                                        <RecordTableActions
-                                            record={account}
-                                            recordLabel={account.Name}
-                                            open={listState.openActionRecordId === account.Id}
-                                            onToggle={() => listState.toggleActionMenu(account.Id)}
-                                            onClose={listState.closeActionMenu}
-                                            onEdit={onEdit}
-                                            onDelete={onDelete}
-                                        />
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : null}
-        </div>
+        <RecordListPanel
+            records={accounts}
+            loading={loading}
+            connected={connected}
+            searchId="account-list-search"
+            ariaLabel="取引先一覧"
+            primaryColumnLabel="取引先名"
+            selectAllLabel="表示中の取引先をすべて選択"
+            messages={{
+                loading: "取引先を読み込んでいます...",
+                empty: "取引先が見つかりません。",
+                disconnected: "Salesforce に接続すると取引先を読み込めます。",
+                filteredEmpty: "検索条件に一致する取引先が見つかりません。"
+            }}
+            columns={columns}
+            filterListRecords={filterAccounts}
+            getRecordLabel={(account) => account.Name}
+            onOpen={onOpen}
+            onEdit={onEdit}
+            onDelete={onDelete}
+        />
     );
 }
 
@@ -174,13 +120,77 @@ export function ContactPanel({
     onEdit: (record: Contact) => void;
     onDelete: (record: Contact) => void;
 }) {
-    const listState = useRecordListState(contacts, filterContacts);
+    const columns: Array<RecordListColumn<Contact>> = [
+        { label: "役職", getValue: (contact) => contact.Title },
+        { label: "取引先名", getValue: (contact) => contact.Account?.Name },
+        { label: "メール", getValue: (contact) => contact.Email },
+        { label: "電話", getValue: (contact) => contact.Phone },
+        { label: "最終更新日", getValue: (contact) => formatDate(contact.LastModifiedDate) }
+    ];
+
+    return (
+        <RecordListPanel
+            records={contacts}
+            loading={loading}
+            connected={connected}
+            searchId="contact-list-search"
+            ariaLabel="取引先責任者一覧"
+            primaryColumnLabel="氏名"
+            selectAllLabel="表示中の取引先責任者をすべて選択"
+            messages={{
+                loading: "取引先責任者を読み込んでいます...",
+                empty: "取引先責任者が見つかりません。",
+                disconnected: "Salesforce に接続すると取引先責任者を読み込めます。",
+                filteredEmpty: "検索条件に一致する取引先責任者が見つかりません。"
+            }}
+            columns={columns}
+            filterListRecords={filterContacts}
+            getRecordLabel={getContactName}
+            onOpen={onOpen}
+            onEdit={onEdit}
+            onDelete={onDelete}
+        />
+    );
+}
+
+function RecordListPanel<Record extends { Id: string }>({
+    records,
+    loading,
+    connected,
+    searchId,
+    ariaLabel,
+    primaryColumnLabel,
+    selectAllLabel,
+    messages,
+    columns,
+    filterListRecords,
+    getRecordLabel,
+    onOpen,
+    onEdit,
+    onDelete
+}: {
+    records: Record[];
+    loading: boolean;
+    connected: boolean;
+    searchId: string;
+    ariaLabel: string;
+    primaryColumnLabel: string;
+    selectAllLabel: string;
+    messages: RecordListMessages;
+    columns: Array<RecordListColumn<Record>>;
+    filterListRecords: (records: Record[], searchTerm: string) => Record[];
+    getRecordLabel: (record: Record) => string;
+    onOpen: (record: Record) => void;
+    onEdit: (record: Record) => void;
+    onDelete: (record: Record) => void;
+}) {
+    const listState = useRecordListState(records, filterListRecords);
 
     return (
         <div className="slds-theme_default">
             <ListViewToolbar
                 count={listState.filteredRecords.length}
-                searchId="contact-list-search"
+                searchId={searchId}
                 searchValue={listState.searchTerm}
                 onSearchChange={listState.setSearchTerm}
             />
@@ -189,17 +199,17 @@ export function ContactPanel({
                 hasRecords={listState.hasRecords}
                 hasFilteredRecords={listState.hasFilteredRecords}
                 connected={connected}
-                loadingMessage="取引先責任者を読み込んでいます..."
-                emptyMessage="取引先責任者が見つかりません。"
-                disconnectedMessage="Salesforce に接続すると取引先責任者を読み込めます。"
-                filteredEmptyMessage="検索条件に一致する取引先責任者が見つかりません。"
+                loadingMessage={messages.loading}
+                emptyMessage={messages.empty}
+                disconnectedMessage={messages.disconnected}
+                filteredEmptyMessage={messages.filteredEmpty}
             />
             {!loading && listState.hasFilteredRecords ? (
                 <div className="slds-scrollable_x">
                     <table
                         className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
                         role="grid"
-                        aria-label="取引先責任者一覧"
+                        aria-label={ariaLabel}
                         aria-multiselectable="true"
                     >
                         <thead>
@@ -207,64 +217,64 @@ export function ContactPanel({
                                 <th className="slds-text-align_right slds-cell_action-mode" role="cell" style={{ width: "3.25rem" }}>
                                     <div className="slds-th__action slds-th__action_form">
                                         <SelectionCheckbox
-                                            ariaLabel="表示中の取引先責任者をすべて選択"
+                                            ariaLabel={selectAllLabel}
                                             checked={listState.selectionState.allVisibleSelected}
                                             mixed={listState.selectionState.someVisibleSelected}
                                             onChange={listState.toggleVisibleSelection}
                                         />
                                     </div>
                                 </th>
-                                <DataTableColumnHeader label="氏名" />
-                                <DataTableColumnHeader label="役職" />
-                                <DataTableColumnHeader label="取引先名" />
-                                <DataTableColumnHeader label="メール" />
-                                <DataTableColumnHeader label="電話" />
-                                <DataTableColumnHeader label="最終更新日" />
+                                <DataTableColumnHeader label={primaryColumnLabel} />
+                                {columns.map((column) => (
+                                    <DataTableColumnHeader key={column.label} label={column.label} />
+                                ))}
                                 <th className="slds-cell_action-mode" scope="col" style={{ width: "3.25rem" }}>
                                     <DataTableHeader label="アクション" assistive />
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {listState.filteredRecords.map((contact) => (
-                                <tr
-                                    className="slds-hint-parent"
-                                    key={contact.Id}
-                                    aria-selected={listState.selectedIds.has(contact.Id)}
-                                >
-                                    <td className="slds-text-align_right slds-cell_action-mode" data-label="選択" role="gridcell">
-                                        <SelectionCheckbox
-                                            ariaLabel={`${getContactName(contact)} を選択`}
-                                            checked={listState.selectedIds.has(contact.Id)}
-                                            mixed={false}
-                                            onChange={() => listState.toggleSelection(contact.Id)}
-                                        />
-                                    </td>
-                                    <th className="slds-cell_action-mode" scope="row" data-label="氏名">
-                                        <div className="slds-truncate" title={getContactName(contact)}>
-                                            <button className="slds-button_reset slds-text-link" type="button" onClick={() => onOpen(contact)}>
-                                                {getContactName(contact)}
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <TableCell label="役職" value={contact.Title} />
-                                    <TableCell label="取引先名" value={contact.Account?.Name} />
-                                    <TableCell label="メール" value={contact.Email} />
-                                    <TableCell label="電話" value={contact.Phone} />
-                                    <TableCell label="最終更新日" value={formatDate(contact.LastModifiedDate)} />
-                                    <td className="slds-cell_action-mode slds-text-align_center" data-label="アクション" role="gridcell">
-                                        <RecordTableActions
-                                            record={contact}
-                                            recordLabel={getContactName(contact)}
-                                            open={listState.openActionRecordId === contact.Id}
-                                            onToggle={() => listState.toggleActionMenu(contact.Id)}
-                                            onClose={listState.closeActionMenu}
-                                            onEdit={onEdit}
-                                            onDelete={onDelete}
-                                        />
-                                    </td>
-                                </tr>
-                            ))}
+                            {listState.filteredRecords.map((record) => {
+                                const recordLabel = getRecordLabel(record);
+
+                                return (
+                                    <tr
+                                        className="slds-hint-parent"
+                                        key={record.Id}
+                                        aria-selected={listState.selectedIds.has(record.Id)}
+                                    >
+                                        <td className="slds-text-align_right slds-cell_action-mode" data-label="選択" role="gridcell">
+                                            <SelectionCheckbox
+                                                ariaLabel={`${recordLabel} を選択`}
+                                                checked={listState.selectedIds.has(record.Id)}
+                                                mixed={false}
+                                                onChange={() => listState.toggleSelection(record.Id)}
+                                            />
+                                        </td>
+                                        <th className="slds-cell_action-mode" scope="row" data-label={primaryColumnLabel}>
+                                            <div className="slds-truncate" title={recordLabel}>
+                                                <button className="slds-button_reset slds-text-link" type="button" onClick={() => onOpen(record)}>
+                                                    {recordLabel}
+                                                </button>
+                                            </div>
+                                        </th>
+                                        {columns.map((column) => (
+                                            <TableCell key={column.label} label={column.label} value={column.getValue(record)} />
+                                        ))}
+                                        <td className="slds-cell_action-mode slds-text-align_center" data-label="アクション" role="gridcell">
+                                            <RecordTableActions
+                                                record={record}
+                                                recordLabel={recordLabel}
+                                                open={listState.openActionRecordId === record.Id}
+                                                onToggle={() => listState.toggleActionMenu(record.Id)}
+                                                onClose={listState.closeActionMenu}
+                                                onEdit={onEdit}
+                                                onDelete={onDelete}
+                                            />
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -560,11 +570,13 @@ function pruneSelection(selectedIds: Set<string>, recordIds: string[]) {
     return nextIds.size === selectedIds.size ? selectedIds : nextIds;
 }
 
-function TableCell({ label, value }: { label: string; value?: string }) {
+function TableCell({ label, value }: { label: string; value?: ReactNode }) {
     const displayValue = value || "-";
+    const title = typeof displayValue === "string" ? displayValue : undefined;
+
     return (
         <td className="slds-cell_action-mode" data-label={label} role="gridcell">
-            <div className="slds-truncate" title={displayValue}>
+            <div className="slds-truncate" title={title}>
                 {displayValue}
             </div>
         </td>
