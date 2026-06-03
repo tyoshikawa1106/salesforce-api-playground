@@ -18,9 +18,9 @@ export function SessionLoadingPage() {
 export function LoginPage() {
     return (
         <main className="slds-template_default slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-around_large playground-login-page">
-            <section className="slds-box slds-theme_default slds-size_1-of-1 slds-medium-size_10-of-12 slds-large-size_7-of-12 playground-login-panel" aria-labelledby="login-title">
-                <div className="slds-grid slds-wrap slds-gutters_large playground-login-panel__content">
-                    <div className="slds-col slds-size_1-of-1 slds-large-size_5-of-12 playground-login-brand">
+            <section className="slds-box slds-theme_default slds-size_1-of-1 slds-medium-size_8-of-12 slds-large-size_6-of-12 playground-login-panel" aria-labelledby="login-title">
+                <div className="playground-login-panel__content">
+                    <div className="playground-login-brand">
                         <div className="slds-grid slds-wrap slds-gutters_x-small">
                             <span className="slds-badge slds-theme_success playground-login-badge">個人学習用</span>
                             <span className="slds-badge slds-theme_success playground-login-badge playground-login-badge_heroku">Heroku</span>
@@ -30,7 +30,7 @@ export function LoginPage() {
                         </h1>
                     </div>
 
-                    <div className="slds-col slds-size_1-of-1 slds-large-size_7-of-12 playground-login-form">
+                    <div className="playground-login-form">
                         <div className="slds-m-vertical_x-large">
                             <a
                                 className="slds-button slds-button_brand slds-button_stretch playground-login-action"

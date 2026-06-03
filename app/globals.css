@@ -158,8 +158,7 @@ body {
 }
 
 .playground-login-panel__content {
-    margin-left: 0;
-    margin-right: 0;
+    display: block;
 }
 
 .playground-login-brand,
@@ -169,7 +168,7 @@ body {
 
 .playground-login-brand {
     background: var(--slds-g-color-neutral-base-95);
-    border-right: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
+    border-bottom: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
 }
 
 .playground-login-badge {
@@ -231,14 +230,18 @@ body {
 }
 
 @media (max-width: 767px) {
-    .playground-login-brand,
-    .playground-login-form {
-        padding: var(--slds-g-spacing-5, 1.5rem);
+    .playground-login-page {
+        padding-left: var(--slds-g-spacing-3, 0.75rem);
+        padding-right: var(--slds-g-spacing-3, 0.75rem);
     }
 
-    .playground-login-brand {
-        border-bottom: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
-        border-right: 0;
+    .playground-login-brand,
+    .playground-login-form {
+        padding: var(--slds-g-spacing-4, 1rem);
+    }
+
+    .playground-login-action {
+        font-size: var(--slds-g-font-scale-base, 0.8125rem);
     }
 
     .playground-list-toolbar {
