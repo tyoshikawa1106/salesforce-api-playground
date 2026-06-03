@@ -59,6 +59,8 @@ Heroku 構成の確認観点は Staging / Production で共通です。
 
 Staging app / Production app の作成有無、Pipeline stage、GitHub auto deploy の対象ブランチ、Config Vars の実値は Heroku Dashboard で確認します。GitHub Flow では `main` への merge を Staging deploy の起点にし、Production 反映は Pipeline promote で扱います。Heroku app 名、Git URL、Web URL、Owner、Pipeline 名などの実運用値はこのドキュメントに記載しません。
 
+ローカルの `heroku` remote は Staging app を指しているとは限りません。Staging release を確認する場合は、remote 名ではなく Heroku Pipeline の `stage: staging` に紐付いた app を確認対象にします。`heroku apps:info --app <app-name> --json` の `pipeline_coupling.stage` または `heroku pipelines:info <pipeline-name> --json` で stage を確認してから、対象 app の release 履歴を見ます。
+
 ## ブランチとデプロイ先
 
 | GitHub ブランチ | Heroku app | 用途 | merge 後の確認 |
@@ -217,6 +219,8 @@ heroku pipelines --json
 ```
 
 `heroku builds` は現在のローカル Heroku CLI ではコマンド未提供です。build log が必要な場合は、Heroku Dashboard の Activity / build 詳細画面または利用可能な CLI plugin を確認してください。
+
+2026-06-03 の確認では、Pipeline 上の Staging app に直近の `main` merge commit と対応する release が作成され、Staging dyno は `web: npm run start` で `up` でした。一方で、ローカル `heroku` remote が指す app は Pipeline 上の Production app だったため、Production release 履歴だけを見ると Staging 自動デプロイが止まっているように見えました。以後の確認では、Pipeline stage で Staging app を特定してから release を照合します。
 
 ## OAuth callback 設定
 
