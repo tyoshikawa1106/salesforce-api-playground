@@ -220,8 +220,6 @@ heroku pipelines --json
 
 `heroku builds` は現在のローカル Heroku CLI ではコマンド未提供です。build log が必要な場合は、Heroku Dashboard の Activity / build 詳細画面または利用可能な CLI plugin を確認してください。
 
-2026-06-03 の確認では、Pipeline 上の Staging app に直近の `main` merge commit と対応する release が作成され、Staging dyno は `web: npm run start` で `up` でした。一方で、ローカル `heroku` remote が指す app は Pipeline 上の Production app だったため、Production release 履歴だけを見ると Staging 自動デプロイが止まっているように見えました。以後の確認では、Pipeline stage で Staging app を特定してから release を照合します。
-
 ## OAuth callback 設定
 
 Heroku runtime で OAuth callback を成功させるには、Staging / Production それぞれで以下を一致させます。
