@@ -220,6 +220,8 @@ heroku pipelines --json
 
 `heroku builds` は現在のローカル Heroku CLI ではコマンド未提供です。build log が必要な場合は、Heroku Dashboard の Activity / build 詳細画面または利用可能な CLI plugin を確認してください。
 
+GitHub Actions pass 直後は、Heroku 側の build / release 作成が完了していない場合があります。Staging app の latest release が `main` の merge commit にまだ対応していない場合は、数分待ってから `heroku releases --app <staging-app-name> --num 5` と `heroku ps --app <staging-app-name>` を再確認します。再確認後も release が進まない場合に、自動デプロイ設定や Heroku Dashboard の Activity / build 詳細を調査対象にします。
+
 ## OAuth callback 設定
 
 Heroku runtime で OAuth callback を成功させるには、Staging / Production それぞれで以下を一致させます。
