@@ -309,18 +309,30 @@ vYYYY.MM.DD
 v2026.06.02
 ```
 
-タグは、その日の main first-parent 履歴における Release 対象の最終コミットを指すようにします。同じ日に複数回 main へ merge された場合も、通常は 1 日 1 Release にまとめます。Release 作成後に同じ日付で追加 merge された変更は、公開済み tag に含まれないため次回 Release に含めます。特別な節目を分けたい場合のみ、日付に加えて個別の version tag を検討します。
+タグは、その日の main first-parent 履歴における Release 対象の最終コミットを指すようにします。同じ日に複数回 main へ merge された場合も、通常は 1 日 1 Release にまとめます。Release 作成後に同じ日付で追加 merge された変更は、公開済み tag に含まれないため次回 Release に含めます。
+
+同日中に追加 Release を分ける必要がある場合のみ、連番 suffix を付けます。
+
+```text
+v2026.06.04
+v2026.06.04-2
+v2026.06.04-3
+```
+
+特別な節目を日付 Release と別に扱いたい場合のみ、日付に加えて個別の version tag を検討します。ライブラリや外部配布物として互換性を示す必要がある場合は、日付 tag ではなく SemVer を検討します。
 
 ### 作成手順
 
-Release は古いタグから順に作成します。これにより、GitHub の自動生成 Release notes が直前の Release tag との差分を使えます。
+Release は古いタグから順に作成します。リリース対象 PR が `main` に merge され、必要な確認またはデプロイ確認が完了したあとに作成します。
+
+`gh release create` は、指定した tag が存在しない場合に tag を自動作成できます。このリポジトリでは意図した commit を明確にするため、先に `git tag` と `git push` で tag を作成し、Release 作成時は `--verify-tag` で既存 tag を必須にします。
 
 ```bash
 git switch main
 git pull --ff-only origin main
 git tag vYYYY.MM.DD <main上の対象commit>
 git push origin vYYYY.MM.DD
-gh release create vYYYY.MM.DD --verify-tag --title "YYYY-MM-DD" --generate-notes --notes-start-tag <前回tag>
+gh release create vYYYY.MM.DD --verify-tag --title "YYYY-MM-DD" --generate-notes --notes-start-tag <前回tag> --latest --fail-on-no-commits
 ```
 
 初回 Release では、前回タグが存在しないため `--notes-start-tag` は指定しません。
@@ -336,6 +348,10 @@ gh release create vYYYY.MM.DD --verify-tag --title "YYYY-MM-DD" --generate-notes
 ```
 
 GitHub 画面から作成する場合は、Release 作成画面で対象 tag と `Previous tag` を選び、`Generate release notes` を実行します。生成後の本文は、公開前に過不足がないか確認します。
+
+Release 作成後は、`Full Changelog` の compare URL が `<前回tag>...<今回tag>` になっていることを確認します。Release notes に含まれる PR が今回 tag の差分と一致していること、tag 作成後に merge された PR が紛れ込んでいないことも確認します。
+
+比較元がずれている場合は、Release notes 本文を直前 tag から今回 tag までの内容に修正します。公開済み tag 自体は、誤った commit を指している場合を除き付け替えません。
 
 Release notes に特定 PR を含めたい場合は、まずその PR の merge commit が対象 tag に含まれていることを確認します。
 
