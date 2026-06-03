@@ -181,6 +181,11 @@ body {
     color: var(--slds-g-color-neutral-base-100, #fff);
 }
 
+.playground-login-action {
+    font-size: var(--slds-g-font-scale-1, 0.875rem);
+    min-height: var(--slds-g-sizing-10, 3rem);
+}
+
 .playground-login-icon {
     align-items: center;
     display: inline-flex;

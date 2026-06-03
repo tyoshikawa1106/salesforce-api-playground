@@ -1,5 +1,3 @@
-import { StandardIcon } from "./SldsIcon";
-
 export function SessionLoadingPage() {
     return (
         <main className="slds-template_default slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-around_large slds-theme_shade playground-login-page">
@@ -33,16 +31,9 @@ export function LoginPage() {
                     </div>
 
                     <div className="slds-col slds-size_1-of-1 slds-large-size_7-of-12 playground-login-form">
-                        <div className="slds-text-align_center">
-                            <span className="slds-icon_container slds-icon-standard-connected-apps playground-login-icon" title="Salesforce 接続">
-                                <StandardIcon className="slds-icon playground-page-header-icon__image" name="connectedApps" />
-                                <span className="slds-assistive-text">Salesforce 接続</span>
-                            </span>
-                        </div>
-
-                        <div className="slds-m-top_large">
+                        <div className="slds-m-vertical_x-large">
                             <a
-                                className="slds-button slds-button_brand slds-button_stretch"
+                                className="slds-button slds-button_brand slds-button_stretch playground-login-action"
                                 href="/api/auth/login"
                             >
                                 Salesforce に接続
