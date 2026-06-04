@@ -34,6 +34,7 @@ git switch -c codex/<作業内容>
 | 変更種別 | 主に確認する実装 | あわせて確認する docs |
 | --- | --- | --- |
 | OAuth / session / Cookie | `app/api/auth/*`, `lib/salesforce/session.ts`, `lib/salesforce/client.ts` | [OAuth フロー](../security/oauth-flow.md), [秘密情報の扱い](../security/secret-handling.md), [API 概要](../api/api-overview.md) |
+| URL / XSS 境界 | `lib/playground-api.ts`, `lib/salesforce/url-security.ts`, URL を生成する UI / API 実装 | [OAuth フロー](../security/oauth-flow.md), [秘密情報の扱い](../security/secret-handling.md), [API 概要](../api/api-overview.md) |
 | Account / Contact API | `app/api/accounts`, `app/api/contacts`, `services/salesforce/records.ts` | [API 概要](../api/api-overview.md), [API Route 構成](../architecture/api-route-structure.md), [Salesforce レコードモデル](../architecture/salesforce-record-model.md) |
 | 入力検証 / 許可フィールド | `lib/salesforce/request-payloads.ts`, `lib/salesforce/record-fields.ts` | [Salesforce レコードモデル](../architecture/salesforce-record-model.md), [Salesforce 手動確認](../setup/salesforce-manual-verification.md) |
 | Integration API | `app/api/integration`, `lib/salesforce/integration-security.ts`, `lib/salesforce/client.ts` | [Salesforce Integration ユーザー連携設定](../setup/salesforce-integration-client-credentials.md), [API 概要](../api/api-overview.md) |
@@ -51,6 +52,7 @@ git switch -c codex/<作業内容>
 | 範囲 | 依頼範囲に必要なファイルだけを変更する |
 | 責務境界 | HTTP 入口は `app/api`、共通処理は `lib/salesforce`、Salesforce データ操作は `services/salesforce` に分ける |
 | UI 方針 | SLDS の標準コンポーネントと utility を優先し、独自 CSS は必要な範囲に絞る |
+| URL / XSS | 外部入力を URL の query / path に入れる場合はエンコードする。Salesforce 由来の文字列は HTML として挿入しない |
 | 依存関係 | 新しい依存関係は原則追加しない。必要な場合は理由を説明し、ユーザー承認後に追加する |
 | 未確認事項 | 実装から確認できない仕様は断定せず、`TODO` または `未確認` として扱う |
 
@@ -61,6 +63,7 @@ git switch -c codex/<作業内容>
 | 差分 | `git diff` で意図しない変更や過剰な整形がないか確認する |
 | docs | 変更した挙動、環境変数、API、運用手順が README / docs と矛盾していないか確認する |
 | 秘密情報 | 実 URL、Heroku app 名、Salesforce token、Client Secret、Client ID、My Domain 実値を含まないか確認する |
+| URL / XSS | `dangerouslySetInnerHTML`、`innerHTML`、未エンコードの URL 連結、未検証の redirect / endpoint URL を追加していないか確認する |
 | placeholder | `.env.example` や curl 例は placeholder、localhost、example domain だけを使う |
 | テスト | 変更範囲に応じて最小限の確認コマンドを実行する |
 | PR 本文 | 実行した確認と、レビュー判断に関係する未実行確認の理由を書く |
