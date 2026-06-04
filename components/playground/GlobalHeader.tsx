@@ -1,19 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { type KeyboardEvent, type MouseEvent, useEffect, useRef, useState } from "react";
+import { type MouseEvent } from "react";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { GlobalSearch } from "./GlobalSearch";
 import { salesforceLogo } from "./icons";
 import { UtilityIcon, type UtilityIconName } from "./SldsIcon";
-
-const actionPopoverIds = {
-    "グローバルアクション": "global-action-popover",
-    ヘルプ: "global-help-popover",
-    設定: "global-settings-popover"
-} as const;
-
-type ActionPopoverLabel = keyof typeof actionPopoverIds;
+import { actionPopoverIds, useGlobalHeaderMenus } from "./useGlobalHeaderMenus";
 
 type GlobalHeaderProps = {
     connected: boolean;
@@ -21,99 +14,20 @@ type GlobalHeaderProps = {
 };
 
 export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderProps) {
-    const actionPopoverCloseTimer = useRef<number | null>(null);
-    const profileMenuCloseTimer = useRef<number | null>(null);
-    const headerRef = useRef<HTMLElement | null>(null);
-    const [activeActionPopover, setActiveActionPopover] = useState<ActionPopoverLabel | null>(null);
-    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-    const [showNotificationBadge, setShowNotificationBadge] = useState(false);
-
-    function cancelProfileMenuClose(): void {
-        if (profileMenuCloseTimer.current) {
-            window.clearTimeout(profileMenuCloseTimer.current);
-            profileMenuCloseTimer.current = null;
-        }
-    }
-
-    function scheduleProfileMenuClose(): void {
-        cancelProfileMenuClose();
-        profileMenuCloseTimer.current = window.setTimeout(() => {
-            setProfileMenuOpen(false);
-            profileMenuCloseTimer.current = null;
-        }, 250);
-    }
-
-    function cancelActionPopoverClose(): void {
-        if (actionPopoverCloseTimer.current) {
-            window.clearTimeout(actionPopoverCloseTimer.current);
-            actionPopoverCloseTimer.current = null;
-        }
-    }
-
-    function closeMenus(): void {
-        cancelActionPopoverClose();
-        cancelProfileMenuClose();
-        setActiveActionPopover(null);
-        setProfileMenuOpen(false);
-    }
-
-    function scheduleActionPopoverClose(): void {
-        cancelActionPopoverClose();
-        actionPopoverCloseTimer.current = window.setTimeout(() => {
-            setActiveActionPopover(null);
-            actionPopoverCloseTimer.current = null;
-        }, 250);
-    }
-
-    function toggleActionPopover(label: ActionPopoverLabel): void {
-        cancelActionPopoverClose();
-        setProfileMenuOpen(false);
-        setActiveActionPopover((currentLabel) => (currentLabel === label ? null : label));
-    }
-
-    function toggleProfileMenu(): void {
-        cancelProfileMenuClose();
-        setActiveActionPopover(null);
-        setProfileMenuOpen((isOpen) => !isOpen);
-    }
-
-    function closeOnEscape(event: KeyboardEvent): void {
-        if (event.key !== "Escape") {
-            return;
-        }
-
-        closeMenus();
-    }
-
-    useEffect(() => {
-        function closeOnPointerDown(event: PointerEvent): void {
-            if (!headerRef.current?.contains(event.target as Node)) {
-                if (actionPopoverCloseTimer.current) {
-                    window.clearTimeout(actionPopoverCloseTimer.current);
-                    actionPopoverCloseTimer.current = null;
-                }
-                if (profileMenuCloseTimer.current) {
-                    window.clearTimeout(profileMenuCloseTimer.current);
-                    profileMenuCloseTimer.current = null;
-                }
-                setActiveActionPopover(null);
-                setProfileMenuOpen(false);
-            }
-        }
-
-        document.addEventListener("pointerdown", closeOnPointerDown);
-        return () => {
-            document.removeEventListener("pointerdown", closeOnPointerDown);
-            if (actionPopoverCloseTimer.current) {
-                window.clearTimeout(actionPopoverCloseTimer.current);
-                actionPopoverCloseTimer.current = null;
-            }
-            if (profileMenuCloseTimer.current) {
-                window.clearTimeout(profileMenuCloseTimer.current);
-                profileMenuCloseTimer.current = null;
-            }
-        };
-    }, []);
+    const {
+        activeActionPopover,
+        cancelActionPopoverClose,
+        cancelProfileMenuClose,
+        closeOnEscape,
+        headerRef,
+        profileMenuOpen,
+        scheduleActionPopoverClose,
+        scheduleProfileMenuClose,
+        showNotificationBadge,
+        toggleActionPopover,
+        toggleNotificationBadge,
+        toggleProfileMenu
+    } = useGlobalHeaderMenus();
 
     return (
         <header ref={headerRef} className="slds-global-header_container playground-global-header-container" onKeyDown={closeOnEscape}>
@@ -170,7 +84,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                                 notificationCount={showNotificationBadge ? 1 : undefined}
                                 pressed={showNotificationBadge}
                                 onClick={(event) => {
-                                    setShowNotificationBadge((visible) => !visible);
+                                    toggleNotificationBadge();
                                     event.currentTarget.blur();
                                 }}
                             />
