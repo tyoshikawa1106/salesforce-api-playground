@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
     createIntegrationAccountMutation,
     deleteRecordMutation,
+    restoreRecycleBinItemsMutation,
     saveAccountMutation,
     saveContactMutation
 } from "./mutations";
@@ -115,6 +116,40 @@ describe("playground record mutations", () => {
             expect.objectContaining({
                 method: "DELETE",
                 body: JSON.stringify({ ids: [account.Id, "001xx000003DGbZ"] })
+            })
+        );
+    });
+
+    it("restores recycle bin items through the mixed undelete route", async () => {
+        const fetchMock = stubSuccessfulFetch();
+
+        await expect(
+            restoreRecycleBinItemsMutation([
+                {
+                    objectApiName: "Account",
+                    objectLabel: "取引先",
+                    id: account.Id,
+                    name: account.Name
+                },
+                {
+                    objectApiName: "Contact",
+                    objectLabel: "取引先責任者",
+                    id: contact.Id,
+                    name: "Taro Yamada"
+                }
+            ])
+        ).resolves.toBe("2 件を復元しました。");
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            "/api/recycle-bin/undelete",
+            expect.objectContaining({
+                method: "POST",
+                body: JSON.stringify({
+                    items: [
+                        { objectApiName: "Account", id: account.Id },
+                        { objectApiName: "Contact", id: contact.Id }
+                    ]
+                })
             })
         );
     });

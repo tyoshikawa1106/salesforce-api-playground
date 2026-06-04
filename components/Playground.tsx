@@ -23,6 +23,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         loading,
         loadAll,
         openSearchResult,
+        recycleBinItems,
         selectedAccount,
         selectedContact,
         session,
@@ -64,6 +65,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
                 activeTab={activeTab}
                 connected={session.connected}
                 contacts={contacts}
+                recycleBinItems={recycleBinItems}
                 instanceUrl={session.instanceUrl}
                 loading={loading}
                 saving={recordMutations.saving}
@@ -79,6 +81,8 @@ export default function Playground({ environmentLabel = null }: { environmentLab
                 onOpenAccount={(record) => setSelectedAccountId(record.Id)}
                 onOpenContact={(record) => setSelectedContactId(record.Id)}
                 onBulkDeleteEmpty={() => showNotice({ tone: "info", message: "削除対象がチェックされていません。" })}
+                onRestoreRecycleBinItems={recordMutations.restoreRecycleBinItems}
+                onRestoreRecycleBinEmpty={() => showNotice({ tone: "info", message: "復元対象がチェックされていません。" })}
                 onRefresh={loadAll}
             />
 

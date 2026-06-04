@@ -78,3 +78,8 @@ export type SearchResultItem =
         type: "contact";
         record: ContactRecord;
     };
+
+export type RecycleBinUndeleteItem = {
+    objectApiName: string;
+    id: string;
+};

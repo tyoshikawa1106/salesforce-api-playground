@@ -1,7 +1,9 @@
 import type { AccountRecord, ContactRecord } from "@/lib/salesforce/records";
+import type { RecycleBinItem as SalesforceRecycleBinItem } from "@/lib/salesforce/recycle-bin";
 
 export type Account = AccountRecord;
 export type Contact = ContactRecord;
+export type RecycleBinItem = SalesforceRecycleBinItem;
 
 export type ModalState =
     | { type: "account"; mode: "create"; record?: undefined }
@@ -18,4 +20,4 @@ export type Notice = {
     message: string;
 };
 
-export type ActiveTab = "home" | "accounts" | "contacts" | "integration";
+export type ActiveTab = "home" | "accounts" | "contacts" | "integration" | "recycleBin";

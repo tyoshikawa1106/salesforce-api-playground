@@ -5,6 +5,9 @@ import type {
     ContactInput,
     ContactUpdateInput
 } from "./records";
+import type { RecycleBinUndeleteItem } from "./records";
+import { isRecycleBinObjectApiName } from "./recycle-bin";
+import { assertSalesforceRecordId } from "./request-security";
 import {
     accountFieldNames,
     contactFieldNames
@@ -130,6 +133,50 @@ export async function readBulkDeletePayload(request: JsonRequest): Promise<BulkD
     });
 
     return { ids };
+}
+
+export async function readRecycleBinUndeletePayload(request: JsonRequest): Promise<{ items: RecycleBinUndeleteItem[] }> {
+    const body = await readJsonBody(request);
+
+    if (!isJsonObject(body)) {
+        throw badPayload("Request body must be a JSON object.");
+    }
+
+    if (!("items" in body)) {
+        throw badPayload("items is required.");
+    }
+
+    if (!Array.isArray(body.items)) {
+        throw badPayload("items must be an array.");
+    }
+
+    if (body.items.length === 0) {
+        throw badPayload("items must include at least one item.");
+    }
+
+    const items = body.items.map((item) => {
+        if (!isJsonObject(item)) {
+            throw badPayload("items must include only objects.");
+        }
+
+        if (typeof item.objectApiName !== "string" || !isRecycleBinObjectApiName(item.objectApiName)) {
+            throw badPayload("Unsupported recycle bin object.");
+        }
+
+        if (typeof item.id !== "string" || !item.id.trim()) {
+            throw badPayload("items must include only non-empty ids.");
+        }
+
+        const id = item.id.trim();
+        assertSalesforceRecordId(id, item.objectApiName);
+
+        return {
+            objectApiName: item.objectApiName,
+            id
+        };
+    });
+
+    return { items };
 }
 
 export async function readAccountCreatePayload(request: JsonRequest): Promise<AccountInput> {

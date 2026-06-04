@@ -8,7 +8,7 @@ import {
 } from "@/lib/playground-api";
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import { apiRequest } from "./api";
-import type { DeleteState, ModalState } from "./types";
+import type { DeleteState, ModalState, RecycleBinItem } from "./types";
 
 export async function saveAccountMutation(modal: ModalState | null, accountForm: AccountForm): Promise<string> {
     if (modal?.type === "account" && modal.mode === "edit") {
@@ -86,4 +86,20 @@ export async function deleteRecordMutation(deleteState: DeleteState): Promise<st
     );
 
     return `${deleteState.label}を削除しました。`;
+}
+
+export async function restoreRecycleBinItemsMutation(items: RecycleBinItem[]): Promise<string> {
+    await apiRequest(
+        buildPlaygroundApiRequest(playgroundApiPaths.recycleBinUndelete, {
+            method: "POST",
+            body: {
+                items: items.map((item) => ({
+                    objectApiName: item.objectApiName,
+                    id: item.id
+                }))
+            }
+        })
+    );
+
+    return `${items.length} 件を復元しました。`;
 }

@@ -41,6 +41,8 @@ export const playgroundApiPaths = {
     accounts: "/api/accounts",
     contacts: "/api/contacts",
     integrationAccounts: "/api/integration/ui/accounts",
+    recycleBin: "/api/recycle-bin",
+    recycleBinUndelete: "/api/recycle-bin/undelete",
     search(query: string): string {
         return `/api/search?q=${encodeURIComponent(query)}`;
     },

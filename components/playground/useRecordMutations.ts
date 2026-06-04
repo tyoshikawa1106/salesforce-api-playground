@@ -10,10 +10,11 @@ import {
 import {
     createIntegrationAccountMutation,
     deleteRecordMutation,
+    restoreRecycleBinItemsMutation,
     saveAccountMutation,
     saveContactMutation
 } from "./mutations";
-import type { Account, Contact, DeleteState, ModalState, Notice } from "./types";
+import type { Account, Contact, DeleteState, ModalState, Notice, RecycleBinItem } from "./types";
 
 type UseRecordMutationsOptions = {
     loadAll: () => Promise<void>;
@@ -124,6 +125,19 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         }
     }
 
+    async function restoreRecycleBinItems(items: RecycleBinItem[]) {
+        setSaving(true);
+        try {
+            showNotice({ tone: "success", message: await restoreRecycleBinItemsMutation(items) });
+            await loadAll();
+        } catch (error) {
+            showNotice({ tone: "error", message: error instanceof Error ? error.message : "復元に失敗しました。" });
+            await loadAll();
+        } finally {
+            setSaving(false);
+        }
+    }
+
     return {
         accountForm,
         closeDeleteModal: () => setDeleteState(null),
@@ -142,6 +156,7 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         setAccountForm,
         setContactForm,
         setDeleteState,
-        setIntegrationAccountForm
+        setIntegrationAccountForm,
+        restoreRecycleBinItems
     };
 }

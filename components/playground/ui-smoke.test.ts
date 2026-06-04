@@ -6,8 +6,10 @@ import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel, filterAccounts, filterContacts, getSelectedVisibleRecords, getSelectionState } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
+import { RecycleBinPanel } from "./RecycleBinPanel";
 import { GlobalHeader } from "./GlobalHeader";
-import type { Account, Contact } from "./types";
+import { AppNavigation } from "./Navigation";
+import type { Account, Contact, RecycleBinItem } from "./types";
 
 const account: Account = {
     Id: "001xx000003DGbY",
@@ -36,6 +38,15 @@ const contact: Contact = {
 };
 
 const noop = () => {};
+
+const recycleBinItem: RecycleBinItem = {
+    objectApiName: "Account",
+    objectLabel: "取引先",
+    id: account.Id,
+    name: account.Name,
+    deletedAt: account.LastModifiedDate,
+    displayText: "Technology / Tokyo"
+};
 
 describe("playground UI smoke rendering", () => {
     it("renders an environment label banner for non-production environments", () => {
@@ -149,6 +160,40 @@ describe("playground UI smoke rendering", () => {
         expect(contactMarkup).toContain("aria-label=\"表示中の取引先責任者をすべて選択\"");
         expect(contactMarkup).toContain("aria-label=\"選択した取引先責任者を削除\"");
         expect(contactMarkup).not.toContain("ビュー: 自分の取引先責任者");
+    });
+
+    it("renders connected navigation with the recycle bin tab", () => {
+        const markup = renderToStaticMarkup(
+            createElement(AppNavigation, {
+                activeTab: "recycleBin",
+                connected: true,
+                onChange: noop
+            })
+        );
+
+        expect(markup).toContain("ごみ箱");
+        expect(markup).toContain("aria-current=\"page\"");
+    });
+
+    it("renders recycle bin list with mixed object restore controls", () => {
+        const markup = renderToStaticMarkup(
+            createElement(RecycleBinPanel, {
+                items: [recycleBinItem],
+                loading: false,
+                onRefresh: noop,
+                onRestore: noop,
+                onRestoreEmpty: noop
+            })
+        );
+
+        expect(markup).toContain("最近削除された項目");
+        expect(markup).not.toContain("Recycle Bin に残っている Account / Contact を表示します。");
+        expect(markup).toContain("aria-label=\"選択した項目を復元\"");
+        expect(markup).toContain("aria-label=\"表示中の項目をすべて選択\"");
+        expect(markup).toContain("ごみ箱の項目一覧");
+        expect(markup).toContain("取引先");
+        expect(markup).toContain("Acme");
+        expect(markup).toContain("Technology / Tokyo");
     });
 
     it("filters account and contact list records by visible list values", () => {

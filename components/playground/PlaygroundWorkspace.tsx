@@ -4,7 +4,8 @@ import { getContactName } from "./formatting";
 import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
-import type { Account, ActiveTab, Contact, DeleteState } from "./types";
+import { RecycleBinPanel } from "./RecycleBinPanel";
+import type { Account, ActiveTab, Contact, DeleteState, RecycleBinItem } from "./types";
 
 type PlaygroundWorkspaceProps = {
     accountForm: AccountForm;
@@ -12,6 +13,7 @@ type PlaygroundWorkspaceProps = {
     activeTab: ActiveTab;
     connected: boolean;
     contacts: Contact[];
+    recycleBinItems: RecycleBinItem[];
     instanceUrl?: string;
     loading: boolean;
     saving: boolean;
@@ -27,6 +29,8 @@ type PlaygroundWorkspaceProps = {
     onOpenAccount: (record: Account) => void;
     onOpenContact: (record: Contact) => void;
     onBulkDeleteEmpty: () => void;
+    onRestoreRecycleBinItems: (items: RecycleBinItem[]) => void;
+    onRestoreRecycleBinEmpty: () => void;
     onRefresh: () => void;
 };
 
@@ -36,6 +40,7 @@ export function PlaygroundWorkspace({
     activeTab,
     connected,
     contacts,
+    recycleBinItems,
     instanceUrl,
     loading,
     saving,
@@ -51,6 +56,8 @@ export function PlaygroundWorkspace({
     onOpenAccount,
     onOpenContact,
     onBulkDeleteEmpty,
+    onRestoreRecycleBinItems,
+    onRestoreRecycleBinEmpty,
     onRefresh
 }: PlaygroundWorkspaceProps) {
     return (
@@ -150,6 +157,16 @@ export function PlaygroundWorkspace({
                         onAccountFormChange={onAccountFormChange}
                         onCreateAccount={onCreateIntegrationAccount}
                         onRefresh={onRefresh}
+                    />
+                ) : null}
+
+                {activeTab === "recycleBin" && connected ? (
+                    <RecycleBinPanel
+                        items={recycleBinItems}
+                        loading={loading}
+                        onRefresh={onRefresh}
+                        onRestore={onRestoreRecycleBinItems}
+                        onRestoreEmpty={onRestoreRecycleBinEmpty}
                     />
                 ) : null}
             </section>

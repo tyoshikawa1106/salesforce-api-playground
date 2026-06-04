@@ -93,12 +93,13 @@ nav_order: 20
 - 作成 / 編集 / 削除確認 modal の初期フォーカス、Escape クローズ、フォーカストラップを `Modal` コンポーネントに集約した。
 - GlobalHeader の検索欄を `/api/search` と接続し、Account / Contact の候補表示、キーボード選択、選択後のレコード詳細遷移を実装した。
 - Account / Contact 一覧の選択行に一括削除操作を追加した。
+- ごみ箱タブを追加し、Recycle Bin の最近削除された Account / Contact を混在一覧で表示して復元できるようにした。
 
 ## 改善候補
 
 | 優先度 | 候補 | 理由 |
 | --- | --- | --- |
-| 中 | 一括削除の部分失敗時の再試行導線を検討 | 複数件は `DELETE /api/accounts` / `DELETE /api/contacts` に `ids` を渡して削除する。Salesforce から返る ID ごとの結果を UI で詳細表示する導線は未実装。分割 Issue: [#308](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/308) |
+| 中 | 一括削除 / 復元の部分失敗時の再試行導線を検討 | 複数件削除と Recycle Bin 復元は Salesforce から ID ごとの結果が返る。成功 / 失敗の詳細表示と再試行導線は未実装。分割 Issue: [#308](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/308) |
 
 ## 確認対象
 

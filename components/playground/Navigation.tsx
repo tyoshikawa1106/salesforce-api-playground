@@ -33,6 +33,7 @@ export function AppNavigation({
                     {connected ? <NavigationItem active={activeTab === "accounts"} label="取引先" onClick={() => onChange("accounts")} /> : null}
                     {connected ? <NavigationItem active={activeTab === "contacts"} label="取引先責任者" onClick={() => onChange("contacts")} /> : null}
                     {connected ? <NavigationItem active={activeTab === "integration"} label="連携" onClick={() => onChange("integration")} /> : null}
+                    {connected ? <NavigationItem active={activeTab === "recycleBin"} label="ごみ箱" onClick={() => onChange("recycleBin")} /> : null}
                 </ul>
             </nav>
         </div>
@@ -80,7 +81,9 @@ export function StandardPageHeaderIcon({ tab, label }: { tab: ActiveTab; label: 
                 ? "slds-icon-standard-account"
                 : tab === "contacts"
                     ? "slds-icon-standard-contact"
-                    : "slds-icon-standard-connected-apps";
+                    : tab === "recycleBin"
+                        ? "slds-icon-standard-empty"
+                        : "slds-icon-standard-connected-apps";
 
     return (
         <span className={`slds-icon_container playground-page-header-icon ${iconClass}`} title={label}>
