@@ -1,6 +1,8 @@
-import type { Connection, SaveResult } from "jsforce";
+import type { Connection } from "jsforce";
+import { SalesforceApiError } from "@/lib/salesforce/client";
 import type { SalesforceQueryResponse } from "@/lib/salesforce/records";
 import type { RecycleBinUndeleteItem } from "@/lib/salesforce/records";
+import type { SalesforceSession } from "@/lib/salesforce/session";
 import {
     buildRecycleBinQuery,
     getRecycleBinObjectApiNames,
@@ -14,8 +16,16 @@ type QueryAllConnection = Connection & {
     query<T>(soql: string, options: { scanAll: true }): Promise<SalesforceQueryResponse<T>>;
 };
 
-type UndeleteSObject = {
-    undelete(ids: string[]): Promise<SaveResult | SaveResult[]>;
+type UndeleteResultItem = {
+    id?: string | null;
+    success: boolean;
+    errors: unknown[];
+};
+
+type UndeleteConnection = Connection & {
+    soap: {
+        undelete(ids: string[]): Promise<UndeleteResultItem[]>;
+    };
 };
 
 type RecycleBinRecord = {
@@ -25,15 +35,49 @@ type RecycleBinRecord = {
 
 type UndeleteResult = {
     objectApiName: RecycleBinObjectApiName;
-    results: SaveResult[];
+    results: UndeleteResultItem[];
 };
+
+function getSalesforceResultErrorMessage(error: unknown): string | null {
+    if (typeof error === "object" && error !== null) {
+        const candidate = error as { message?: unknown; statusCode?: unknown };
+        if (typeof candidate.message === "string" && candidate.message.trim()) {
+            return typeof candidate.statusCode === "string" && candidate.statusCode.trim()
+                ? `${candidate.statusCode}: ${candidate.message}`
+                : candidate.message;
+        }
+    }
+
+    return null;
+}
+
+function buildRecycleBinFailureMessage(results: UndeleteResultItem[]) {
+    const messages = results
+        .flatMap((result) => result.errors)
+        .map(getSalesforceResultErrorMessage)
+        .filter((message): message is string => Boolean(message));
+
+    if (messages.length === 0) {
+        return "Recycle Bin operation failed.";
+    }
+
+    return [...new Set(messages)].join(" / ");
+}
 
 function sortRecycleBinItems(items: RecycleBinItem[]) {
     return [...items].sort((a, b) => (b.deletedAt || "").localeCompare(a.deletedAt || ""));
 }
 
-async function queryDeletedRecords(connection: Connection, objectApiName: RecycleBinObjectApiName) {
-    const response = await (connection as QueryAllConnection).query<RecycleBinRecord>(buildRecycleBinQuery(objectApiName), {
+function requireSessionUserId(session: SalesforceSession): string {
+    if (!session.userId) {
+        throw new SalesforceApiError("Salesforce user id is unavailable.", 500);
+    }
+
+    return session.userId;
+}
+
+async function queryDeletedRecords(connection: Connection, objectApiName: RecycleBinObjectApiName, deletedByUserId: string) {
+    const response = await (connection as QueryAllConnection).query<RecycleBinRecord>(buildRecycleBinQuery(objectApiName, deletedByUserId), {
         scanAll: true
     });
 
@@ -50,10 +94,19 @@ function groupUndeleteItems(items: RecycleBinUndeleteItem[]) {
     }, new Map<RecycleBinObjectApiName, string[]>());
 }
 
+function assertRecycleBinResultsSucceeded(results: UndeleteResultItem[]) {
+    const failedResults = results.filter((result) => !result.success);
+
+    if (failedResults.length > 0) {
+        throw new SalesforceApiError(buildRecycleBinFailureMessage(failedResults), 400, failedResults.flatMap((result) => result.errors));
+    }
+}
+
 export async function listRecycleBinItems() {
-    return withStandardObjectConnection(async (connection) => {
+    return withStandardObjectConnection(async (connection, session) => {
+        const deletedByUserId = requireSessionUserId(session);
         const itemGroups = await Promise.all(
-            getRecycleBinObjectApiNames().map((objectApiName) => queryDeletedRecords(connection, objectApiName))
+            getRecycleBinObjectApiNames().map((objectApiName) => queryDeletedRecords(connection, objectApiName, deletedByUserId))
         );
 
         return {
@@ -68,10 +121,11 @@ export async function undeleteRecycleBinItems(items: RecycleBinUndeleteItem[]) {
         const restoreResults: UndeleteResult[] = [];
 
         for (const [objectApiName, ids] of groups) {
-            const result = await ((connection.sobject(objectApiName) as unknown) as UndeleteSObject).undelete(ids);
+            const result = await (connection as UndeleteConnection).soap.undelete(ids);
+            assertRecycleBinResultsSucceeded(result);
             restoreResults.push({
                 objectApiName,
-                results: Array.isArray(result) ? result : [result]
+                results: result
             });
         }
 

@@ -45,7 +45,7 @@ const recycleBinItem: RecycleBinItem = {
     id: account.Id,
     name: account.Name,
     deletedAt: account.LastModifiedDate,
-    displayText: "Technology / Tokyo"
+    deletedByName: "Taro Admin"
 };
 
 describe("playground UI smoke rendering", () => {
@@ -180,20 +180,22 @@ describe("playground UI smoke rendering", () => {
             createElement(RecycleBinPanel, {
                 items: [recycleBinItem],
                 loading: false,
-                onRefresh: noop,
                 onRestore: noop,
                 onRestoreEmpty: noop
             })
         );
 
         expect(markup).toContain("最近削除された項目");
+        expect(markup).not.toContain("完全に削除");
         expect(markup).not.toContain("Recycle Bin に残っている Account / Contact を表示します。");
-        expect(markup).toContain("aria-label=\"選択した項目を復元\"");
+        expect(markup).toContain("復元");
+        expect(markup).not.toContain("このリストを検索");
         expect(markup).toContain("aria-label=\"表示中の項目をすべて選択\"");
         expect(markup).toContain("ごみ箱の項目一覧");
         expect(markup).toContain("取引先");
         expect(markup).toContain("Acme");
-        expect(markup).toContain("Technology / Tokyo");
+        expect(markup).toContain("削除したユーザー");
+        expect(markup).toContain("Taro Admin");
     });
 
     it("filters account and contact list records by visible list values", () => {

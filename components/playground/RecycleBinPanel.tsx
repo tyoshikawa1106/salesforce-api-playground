@@ -1,36 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { formatDate } from "./formatting";
-import { PageHeader, PageHeaderControl, RefreshButton } from "./ObjectHome";
-import { SelectionCheckbox } from "./RecordListTableParts";
-import { filterRecords } from "./record-list-state";
-import { UtilityIcon } from "./SldsIcon";
+import { PageHeader, PageHeaderControl } from "./ObjectHome";
+import { DataTableColumnHeader, SelectionCheckbox, TableCell } from "./RecordListTableParts";
+import { StandardIcon, type StandardIconName } from "./SldsIcon";
 import type { RecycleBinItem } from "./types";
 
 export function RecycleBinPanel({
     items,
     loading,
-    onRefresh,
     onRestore,
     onRestoreEmpty
 }: {
     items: RecycleBinItem[];
     loading: boolean;
-    onRefresh: () => void;
     onRestore: (items: RecycleBinItem[]) => void;
     onRestoreEmpty: () => void;
 }) {
-    const [searchTerm, setSearchTerm] = useState("");
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-    const filteredItems = useMemo(
-        () => filterRecords(items, searchTerm, (item) => [item.objectLabel, item.name, item.deletedAt, item.displayText]),
-        [items, searchTerm]
-    );
-    const selectedVisibleCount = filteredItems.filter((item) => selectedIds.has(item.id)).length;
-    const allVisibleSelected = filteredItems.length > 0 && selectedVisibleCount === filteredItems.length;
+    const selectedVisibleCount = items.filter((item) => selectedIds.has(item.id)).length;
+    const allVisibleSelected = items.length > 0 && selectedVisibleCount === items.length;
     const someVisibleSelected = selectedVisibleCount > 0 && !allVisibleSelected;
-    const selectedVisibleItems = filteredItems.filter((item) => selectedIds.has(item.id));
+    const selectedVisibleItems = items.filter((item) => selectedIds.has(item.id));
 
     function toggleSelection(id: string) {
         setSelectedIds((currentIds) => {
@@ -48,9 +40,9 @@ export function RecycleBinPanel({
     function toggleVisibleSelection() {
         setSelectedIds((currentIds) => {
             const nextIds = new Set(currentIds);
-            const allVisibleSelected = filteredItems.length > 0 && filteredItems.every((item) => nextIds.has(item.id));
+            const allVisibleSelected = items.length > 0 && items.every((item) => nextIds.has(item.id));
 
-            filteredItems.forEach((item) => {
+            items.forEach((item) => {
                 if (allVisibleSelected) {
                     nextIds.delete(item.id);
                     return;
@@ -70,7 +62,6 @@ export function RecycleBinPanel({
         }
 
         onRestore(selectedVisibleItems);
-        setSelectedIds(new Set());
     }
 
     return (
@@ -79,28 +70,33 @@ export function RecycleBinPanel({
                 tab="recycleBin"
                 eyebrow="ごみ箱"
                 title="最近削除された項目"
+                className="slds-page-header_object-home slds-page-header_joined"
                 actions={
-                    <PageHeaderControl>
-                        <RefreshButton loading={loading} onRefresh={onRefresh} />
-                    </PageHeaderControl>
+                    <>
+                        <PageHeaderControl>
+                            <button
+                                className="slds-button slds-button_neutral"
+                                type="button"
+                                onClick={restoreSelectedItems}
+                            >
+                                復元
+                            </button>
+                        </PageHeaderControl>
+                    </>
                 }
             />
 
             <div className="slds-theme_default">
                 <RecycleBinToolbar
-                    count={filteredItems.length}
-                    searchValue={searchTerm}
-                    onSearchChange={setSearchTerm}
-                    onRestore={restoreSelectedItems}
+                    count={items.length}
                 />
                 <RecycleBinEmptyState
                     loading={loading}
                     hasItems={items.length > 0}
-                    hasFilteredItems={filteredItems.length > 0}
                 />
-                {!loading && filteredItems.length > 0 ? (
+                {!loading && items.length > 0 ? (
                     <RecycleBinTable
-                        items={filteredItems}
+                        items={items}
                         selectedIds={selectedIds}
                         allVisibleSelected={allVisibleSelected}
                         someVisibleSelected={someVisibleSelected}
@@ -114,47 +110,19 @@ export function RecycleBinPanel({
 }
 
 function RecycleBinToolbar({
-    count,
-    searchValue,
-    onSearchChange,
-    onRestore
+    count
 }: {
     count: number;
-    searchValue: string;
-    onSearchChange: (value: string) => void;
-    onRestore: () => void;
 }) {
     return (
         <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
-            <div className="slds-text-title_bold">
-                {count} 件
-            </div>
-            <div className="slds-grid slds-grid_vertical-align-center">
-                <div className="slds-form-element">
-                    <label className="slds-assistive-text" htmlFor="recycle-bin-search">
-                        このリストを検索
-                    </label>
-                    <div className="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
-                        <span className="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_left" aria-hidden="true" />
-                        <input
-                            id="recycle-bin-search"
-                            className="slds-input slds-max-medium-size_full playground-list-search"
-                            type="search"
-                            value={searchValue}
-                            placeholder="このリストを検索..."
-                            onChange={(event) => onSearchChange(event.target.value)}
-                        />
-                    </div>
+            <div>
+                <div className="slds-text-title_bold">
+                    {count} 件
                 </div>
-                <button
-                    className="slds-button slds-button_icon slds-button_icon-border-filled slds-m-left_x-small"
-                    type="button"
-                    title="選択した項目を復元"
-                    aria-label="選択した項目を復元"
-                    onClick={onRestore}
-                >
-                    <UtilityIcon className="slds-button__icon" name="refresh" />
-                </button>
+            </div>
+            <div className="slds-grid slds-grid_vertical-align-center" aria-hidden="true">
+                <span className="playground-recycle-bin-toolbar-spacer" />
             </div>
         </div>
     );
@@ -162,12 +130,10 @@ function RecycleBinToolbar({
 
 function RecycleBinEmptyState({
     loading,
-    hasItems,
-    hasFilteredItems
+    hasItems
 }: {
     loading: boolean;
     hasItems: boolean;
-    hasFilteredItems: boolean;
 }) {
     if (loading) {
         return <div className="slds-text-align_center slds-p-around_xx-large">ごみ箱を読み込んでいます...</div>;
@@ -175,10 +141,6 @@ function RecycleBinEmptyState({
 
     if (!hasItems) {
         return <div className="slds-text-align_center slds-p-around_xx-large">ごみ箱に表示できる項目はありません。</div>;
-    }
-
-    if (!hasFilteredItems) {
-        return <div className="slds-text-align_center slds-p-around_xx-large">検索条件に一致する項目が見つかりません。</div>;
     }
 
     return null;
@@ -201,7 +163,12 @@ function RecycleBinTable({
 }) {
     return (
         <div className="slds-scrollable_x">
-            <table className="slds-table slds-table_bordered slds-table_fixed-layout" role="grid" aria-label="ごみ箱の項目一覧" aria-multiselectable="true">
+            <table
+                className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
+                role="grid"
+                aria-label="ごみ箱の項目一覧"
+                aria-multiselectable="true"
+            >
                 <thead>
                     <tr className="slds-line-height_reset">
                         <th className="slds-text-align_right slds-cell_action-mode" role="cell" style={{ width: "3.25rem" }}>
@@ -214,16 +181,25 @@ function RecycleBinTable({
                                 />
                             </div>
                         </th>
-                        <RecycleBinHeader label="種別" />
-                        <RecycleBinHeader label="名前" />
-                        <RecycleBinHeader label="削除日時" />
-                        <RecycleBinHeader label="補足" />
+                        <DataTableColumnHeader label="名前" />
+                        <DataTableColumnHeader label="種別" />
+                        <DataTableColumnHeader label="削除日時" />
+                        <DataTableColumnHeader label="削除したユーザー" />
                     </tr>
                 </thead>
                 <tbody>
                     {items.map((item) => (
                         <tr key={`${item.objectApiName}:${item.id}`} className="slds-hint-parent" aria-selected={selectedIds.has(item.id)}>
-                            <td className="slds-text-align_right slds-cell_action-mode" data-label="選択" role="gridcell">
+                            <td
+                                className="slds-text-align_right slds-cell_action-mode"
+                                data-label="選択"
+                                role="gridcell"
+                                onClick={(event) => {
+                                    if (event.target === event.currentTarget) {
+                                        onToggleSelection(item.id);
+                                    }
+                                }}
+                            >
                                 <SelectionCheckbox
                                     ariaLabel={`${item.objectLabel} ${item.name} を選択`}
                                     checked={selectedIds.has(item.id)}
@@ -231,10 +207,14 @@ function RecycleBinTable({
                                     onChange={() => onToggleSelection(item.id)}
                                 />
                             </td>
-                            <RecycleBinCell label="種別" value={item.objectLabel} />
-                            <RecycleBinCell label="名前" value={item.name} />
-                            <RecycleBinCell label="削除日時" value={formatDate(item.deletedAt)} />
-                            <RecycleBinCell label="補足" value={item.displayText || "-"} />
+                            <th className="slds-cell_action-mode" scope="row" data-label="名前">
+                                <div className="slds-truncate" title={item.name}>
+                                    {item.name}
+                                </div>
+                            </th>
+                            <TableCell label="種別" value={<RecycleBinObjectType item={item} />} />
+                            <TableCell label="削除日時" value={formatDate(item.deletedAt)} />
+                            <TableCell label="削除したユーザー" value={item.deletedByName} />
                         </tr>
                     ))}
                 </tbody>
@@ -243,22 +223,22 @@ function RecycleBinTable({
     );
 }
 
-function RecycleBinHeader({ label }: { label: string }) {
+function RecycleBinObjectType({ item }: { item: RecycleBinItem }) {
+    const iconName = getRecycleBinObjectIconName(item.objectApiName);
+    const iconClass = item.objectApiName === "Account" ? "slds-icon-standard-account" : "slds-icon-standard-contact";
+
     return (
-        <th className="slds-is-resizable slds-cell_action-mode" scope="col">
-            <div className="slds-th__action">
-                <span className="slds-truncate" title={label}>{label}</span>
-            </div>
-        </th>
+        <span className="slds-grid slds-grid_vertical-align-center slds-truncate">
+            <span className="slds-truncate" title={item.objectLabel}>
+                {item.objectLabel}
+            </span>
+            <span className={`slds-icon_container ${iconClass} slds-m-left_x-small`} title={item.objectLabel}>
+                <StandardIcon className="slds-icon slds-icon_x-small" name={iconName} />
+            </span>
+        </span>
     );
 }
 
-function RecycleBinCell({ label, value }: { label: string; value: string }) {
-    return (
-        <td className="slds-cell_action-mode" data-label={label} role="gridcell">
-            <div className="slds-truncate" title={value}>
-                {value}
-            </div>
-        </td>
-    );
+function getRecycleBinObjectIconName(objectApiName: RecycleBinItem["objectApiName"]): StandardIconName {
+    return objectApiName === "Account" ? "account" : "contact";
 }

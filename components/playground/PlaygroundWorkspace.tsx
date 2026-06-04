@@ -164,7 +164,6 @@ export function PlaygroundWorkspace({
                     <RecycleBinPanel
                         items={recycleBinItems}
                         loading={loading}
-                        onRefresh={onRefresh}
                         onRestore={onRestoreRecycleBinItems}
                         onRestoreEmpty={onRestoreRecycleBinEmpty}
                     />

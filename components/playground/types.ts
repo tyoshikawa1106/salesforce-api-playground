@@ -15,6 +15,11 @@ export type DeleteState =
     | { type: "account"; ids: string[]; label: string }
     | { type: "contact"; ids: string[]; label: string };
 
+export type RestoreState = {
+    items: RecycleBinItem[];
+    label: string;
+};
+
 export type Notice = {
     tone: "success" | "error" | "info";
     message: string;

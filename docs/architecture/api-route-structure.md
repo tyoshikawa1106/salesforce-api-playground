@@ -42,7 +42,7 @@ flowchart LR
 | `/api/contacts/[id]` | `PATCH` | Origin / Referer、Contact ID、request body を検証し、Contact 更新へ委譲する | `handleSalesforceUpdateRoute()`, `readContactUpdatePayload()`, `updateContact()` |
 | `/api/contacts/[id]` | `DELETE` | Origin / Referer と Contact ID を検証し、Contact 削除へ委譲する | `handleSalesforceDeleteRoute()`, `deleteContact()` |
 | `/api/search` | `GET` | `q` query を検証し、Account / Contact 検索へ委譲する | `handleSalesforceRoute()`, `searchAccountsAndContacts()` |
-| `/api/recycle-bin` | `GET` | 対象オブジェクトの削除済みレコードを混在 item として取得する | `handleSalesforceRoute()`, `listRecycleBinItems()` |
+| `/api/recycle-bin` | `GET` | ログインユーザーが削除した対象オブジェクトの削除済みレコードを混在 item として取得する | `handleSalesforceRoute()`, `listRecycleBinItems()` |
 | `/api/recycle-bin/undelete` | `POST` | Origin / Referer と復元対象 item を検証し、オブジェクトごとに復元へ委譲する | `assertSameOriginRequest()`, `readRecycleBinUndeletePayload()`, `undeleteRecycleBinItems()` |
 | `/api/integration/accounts` | `POST` | `x-integration-api-key` と request body を検証し、連携用ユーザーで Account 作成へ委譲する | `assertIntegrationApiKey()`, `readAccountCreatePayload()`, `createIntegrationAccount()` |
 | `/api/integration/accounts/[id]` | `PATCH` | `x-integration-api-key`、Account ID、request body を検証し、連携用ユーザーで Account 更新へ委譲する | `assertIntegrationApiKey()`, `assertSalesforceRecordId()`, `readAccountUpdatePayload()`, `updateIntegrationAccount()` |

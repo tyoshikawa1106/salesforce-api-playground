@@ -31,7 +31,6 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         () => contacts.find((contact) => contact.Id === selectedContactId) ?? null,
         [contacts, selectedContactId]
     );
-
     const resetConnectedState = useCallback(() => {
         setSession({ connected: false });
         setAccounts([]);

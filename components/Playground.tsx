@@ -81,7 +81,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
                 onOpenAccount={(record) => setSelectedAccountId(record.Id)}
                 onOpenContact={(record) => setSelectedContactId(record.Id)}
                 onBulkDeleteEmpty={() => showNotice({ tone: "info", message: "削除対象がチェックされていません。" })}
-                onRestoreRecycleBinItems={recordMutations.restoreRecycleBinItems}
+                onRestoreRecycleBinItems={recordMutations.openRestoreModal}
                 onRestoreRecycleBinEmpty={() => showNotice({ tone: "info", message: "復元対象がチェックされていません。" })}
                 onRefresh={loadAll}
             />
@@ -92,11 +92,14 @@ export default function Playground({ environmentLabel = null }: { environmentLab
                 contactForm={recordMutations.contactForm}
                 deleteState={recordMutations.deleteState}
                 modal={recordMutations.modal}
+                restoreState={recordMutations.restoreState}
                 saving={recordMutations.saving}
                 onAccountFormChange={recordMutations.setAccountForm}
                 onCancelDelete={recordMutations.closeDeleteModal}
+                onCancelRestore={recordMutations.closeRestoreModal}
                 onCloseRecordModal={recordMutations.closeRecordModal}
                 onConfirmDelete={recordMutations.confirmDelete}
+                onConfirmRestore={recordMutations.confirmRestore}
                 onContactFormChange={recordMutations.setContactForm}
                 onSaveAccount={recordMutations.saveAccount}
                 onSaveContact={recordMutations.saveContact}
