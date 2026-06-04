@@ -240,12 +240,12 @@ git switch -c codex/<作業内容>
 3. Staging app の自動デプロイ結果や必要な runtime 確認を記録する。
 4. Production 反映が必要な場合は、Heroku Pipeline の promote 結果を記録する。
 
-### PR title
+### Commit message / PR title
 
-通常の開発 PR は、変更種別が分かる type prefix を付けて、以下の形式にします。
+通常のコミットメッセージと通常の開発 PR title は、変更種別が分かる type prefix を付けて、以下の形式にします。コミットではそのコミットの主目的、PR title では PR 全体の主目的に合う type を選びます。GitHub が自動生成する merge commit message は対象外です。
 
 ```text
-<type>: <変更内容を日本語で簡潔に書く>
+<type>: <summary>
 ```
 
 想定する type は以下です。
@@ -261,7 +261,7 @@ git switch -c codex/<作業内容>
 | `ci` | GitHub Actions など CI 変更 |
 | `style` | UI / CSS / 表示調整 |
 
-通常の開発 PR title 例:
+例:
 
 ```text
 feat: Account 一覧に検索フォームを追加
@@ -283,7 +283,7 @@ Closes #96
 
 Issue を完了させない小変更では、closing keyword を書かずに `Issue なし: 小さな表記修正のため` のように理由を短く書きます。
 
-`codex/...` は作業ブランチ名に使う prefix です。PR title には `codex` prefix を付けません。
+`codex/...` は作業ブランチ名に使う prefix です。コミットメッセージや PR title には `codex` prefix を付けません。
 
 ## Release notes 運用
 

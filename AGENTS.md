@@ -31,12 +31,14 @@
 - ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy / promote しない。通常開発では PR を `main` に作成し、CI pass 後に ready for review へ変更して、ユーザーが `main` へマージすると Staging app へ自動デプロイされる旨と、Production 反映は Heroku Pipeline の promote をユーザー判断で行う旨を案内する。
 - Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
 - `main` へ直接コミットしない。
-- コミットは作業単位で分割し、コミットメッセージは日本語で書く。
+- コミットは作業単位で分割し、コミットメッセージは `<type>: <summary>` の形式で書く。
+- 通常開発 PR の title も `<type>: <summary>` の形式で書き、PR 全体の主目的に合う type を使う。
+- `type` は `feat`、`fix`、`docs`、`test`、`refactor`、`style`、`ci`、`chore` から選ぶ。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
 - Draft PR を作成した通常開発作業では、最終報告前に PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
-- 通常開発 PR の title は `<type>: <変更内容を日本語で簡潔に書く>` の形式にする。例: `feat: Account 一覧に検索フォームを追加`。
+- GitHub が自動生成する merge commit message は、この形式の対象外とする。
 - PR が Issue を完了させる場合は、body に `Closes #<Issue番号>` などの GitHub closing keyword を記載し、`main` へのマージ時に Issue が自動クローズされるようにする。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
 - Issue / PR は原則として適切な milestone と Project `Salesforce API Playground` に紐付ける。
