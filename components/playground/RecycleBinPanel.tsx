@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { formatDate } from "./formatting";
 import { PageHeader, PageHeaderControl } from "./ObjectHome";
+import { useListSelectionState } from "./record-list-state";
 import { DataTableColumnHeader, SelectionCheckbox, TableCell } from "./RecordListTableParts";
 import { StandardIcon, type StandardIconName } from "./SldsIcon";
 import type { RecycleBinItem } from "./types";
+
+const getRecycleBinItemId = (item: RecycleBinItem) => item.id;
 
 export function RecycleBinPanel({
     items,
@@ -18,50 +20,25 @@ export function RecycleBinPanel({
     onRestore: (items: RecycleBinItem[]) => void;
     onRestoreEmpty: () => void;
 }) {
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-    const selectedVisibleCount = items.filter((item) => selectedIds.has(item.id)).length;
-    const allVisibleSelected = items.length > 0 && selectedVisibleCount === items.length;
-    const someVisibleSelected = selectedVisibleCount > 0 && !allVisibleSelected;
-    const selectedVisibleItems = items.filter((item) => selectedIds.has(item.id));
-
-    function toggleSelection(id: string) {
-        setSelectedIds((currentIds) => {
-            const nextIds = new Set(currentIds);
-            if (nextIds.has(id)) {
-                nextIds.delete(id);
-                return nextIds;
-            }
-
-            nextIds.add(id);
-            return nextIds;
-        });
-    }
-
-    function toggleVisibleSelection() {
-        setSelectedIds((currentIds) => {
-            const nextIds = new Set(currentIds);
-            const allVisibleSelected = items.length > 0 && items.every((item) => nextIds.has(item.id));
-
-            items.forEach((item) => {
-                if (allVisibleSelected) {
-                    nextIds.delete(item.id);
-                    return;
-                }
-
-                nextIds.add(item.id);
-            });
-
-            return nextIds;
-        });
-    }
+    const {
+        selectedIds,
+        selectedVisibleRecords,
+        selectionState,
+        toggleSelection,
+        toggleVisibleSelection
+    } = useListSelectionState({
+        availableRecords: items,
+        visibleRecords: items,
+        getRecordId: getRecycleBinItemId
+    });
 
     function restoreSelectedItems() {
-        if (selectedVisibleItems.length === 0) {
+        if (selectedVisibleRecords.length === 0) {
             onRestoreEmpty();
             return;
         }
 
-        onRestore(selectedVisibleItems);
+        onRestore(selectedVisibleRecords);
     }
 
     return (
@@ -98,8 +75,8 @@ export function RecycleBinPanel({
                     <RecycleBinTable
                         items={items}
                         selectedIds={selectedIds}
-                        allVisibleSelected={allVisibleSelected}
-                        someVisibleSelected={someVisibleSelected}
+                        allVisibleSelected={selectionState.allVisibleSelected}
+                        someVisibleSelected={selectionState.someVisibleSelected}
                         onToggleSelection={toggleSelection}
                         onToggleVisibleSelection={toggleVisibleSelection}
                     />

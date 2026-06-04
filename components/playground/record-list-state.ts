@@ -2,8 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+const getDefaultRecordId = <Record extends { Id: string }>(record: Record) => record.Id;
+
 export function getSelectionState<Record extends { Id: string }>(visibleRecords: Record[], selectedIds: Set<string>) {
-    const visibleIds = visibleRecords.map((record) => record.Id);
+    return getSelectionStateForIds(visibleRecords.map((record) => record.Id), selectedIds);
+}
+
+export function getSelectionStateForIds(visibleIds: string[], selectedIds: Set<string>) {
     const selectedVisibleCount = visibleIds.filter((id) => selectedIds.has(id)).length;
     const allVisibleSelected = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
 
@@ -14,25 +19,61 @@ export function getSelectionState<Record extends { Id: string }>(visibleRecords:
     };
 }
 
+export function useListSelectionState<Record>({
+    availableRecords,
+    visibleRecords,
+    getRecordId
+}: {
+    availableRecords: Record[];
+    visibleRecords: Record[];
+    getRecordId: (record: Record) => string;
+}) {
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const visibleIds = useMemo(() => visibleRecords.map(getRecordId), [visibleRecords, getRecordId]);
+    const selectionState = getSelectionStateForIds(visibleIds, selectedIds);
+    const selectedVisibleRecords = useMemo(
+        () => visibleRecords.filter((record) => selectedIds.has(getRecordId(record))),
+        [visibleRecords, selectedIds, getRecordId]
+    );
+
+    useEffect(() => {
+        setSelectedIds((currentIds) => pruneSelection(currentIds, availableRecords.map(getRecordId)));
+    }, [availableRecords, getRecordId]);
+
+    return {
+        selectedIds,
+        selectedVisibleRecords,
+        selectionState,
+        toggleSelection: (recordId: string) => setSelectedIds((currentIds) => toggleSelectedId(currentIds, recordId)),
+        clearSelection: () => setSelectedIds(new Set()),
+        toggleVisibleSelection: () => setSelectedIds((currentIds) => toggleVisibleSelection(currentIds, visibleIds))
+    };
+}
+
 export function useRecordListState<Record extends { Id: string }>(
     records: Record[],
     filterListRecords: (records: Record[], searchTerm: string) => Record[]
 ) {
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [openActionRecordId, setOpenActionRecordId] = useState<string | null>(null);
     const filteredRecords = useMemo(() => filterListRecords(records, searchTerm), [records, searchTerm, filterListRecords]);
-    const selectionState = getSelectionState(filteredRecords, selectedIds);
-
-    useEffect(() => {
-        setSelectedIds((currentIds) => pruneSelection(currentIds, records.map((record) => record.Id)));
-    }, [records]);
+    const {
+        clearSelection,
+        selectedIds,
+        selectionState,
+        toggleSelection,
+        toggleVisibleSelection
+    } = useListSelectionState({
+        availableRecords: records,
+        visibleRecords: filteredRecords,
+        getRecordId: getDefaultRecordId
+    });
 
     return {
         searchTerm,
         setSearchTerm: (nextSearchTerm: string) => {
             setSearchTerm(nextSearchTerm);
-            setSelectedIds(new Set());
+            clearSelection();
             setOpenActionRecordId(null);
         },
         selectedIds,
@@ -41,13 +82,12 @@ export function useRecordListState<Record extends { Id: string }>(
         openActionRecordId,
         hasRecords: records.length > 0,
         hasFilteredRecords: filteredRecords.length > 0,
-        toggleSelection: (recordId: string) => setSelectedIds((currentIds) => toggleSelectedId(currentIds, recordId)),
-        clearSelection: () => setSelectedIds(new Set()),
+        toggleSelection,
+        clearSelection,
         closeActionMenu: () => setOpenActionRecordId(null),
         toggleActionMenu: (recordId: string) =>
             setOpenActionRecordId((currentRecordId) => (currentRecordId === recordId ? null : recordId)),
-        toggleVisibleSelection: () =>
-            setSelectedIds((currentIds) => toggleVisibleSelection(currentIds, filteredRecords.map((record) => record.Id)))
+        toggleVisibleSelection
     };
 }
 
