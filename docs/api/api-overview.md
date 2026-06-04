@@ -40,6 +40,7 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | `/api/accounts` | `POST` | Account を作成 | `{ id, success }` with `201` | Origin / Referer 不一致 `403`、入力エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/accounts/[id]` | `PATCH` | Account を更新 | `{}` | Origin / Referer 不一致 `403`、ID / 入力エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/accounts/[id]` | `DELETE` | Account を削除 | `{}` | Origin / Referer 不一致 `403`、ID エラー `400`、未接続 `401`、Salesforce API エラー |
+| `/api/search` | `GET` | Account / Contact を横断検索 | `{ results: SearchResultItem[] }` | query 不足 / 短すぎる query `400`、未接続 `401`、Salesforce API エラー |
 | `/api/contacts` | `GET` | Contact 一覧を取得 | `{ contacts: ContactRecord[] }` | 未接続 `401`、Salesforce API エラー、セッション期限切れ |
 | `/api/contacts` | `POST` | Contact を作成 | `{ id, success }` with `201` | Origin / Referer 不一致 `403`、入力エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/contacts/[id]` | `PATCH` | Contact を更新 | `{}` | Origin / Referer 不一致 `403`、ID / 入力エラー `400`、未接続 `401`、Salesforce API エラー |
@@ -256,6 +257,63 @@ curl -X PATCH http://localhost:3000/api/integration/accounts/001xxxxxxxxxxxx \
 ```json
 {}
 ```
+
+## 検索 API
+
+### `GET /api/search`
+
+GlobalHeader の検索欄から Account / Contact を横断検索します。`q` query parameter をトリムし、2 文字以上の場合のみ `services/salesforce/records.ts` の `searchAccountsAndContacts()` を呼び出します。API 側では最大 80 文字までを Salesforce 検索に渡します。
+
+検索は SOSL を使い、検索語は空白区切りで扱います。SOSL の予約文字はエスケープし、末尾に `*` を付けた前方一致検索として実行します。
+
+検索対象:
+
+| オブジェクト | 取得フィールド | 件数 |
+| --- | --- | --- |
+| Account | `Id`, `Name`, `Phone`, `Website`, `Industry`, `Type`, `BillingCity`, `BillingCountry`, `LastModifiedDate` | 最大 5 件 |
+| Contact | `Id`, `FirstName`, `LastName`, `Email`, `Phone`, `Title`, `AccountId`, `Account.Name`, `LastModifiedDate` | 最大 5 件 |
+
+リクエスト例:
+
+```bash
+curl "http://localhost:3000/api/search?q=Acme"
+```
+
+レスポンス概要:
+
+```json
+{
+    "results": [
+        {
+            "type": "account",
+            "record": {
+                "Id": "未記載",
+                "Name": "Acme",
+                "Phone": "未記載",
+                "BillingCity": "未記載",
+                "BillingCountry": "未記載",
+                "LastModifiedDate": "未記載"
+            }
+        },
+        {
+            "type": "contact",
+            "record": {
+                "Id": "未記載",
+                "FirstName": "未記載",
+                "LastName": "Sample",
+                "Email": "未記載",
+                "AccountId": "未記載",
+                "Account": {
+                    "Name": "Acme"
+                },
+                "LastModifiedDate": "未記載"
+            }
+        }
+    ]
+}
+```
+
+`q` がない場合は `400` で `{ "error": "検索キーワードを入力してください。" }` を返します。`q` が 2 文字未満の場合は `400` で `{ "error": "検索キーワードは 2 文字以上で入力してください。" }` を返します。
 
 ## Contact API
 
