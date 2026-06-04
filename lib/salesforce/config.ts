@@ -1,4 +1,8 @@
 import { DEFAULT_SALESFORCE_API_VERSION } from "./api-version";
+import {
+    normalizeAppRedirectUri,
+    normalizeHttpsOriginUrl
+} from "./url-security";
 
 export type SalesforceConfig = {
     clientId: string;
@@ -39,7 +43,11 @@ export function getSalesforceConfig(): SalesforceConfig {
         throw new Error("SESSION_SECRET must be at least 32 characters.");
     }
 
-    return config;
+    return {
+        ...config,
+        redirectUri: normalizeAppRedirectUri(config.redirectUri, "SALESFORCE_REDIRECT_URI"),
+        loginUrl: normalizeHttpsOriginUrl(config.loginUrl, "SALESFORCE_LOGIN_URL")
+    };
 }
 
 export function getSalesforceIntegrationConfig(): SalesforceIntegrationConfig {
@@ -59,5 +67,11 @@ export function getSalesforceIntegrationConfig(): SalesforceIntegrationConfig {
         throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
     }
 
-    return config;
+    return {
+        ...config,
+        loginUrl: normalizeHttpsOriginUrl(
+            config.loginUrl,
+            "SALESFORCE_INTEGRATION_LOGIN_URL"
+        )
+    };
 }

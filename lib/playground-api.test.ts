@@ -19,6 +19,15 @@ describe("playgroundApiPaths", () => {
             "/api/accounts/001xx000003DGbY"
         );
     });
+
+    it("encodes user-controlled values before adding them to URLs", () => {
+        expect(playgroundApiPaths.search("<script>alert(1)</script>&next=/")).toBe(
+            "/api/search?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E%26next%3D%2F"
+        );
+        expect(playgroundApiPaths.record("contacts", "003xx000004TmiQ/../../x?<script>")).toBe(
+            "/api/contacts/003xx000004TmiQ%2F..%2F..%2Fx%3F%3Cscript%3E"
+        );
+    });
 });
 
 describe("buildPlaygroundApiRequest", () => {

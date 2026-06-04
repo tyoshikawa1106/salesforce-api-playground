@@ -39,7 +39,7 @@ describe("getSalesforceConfig", () => {
 
     it("uses optional Salesforce endpoint overrides", () => {
         setRequiredEnv({
-            SALESFORCE_LOGIN_URL: "https://test.salesforce.com"
+            SALESFORCE_LOGIN_URL: "https://test.salesforce.com/"
         });
 
         expect(getSalesforceConfig()).toMatchObject({
@@ -75,13 +75,49 @@ describe("getSalesforceConfig", () => {
             "SESSION_SECRET must be at least 32 characters."
         );
     });
+
+    it("allows localhost HTTP redirect URIs for local development", () => {
+        setRequiredEnv({
+            SALESFORCE_REDIRECT_URI: "http://localhost:3000/api/auth/callback"
+        });
+
+        expect(getSalesforceConfig()).toMatchObject({
+            redirectUri: "http://localhost:3000/api/auth/callback"
+        });
+    });
+
+    it("rejects unsafe OAuth redirect URIs", () => {
+        setRequiredEnv({
+            SALESFORCE_REDIRECT_URI: "javascript:alert(1)"
+        });
+
+        expect(() => getSalesforceConfig()).toThrow(
+            "SALESFORCE_REDIRECT_URI must use https, except localhost development URLs."
+        );
+    });
+
+    it("rejects Salesforce login URLs with path, query, or non-HTTPS protocols", () => {
+        setRequiredEnv({
+            SALESFORCE_LOGIN_URL: "https://login.salesforce.com/path?next=https://evil.example"
+        });
+
+        expect(() => getSalesforceConfig()).toThrow(
+            "SALESFORCE_LOGIN_URL must not include query or fragment."
+        );
+
+        setRequiredEnv({
+            SALESFORCE_LOGIN_URL: "javascript:alert(1)"
+        });
+
+        expect(() => getSalesforceConfig()).toThrow("SALESFORCE_LOGIN_URL must use https.");
+    });
 });
 
 describe("getSalesforceIntegrationConfig", () => {
     it("returns client credentials settings", () => {
         vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_ID", "integration-client-id");
         vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_SECRET", "integration-client-secret");
-        vi.stubEnv("SALESFORCE_INTEGRATION_LOGIN_URL", "https://login.example.test");
+        vi.stubEnv("SALESFORCE_INTEGRATION_LOGIN_URL", "https://login.example.test/");
         vi.stubEnv("INTEGRATION_API_KEY", "integration-api-key");
 
         expect(getSalesforceIntegrationConfig()).toEqual({
@@ -109,6 +145,17 @@ describe("getSalesforceIntegrationConfig", () => {
 
         expect(() => getSalesforceIntegrationConfig()).toThrow(
             "Missing required environment variables: clientSecret, loginUrl, apiKey"
+        );
+    });
+
+    it("rejects unsafe integration login URLs", () => {
+        vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_ID", "integration-client-id");
+        vi.stubEnv("SALESFORCE_INTEGRATION_CLIENT_SECRET", "integration-client-secret");
+        vi.stubEnv("SALESFORCE_INTEGRATION_LOGIN_URL", "http://login.example.test");
+        vi.stubEnv("INTEGRATION_API_KEY", "integration-api-key");
+
+        expect(() => getSalesforceIntegrationConfig()).toThrow(
+            "SALESFORCE_INTEGRATION_LOGIN_URL must use https."
         );
     });
 });
