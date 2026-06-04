@@ -9,7 +9,7 @@ nav_order: 85
 
 このドキュメントは、README と `docs` 配下を変更するときに、どの情報をどこへ書き、どの確認を行うかを判断するための保守方針を整理します。
 
-詳細な開発手順は [ローカル開発](../setup/local-development.md)、Issue / PR / Release notes の運用は [GitHub 運用](github.md)、障害時の記録は [トラブルシューティング](troubleshooting.md) を参照します。
+詳細な開発手順は [ローカル開発](../setup/local-development.md)、作業開始から PR 前までの確認は [開発チェックリスト](development-checklist.md)、Issue / PR / Release notes の運用は [GitHub 運用](github.md)、障害時の記録は [トラブルシューティング](troubleshooting.md) を参照します。
 
 ## 基本方針
 
@@ -34,6 +34,7 @@ nav_order: 85
 | ローカル起動、環境変数、確認コマンド | `docs/setup` | 実 Salesforce 接続が必要な確認は Codex 確認範囲と分ける |
 | Heroku の設定、Staging / Production、promote 判断 | `docs/deployment` | Heroku app 名や実 URL は書かない |
 | Issue / PR / CI / release / docs 保守 | `docs/operations` | 現行運用として従う手順を書く |
+| 作業開始、変更後セルフレビュー、PR 前確認 | `docs/operations/development-checklist.md` | 実装詳細ではなく、確認順序と参照先を整理する |
 | 障害やエラーの切り分け | `docs/operations/troubleshooting.md` | 原因が未確認なら断定しない |
 | 比較、背景理解、学習メモ | `docs/knowledge` | 現行手順としては扱わない |
 | 採用した設計判断と見直し条件 | `docs/decisions` | 決定済みの内容と未確認事項を分ける |
@@ -51,6 +52,7 @@ nav_order: 85
 | 環境変数、起動方式、ビルド設定を変える | `README.md`、[ローカル開発](../setup/local-development.md)、[Heroku デプロイ](../deployment/heroku.md) |
 | CI、Issue template、PR template、Project 自動化を変える | [GitHub 運用](github.md)、`README.md` の開発ルール、必要に応じて [トラブルシューティング](troubleshooting.md) |
 | Heroku Pipeline、Config Vars、デプロイ確認を変える | [Heroku デプロイ](../deployment/heroku.md)、[GitHub 運用](github.md)、`README.md` のデプロイ概要 |
+| 作業手順、確認コマンド、PR 前チェックを変える | [開発チェックリスト](development-checklist.md)、[CI](ci.md)、[GitHub 運用](github.md) |
 
 ## 記載時の確認観点
 
@@ -87,6 +89,7 @@ npm run workflows:check
 - [ディレクトリ構成](../architecture/directory-structure.md)
 - [Salesforce レコードモデル](../architecture/salesforce-record-model.md)
 - [CI](ci.md)
+- [開発チェックリスト](development-checklist.md)
 - [ローカル開発](../setup/local-development.md)
 - [GitHub 運用](github.md)
 - [秘密情報の扱い](../security/secret-handling.md)
