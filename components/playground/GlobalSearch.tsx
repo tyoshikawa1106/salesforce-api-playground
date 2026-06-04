@@ -1,20 +1,14 @@
 "use client";
 
-import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
-import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-api";
 import type { SearchResultItem } from "@/lib/salesforce/records";
-import { apiRequest } from "./api";
 import { getContactName } from "./formatting";
 import { StandardIcon, UtilityIcon } from "./SldsIcon";
+import { getGlobalSearchResultLabel, useGlobalSearch } from "./useGlobalSearch";
 
 type GlobalSearchProps = {
     connected: boolean;
     onSelectSearchResult?: (result: SearchResultItem) => void;
 };
-
-function getResultLabel(result: SearchResultItem): string {
-    return result.type === "account" ? result.record.Name : getContactName(result.record);
-}
 
 function getResultMeta(result: SearchResultItem): string {
     if (result.type === "account") {
@@ -47,129 +41,19 @@ function SearchResultIcon({ result }: { result: SearchResultItem }) {
 }
 
 export function GlobalSearch({ connected, onSelectSearchResult }: GlobalSearchProps) {
-    const searchRef = useRef<HTMLDivElement | null>(null);
-    const searchRequestId = useRef(0);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
-    const [searchOpen, setSearchOpen] = useState(false);
-    const [searchLoading, setSearchLoading] = useState(false);
-    const [searchMessage, setSearchMessage] = useState<string | null>(null);
-    const [activeSearchIndex, setActiveSearchIndex] = useState(-1);
-
-    function changeSearchQuery(event: ChangeEvent<HTMLInputElement>): void {
-        setSearchQuery(event.target.value);
-        setSearchOpen(true);
-        setActiveSearchIndex(-1);
-    }
-
-    function selectSearchResult(result: SearchResultItem): void {
-        onSelectSearchResult?.(result);
-        setSearchQuery(getResultLabel(result));
-        setSearchOpen(false);
-        setActiveSearchIndex(-1);
-    }
-
-    function handleSearchKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
-        if (event.key === "Escape") {
-            setSearchOpen(false);
-            return;
-        }
-
-        if (!searchOpen || searchResults.length === 0) {
-            return;
-        }
-
-        if (event.key === "ArrowDown") {
-            event.preventDefault();
-            setActiveSearchIndex((currentIndex) => (currentIndex + 1) % searchResults.length);
-        } else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            setActiveSearchIndex((currentIndex) =>
-                currentIndex <= 0 ? searchResults.length - 1 : currentIndex - 1
-            );
-        } else if (event.key === "Enter" && activeSearchIndex >= 0) {
-            event.preventDefault();
-            selectSearchResult(searchResults[activeSearchIndex]);
-        }
-    }
-
-    useEffect(() => {
-        function closeOnPointerDown(event: PointerEvent): void {
-            if (!searchRef.current?.contains(event.target as Node)) {
-                setSearchOpen(false);
-            }
-        }
-
-        document.addEventListener("pointerdown", closeOnPointerDown);
-        return () => document.removeEventListener("pointerdown", closeOnPointerDown);
-    }, []);
-
-    useEffect(() => {
-        if (!connected) {
-            searchRequestId.current += 1;
-            setSearchQuery("");
-            setSearchResults([]);
-            setSearchMessage(null);
-            setSearchLoading(false);
-            setSearchOpen(false);
-            return;
-        }
-
-        const trimmedQuery = searchQuery.trim();
-        if (!trimmedQuery) {
-            searchRequestId.current += 1;
-            setSearchResults([]);
-            setSearchMessage("検索キーワードを入力してください。");
-            setSearchLoading(false);
-            return;
-        }
-
-        if (trimmedQuery.length < 2) {
-            searchRequestId.current += 1;
-            setSearchResults([]);
-            setSearchMessage("2 文字以上で検索してください。");
-            setSearchLoading(false);
-            return;
-        }
-
-        const requestId = searchRequestId.current + 1;
-        searchRequestId.current = requestId;
-        setSearchLoading(true);
-        setSearchMessage(null);
-
-        const timer = window.setTimeout(() => {
-            apiRequest<{ results: SearchResultItem[] }>(
-                buildPlaygroundApiRequest(playgroundApiPaths.search(trimmedQuery))
-            )
-                .then(({ results }) => {
-                    if (searchRequestId.current !== requestId) {
-                        return;
-                    }
-
-                    setSearchResults(results);
-                    setSearchMessage(results.length === 0 ? "検索結果がありません。" : null);
-                    setActiveSearchIndex(results.length > 0 ? 0 : -1);
-                })
-                .catch((error) => {
-                    if (searchRequestId.current !== requestId) {
-                        return;
-                    }
-
-                    setSearchResults([]);
-                    setSearchMessage(error instanceof Error ? error.message : "検索に失敗しました。");
-                    setActiveSearchIndex(-1);
-                })
-                .finally(() => {
-                    if (searchRequestId.current === requestId) {
-                        setSearchLoading(false);
-                    }
-                });
-        }, 250);
-
-        return () => {
-            window.clearTimeout(timer);
-        };
-    }, [connected, searchQuery]);
+    const {
+        activeSearchIndex,
+        changeSearchQuery,
+        handleSearchKeyDown,
+        searchLoading,
+        searchMessage,
+        searchOpen,
+        searchQuery,
+        searchRef,
+        searchResults,
+        selectSearchResult,
+        setSearchOpen
+    } = useGlobalSearch({ connected, onSelectSearchResult });
 
     return (
         <div ref={searchRef} className={`slds-form-element slds-lookup ${searchOpen ? "slds-is-open" : "slds-is-close"}`}>
@@ -238,7 +122,7 @@ export function GlobalSearch({ connected, onSelectSearchResult }: GlobalSearchPr
                                             </span>
                                             <span className="slds-media__body">
                                                 <span className="slds-listbox__option-text slds-listbox__option-text_entity playground-global-search-result__label">
-                                                    {getResultLabel(result)}
+                                                    {getGlobalSearchResultLabel(result)}
                                                 </span>
                                                 <span className="slds-listbox__option-meta slds-listbox__option-meta_entity playground-global-search-result__meta">
                                                     {result.type === "account" ? "取引先" : "取引先責任者"} / {getResultMeta(result)}
