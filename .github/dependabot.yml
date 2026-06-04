@@ -13,7 +13,7 @@ updates:
       - "area:github"
       - "type:maintenance"
     commit-message:
-      prefix: "依存関係"
+      prefix: "chore"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -28,4 +28,4 @@ updates:
       - "area:github"
       - "type:maintenance"
     commit-message:
-      prefix: "GitHub Actions"
+      prefix: "ci"
