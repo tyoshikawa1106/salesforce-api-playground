@@ -26,6 +26,7 @@ type PlaygroundWorkspaceProps = {
     onEditContact: (record: Contact) => void;
     onOpenAccount: (record: Account) => void;
     onOpenContact: (record: Contact) => void;
+    onBulkDeleteEmpty: () => void;
     onRefresh: () => void;
 };
 
@@ -49,6 +50,7 @@ export function PlaygroundWorkspace({
     onEditContact,
     onOpenAccount,
     onOpenContact,
+    onBulkDeleteEmpty,
     onRefresh
 }: PlaygroundWorkspaceProps) {
     return (
@@ -87,6 +89,7 @@ export function PlaygroundWorkspace({
                                     label: `選択した取引先 ${records.length} 件`
                                 })
                             }
+                            onBulkDeleteEmpty={onBulkDeleteEmpty}
                         />
                     </>
                 ) : null}
@@ -124,6 +127,7 @@ export function PlaygroundWorkspace({
                                     label: `選択した取引先責任者 ${records.length} 件`
                                 })
                             }
+                            onBulkDeleteEmpty={onBulkDeleteEmpty}
                         />
                     </>
                 ) : null}

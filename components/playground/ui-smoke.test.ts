@@ -90,7 +90,8 @@ describe("playground UI smoke rendering", () => {
                 onDelete: noop,
                 onEdit: noop,
                 onOpen: noop,
-                onBulkDelete: noop
+                onBulkDelete: noop,
+                onBulkDeleteEmpty: noop
             })
         );
         const contactMarkup = renderToStaticMarkup(
@@ -101,7 +102,8 @@ describe("playground UI smoke rendering", () => {
                 onDelete: noop,
                 onEdit: noop,
                 onOpen: noop,
-                onBulkDelete: noop
+                onBulkDelete: noop,
+                onBulkDeleteEmpty: noop
             })
         );
 
@@ -122,6 +124,8 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).not.toContain("Refresh list");
         expect(accountMarkup).toContain("slds-checkbox__label");
         expect(accountMarkup).toContain("slds-text-align_right slds-cell_action-mode");
+        expect(accountMarkup).toContain("aria-label=\"選択した取引先を削除\"");
+        expect(accountMarkup).toContain("slds-m-left_x-small");
         expect(accountMarkup).not.toContain("playground-list-selection");
         expect(accountMarkup).toContain("slds-dropdown-trigger slds-dropdown-trigger_click");
         expect(accountMarkup).toContain("slds-button_icon-border-filled slds-button_icon-x-small");
@@ -143,6 +147,7 @@ describe("playground UI smoke rendering", () => {
         expect(contactMarkup).toContain("1 件");
         expect(contactMarkup).toContain("Manager");
         expect(contactMarkup).toContain("aria-label=\"表示中の取引先責任者をすべて選択\"");
+        expect(contactMarkup).toContain("aria-label=\"選択した取引先責任者を削除\"");
         expect(contactMarkup).not.toContain("ビュー: 自分の取引先責任者");
     });
 

@@ -78,6 +78,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
                 onEditContact={recordMutations.openContactModal}
                 onOpenAccount={(record) => setSelectedAccountId(record.Id)}
                 onOpenContact={(record) => setSelectedContactId(record.Id)}
+                onBulkDeleteEmpty={() => showNotice({ tone: "info", message: "削除対象がチェックされていません。" })}
                 onRefresh={loadAll}
             />
 

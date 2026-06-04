@@ -3,6 +3,7 @@
 import { RecordListEmptyStates } from "./RecordListEmptyStates";
 import { RecordListTable } from "./RecordListTable";
 import { getSelectedVisibleRecords, useRecordListState } from "./record-list-state";
+import { UtilityIcon } from "./SldsIcon";
 import type { RecordListColumn, RecordListMessages } from "./record-list-types";
 
 export function RecordListPanel<Record extends { Id: string }>({
@@ -21,7 +22,8 @@ export function RecordListPanel<Record extends { Id: string }>({
     onOpen,
     onEdit,
     onDelete,
-    onBulkDelete
+    onBulkDelete,
+    onBulkDeleteEmpty
 }: {
     records: Record[];
     loading: boolean;
@@ -39,20 +41,28 @@ export function RecordListPanel<Record extends { Id: string }>({
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
     onBulkDelete: (records: Record[]) => void;
+    onBulkDeleteEmpty: () => void;
 }) {
     const listState = useRecordListState(records, filterListRecords);
     const selectedVisibleRecords = getSelectedVisibleRecords(listState.filteredRecords, listState.selectedIds);
+
+    function runBulkDelete() {
+        if (selectedVisibleRecords.length === 0) {
+            onBulkDeleteEmpty();
+            return;
+        }
+
+        onBulkDelete(selectedVisibleRecords);
+    }
 
     return (
         <div className="slds-theme_default">
             <ListViewToolbar
                 count={listState.filteredRecords.length}
-                selectedCount={selectedVisibleRecords.length}
                 bulkDeleteLabel={bulkDeleteLabel}
                 searchId={searchId}
                 searchValue={listState.searchTerm}
-                onBulkDelete={() => onBulkDelete(selectedVisibleRecords)}
-                onClearSelection={listState.clearSelection}
+                onBulkDelete={runBulkDelete}
                 onSearchChange={listState.setSearchTerm}
             />
             <RecordListEmptyStates
@@ -84,42 +94,25 @@ export function RecordListPanel<Record extends { Id: string }>({
 
 function ListViewToolbar({
     count,
-    selectedCount,
     bulkDeleteLabel,
     searchId,
     searchValue,
     onBulkDelete,
-    onClearSelection,
     onSearchChange
 }: {
     count: number;
-    selectedCount: number;
     bulkDeleteLabel: string;
     searchId: string;
     searchValue: string;
     onBulkDelete: () => void;
-    onClearSelection: () => void;
     onSearchChange: (value: string) => void;
 }) {
     return (
         <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
-            <div className="slds-grid slds-grid_vertical-align-center slds-wrap">
+            <div>
                 <div className="slds-text-title_bold">
                     {count} 件
                 </div>
-                {selectedCount > 0 ? (
-                    <div className="slds-grid slds-grid_vertical-align-center slds-m-left_medium">
-                        <span className="slds-text-body_small slds-m-right_small">
-                            {selectedCount} 件を選択中
-                        </span>
-                        <button className="slds-button slds-button_neutral" type="button" onClick={onClearSelection}>
-                            選択を解除
-                        </button>
-                        <button className="slds-button slds-button_destructive slds-m-left_x-small" type="button" onClick={onBulkDelete}>
-                            {bulkDeleteLabel}
-                        </button>
-                    </div>
-                ) : null}
             </div>
             <div className="slds-grid slds-grid_vertical-align-center">
                 <div className="slds-form-element">
@@ -138,6 +131,15 @@ function ListViewToolbar({
                         />
                     </div>
                 </div>
+                <button
+                    className="slds-button slds-button_icon slds-button_icon-border-filled slds-m-left_x-small"
+                    type="button"
+                    title={bulkDeleteLabel}
+                    aria-label={bulkDeleteLabel}
+                    onClick={onBulkDelete}
+                >
+                    <UtilityIcon className="slds-button__icon" name="delete" />
+                </button>
             </div>
         </div>
     );

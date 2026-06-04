@@ -15,7 +15,8 @@ export function AccountPanel({
     onOpen,
     onEdit,
     onDelete,
-    onBulkDelete
+    onBulkDelete,
+    onBulkDeleteEmpty
 }: {
     accounts: Account[];
     loading: boolean;
@@ -24,6 +25,7 @@ export function AccountPanel({
     onEdit: (record: Account) => void;
     onDelete: (record: Account) => void;
     onBulkDelete: (records: Account[]) => void;
+    onBulkDeleteEmpty: () => void;
 }) {
     const columns: Array<RecordListColumn<Account>> = [
         { label: "電話", getValue: (account) => account.Phone },
@@ -56,6 +58,7 @@ export function AccountPanel({
             onEdit={onEdit}
             onDelete={onDelete}
             onBulkDelete={onBulkDelete}
+            onBulkDeleteEmpty={onBulkDeleteEmpty}
         />
     );
 }
@@ -67,7 +70,8 @@ export function ContactPanel({
     onOpen,
     onEdit,
     onDelete,
-    onBulkDelete
+    onBulkDelete,
+    onBulkDeleteEmpty
 }: {
     contacts: Contact[];
     loading: boolean;
@@ -76,6 +80,7 @@ export function ContactPanel({
     onEdit: (record: Contact) => void;
     onDelete: (record: Contact) => void;
     onBulkDelete: (records: Contact[]) => void;
+    onBulkDeleteEmpty: () => void;
 }) {
     const columns: Array<RecordListColumn<Contact>> = [
         { label: "役職", getValue: (contact) => contact.Title },
@@ -108,6 +113,7 @@ export function ContactPanel({
             onEdit={onEdit}
             onDelete={onDelete}
             onBulkDelete={onBulkDelete}
+            onBulkDeleteEmpty={onBulkDeleteEmpty}
         />
     );
 }
