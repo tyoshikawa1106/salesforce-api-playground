@@ -65,6 +65,7 @@
 - Salesforce API 呼び出しは原則 `jsforce` を利用する。
 - Salesforce 認証と API 呼び出しは `jsforce.Connection` を利用して一元化する。
 - Salesforce のデータ操作は `services/salesforce` 配下に集約する。OAuth、session、config、型定義などの共通処理は `lib/salesforce` 配下に置く。
+- Salesforce の CRUD / SOQL / SOSL を追加または変更する場合は、処理前にログインユーザーまたは連携用ユーザーの対象オブジェクト権限を `describe()` などで確認し、権限がない場合は処理を実行せずエラーを返す。
 - README は開発手順、利用方法、CI / 運用に影響する変更がある場合に更新する。
 - 実装変更時は、必要に応じて `README.md` / `docs` 配下を更新する。リリースノートは GitHub Releases で管理し、`CHANGELOG.md` へ個別の変更履歴を追記しない。
 
