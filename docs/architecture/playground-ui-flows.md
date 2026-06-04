@@ -92,13 +92,13 @@ nav_order: 20
 - Account / Contact 一覧コンポーネントの未使用 `onRefresh` props を削除した。
 - 作成 / 編集 / 削除確認 modal の初期フォーカス、Escape クローズ、フォーカストラップを `Modal` コンポーネントに集約した。
 - GlobalHeader の検索欄を `/api/search` と接続し、Account / Contact の候補表示、キーボード選択、選択後のレコード詳細遷移を実装した。
+- Account / Contact 一覧の選択行に一括削除操作を追加した。
 
 ## 改善候補
 
 | 優先度 | 候補 | 理由 |
 | --- | --- | --- |
-| 高 | 一覧の行選択チェックボックスに一括操作を追加 | 現在は選択状態を使う後続操作がないため、選択状態管理と一括操作を実装して UI の期待に合わせる |
-| 中 | GlobalHeader のポップオーバー / profile menu のキーボード操作改善 | hover と click 中心で、閉じる操作や menuitem 移動の挙動が限定的。分割 Issue: [#97](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/97) |
+| 中 | 一括削除の部分失敗時の再試行導線を検討 | 現在は既存 DELETE API を順次実行し、失敗時はエラー通知と再読み込みで状態を戻す。複数件の一部だけが削除された場合の詳細な結果表示は未実装。分割 Issue: [#308](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/308) |
 
 ## 確認対象
 

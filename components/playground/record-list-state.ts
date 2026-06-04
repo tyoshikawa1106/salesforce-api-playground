@@ -42,6 +42,7 @@ export function useRecordListState<Record extends { Id: string }>(
         hasRecords: records.length > 0,
         hasFilteredRecords: filteredRecords.length > 0,
         toggleSelection: (recordId: string) => setSelectedIds((currentIds) => toggleSelectedId(currentIds, recordId)),
+        clearSelection: () => setSelectedIds(new Set()),
         closeActionMenu: () => setOpenActionRecordId(null),
         toggleActionMenu: (recordId: string) =>
             setOpenActionRecordId((currentRecordId) => (currentRecordId === recordId ? null : recordId)),
@@ -64,6 +65,10 @@ export function filterRecords<Record>(
     return records.filter((record) =>
         getSearchValues(record).some((value) => normalizeSearchTerm(value).includes(normalizedSearchTerm))
     );
+}
+
+export function getSelectedVisibleRecords<Record extends { Id: string }>(visibleRecords: Record[], selectedIds: Set<string>) {
+    return visibleRecords.filter((record) => selectedIds.has(record.Id));
 }
 
 function normalizeSearchTerm(value?: string) {

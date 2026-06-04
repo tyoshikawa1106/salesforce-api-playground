@@ -10,8 +10,8 @@ export type ModalState =
     | { type: "contact"; mode: "edit"; record: Contact };
 
 export type DeleteState =
-    | { type: "account"; id: string; label: string }
-    | { type: "contact"; id: string; label: string };
+    | { type: "account"; ids: string[]; label: string }
+    | { type: "contact"; ids: string[]; label: string };
 
 export type Notice = {
     tone: "success" | "error" | "info";

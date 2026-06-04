@@ -67,10 +67,14 @@ export async function createIntegrationAccountMutation(accountForm: AccountForm)
 
 export async function deleteRecordMutation(deleteState: DeleteState): Promise<string> {
     const resource = deleteState.type === "account" ? "accounts" : "contacts";
-    await apiRequest(
-        buildPlaygroundApiRequest(playgroundApiPaths.record(resource, deleteState.id), {
-            method: "DELETE"
-        })
-    );
-    return `${deleteState.label} を削除しました。`;
+
+    for (const id of deleteState.ids) {
+        await apiRequest(
+            buildPlaygroundApiRequest(playgroundApiPaths.record(resource, id), {
+                method: "DELETE"
+            })
+        );
+    }
+
+    return deleteState.ids.length === 1 ? `${deleteState.label} を削除しました。` : `${deleteState.label}を削除しました。`;
 }

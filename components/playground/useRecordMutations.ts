@@ -118,6 +118,7 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
             await loadAll();
         } catch (error) {
             showNotice({ tone: "error", message: error instanceof Error ? error.message : "削除に失敗しました。" });
+            await loadAll();
         } finally {
             setSaving(false);
         }

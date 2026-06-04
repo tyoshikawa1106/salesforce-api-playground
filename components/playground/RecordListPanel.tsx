@@ -2,7 +2,7 @@
 
 import { RecordListEmptyStates } from "./RecordListEmptyStates";
 import { RecordListTable } from "./RecordListTable";
-import { useRecordListState } from "./record-list-state";
+import { getSelectedVisibleRecords, useRecordListState } from "./record-list-state";
 import type { RecordListColumn, RecordListMessages } from "./record-list-types";
 
 export function RecordListPanel<Record extends { Id: string }>({
@@ -12,6 +12,7 @@ export function RecordListPanel<Record extends { Id: string }>({
     searchId,
     ariaLabel,
     primaryColumnLabel,
+    bulkDeleteLabel,
     selectAllLabel,
     messages,
     columns,
@@ -19,7 +20,8 @@ export function RecordListPanel<Record extends { Id: string }>({
     getRecordLabel,
     onOpen,
     onEdit,
-    onDelete
+    onDelete,
+    onBulkDelete
 }: {
     records: Record[];
     loading: boolean;
@@ -27,6 +29,7 @@ export function RecordListPanel<Record extends { Id: string }>({
     searchId: string;
     ariaLabel: string;
     primaryColumnLabel: string;
+    bulkDeleteLabel: string;
     selectAllLabel: string;
     messages: RecordListMessages;
     columns: Array<RecordListColumn<Record>>;
@@ -35,15 +38,21 @@ export function RecordListPanel<Record extends { Id: string }>({
     onOpen: (record: Record) => void;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
+    onBulkDelete: (records: Record[]) => void;
 }) {
     const listState = useRecordListState(records, filterListRecords);
+    const selectedVisibleRecords = getSelectedVisibleRecords(listState.filteredRecords, listState.selectedIds);
 
     return (
         <div className="slds-theme_default">
             <ListViewToolbar
                 count={listState.filteredRecords.length}
+                selectedCount={selectedVisibleRecords.length}
+                bulkDeleteLabel={bulkDeleteLabel}
                 searchId={searchId}
                 searchValue={listState.searchTerm}
+                onBulkDelete={() => onBulkDelete(selectedVisibleRecords)}
+                onClearSelection={listState.clearSelection}
                 onSearchChange={listState.setSearchTerm}
             />
             <RecordListEmptyStates
@@ -75,21 +84,42 @@ export function RecordListPanel<Record extends { Id: string }>({
 
 function ListViewToolbar({
     count,
+    selectedCount,
+    bulkDeleteLabel,
     searchId,
     searchValue,
+    onBulkDelete,
+    onClearSelection,
     onSearchChange
 }: {
     count: number;
+    selectedCount: number;
+    bulkDeleteLabel: string;
     searchId: string;
     searchValue: string;
+    onBulkDelete: () => void;
+    onClearSelection: () => void;
     onSearchChange: (value: string) => void;
 }) {
     return (
         <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
-            <div>
+            <div className="slds-grid slds-grid_vertical-align-center slds-wrap">
                 <div className="slds-text-title_bold">
                     {count} 件
                 </div>
+                {selectedCount > 0 ? (
+                    <div className="slds-grid slds-grid_vertical-align-center slds-m-left_medium">
+                        <span className="slds-text-body_small slds-m-right_small">
+                            {selectedCount} 件を選択中
+                        </span>
+                        <button className="slds-button slds-button_neutral" type="button" onClick={onClearSelection}>
+                            選択を解除
+                        </button>
+                        <button className="slds-button slds-button_destructive slds-m-left_x-small" type="button" onClick={onBulkDelete}>
+                            {bulkDeleteLabel}
+                        </button>
+                    </div>
+                ) : null}
             </div>
             <div className="slds-grid slds-grid_vertical-align-center">
                 <div className="slds-form-element">

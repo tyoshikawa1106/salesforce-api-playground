@@ -79,7 +79,14 @@ export function PlaygroundWorkspace({
                             connected={connected}
                             onOpen={onOpenAccount}
                             onEdit={onEditAccount}
-                            onDelete={(record) => onDeleteRecord({ type: "account", id: record.Id, label: record.Name })}
+                            onDelete={(record) => onDeleteRecord({ type: "account", ids: [record.Id], label: record.Name })}
+                            onBulkDelete={(records) =>
+                                onDeleteRecord({
+                                    type: "account",
+                                    ids: records.map((record) => record.Id),
+                                    label: `選択した取引先 ${records.length} 件`
+                                })
+                            }
                         />
                     </>
                 ) : null}
@@ -88,7 +95,7 @@ export function PlaygroundWorkspace({
                     <AccountRecordPage
                         account={selectedAccount}
                         contacts={contacts.filter((contact) => contact.AccountId === selectedAccount.Id)}
-                        onDelete={(record) => onDeleteRecord({ type: "account", id: record.Id, label: record.Name })}
+                        onDelete={(record) => onDeleteRecord({ type: "account", ids: [record.Id], label: record.Name })}
                         onEdit={onEditAccount}
                         onRefresh={onRefresh}
                         loading={loading}
@@ -109,7 +116,14 @@ export function PlaygroundWorkspace({
                             connected={connected}
                             onOpen={onOpenContact}
                             onEdit={onEditContact}
-                            onDelete={(record) => onDeleteRecord({ type: "contact", id: record.Id, label: getContactName(record) })}
+                            onDelete={(record) => onDeleteRecord({ type: "contact", ids: [record.Id], label: getContactName(record) })}
+                            onBulkDelete={(records) =>
+                                onDeleteRecord({
+                                    type: "contact",
+                                    ids: records.map((record) => record.Id),
+                                    label: `選択した取引先責任者 ${records.length} 件`
+                                })
+                            }
                         />
                     </>
                 ) : null}
@@ -117,7 +131,7 @@ export function PlaygroundWorkspace({
                 {activeTab === "contacts" && connected && selectedContact ? (
                     <ContactRecordPage
                         contact={selectedContact}
-                        onDelete={(record) => onDeleteRecord({ type: "contact", id: record.Id, label: getContactName(record) })}
+                        onDelete={(record) => onDeleteRecord({ type: "contact", ids: [record.Id], label: getContactName(record) })}
                         onEdit={onEditContact}
                         onRefresh={onRefresh}
                         loading={loading}

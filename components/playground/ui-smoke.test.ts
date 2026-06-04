@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { LoginPage, SessionLoadingPage } from "./LoginPage";
 import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
-import { AccountPanel, ContactPanel, filterAccounts, filterContacts, getSelectionState } from "./RecordLists";
+import { AccountPanel, ContactPanel, filterAccounts, filterContacts, getSelectedVisibleRecords, getSelectionState } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
 import { GlobalHeader } from "./GlobalHeader";
 import type { Account, Contact } from "./types";
@@ -89,7 +89,8 @@ describe("playground UI smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
-                onOpen: noop
+                onOpen: noop,
+                onBulkDelete: noop
             })
         );
         const contactMarkup = renderToStaticMarkup(
@@ -99,7 +100,8 @@ describe("playground UI smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
-                onOpen: noop
+                onOpen: noop,
+                onBulkDelete: noop
             })
         );
 
@@ -195,6 +197,7 @@ describe("playground UI smoke rendering", () => {
             someVisibleSelected: false,
             selectedVisibleCount: 0
         });
+        expect(getSelectedVisibleRecords([account, anotherAccount], new Set([anotherAccount.Id]))).toEqual([anotherAccount]);
     });
 
     it("renders account and contact record pages with detail sections", () => {

@@ -6,7 +6,7 @@ import { RecordListPanel } from "./RecordListPanel";
 import { filterRecords } from "./record-list-state";
 import type { RecordListColumn } from "./record-list-types";
 
-export { getSelectionState } from "./record-list-state";
+export { getSelectedVisibleRecords, getSelectionState } from "./record-list-state";
 
 export function AccountPanel({
     accounts,
@@ -14,7 +14,8 @@ export function AccountPanel({
     connected,
     onOpen,
     onEdit,
-    onDelete
+    onDelete,
+    onBulkDelete
 }: {
     accounts: Account[];
     loading: boolean;
@@ -22,6 +23,7 @@ export function AccountPanel({
     onOpen: (record: Account) => void;
     onEdit: (record: Account) => void;
     onDelete: (record: Account) => void;
+    onBulkDelete: (records: Account[]) => void;
 }) {
     const columns: Array<RecordListColumn<Account>> = [
         { label: "電話", getValue: (account) => account.Phone },
@@ -39,6 +41,7 @@ export function AccountPanel({
             searchId="account-list-search"
             ariaLabel="取引先一覧"
             primaryColumnLabel="取引先名"
+            bulkDeleteLabel="選択した取引先を削除"
             selectAllLabel="表示中の取引先をすべて選択"
             messages={{
                 loading: "取引先を読み込んでいます...",
@@ -52,6 +55,7 @@ export function AccountPanel({
             onOpen={onOpen}
             onEdit={onEdit}
             onDelete={onDelete}
+            onBulkDelete={onBulkDelete}
         />
     );
 }
@@ -62,7 +66,8 @@ export function ContactPanel({
     connected,
     onOpen,
     onEdit,
-    onDelete
+    onDelete,
+    onBulkDelete
 }: {
     contacts: Contact[];
     loading: boolean;
@@ -70,6 +75,7 @@ export function ContactPanel({
     onOpen: (record: Contact) => void;
     onEdit: (record: Contact) => void;
     onDelete: (record: Contact) => void;
+    onBulkDelete: (records: Contact[]) => void;
 }) {
     const columns: Array<RecordListColumn<Contact>> = [
         { label: "役職", getValue: (contact) => contact.Title },
@@ -87,6 +93,7 @@ export function ContactPanel({
             searchId="contact-list-search"
             ariaLabel="取引先責任者一覧"
             primaryColumnLabel="氏名"
+            bulkDeleteLabel="選択した取引先責任者を削除"
             selectAllLabel="表示中の取引先責任者をすべて選択"
             messages={{
                 loading: "取引先責任者を読み込んでいます...",
@@ -100,6 +107,7 @@ export function ContactPanel({
             onOpen={onOpen}
             onEdit={onEdit}
             onDelete={onDelete}
+            onBulkDelete={onBulkDelete}
         />
     );
 }
