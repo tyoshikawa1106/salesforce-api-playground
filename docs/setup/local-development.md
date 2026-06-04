@@ -134,7 +134,7 @@ docs / template のみ変更時:
 git diff --check
 ```
 
-CI の docs-only 判定でも、`*.md`、`docs/*`、`.github/pull_request_template.md`、`.github/ISSUE_TEMPLATE/*` だけの差分は `git diff --check` と sensitive-value scan を実行し、Node.js の full check は skip します。`.github/workflows/ci.yml`、package、Next.js 設定、環境変数の扱いを変えるコードは docs-only ではありません。CI の判定詳細は [CI](../operations/ci.md) を参照してください。
+CI の docs-only 判定でも、`*.md`、`docs/*`、`.github/pull_request_template.md`、`.github/ISSUE_TEMPLATE/*` だけの差分は `git diff --check` と sensitive-value scan を実行し、Node.js の full check は skip します。`.github/workflows/ci.yml`、package、Next.js 設定、環境変数の扱いを変えるコードは docs-only ではありません。CI の判定詳細は [CI](../operations/ci.md)、PR 前の確認観点は [開発チェックリスト](../operations/development-checklist.md) を参照してください。
 
 GitHub Actions workflow を変更する場合:
 
@@ -229,4 +229,5 @@ Salesforce 組織や OAuth 設定を変更した場合、既存の localhost Coo
 - [Salesforce Integration ユーザー連携設定](salesforce-integration-client-credentials.md)
 - [Salesforce 手動確認](salesforce-manual-verification.md)
 - [API 概要](../api/api-overview.md)
+- [開発チェックリスト](../operations/development-checklist.md)
 - [トラブルシューティング](../operations/troubleshooting.md)
