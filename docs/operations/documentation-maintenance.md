@@ -28,6 +28,7 @@ nav_order: 85
 | プロジェクト概要、最短セットアップ、主要 docs への入口 | `README.md` | 詳細を増やしすぎず、該当 docs へリンクする |
 | ドキュメントサイトの目的別入口 | `docs/index.md` | 新しい主要 docs を追加したら入口表とカテゴリ一覧を更新する |
 | システム構成、責務境界、ディレクトリの役割 | `docs/architecture` | 実装と配置から確認できる内容を書く |
+| Account / Contact の許可フィールド、入力正規化、ID 検証 | `docs/architecture/salesforce-record-model.md` | 実装の `record-fields`、payload 検証、SOQL / SOSL に合わせる |
 | API route、リクエスト / レスポンス、入力検証 | `docs/api` | 実装の route と payload 検証に合わせる |
 | OAuth、Cookie、秘密情報の扱い | `docs/security` | token や secret の実値は書かない |
 | ローカル起動、環境変数、確認コマンド | `docs/setup` | 実 Salesforce 接続が必要な確認は Codex 確認範囲と分ける |
@@ -42,7 +43,7 @@ nav_order: 85
 | 変更内容 | あわせて確認する docs |
 | --- | --- |
 | 新しい API Route を追加する | [API 概要](../api/api-overview.md)、[API Route 構成](../architecture/api-route-structure.md)、[ローカル開発](../setup/local-development.md) |
-| Account / Contact の許可フィールドや検証を変える | [API 概要](../api/api-overview.md)、[Salesforce 手動確認](../setup/salesforce-manual-verification.md)、[トラブルシューティング](troubleshooting.md) |
+| Account / Contact の許可フィールドや検証を変える | [Salesforce レコードモデル](../architecture/salesforce-record-model.md)、[API 概要](../api/api-overview.md)、[Salesforce 手動確認](../setup/salesforce-manual-verification.md)、[トラブルシューティング](troubleshooting.md) |
 | Salesforce OAuth / session / cookie の扱いを変える | [OAuth フロー](../security/oauth-flow.md)、[API 概要](../api/api-overview.md)、[トラブルシューティング](troubleshooting.md) |
 | Client Credentials Flow や Integration API を変える | [Salesforce Integration ユーザー連携設定](../setup/salesforce-integration-client-credentials.md)、[API 概要](../api/api-overview.md)、[ローカル開発](../setup/local-development.md) |
 | UI の画面構成や主要操作フローを変える | [Playground UI 操作フロー棚卸し](../architecture/playground-ui-flows.md)、[Salesforce 手動確認](../setup/salesforce-manual-verification.md) |
@@ -84,6 +85,7 @@ npm run workflows:check
 
 - [ドキュメント入口](../index.md)
 - [ディレクトリ構成](../architecture/directory-structure.md)
+- [Salesforce レコードモデル](../architecture/salesforce-record-model.md)
 - [CI](ci.md)
 - [ローカル開発](../setup/local-development.md)
 - [GitHub 運用](github.md)
