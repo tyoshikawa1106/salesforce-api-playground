@@ -3,7 +3,7 @@ import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-
 import type { SessionInfo } from "@/lib/playground-api";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest, PlaygroundApiError } from "./api";
-import type { Account, ActiveTab, Contact, Notice } from "./types";
+import type { Account, ActiveTab, Contact, Notice, RecycleBinItem } from "./types";
 
 type UsePlaygroundDataOptions = {
     showNotice: (notice: Notice) => void;
@@ -13,6 +13,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const [session, setSession] = useState<SessionInfo | null>(null);
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [contacts, setContacts] = useState<Contact[]>([]);
+    const [recycleBinItems, setRecycleBinItems] = useState<RecycleBinItem[]>([]);
     const [activeTab, setActiveTab] = useState<ActiveTab>("home");
     const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
     const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
@@ -30,11 +31,11 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         () => contacts.find((contact) => contact.Id === selectedContactId) ?? null,
         [contacts, selectedContactId]
     );
-
     const resetConnectedState = useCallback(() => {
         setSession({ connected: false });
         setAccounts([]);
         setContacts([]);
+        setRecycleBinItems([]);
         setActiveTab("home");
         setSelectedAccountId(null);
         setSelectedContactId(null);
@@ -52,16 +53,20 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
             }
             setSession(nextSession);
 
-            const [accountResult, contactResult] = await Promise.all([
+            const [accountResult, contactResult, recycleBinResult] = await Promise.all([
                 apiRequest<{ accounts: Account[] }>(
                     buildPlaygroundApiRequest(playgroundApiPaths.accounts)
                 ),
                 apiRequest<{ contacts: Contact[] }>(
                     buildPlaygroundApiRequest(playgroundApiPaths.contacts)
+                ),
+                apiRequest<{ items: RecycleBinItem[] }>(
+                    buildPlaygroundApiRequest(playgroundApiPaths.recycleBin)
                 )
             ]);
             setAccounts(accountResult.accounts);
             setContacts(contactResult.contacts);
+            setRecycleBinItems(recycleBinResult.items);
             setSelectedAccountId((currentId) =>
                 currentId && accountResult.accounts.some((account) => account.Id === currentId) ? currentId : null
             );
@@ -122,6 +127,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         loading,
         loadAll,
         openSearchResult,
+        recycleBinItems,
         selectedAccount,
         selectedContact,
         session,

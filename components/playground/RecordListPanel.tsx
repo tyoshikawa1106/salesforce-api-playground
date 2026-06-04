@@ -2,7 +2,8 @@
 
 import { RecordListEmptyStates } from "./RecordListEmptyStates";
 import { RecordListTable } from "./RecordListTable";
-import { useRecordListState } from "./record-list-state";
+import { getSelectedVisibleRecords, useRecordListState } from "./record-list-state";
+import { UtilityIcon } from "./SldsIcon";
 import type { RecordListColumn, RecordListMessages } from "./record-list-types";
 
 export function RecordListPanel<Record extends { Id: string }>({
@@ -12,6 +13,7 @@ export function RecordListPanel<Record extends { Id: string }>({
     searchId,
     ariaLabel,
     primaryColumnLabel,
+    bulkDeleteLabel,
     selectAllLabel,
     messages,
     columns,
@@ -19,7 +21,9 @@ export function RecordListPanel<Record extends { Id: string }>({
     getRecordLabel,
     onOpen,
     onEdit,
-    onDelete
+    onDelete,
+    onBulkDelete,
+    onBulkDeleteEmpty
 }: {
     records: Record[];
     loading: boolean;
@@ -27,6 +31,7 @@ export function RecordListPanel<Record extends { Id: string }>({
     searchId: string;
     ariaLabel: string;
     primaryColumnLabel: string;
+    bulkDeleteLabel: string;
     selectAllLabel: string;
     messages: RecordListMessages;
     columns: Array<RecordListColumn<Record>>;
@@ -35,15 +40,29 @@ export function RecordListPanel<Record extends { Id: string }>({
     onOpen: (record: Record) => void;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
+    onBulkDelete: (records: Record[]) => void;
+    onBulkDeleteEmpty: () => void;
 }) {
     const listState = useRecordListState(records, filterListRecords);
+    const selectedVisibleRecords = getSelectedVisibleRecords(listState.filteredRecords, listState.selectedIds);
+
+    function runBulkDelete() {
+        if (selectedVisibleRecords.length === 0) {
+            onBulkDeleteEmpty();
+            return;
+        }
+
+        onBulkDelete(selectedVisibleRecords);
+    }
 
     return (
         <div className="slds-theme_default">
             <ListViewToolbar
                 count={listState.filteredRecords.length}
+                bulkDeleteLabel={bulkDeleteLabel}
                 searchId={searchId}
                 searchValue={listState.searchTerm}
+                onBulkDelete={runBulkDelete}
                 onSearchChange={listState.setSearchTerm}
             />
             <RecordListEmptyStates
@@ -75,13 +94,17 @@ export function RecordListPanel<Record extends { Id: string }>({
 
 function ListViewToolbar({
     count,
+    bulkDeleteLabel,
     searchId,
     searchValue,
+    onBulkDelete,
     onSearchChange
 }: {
     count: number;
+    bulkDeleteLabel: string;
     searchId: string;
     searchValue: string;
+    onBulkDelete: () => void;
     onSearchChange: (value: string) => void;
 }) {
     return (
@@ -108,6 +131,15 @@ function ListViewToolbar({
                         />
                     </div>
                 </div>
+                <button
+                    className="slds-button slds-button_icon slds-button_icon-border-filled slds-m-left_x-small"
+                    type="button"
+                    title={bulkDeleteLabel}
+                    aria-label={bulkDeleteLabel}
+                    onClick={onBulkDelete}
+                >
+                    <UtilityIcon className="slds-button__icon" name="delete" />
+                </button>
             </div>
         </div>
     );

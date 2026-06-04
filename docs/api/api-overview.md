@@ -40,11 +40,15 @@ Salesforce 連携の主要な責務は以下に分かれています。
 | `/api/auth/logout` | `POST` | token revoke を試行し、セッション Cookie と state Cookie を削除 | `307` redirect to `/` | Origin / Referer 不一致 `403`、revoke 失敗はサーバーログへ出し、Cookie 削除と redirect は継続 |
 | `/api/accounts` | `GET` | Account 一覧を取得 | `{ accounts: AccountRecord[] }` | 未接続 `401`、Salesforce API エラー、セッション期限切れ |
 | `/api/accounts` | `POST` | Account を作成 | `{ id, success }` with `201` | Origin / Referer 不一致 `403`、入力エラー `400`、未接続 `401`、Salesforce API エラー |
+| `/api/accounts` | `DELETE` | Account を複数削除 | `{ results: SaveResult[] }` | Origin / Referer 不一致 `403`、入力 / ID エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/accounts/[id]` | `PATCH` | Account を更新 | `{}` | Origin / Referer 不一致 `403`、ID / 入力エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/accounts/[id]` | `DELETE` | Account を削除 | `{}` | Origin / Referer 不一致 `403`、ID エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/search` | `GET` | Account / Contact を横断検索 | `{ results: SearchResultItem[] }` | query 不足 / 短すぎる query `400`、未接続 `401`、Salesforce API エラー |
+| `/api/recycle-bin` | `GET` | Recycle Bin の最近削除された項目を取得 | `{ items: RecycleBinItem[] }` | 未接続 `401`、Salesforce API エラー、セッション期限切れ |
+| `/api/recycle-bin/undelete` | `POST` | Recycle Bin の選択項目を復元 | `{ restoreResults: ... }` | Origin / Referer 不一致 `403`、入力 / ID エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/contacts` | `GET` | Contact 一覧を取得 | `{ contacts: ContactRecord[] }` | 未接続 `401`、Salesforce API エラー、セッション期限切れ |
 | `/api/contacts` | `POST` | Contact を作成 | `{ id, success }` with `201` | Origin / Referer 不一致 `403`、入力エラー `400`、未接続 `401`、Salesforce API エラー |
+| `/api/contacts` | `DELETE` | Contact を複数削除 | `{ results: SaveResult[] }` | Origin / Referer 不一致 `403`、入力 / ID エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/contacts/[id]` | `PATCH` | Contact を更新 | `{}` | Origin / Referer 不一致 `403`、ID / 入力エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/contacts/[id]` | `DELETE` | Contact を削除 | `{}` | Origin / Referer 不一致 `403`、ID エラー `400`、未接続 `401`、Salesforce API エラー |
 | `/api/integration/accounts` | `POST` | 連携用ユーザーで Account を作成 | `{ id, success }` with `201` | API key 不一致 `401`、入力エラー `400`、Salesforce API エラー |
@@ -203,6 +207,32 @@ Account を削除します。成功時は空オブジェクトを返します。
 
 ```json
 {}
+```
+
+### `DELETE /api/accounts`
+
+Account を複数削除します。リクエスト body の `ids` は 1 件以上の文字列配列で、各 ID は Account の `001` prefix のみ許可します。
+
+リクエスト概要:
+
+```json
+{
+    "ids": ["001000000000001", "001000000000002"]
+}
+```
+
+成功時は Salesforce / jsforce の削除結果を `results` に入れて返します。結果配列には ID ごとの `success` と `errors` が含まれます。
+
+```json
+{
+    "results": [
+        {
+            "id": "001000000000001",
+            "success": true,
+            "errors": []
+        }
+    ]
+}
 ```
 
 ## Integration Account API
@@ -419,6 +449,101 @@ Contact を削除します。成功時は空オブジェクトを返します。
 {}
 ```
 
+### `DELETE /api/contacts`
+
+Contact を複数削除します。リクエスト body の `ids` は 1 件以上の文字列配列で、各 ID は Contact の `003` prefix のみ許可します。
+
+リクエスト概要:
+
+```json
+{
+    "ids": ["003000000000001", "003000000000002"]
+}
+```
+
+成功時は Salesforce / jsforce の削除結果を `results` に入れて返します。
+
+```json
+{
+    "results": [
+        {
+            "id": "003000000000001",
+            "success": true,
+            "errors": []
+        }
+    ]
+}
+```
+
+## Recycle Bin API
+
+Recycle Bin API は、Salesforce のごみ箱に残っている削除済みレコードを、UI 表示用の共通 item 形式に正規化して返します。現行の対象オブジェクトは Account と Contact です。対象オブジェクトは allowlist で管理し、ユーザー入力の `objectApiName` をそのまま SOQL に埋め込みません。
+
+削除済みレコードの取得には `jsforce.Connection#query` の `scanAll: true` オプションを使います。画面には、ログインユーザーが削除したレコードのみ表示するため、`LastModifiedById` をセッションの Salesforce ユーザー ID で絞り込みます。
+
+完全削除は Salesforce 側の `emptyRecycleBin()` や Bulk API `hardDelete` で扱えます。ただし `emptyRecycleBin()` 後も `queryAll()` では一定時間レコードが返る場合があり、Bulk API `hardDelete` は実行ユーザーに `Bulk API Hard Delete` 権限が必要です。現行画面では、実データと表示の区別が曖昧になるため完全削除操作は提供せず、復元のみ扱います。
+
+### `GET /api/recycle-bin`
+
+ログインユーザーが削除した Account / Contact の削除済みレコードを取得し、`deletedAt` 降順で混在表示できる形に並べ替えます。
+
+レスポンス概要:
+
+```json
+{
+    "items": [
+        {
+            "objectApiName": "Account",
+            "objectLabel": "取引先",
+            "id": "001000000000001",
+            "name": "Sample Account",
+            "deletedAt": "2026-06-04T10:00:00.000Z",
+            "deletedByName": "Taro Admin"
+        }
+    ]
+}
+```
+
+### `POST /api/recycle-bin/undelete`
+
+選択した Recycle Bin item を復元します。Account / Contact が混在していても受け付け、サーバー側で `objectApiName` ごとに group して Salesforce の `undelete` を実行します。
+
+リクエスト概要:
+
+```json
+{
+    "items": [
+        {
+            "objectApiName": "Account",
+            "id": "001000000000001"
+        },
+        {
+            "objectApiName": "Contact",
+            "id": "003000000000001"
+        }
+    ]
+}
+```
+
+成功時はオブジェクトごとの復元結果を返します。複数件では一部成功 / 一部失敗があり得るため、詳細な UI 表示は [#308](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/308) で整理します。
+
+```json
+{
+    "restoreResults": [
+        {
+            "objectApiName": "Account",
+            "results": [
+                {
+                    "id": "001000000000001",
+                    "success": true,
+                    "errors": []
+                }
+            ]
+        }
+    ]
+}
+```
+
 ## 共通エラー
 
 `SalesforceApiError` は `salesforceErrorResponse()` で JSON に変換されます。Salesforce から返る詳細がある場合は `details` に含まれます。
@@ -429,6 +554,8 @@ Contact を削除します。成功時は空オブジェクトを返します。
 | セッション期限切れ、refresh 失敗 | `401` | `{ "error": "Salesforce session expired. Please connect again.", "details": ... }` |
 | JSON body が壊れている | `400` | `{ "error": "Request body must be valid JSON." }` |
 | JSON body が object ではない | `400` | `{ "error": "Request body must be a JSON object." }` |
+| 複数削除の `ids` 不正 | `400` | `{ "error": "ids is required." }`、`{ "error": "ids must be an array." }`、`{ "error": "ids must include at least one id." }` など |
+| Recycle Bin 復元 payload 不正 | `400` | `{ "error": "items is required." }`、`{ "error": "Unsupported recycle bin object." }`、`{ "error": "Invalid Account id." }` など |
 | 未許可フィールド | `400` | `{ "error": "Unexpected Account field: ... ." }` または `{ "error": "Unexpected Contact field: ... ." }` |
 | 必須フィールド不足 | `400` | `{ "error": "Name is required." }` または `{ "error": "LastName is required." }` |
 | フィールド型不正 | `400` | `{ "error": "... must be a string." }` |

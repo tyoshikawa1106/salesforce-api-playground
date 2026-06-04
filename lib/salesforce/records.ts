@@ -65,6 +65,10 @@ export type ContactForm = {
     [K in keyof ContactInput]-?: string;
 };
 
+export type BulkDeleteInput = {
+    ids: string[];
+};
+
 export type SearchResultItem =
     | {
         type: "account";
@@ -74,3 +78,8 @@ export type SearchResultItem =
         type: "contact";
         record: ContactRecord;
     };
+
+export type RecycleBinUndeleteItem = {
+    objectApiName: string;
+    id: string;
+};

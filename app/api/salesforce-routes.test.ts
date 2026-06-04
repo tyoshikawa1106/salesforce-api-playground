@@ -12,6 +12,7 @@ import type { SearchResultItem } from "@/lib/salesforce/records";
 import {
     readAccountCreatePayload,
     readAccountUpdatePayload,
+    readBulkDeletePayload,
     readContactCreatePayload,
     readContactUpdatePayload
 } from "@/lib/salesforce/request-payloads";
@@ -19,7 +20,9 @@ import {
     createAccount,
     createContact,
     deleteAccount,
+    deleteAccounts,
     deleteContact,
+    deleteContacts,
     listAccounts,
     listContacts,
     searchAccountsAndContacts,
@@ -56,6 +59,7 @@ vi.mock("@/lib/salesforce/client", () => ({
 vi.mock("@/lib/salesforce/request-payloads", () => ({
     readAccountCreatePayload: vi.fn(),
     readAccountUpdatePayload: vi.fn(),
+    readBulkDeletePayload: vi.fn(),
     readContactCreatePayload: vi.fn(),
     readContactUpdatePayload: vi.fn()
 }));
@@ -64,7 +68,9 @@ vi.mock("@/services/salesforce/records", () => ({
     createAccount: vi.fn(),
     createContact: vi.fn(),
     deleteAccount: vi.fn(),
+    deleteAccounts: vi.fn(),
     deleteContact: vi.fn(),
+    deleteContacts: vi.fn(),
     listAccounts: vi.fn(),
     listContacts: vi.fn(),
     searchAccountsAndContacts: vi.fn(),
@@ -76,12 +82,15 @@ const jsonWithSessionMock = vi.mocked(jsonWithSession);
 const salesforceErrorResponseMock = vi.mocked(salesforceErrorResponse);
 const readAccountCreatePayloadMock = vi.mocked(readAccountCreatePayload);
 const readAccountUpdatePayloadMock = vi.mocked(readAccountUpdatePayload);
+const readBulkDeletePayloadMock = vi.mocked(readBulkDeletePayload);
 const readContactCreatePayloadMock = vi.mocked(readContactCreatePayload);
 const readContactUpdatePayloadMock = vi.mocked(readContactUpdatePayload);
 const createAccountMock = vi.mocked(createAccount);
 const createContactMock = vi.mocked(createContact);
 const deleteAccountMock = vi.mocked(deleteAccount);
+const deleteAccountsMock = vi.mocked(deleteAccounts);
 const deleteContactMock = vi.mocked(deleteContact);
+const deleteContactsMock = vi.mocked(deleteContacts);
 const listAccountsMock = vi.mocked(listAccounts);
 const listContactsMock = vi.mocked(listContacts);
 const searchAccountsAndContactsMock = vi.mocked(searchAccountsAndContacts);
@@ -164,6 +173,25 @@ describe("Account API route", () => {
         await expectJson(response, data);
     });
 
+    it("deletes multiple accounts with DELETE /api/accounts and ids body", async () => {
+        const request = jsonRequest({ ids: ["001xx000003DGbY", "001xx000003DGbZ"] }, "DELETE");
+        const payload = { ids: ["001xx000003DGbY", "001xx000003DGbZ"] };
+        const data = {
+            results: [
+                { id: "001xx000003DGbY", success: true as const, errors: [] },
+                { id: "001xx000003DGbZ", success: true as const, errors: [] }
+            ]
+        };
+        readBulkDeletePayloadMock.mockResolvedValue(payload);
+        deleteAccountsMock.mockResolvedValue({ data, session });
+
+        const response = await accountRoute.DELETE(request);
+
+        expect(readBulkDeletePayloadMock).toHaveBeenCalledWith(request);
+        expect(deleteAccountsMock).toHaveBeenCalledWith(payload.ids);
+        await expectJson(response, data);
+    });
+
     it("rejects account mutations from another origin before calling Salesforce", async () => {
         const request = new Request("https://app.example.test/api/accounts", {
             method: "POST",
@@ -191,6 +219,17 @@ describe("Account API route", () => {
 
         expect(readAccountUpdatePayloadMock).not.toHaveBeenCalled();
         expect(updateAccountMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(400);
+        await expectJson(response, { error: "Invalid Account id." });
+    });
+
+    it("rejects invalid bulk account ids before calling Salesforce", async () => {
+        const request = jsonRequest({ ids: ["001xx000003DGbY", "003xx000004TmiQ"] }, "DELETE");
+        readBulkDeletePayloadMock.mockResolvedValue({ ids: ["001xx000003DGbY", "003xx000004TmiQ"] });
+
+        const response = await accountRoute.DELETE(request);
+
+        expect(deleteAccountsMock).not.toHaveBeenCalled();
         expect(response.status).toBe(400);
         await expectJson(response, { error: "Invalid Account id." });
     });
@@ -255,6 +294,25 @@ describe("Contact API route", () => {
         });
 
         expect(deleteContactMock).toHaveBeenCalledWith("003xx000004TmiQ");
+        await expectJson(response, data);
+    });
+
+    it("deletes multiple contacts with DELETE /api/contacts and ids body", async () => {
+        const request = jsonRequest({ ids: ["003xx000004TmiQ", "003xx000004TmiR"] }, "DELETE");
+        const payload = { ids: ["003xx000004TmiQ", "003xx000004TmiR"] };
+        const data = {
+            results: [
+                { id: "003xx000004TmiQ", success: true as const, errors: [] },
+                { id: "003xx000004TmiR", success: true as const, errors: [] }
+            ]
+        };
+        readBulkDeletePayloadMock.mockResolvedValue(payload);
+        deleteContactsMock.mockResolvedValue({ data, session });
+
+        const response = await contactRoute.DELETE(request);
+
+        expect(readBulkDeletePayloadMock).toHaveBeenCalledWith(request);
+        expect(deleteContactsMock).toHaveBeenCalledWith(payload.ids);
         await expectJson(response, data);
     });
 

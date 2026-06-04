@@ -40,6 +40,9 @@ type SalesforceSearchRecord = Partial<AccountRecord & ContactRecord> & {
 
 type CreatedRecordResult = ReturnType<typeof createdSalesforceResult>;
 type EmptyRecordResult = ReturnType<typeof emptySalesforceResult>;
+type BulkDeleteResult = {
+    results: SaveResult[];
+};
 type SalesforceRecordConnectionRunner<TData, TResult> = (
     operation: (connection: Connection) => Promise<TData>
 ) => Promise<TResult>;
@@ -135,6 +138,19 @@ function deleteObject<TResult>(
     });
 }
 
+function deleteObjects<TResult>(
+    runWithConnection: SalesforceRecordConnectionRunner<BulkDeleteResult, TResult>,
+    objectName: string,
+    ids: string[]
+) {
+    return runWithConnection(async (connection) => {
+        const results = await connection.sobject(objectName).destroy(ids);
+        return {
+            results: Array.isArray(results) ? results : [results]
+        };
+    });
+}
+
 function createStandardObject<TInput extends object>(objectName: string, input: TInput) {
     return createObject(withStandardObjectConnection, objectName, input);
 }
@@ -145,6 +161,10 @@ function updateStandardObject<TInput extends object>(objectName: string, id: str
 
 function deleteStandardObject(objectName: string, id: string) {
     return deleteObject(withStandardObjectConnection, objectName, id);
+}
+
+function deleteStandardObjects(objectName: string, ids: string[]) {
+    return deleteObjects(withStandardObjectConnection, objectName, ids);
 }
 
 function createIntegrationStandardObject<TInput extends object>(objectName: string, input: TInput) {
@@ -172,6 +192,10 @@ export async function updateAccount(id: string, input: AccountUpdateInput) {
 
 export async function deleteAccount(id: string) {
     return deleteStandardObject("Account", id);
+}
+
+export async function deleteAccounts(ids: string[]) {
+    return deleteStandardObjects("Account", ids);
 }
 
 export async function createIntegrationAccount(input: AccountInput) {
@@ -210,6 +234,10 @@ export async function updateContact(id: string, input: ContactUpdateInput) {
 
 export async function deleteContact(id: string) {
     return deleteStandardObject("Contact", id);
+}
+
+export async function deleteContacts(ids: string[]) {
+    return deleteStandardObjects("Contact", ids);
 }
 
 export type { SalesforceQueryResponse, SaveResult };

@@ -110,12 +110,12 @@ function salesforceErrorFromUnknown(error: unknown): SalesforceApiError {
 }
 
 async function withSalesforceConnection<T>(
-    operation: (connection: Connection) => Promise<T>
+    operation: (connection: Connection, session: SalesforceSession) => Promise<T>
 ): Promise<SalesforceServiceResult<T>> {
     const session = await requireSalesforceSession();
 
     try {
-        const data = await operation(createConnection(session));
+        const data = await operation(createConnection(session), session);
         return { data, session };
     } catch (error) {
         if (!isUnauthorizedSalesforceError(error)) {
@@ -124,7 +124,7 @@ async function withSalesforceConnection<T>(
 
         const refreshedSession = await refreshAccessToken(session);
         try {
-            const data = await operation(createConnection(refreshedSession));
+            const data = await operation(createConnection(refreshedSession), refreshedSession);
             return { data, session: refreshedSession };
         } catch (retryError) {
             throw salesforceErrorFromUnknown(retryError);
@@ -133,7 +133,7 @@ async function withSalesforceConnection<T>(
 }
 
 export async function withStandardObjectConnection<T>(
-    operation: (connection: Connection) => Promise<T>
+    operation: (connection: Connection, session: SalesforceSession) => Promise<T>
 ): Promise<SalesforceServiceResult<T>> {
     return withSalesforceConnection(operation);
 }

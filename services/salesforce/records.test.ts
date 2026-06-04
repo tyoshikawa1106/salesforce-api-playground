@@ -17,6 +17,7 @@ import {
     createAccount,
     createIntegrationAccount,
     deleteAccount,
+    deleteAccounts,
     buildGlobalSearchSosl,
     listAccounts,
     searchAccountsAndContacts,
@@ -192,6 +193,26 @@ describe("Salesforce record services", () => {
         });
 
         expect(jsforceMocks.destroy).toHaveBeenCalledWith("001xx000003DGbY");
+    });
+
+    it("uses jsforce standard object destroy with multiple ids for bulk deletes", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.destroy.mockResolvedValue([
+            { id: "001xx000003DGbY", success: true, errors: [] },
+            { id: "001xx000003DGbZ", success: true, errors: [] }
+        ]);
+
+        await expect(deleteAccounts(["001xx000003DGbY", "001xx000003DGbZ"])).resolves.toEqual({
+            data: {
+                results: [
+                    { id: "001xx000003DGbY", success: true, errors: [] },
+                    { id: "001xx000003DGbZ", success: true, errors: [] }
+                ]
+            },
+            session
+        });
+
+        expect(jsforceMocks.destroy).toHaveBeenCalledWith(["001xx000003DGbY", "001xx000003DGbZ"]);
     });
 
     it("searches accounts and contacts with SOSL", async () => {

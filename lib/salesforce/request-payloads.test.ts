@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
     readAccountCreatePayload,
     readAccountUpdatePayload,
+    readBulkDeletePayload,
     readContactCreatePayload,
-    readContactUpdatePayload
+    readContactUpdatePayload,
+    readRecycleBinUndeletePayload
 } from "./request-payloads";
 
 function jsonRequest(body: unknown): Pick<Request, "json"> {
@@ -111,6 +113,60 @@ describe("Salesforce request payload readers", () => {
     it("rejects non-string field values", async () => {
         await expect(readAccountUpdatePayload(jsonRequest({ Phone: 123 }))).rejects.toMatchObject({
             message: "Phone must be a string.",
+            status: 400
+        });
+    });
+
+    it("normalizes bulk delete ids", async () => {
+        await expect(readBulkDeletePayload(jsonRequest({ ids: [" 001xx000003DGbY ", "001xx000003DGbZ"] }))).resolves.toEqual({
+            ids: ["001xx000003DGbY", "001xx000003DGbZ"]
+        });
+    });
+
+    it("rejects empty bulk delete ids", async () => {
+        await expect(readBulkDeletePayload(jsonRequest({ ids: [] }))).rejects.toMatchObject({
+            message: "ids must include at least one id.",
+            status: 400
+        });
+    });
+
+    it("rejects non-string bulk delete ids", async () => {
+        await expect(readBulkDeletePayload(jsonRequest({ ids: ["001xx000003DGbY", 123] }))).rejects.toMatchObject({
+            message: "ids must include only non-empty strings.",
+            status: 400
+        });
+    });
+
+    it("normalizes recycle bin undelete items", async () => {
+        await expect(
+            readRecycleBinUndeletePayload(jsonRequest({
+                items: [
+                    { objectApiName: "Account", id: " 001xx000003DGbY " },
+                    { objectApiName: "Contact", id: "003xx000004TmiQ" }
+                ]
+            }))
+        ).resolves.toEqual({
+            items: [
+                { objectApiName: "Account", id: "001xx000003DGbY" },
+                { objectApiName: "Contact", id: "003xx000004TmiQ" }
+            ]
+        });
+    });
+
+    it("rejects unsupported recycle bin objects", async () => {
+        await expect(
+            readRecycleBinUndeletePayload(jsonRequest({ items: [{ objectApiName: "Case", id: "500xx0000012345" }] }))
+        ).rejects.toMatchObject({
+            message: "Unsupported recycle bin object.",
+            status: 400
+        });
+    });
+
+    it("rejects recycle bin ids for another object", async () => {
+        await expect(
+            readRecycleBinUndeletePayload(jsonRequest({ items: [{ objectApiName: "Account", id: "003xx000004TmiQ" }] }))
+        ).rejects.toMatchObject({
+            message: "Invalid Account id.",
             status: 400
         });
     });

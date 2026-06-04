@@ -124,7 +124,7 @@ export function HomePanel({
     );
 }
 
-function PageHeader({
+export function PageHeader({
     tab,
     eyebrow,
     title,
@@ -178,11 +178,11 @@ function PageHeader({
     );
 }
 
-function PageHeaderControl({ children }: { children: ReactNode }) {
+export function PageHeaderControl({ children }: { children: ReactNode }) {
     return <div className="slds-page-header__control">{children}</div>;
 }
 
-function RefreshButton({
+export function RefreshButton({
     loading,
     onRefresh
 }: {

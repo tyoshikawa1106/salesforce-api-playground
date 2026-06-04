@@ -10,10 +10,11 @@ import {
 import {
     createIntegrationAccountMutation,
     deleteRecordMutation,
+    restoreRecycleBinItemsMutation,
     saveAccountMutation,
     saveContactMutation
 } from "./mutations";
-import type { Account, Contact, DeleteState, ModalState, Notice } from "./types";
+import type { Account, Contact, DeleteState, ModalState, Notice, RecycleBinItem, RestoreState } from "./types";
 
 type UseRecordMutationsOptions = {
     loadAll: () => Promise<void>;
@@ -24,6 +25,7 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
     const [saving, setSaving] = useState(false);
     const [modal, setModal] = useState<ModalState | null>(null);
     const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
+    const [restoreState, setRestoreState] = useState<RestoreState | null>(null);
     const [accountForm, setAccountForm] = useState<AccountForm>(blankAccount);
     const [integrationAccountForm, setIntegrationAccountForm] = useState<AccountForm>(blankAccount);
     const [contactForm, setContactForm] = useState<ContactForm>(blankContact);
@@ -118,6 +120,33 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
             await loadAll();
         } catch (error) {
             showNotice({ tone: "error", message: error instanceof Error ? error.message : "削除に失敗しました。" });
+            await loadAll();
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    function openRestoreModal(items: RecycleBinItem[]) {
+        const label = items.length === 1
+            ? `${items[0].objectLabel} ${items[0].name}`
+            : `選択した項目 ${items.length} 件`;
+
+        setRestoreState({ items, label });
+    }
+
+    async function confirmRestore() {
+        if (!restoreState) {
+            return;
+        }
+
+        setSaving(true);
+        try {
+            showNotice({ tone: "success", message: await restoreRecycleBinItemsMutation(restoreState.items) });
+            setRestoreState(null);
+            await loadAll();
+        } catch (error) {
+            showNotice({ tone: "error", message: error instanceof Error ? error.message : "復元に失敗しました。" });
+            await loadAll();
         } finally {
             setSaving(false);
         }
@@ -126,8 +155,10 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
     return {
         accountForm,
         closeDeleteModal: () => setDeleteState(null),
+        closeRestoreModal: () => setRestoreState(null),
         closeRecordModal: () => setModal(null),
         confirmDelete,
+        confirmRestore,
         contactForm,
         createIntegrationAccount,
         deleteState,
@@ -138,9 +169,11 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         saveAccount,
         saveContact,
         saving,
+        restoreState,
         setAccountForm,
         setContactForm,
         setDeleteState,
-        setIntegrationAccountForm
+        setIntegrationAccountForm,
+        openRestoreModal
     };
 }

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
     createIntegrationAccountMutation,
     deleteRecordMutation,
+    restoreRecycleBinItemsMutation,
     saveAccountMutation,
     saveContactMutation
 } from "./mutations";
@@ -89,7 +90,7 @@ describe("playground record mutations", () => {
 
     it("deletes records through the matching resource route", async () => {
         const fetchMock = stubSuccessfulFetch();
-        const deleteState: DeleteState = { type: "contact", id: contact.Id, label: "Taro Yamada" };
+        const deleteState: DeleteState = { type: "contact", ids: [contact.Id], label: "Taro Yamada" };
 
         await expect(deleteRecordMutation(deleteState)).resolves.toBe("Taro Yamada を削除しました。");
 
@@ -98,4 +99,59 @@ describe("playground record mutations", () => {
             expect.objectContaining({ method: "DELETE" })
         );
     });
+
+    it("deletes multiple selected records through the collection resource route", async () => {
+        const fetchMock = stubSuccessfulFetch();
+        const deleteState: DeleteState = {
+            type: "account",
+            ids: [account.Id, "001xx000003DGbZ"],
+            label: "選択した取引先 2 件"
+        };
+
+        await expect(deleteRecordMutation(deleteState)).resolves.toBe("選択した取引先 2 件を削除しました。");
+
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            "/api/accounts",
+            expect.objectContaining({
+                method: "DELETE",
+                body: JSON.stringify({ ids: [account.Id, "001xx000003DGbZ"] })
+            })
+        );
+    });
+
+    it("restores recycle bin items through the mixed undelete route", async () => {
+        const fetchMock = stubSuccessfulFetch();
+
+        await expect(
+            restoreRecycleBinItemsMutation([
+                {
+                    objectApiName: "Account",
+                    objectLabel: "取引先",
+                    id: account.Id,
+                    name: account.Name
+                },
+                {
+                    objectApiName: "Contact",
+                    objectLabel: "取引先責任者",
+                    id: contact.Id,
+                    name: "Taro Yamada"
+                }
+            ])
+        ).resolves.toBe("2 件を復元しました。");
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            "/api/recycle-bin/undelete",
+            expect.objectContaining({
+                method: "POST",
+                body: JSON.stringify({
+                    items: [
+                        { objectApiName: "Account", id: account.Id },
+                        { objectApiName: "Contact", id: contact.Id }
+                    ]
+                })
+            })
+        );
+    });
+
 });
