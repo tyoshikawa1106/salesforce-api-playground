@@ -99,7 +99,7 @@ describe("playground record mutations", () => {
         );
     });
 
-    it("deletes multiple selected records through the matching resource route", async () => {
+    it("deletes multiple selected records through the collection resource route", async () => {
         const fetchMock = stubSuccessfulFetch();
         const deleteState: DeleteState = {
             type: "account",
@@ -109,15 +109,13 @@ describe("playground record mutations", () => {
 
         await expect(deleteRecordMutation(deleteState)).resolves.toBe("選択した取引先 2 件を削除しました。");
 
-        expect(fetchMock).toHaveBeenNthCalledWith(
-            1,
-            `/api/accounts/${account.Id}`,
-            expect.objectContaining({ method: "DELETE" })
-        );
-        expect(fetchMock).toHaveBeenNthCalledWith(
-            2,
-            "/api/accounts/001xx000003DGbZ",
-            expect.objectContaining({ method: "DELETE" })
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            "/api/accounts",
+            expect.objectContaining({
+                method: "DELETE",
+                body: JSON.stringify({ ids: [account.Id, "001xx000003DGbZ"] })
+            })
         );
     });
 });

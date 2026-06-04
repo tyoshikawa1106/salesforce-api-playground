@@ -98,7 +98,7 @@ nav_order: 20
 
 | 優先度 | 候補 | 理由 |
 | --- | --- | --- |
-| 中 | 一括削除の部分失敗時の再試行導線を検討 | 現在は既存 DELETE API を順次実行し、失敗時はエラー通知と再読み込みで状態を戻す。複数件の一部だけが削除された場合の詳細な結果表示は未実装。分割 Issue: [#308](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/308) |
+| 中 | 一括削除の部分失敗時の再試行導線を検討 | 複数件は `DELETE /api/accounts` / `DELETE /api/contacts` に `ids` を渡して削除する。Salesforce から返る ID ごとの結果を UI で詳細表示する導線は未実装。分割 Issue: [#308](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/308) |
 
 ## 確認対象
 

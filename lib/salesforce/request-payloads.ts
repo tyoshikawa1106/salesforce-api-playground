@@ -1,6 +1,7 @@
 import type {
     AccountInput,
     AccountUpdateInput,
+    BulkDeleteInput,
     ContactInput,
     ContactUpdateInput
 } from "./records";
@@ -28,6 +29,14 @@ function isJsonObject(body: unknown): body is Record<string, unknown> {
 
 function badPayload(message: string): SalesforceApiError {
     return new SalesforceApiError(message, 400);
+}
+
+async function readJsonBody(request: JsonRequest): Promise<unknown> {
+    try {
+        return await request.json();
+    } catch {
+        throw badPayload("Request body must be valid JSON.");
+    }
 }
 
 function normalizeStringValue(value: string, allowNull: boolean): SalesforcePayloadValue | undefined {
@@ -88,15 +97,39 @@ async function readSalesforcePayload<T>(
     request: JsonRequest,
     options: SalesforcePayloadOptions
 ): Promise<T> {
-    let body: unknown;
-
-    try {
-        body = await request.json();
-    } catch {
-        throw badPayload("Request body must be valid JSON.");
-    }
+    const body = await readJsonBody(request);
 
     return validateSalesforcePayload(body, options) as T;
+}
+
+export async function readBulkDeletePayload(request: JsonRequest): Promise<BulkDeleteInput> {
+    const body = await readJsonBody(request);
+
+    if (!isJsonObject(body)) {
+        throw badPayload("Request body must be a JSON object.");
+    }
+
+    if (!("ids" in body)) {
+        throw badPayload("ids is required.");
+    }
+
+    if (!Array.isArray(body.ids)) {
+        throw badPayload("ids must be an array.");
+    }
+
+    if (body.ids.length === 0) {
+        throw badPayload("ids must include at least one id.");
+    }
+
+    const ids = body.ids.map((id) => {
+        if (typeof id !== "string" || !id.trim()) {
+            throw badPayload("ids must include only non-empty strings.");
+        }
+
+        return id.trim();
+    });
+
+    return { ids };
 }
 
 export async function readAccountCreatePayload(request: JsonRequest): Promise<AccountInput> {

@@ -28,6 +28,10 @@ type ReadPayload<TInput> = (request: JsonRequest) => Promise<TInput>;
 type CreateRecord<TInput, TData> = (input: TInput) => Promise<SalesforceRouteResult<TData>>;
 type UpdateRecord<TInput, TData> = (id: string, input: TInput) => Promise<SalesforceRouteResult<TData>>;
 type DeleteRecord<TData> = (id: string) => Promise<SalesforceRouteResult<TData>>;
+type BulkDeleteInput = {
+    ids: string[];
+};
+type BulkDeleteRecord<TData> = (ids: string[]) => Promise<SalesforceRouteResult<TData>>;
 
 export async function handleSalesforceRoute<T>(
     handler: () => Promise<SalesforceRouteResult<T>>,
@@ -82,6 +86,20 @@ export function handleSalesforceDeleteRoute<TData>(
         assertSameOriginRequest(request);
         assertSalesforceRecordId(id, objectLabel);
         return deleteRecord(id);
+    });
+}
+
+export function handleSalesforceBulkDeleteRoute<TData>(
+    request: MutatingRequest,
+    objectLabel: SalesforceObjectLabel,
+    readPayload: ReadPayload<BulkDeleteInput>,
+    deleteRecords: BulkDeleteRecord<TData>
+): Promise<NextResponse> {
+    return handleSalesforceRoute(async () => {
+        assertSameOriginRequest(request);
+        const input = await readPayload(request);
+        input.ids.forEach((id) => assertSalesforceRecordId(id, objectLabel));
+        return deleteRecords(input.ids);
     });
 }
 

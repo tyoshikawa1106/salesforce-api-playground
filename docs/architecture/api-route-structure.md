@@ -33,10 +33,12 @@ flowchart LR
 | `/api/auth/logout` | `POST` | Origin / Referer を検証し、token revoke を試行して session / state Cookie を削除する | `assertSameOriginRequest()`, `getSession()`, `revokeSalesforceSession()`, `clearSessionCookie()`, `clearStateCookie()` |
 | `/api/accounts` | `GET` | Account 一覧取得の入口 | `handleSalesforceRoute()`, `listAccounts()` |
 | `/api/accounts` | `POST` | Origin / Referer と request body を検証し、Account 作成へ委譲する | `handleSalesforceCreateRoute()`, `readAccountCreatePayload()`, `createAccount()` |
+| `/api/accounts` | `DELETE` | Origin / Referer と request body の ID 配列を検証し、Account 複数削除へ委譲する | `handleSalesforceBulkDeleteRoute()`, `readBulkDeletePayload()`, `deleteAccounts()` |
 | `/api/accounts/[id]` | `PATCH` | Origin / Referer、Account ID、request body を検証し、Account 更新へ委譲する | `handleSalesforceUpdateRoute()`, `readAccountUpdatePayload()`, `updateAccount()` |
 | `/api/accounts/[id]` | `DELETE` | Origin / Referer と Account ID を検証し、Account 削除へ委譲する | `handleSalesforceDeleteRoute()`, `deleteAccount()` |
 | `/api/contacts` | `GET` | Contact 一覧取得の入口 | `handleSalesforceRoute()`, `listContacts()` |
 | `/api/contacts` | `POST` | Origin / Referer と request body を検証し、Contact 作成へ委譲する | `handleSalesforceCreateRoute()`, `readContactCreatePayload()`, `createContact()` |
+| `/api/contacts` | `DELETE` | Origin / Referer と request body の ID 配列を検証し、Contact 複数削除へ委譲する | `handleSalesforceBulkDeleteRoute()`, `readBulkDeletePayload()`, `deleteContacts()` |
 | `/api/contacts/[id]` | `PATCH` | Origin / Referer、Contact ID、request body を検証し、Contact 更新へ委譲する | `handleSalesforceUpdateRoute()`, `readContactUpdatePayload()`, `updateContact()` |
 | `/api/contacts/[id]` | `DELETE` | Origin / Referer と Contact ID を検証し、Contact 削除へ委譲する | `handleSalesforceDeleteRoute()`, `deleteContact()` |
 | `/api/search` | `GET` | `q` query を検証し、Account / Contact 検索へ委譲する | `handleSalesforceRoute()`, `searchAccountsAndContacts()` |
@@ -54,6 +56,7 @@ flowchart LR
 | `handleSalesforceCreateRoute()` | Origin / Referer 検証、payload 読み取り、作成処理、`201` response をまとめる |
 | `handleSalesforceUpdateRoute()` | URL params の `id` 取得、Origin / Referer 検証、Salesforce record ID 検証、payload 読み取り、更新処理をまとめる |
 | `handleSalesforceDeleteRoute()` | URL params の `id` 取得、Origin / Referer 検証、Salesforce record ID 検証、削除処理をまとめる |
+| `handleSalesforceBulkDeleteRoute()` | Origin / Referer 検証、payload の `ids` 読み取り、Salesforce record ID 配列検証、複数削除処理をまとめる |
 | `handleSalesforceIntegrationRoute()` | Cookie session を前提にしない Integration API の JSON response とエラー変換をまとめる |
 
 通常の Account / Contact API は、service 層が `{ data, session }` を返し、`handleSalesforceRoute()` が `jsonWithSession()` で response と session Cookie 更新を行います。Integration API は refresh token を持つ画面 session とは別の Client Credentials Flow を使うため、`handleSalesforceIntegrationRoute()` で Cookie session 更新を行いません。
@@ -63,9 +66,9 @@ flowchart LR
 | 検証対象 | 配置 | 主な利用 Route |
 | --- | --- | --- |
 | OAuth state | `app/api/auth/callback/route.ts`, `lib/salesforce/session.ts` | `/api/auth/callback` |
-| Origin / Referer | `lib/salesforce/request-security.ts` | `POST /api/accounts`, `PATCH /api/accounts/[id]`, `DELETE /api/accounts/[id]`, Contact mutation、logout、Integration UI |
-| Salesforce record ID | `lib/salesforce/request-security.ts` | `PATCH` / `DELETE` の `[id]` route、Integration Account update |
-| Account / Contact payload | `lib/salesforce/request-payloads.ts`, `lib/salesforce/record-fields.ts` | Account / Contact create / update、Integration Account create / update |
+| Origin / Referer | `lib/salesforce/request-security.ts` | `POST /api/accounts`, `PATCH /api/accounts/[id]`, `DELETE /api/accounts`, `DELETE /api/accounts/[id]`, Contact mutation、logout、Integration UI |
+| Salesforce record ID | `lib/salesforce/request-security.ts` | `PATCH` / `DELETE` の `[id]` route、複数削除の `ids`、Integration Account update |
+| Account / Contact payload | `lib/salesforce/request-payloads.ts`, `lib/salesforce/record-fields.ts` | Account / Contact create / update / bulk delete、Integration Account create / update |
 | Integration API key | `lib/salesforce/integration-security.ts` | `/api/integration/accounts`, `/api/integration/accounts/[id]` |
 | 検索 query | `app/api/search/route.ts` | `/api/search` |
 

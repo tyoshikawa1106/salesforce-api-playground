@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
     readAccountCreatePayload,
     readAccountUpdatePayload,
+    readBulkDeletePayload,
     readContactCreatePayload,
     readContactUpdatePayload
 } from "./request-payloads";
@@ -111,6 +112,26 @@ describe("Salesforce request payload readers", () => {
     it("rejects non-string field values", async () => {
         await expect(readAccountUpdatePayload(jsonRequest({ Phone: 123 }))).rejects.toMatchObject({
             message: "Phone must be a string.",
+            status: 400
+        });
+    });
+
+    it("normalizes bulk delete ids", async () => {
+        await expect(readBulkDeletePayload(jsonRequest({ ids: [" 001xx000003DGbY ", "001xx000003DGbZ"] }))).resolves.toEqual({
+            ids: ["001xx000003DGbY", "001xx000003DGbZ"]
+        });
+    });
+
+    it("rejects empty bulk delete ids", async () => {
+        await expect(readBulkDeletePayload(jsonRequest({ ids: [] }))).rejects.toMatchObject({
+            message: "ids must include at least one id.",
+            status: 400
+        });
+    });
+
+    it("rejects non-string bulk delete ids", async () => {
+        await expect(readBulkDeletePayload(jsonRequest({ ids: ["001xx000003DGbY", 123] }))).rejects.toMatchObject({
+            message: "ids must include only non-empty strings.",
             status: 400
         });
     });
