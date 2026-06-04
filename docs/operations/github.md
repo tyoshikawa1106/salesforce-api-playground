@@ -197,7 +197,7 @@ main -> codex/... -> main
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Pull Request 作成後は、Project への自動追加結果、milestone の設定漏れ、label の設定漏れがないか確認する。
-- Pull Request template の Triage 欄には、主な影響範囲、milestone / Project / label の設定状態、ready for review 条件を簡潔に記載する。
+- Pull Request template の管理情報欄には、主な影響範囲、milestone / Project / label の設定状態、ready for review 条件を簡潔に記載する。
 - Draft PR 作成後は、CI / CodeQL など required checks の結果を確認し、pass したら ready for review へ変更する。最終報告前に `isDraft: false` または GitHub UI 上の ready 状態を確認する。
 - CI が pending の間は ready for review にしない。時間の都合で待機を中断する場合は、draft のままであることと pending check を最終報告に明記する。
 - Codex が Pull Request の milestone / Project を設定できない場合は、PR 本文または最終報告に未設定理由を記載し、手動設定対象として扱う。
