@@ -1,4 +1,5 @@
 import type { SalesforceSession } from "./session";
+import { normalizeHttpsOriginUrl } from "./url-security";
 
 export type SalesforceErrorPayload = {
     message?: string;
@@ -53,13 +54,19 @@ export type SalesforceRequest = {
 };
 
 function buildSalesforceTokenEndpointUrl(config: TokenEndpointConfig): string {
-    return `${config.loginUrl}/services/oauth2/token`;
+    return new URL(
+        "/services/oauth2/token",
+        normalizeHttpsOriginUrl(config.loginUrl, "Salesforce login URL")
+    ).toString();
 }
 
 export function buildAuthorizationEndpointUrl(
     config: AuthorizationEndpointConfig
 ): string {
-    return `${config.loginUrl}/services/oauth2/authorize`;
+    return new URL(
+        "/services/oauth2/authorize",
+        normalizeHttpsOriginUrl(config.loginUrl, "Salesforce login URL")
+    ).toString();
 }
 
 export function buildAuthorizationUrlParams(
@@ -149,7 +156,10 @@ export function buildClientCredentialsTokenParams(
 }
 
 export function buildRevokeEndpointUrl(config: RevokeEndpointConfig): string {
-    return `${config.instanceUrl}/services/oauth2/revoke`;
+    return new URL(
+        "/services/oauth2/revoke",
+        normalizeHttpsOriginUrl(config.instanceUrl, "Salesforce instance URL")
+    ).toString();
 }
 
 export function selectRevokeToken(
@@ -215,7 +225,7 @@ export function tokenResponseToSession(
     return {
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
-        instanceUrl: token.instance_url,
+        instanceUrl: normalizeHttpsOriginUrl(token.instance_url, "Salesforce instance URL"),
         issuedAt: token.issued_at ? Number(token.issued_at) : issuedAtFallback,
         userId,
         organizationId

@@ -38,6 +38,14 @@ describe("buildAuthorizationEndpointUrl", () => {
             "https://login.salesforce.com/services/oauth2/authorize"
         );
     });
+
+    it("rejects unsafe login URL protocols", () => {
+        expect(() =>
+            buildAuthorizationEndpointUrl({
+                loginUrl: "javascript:alert(1)"
+            })
+        ).toThrow("Salesforce login URL must use https.");
+    });
 });
 
 describe("buildAuthorizationUrlParams", () => {
@@ -157,9 +165,17 @@ describe("buildRevokeEndpointUrl", () => {
     it("builds the OAuth revoke endpoint URL", () => {
         expect(
             buildRevokeEndpointUrl({
-                instanceUrl: "https://example.my.salesforce.com"
+                instanceUrl: "https://example.my.salesforce.com/"
             })
         ).toBe("https://example.my.salesforce.com/services/oauth2/revoke");
+    });
+
+    it("rejects unsafe Salesforce instance URLs", () => {
+        expect(() =>
+            buildRevokeEndpointUrl({
+                instanceUrl: "http://example.my.salesforce.com"
+            })
+        ).toThrow("Salesforce instance URL must use https.");
     });
 });
 
@@ -291,6 +307,15 @@ describe("tokenResponseToSession", () => {
             userId: "005xx0000012345",
             organizationId: "00Dxx0000000001"
         });
+    });
+
+    it("rejects token responses with unsafe instance URLs", () => {
+        expect(() =>
+            tokenResponseToSession({
+                access_token: "access-token",
+                instance_url: "javascript:alert(1)"
+            })
+        ).toThrow("Salesforce instance URL must use https.");
     });
 
     it("uses a fallback issuedAt when the token response does not include one", () => {

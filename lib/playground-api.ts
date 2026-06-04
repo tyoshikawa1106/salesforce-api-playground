@@ -47,7 +47,7 @@ export const playgroundApiPaths = {
         return `/api/search?q=${encodeURIComponent(query)}`;
     },
     record(resource: PlaygroundApiResource, id: string): string {
-        return `/api/${resource}/${id}`;
+        return `/api/${resource}/${encodeURIComponent(id)}`;
     }
 } as const;
 
