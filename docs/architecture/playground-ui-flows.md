@@ -41,6 +41,16 @@ nav_order: 20
 - `accounts` / `contacts` / `integration` は接続済みの場合のみ表示する。
 - タブ変更時は選択中レコードを解除し、再取得する。
 
+### GlobalHeader 検索
+
+- 接続済みの場合のみ検索 input を有効化し、未接続時は検索できない状態にする。
+- 入力値は前後空白を除去し、空文字の場合は「検索キーワードを入力してください。」、2 文字未満の場合は「2 文字以上で検索してください。」を候補領域に表示する。
+- 2 文字以上の入力では 250ms debounce 後に `GET /api/search?q=...` を呼び出し、Account / Contact の候補を表示する。
+- 検索候補は Account / Contact の標準アイコン、レコード名、補足情報を表示する。Account は市区郡、国、電話番号、Contact は Account 名、役職、メールを補足情報に使う。
+- 検索候補は `ArrowDown` / `ArrowUp` で選択位置を移動し、`Enter` で選択する。`Escape` または検索領域外の pointer down で候補を閉じる。
+- Account 候補を選択すると Account 一覧に対象レコードを先頭追加して Account 詳細へ遷移する。Contact 候補を選択すると Contact 一覧に対象レコードを先頭追加して Contact 詳細へ遷移する。
+- 検索結果がない場合は「検索結果がありません。」、API 呼び出しが失敗した場合は UI 表示向けに変換したエラー文言を候補領域に表示する。
+
 ### Account / Contact 一覧
 
 - `ObjectHomeHeader` に件数、更新ボタン、新規作成ボタンを表示する。
@@ -81,12 +91,12 @@ nav_order: 20
 - 活動カードのダミータブをページ内リンクから button に変更し、tabpanel との関連を明示した。
 - Account / Contact 一覧コンポーネントの未使用 `onRefresh` props を削除した。
 - 作成 / 編集 / 削除確認 modal の初期フォーカス、Escape クローズ、フォーカストラップを `Modal` コンポーネントに集約した。
+- GlobalHeader の検索欄を `/api/search` と接続し、Account / Contact の候補表示、キーボード選択、選択後のレコード詳細遷移を実装した。
 
 ## 改善候補
 
 | 優先度 | 候補 | 理由 |
 | --- | --- | --- |
-| 高 | GlobalHeader の検索欄を SOSL ベースの候補検索として実装 | 現在は検索欄を入力できるが検索結果や遷移動作を持たないため、Account / Contact を横断検索して候補選択からレコードページへ移動できるようにする |
 | 高 | 一覧の行選択チェックボックスに一括操作を追加 | 現在は選択状態を使う後続操作がないため、選択状態管理と一括操作を実装して UI の期待に合わせる |
 | 中 | GlobalHeader のポップオーバー / profile menu のキーボード操作改善 | hover と click 中心で、閉じる操作や menuitem 移動の挙動が限定的。分割 Issue: [#97](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/97) |
 
