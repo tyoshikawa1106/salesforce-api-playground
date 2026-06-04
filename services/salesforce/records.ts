@@ -1,4 +1,5 @@
-import type { Connection, SaveResult } from "jsforce";
+import type { Connection, DescribeSObjectResult, SaveResult } from "jsforce";
+import { SalesforceApiError } from "@/lib/salesforce/client";
 import type {
     AccountInput,
     AccountRecord,
@@ -46,6 +47,16 @@ type BulkDeleteResult = {
 type SalesforceRecordConnectionRunner<TData, TResult> = (
     operation: (connection: Connection) => Promise<TData>
 ) => Promise<TResult>;
+type ObjectPermission = "queryable" | "searchable" | "createable" | "updateable" | "deletable";
+type ObjectPermissionActionLabel = "参照" | "検索" | "作成" | "更新" | "削除";
+
+const objectPermissionActionLabels: Record<ObjectPermission, ObjectPermissionActionLabel> = {
+    queryable: "参照",
+    searchable: "検索",
+    createable: "作成",
+    updateable: "更新",
+    deletable: "削除"
+};
 
 function escapeSoslTerm(term: string): string {
     return term.replace(soslReservedCharacters, "\\$&");
@@ -104,12 +115,29 @@ function toSearchResultItem(record: SalesforceSearchRecord): SearchResultItem | 
     return null;
 }
 
+async function assertObjectPermission(
+    connection: Connection,
+    objectName: string,
+    permission: ObjectPermission
+): Promise<DescribeSObjectResult> {
+    const describe = await connection.sobject(objectName).describe();
+    if (!describe[permission]) {
+        throw new SalesforceApiError(
+            `${objectName} の${objectPermissionActionLabels[permission]}権限がありません。`,
+            403
+        );
+    }
+
+    return describe;
+}
+
 function createObject<TInput extends object, TResult>(
     runWithConnection: SalesforceRecordConnectionRunner<CreatedRecordResult, TResult>,
     objectName: string,
     input: TInput
 ) {
     return runWithConnection(async (connection) => {
+        await assertObjectPermission(connection, objectName, "createable");
         const result = await connection.sobject(objectName).create(input);
         return createdSalesforceResult(result);
     });
@@ -122,6 +150,7 @@ function updateObject<TInput extends object, TResult>(
     input: TInput
 ) {
     return runWithConnection(async (connection) => {
+        await assertObjectPermission(connection, objectName, "updateable");
         const result = await connection.sobject(objectName).update({ Id: id, ...input });
         return emptySalesforceResult(result);
     });
@@ -133,6 +162,7 @@ function deleteObject<TResult>(
     id: string
 ) {
     return runWithConnection(async (connection) => {
+        await assertObjectPermission(connection, objectName, "deletable");
         const result = await connection.sobject(objectName).destroy(id);
         return emptySalesforceResult(result);
     });
@@ -144,6 +174,7 @@ function deleteObjects<TResult>(
     ids: string[]
 ) {
     return runWithConnection(async (connection) => {
+        await assertObjectPermission(connection, objectName, "deletable");
         const results = await connection.sobject(objectName).destroy(ids);
         return {
             results: Array.isArray(results) ? results : [results]
@@ -177,6 +208,7 @@ function updateIntegrationStandardObject<TInput extends object>(objectName: stri
 
 export async function listAccounts() {
     return withStandardObjectConnection(async (connection) => {
+        await assertObjectPermission(connection, "Account", "queryable");
         const response = await connection.query<AccountRecord>(accountListQuery);
         return { accounts: response.records };
     });
@@ -208,6 +240,7 @@ export async function updateIntegrationAccount(id: string, input: AccountUpdateI
 
 export async function listContacts() {
     return withStandardObjectConnection(async (connection) => {
+        await assertObjectPermission(connection, "Contact", "queryable");
         const response = await connection.query<ContactRecord>(contactListQuery);
         return { contacts: response.records };
     });
@@ -215,6 +248,8 @@ export async function listContacts() {
 
 export async function searchAccountsAndContacts(query: string) {
     return withStandardObjectConnection(async (connection) => {
+        await assertObjectPermission(connection, "Account", "searchable");
+        await assertObjectPermission(connection, "Contact", "searchable");
         const response = await connection.search(buildGlobalSearchSosl(query));
         return {
             results: response.searchRecords

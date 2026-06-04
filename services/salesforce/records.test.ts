@@ -31,6 +31,7 @@ const jsforceMocks = vi.hoisted(() => ({
     search: vi.fn(),
     update: vi.fn(),
     destroy: vi.fn(),
+    describe: vi.fn(),
     connection: vi.fn(function Connection(this: unknown) {
         return {
             query: jsforceMocks.query,
@@ -38,7 +39,8 @@ const jsforceMocks = vi.hoisted(() => ({
             sobject: vi.fn(() => ({
                 create: jsforceMocks.create,
                 update: jsforceMocks.update,
-                destroy: jsforceMocks.destroy
+                destroy: jsforceMocks.destroy,
+                describe: jsforceMocks.describe
             }))
         };
     })
@@ -110,6 +112,13 @@ beforeEach(() => {
         issuedAt: 1700000000000,
         userId: "005xx0000099999"
     });
+    jsforceMocks.describe.mockResolvedValue({
+        createable: true,
+        deletable: true,
+        queryable: true,
+        searchable: true,
+        updateable: true
+    });
 });
 
 afterEach(() => {
@@ -153,6 +162,44 @@ describe("Salesforce record services", () => {
         expect(jsforceMocks.create).toHaveBeenCalledWith({ Name: "Acme" });
     });
 
+    it("checks query permission before listing accounts", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.describe.mockResolvedValue({
+            createable: true,
+            deletable: true,
+            queryable: false,
+            searchable: true,
+            updateable: true
+        });
+
+        const promise = listAccounts();
+
+        await expect(promise).rejects.toMatchObject({
+            message: "Account の参照権限がありません。",
+            status: 403
+        });
+        expect(jsforceMocks.query).not.toHaveBeenCalled();
+    });
+
+    it("checks create permission before creating accounts", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.describe.mockResolvedValue({
+            createable: false,
+            deletable: true,
+            queryable: true,
+            searchable: true,
+            updateable: true
+        });
+
+        const promise = createAccount({ Name: "Acme" });
+
+        await expect(promise).rejects.toMatchObject({
+            message: "Account の作成権限がありません。",
+            status: 403
+        });
+        expect(jsforceMocks.create).not.toHaveBeenCalled();
+    });
+
     it("returns Salesforce create errors instead of reporting a failed create as success", async () => {
         getSessionMock.mockResolvedValue(session);
         const errors = [{ message: "Name is required", errorCode: "REQUIRED_FIELD_MISSING" }];
@@ -183,6 +230,25 @@ describe("Salesforce record services", () => {
         });
     });
 
+    it("checks update permission before updating contacts", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.describe.mockResolvedValue({
+            createable: true,
+            deletable: true,
+            queryable: true,
+            searchable: true,
+            updateable: false
+        });
+
+        const promise = updateContact("003xx000004TmiQ", { Title: "Manager" });
+
+        await expect(promise).rejects.toMatchObject({
+            message: "Contact の更新権限がありません。",
+            status: 403
+        });
+        expect(jsforceMocks.update).not.toHaveBeenCalled();
+    });
+
     it("uses jsforce standard object destroy for deletes", async () => {
         getSessionMock.mockResolvedValue(session);
         jsforceMocks.destroy.mockResolvedValue({ success: true });
@@ -193,6 +259,25 @@ describe("Salesforce record services", () => {
         });
 
         expect(jsforceMocks.destroy).toHaveBeenCalledWith("001xx000003DGbY");
+    });
+
+    it("checks delete permission before deleting accounts", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.describe.mockResolvedValue({
+            createable: true,
+            deletable: false,
+            queryable: true,
+            searchable: true,
+            updateable: true
+        });
+
+        const promise = deleteAccount("001xx000003DGbY");
+
+        await expect(promise).rejects.toMatchObject({
+            message: "Account の削除権限がありません。",
+            status: 403
+        });
+        expect(jsforceMocks.destroy).not.toHaveBeenCalled();
     });
 
     it("uses jsforce standard object destroy with multiple ids for bulk deletes", async () => {
@@ -264,6 +349,33 @@ describe("Salesforce record services", () => {
         expect(jsforceMocks.search).toHaveBeenCalledWith(
             "FIND {Acme*} IN ALL FIELDS RETURNING Account(Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate LIMIT 5), Contact(Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate LIMIT 5)"
         );
+    });
+
+    it("checks search permission before searching accounts and contacts", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.describe
+            .mockResolvedValueOnce({
+                createable: true,
+                deletable: true,
+                queryable: true,
+                searchable: true,
+                updateable: true
+            })
+            .mockResolvedValueOnce({
+                createable: true,
+                deletable: true,
+                queryable: true,
+                searchable: false,
+                updateable: true
+            });
+
+        const promise = searchAccountsAndContacts("Acme");
+
+        await expect(promise).rejects.toMatchObject({
+            message: "Contact の検索権限がありません。",
+            status: 403
+        });
+        expect(jsforceMocks.search).not.toHaveBeenCalled();
     });
 
     it("escapes SOSL reserved characters in search terms", () => {

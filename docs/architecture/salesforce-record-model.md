@@ -83,6 +83,12 @@ API request body で許可するフィールドは `lib/salesforce/record-fields
 
 この検証は Salesforce への不要な API 呼び出しを避けるための入口検証です。ID が形式上正しくても、対象レコードの存在、参照権限、共有設定は Salesforce 側のレスポンスで判断します。
 
+## オブジェクト権限チェック
+
+Account / Contact の参照、検索、作成、更新、削除は、実行前に `services/salesforce/records.ts` で `describe()` を呼び、対象オブジェクトの `queryable`、`searchable`、`createable`、`updateable`、`deletable` を確認します。権限がない場合は `403` を返し、SOQL / SOSL や sObject CRUD は実行しません。
+
+このチェックはオブジェクト権限の事前確認です。項目レベル権限、validation rule、対象レコードの存在、共有設定による個別レコードアクセスは、引き続き Salesforce 側のレスポンスで判断します。
+
 ## SOQL / SOSL
 
 一覧取得は `services/salesforce/records.ts` の SOQL で行います。
