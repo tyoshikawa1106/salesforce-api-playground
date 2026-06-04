@@ -9,7 +9,7 @@ nav_order: 18
 
 このドキュメントは、`app/api` 配下の Route Handler がどの責務を持ち、どの処理を `lib/salesforce` と `services/salesforce` に委譲するかを整理します。
 
-API のリクエスト / レスポンス仕様や項目ごとの詳細は [API 概要](../api/api-overview.md) を参照してください。このドキュメントでは、Route 構成と責務境界を中心に扱います。
+API のリクエスト / レスポンス仕様や項目ごとの詳細は [API 概要](../api/api-overview.md)、Account / Contact の項目と入力正規化は [Salesforce レコードモデル](salesforce-record-model.md) を参照してください。このドキュメントでは、Route 構成と責務境界を中心に扱います。
 
 ## 全体方針
 
@@ -100,5 +100,6 @@ Route 構成を変更する場合は、変更した Route に対応する `app/a
 - [API 概要](../api/api-overview.md)
 - [システム概要](system-overview.md)
 - [ディレクトリ構成](directory-structure.md)
+- [Salesforce レコードモデル](salesforce-record-model.md)
 - [OAuth フロー](../security/oauth-flow.md)
 - [Salesforce 接続責務を lib と services に分離する](../decisions/2026-06-02-salesforce-connection-boundaries.md)
