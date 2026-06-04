@@ -78,12 +78,14 @@ GitHub Actions workflow を変更した場合は、YAML 構文確認も実行し
 npm run workflows:check
 ```
 
-コード変更を伴う場合は、差分に応じて [ローカル開発](../setup/local-development.md) の確認コマンドを選びます。実行しない確認がある場合は、レビュー判断に関係する項目だけ PR 本文の `未実行の確認` に理由を記載します。
+コード変更を伴う場合は、差分に応じて [CI](ci.md) と [ローカル開発](../setup/local-development.md) の確認コマンドを選びます。実行しない確認がある場合は、レビュー判断に関係する項目だけ PR 本文の `未実行の確認` に理由を記載します。
 
 ## 関連ドキュメント
 
 - [ドキュメント入口](../index.md)
 - [ディレクトリ構成](../architecture/directory-structure.md)
+- [CI](ci.md)
 - [ローカル開発](../setup/local-development.md)
 - [GitHub 運用](github.md)
+- [秘密情報の扱い](../security/secret-handling.md)
 - [トラブルシューティング](troubleshooting.md)

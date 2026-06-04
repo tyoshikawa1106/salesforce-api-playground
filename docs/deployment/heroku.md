@@ -166,7 +166,7 @@ Salesforce API バージョンは Config Vars ではなく、`lib/salesforce/api
 Client Credentials Flow では `SALESFORCE_INTEGRATION_LOGIN_URL` に `https://login.salesforce.com` や `https://test.salesforce.com` は使えません。
 
 `APP_ENV` は Heroku Staging / Production の識別用です。`NODE_ENV` はどちらの Heroku app でも `production` になるため、環境ラベルの判定には使いません。
-`APP_ENV` が未設定、`main`、`production`、`prod` の場合は環境ラベルを表示しません。Staging や Heroku Button で作成した standalone app など、本番相当ではない環境を見分けたい場合に `APP_ENV` と `APP_ENV_LABEL` を設定します。
+`APP_ENV` が未設定、`main`、`production`、`prod` の場合は環境ラベルを表示しません。Staging や Heroku Button で作成した standalone app など、本番相当ではない環境を見分けたい場合に `APP_ENV` と `APP_ENV_LABEL` を設定します。詳しい判定仕様は [環境ラベル](../architecture/environment-label.md) を参照してください。
 
 ## PR merge 前の確認手順
 

@@ -157,6 +157,8 @@ Cookie 属性は `httpOnly: true`、`sameSite: "lax"`、`path: "/"` です。`se
 | `SALESFORCE_INTEGRATION_CLIENT_SECRET` | 連携 API 利用時は必須 | なし | Client Credentials Flow 用 OAuth client secret |
 | `SALESFORCE_INTEGRATION_LOGIN_URL` | 連携 API 利用時は必須 | なし | 連携用 token endpoint の基点。Client Credentials Flow では My Domain URL を指定する |
 | `INTEGRATION_API_KEY` | サーバー間連携 API 利用時は必須 | なし | `/api/integration/accounts` と `/api/integration/accounts/[id]` の呼び出し元検証用共有鍵 |
+| `APP_ENV` | 任意 | なし | 画面上部の環境ラベル表示判定 |
+| `APP_ENV_LABEL` | 任意 | `APP_ENV` | 環境ラベルの表示文字列 |
 
 Salesforce API version は環境変数ではなく、`lib/salesforce/api-version.ts` の `DEFAULT_SALESFORCE_API_VERSION` を唯一の定義元として管理します。`jsforce.Connection` には `toJsforceApiVersion()` で先頭 `v` を除いた値を渡します。
 
@@ -164,11 +166,14 @@ Salesforce API version は環境変数ではなく、`lib/salesforce/api-version
 
 - Salesforce 組織ごとの validation rule、権限、参照整合性、必須項目追加による挙動は、組織設定に依存します。API エラー表示方針と rate limit 方針は [API 概要](../api/api-overview.md) と [トラブルシューティング](../operations/troubleshooting.md) を参照。
 - `organizationId` は OAuth token response の `id` URL から session に保存します。レスポンスや API 呼び出しには使用していません。
+- 環境ラベルの表示判定は [環境ラベル](environment-label.md) を参照。
 - Heroku Pipeline、release と GitHub merge commit の対応、dyno 起動状態、ロールバック手順の確認観点は [Heroku デプロイ](../deployment/heroku.md) を参照。
 
 ## 関連ドキュメント
 
 - [API 概要](../api/api-overview.md)
 - [OAuth フロー](../security/oauth-flow.md)
+- [環境ラベル](environment-label.md)
+- [秘密情報の扱い](../security/secret-handling.md)
 - [Heroku デプロイ](../deployment/heroku.md)
 - [ローカル開発](../setup/local-development.md)
