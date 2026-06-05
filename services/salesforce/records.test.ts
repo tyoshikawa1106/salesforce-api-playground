@@ -18,12 +18,12 @@ import {
     createIntegrationAccount,
     deleteAccount,
     deleteAccounts,
-    buildGlobalSearchSosl,
     listAccounts,
     searchAccountsAndContacts,
     updateIntegrationAccount,
     updateContact
 } from "./records";
+import { buildGlobalSearchSosl } from "./record-queries";
 
 const jsforceMocks = vi.hoisted(() => ({
     query: vi.fn(),
