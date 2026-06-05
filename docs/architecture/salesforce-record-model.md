@@ -1,7 +1,5 @@
 ---
 title: Salesforce レコードモデル
-parent: 設計
-nav_order: 30
 ---
 
 # Salesforce レコードモデル

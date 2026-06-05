@@ -1,7 +1,5 @@
 ---
 title: Heroku デプロイ
-parent: デプロイ
-nav_order: 10
 ---
 
 # Heroku デプロイ

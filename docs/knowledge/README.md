@@ -1,7 +1,5 @@
 ---
 title: ナレッジ
-nav_order: 50
-has_children: true
 ---
 
 # ナレッジ

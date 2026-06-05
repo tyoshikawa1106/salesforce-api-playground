@@ -1,7 +1,5 @@
 ---
 title: ドキュメント
-layout: home
-nav_order: 1
 ---
 
 # Salesforce API Playground Docs

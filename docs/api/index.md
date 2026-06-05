@@ -1,7 +1,5 @@
 ---
 title: API
-nav_order: 10
-has_children: true
 ---
 
 # API

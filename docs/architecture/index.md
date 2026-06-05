@@ -1,7 +1,5 @@
 ---
 title: 設計
-nav_order: 70
-has_children: true
 ---
 
 # 設計
