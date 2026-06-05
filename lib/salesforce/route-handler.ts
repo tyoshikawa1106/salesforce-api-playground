@@ -1,14 +1,17 @@
 import type { NextResponse } from "next/server";
 import {
+    SalesforceApiError,
     jsonWithSession,
     salesforceErrorResponse
 } from "./client";
+import { assertIntegrationApiKey } from "./integration-security";
 import {
     assertSalesforceRecordId,
     assertSameOriginRequest
 } from "./request-security";
 import type { SalesforceObjectLabel } from "./request-security";
 import type { SalesforceSession } from "./session";
+import { getSession } from "./session";
 
 type SalesforceRouteResult<T> = {
     data: T;
@@ -32,6 +35,14 @@ type BulkDeleteInput = {
     ids: string[];
 };
 type BulkDeleteRecord<TData> = (ids: string[]) => Promise<SalesforceRouteResult<TData>>;
+type SalesforceIntegrationRouteResult<T> = {
+    data: T;
+};
+type CreateIntegrationRecord<TInput, TData> = (input: TInput) => Promise<SalesforceIntegrationRouteResult<TData>>;
+type UpdateIntegrationRecord<TInput, TData> = (
+    id: string,
+    input: TInput
+) => Promise<SalesforceIntegrationRouteResult<TData>>;
 
 export async function handleSalesforceRoute<T>(
     handler: () => Promise<SalesforceRouteResult<T>>,
@@ -112,4 +123,52 @@ export async function handleSalesforceIntegrationRoute<T>(
     } catch (error) {
         return salesforceErrorResponse(error, { normalizeExpiredSession: false });
     }
+}
+
+export function handleSalesforceIntegrationCreateRoute<TInput, TData>(
+    request: MutatingRequest,
+    readPayload: ReadPayload<TInput>,
+    createRecord: CreateIntegrationRecord<TInput, TData>
+): Promise<NextResponse> {
+    return handleSalesforceIntegrationRoute(async () => {
+        assertIntegrationApiKey(request);
+        const input = await readPayload(request);
+        const { data } = await createRecord(input);
+        return data;
+    }, 201);
+}
+
+export function handleSalesforceIntegrationUpdateRoute<TInput, TData>(
+    request: MutatingRequest,
+    { params }: SalesforceRouteParams,
+    objectLabel: SalesforceObjectLabel,
+    readPayload: ReadPayload<TInput>,
+    updateRecord: UpdateIntegrationRecord<TInput, TData>
+): Promise<NextResponse> {
+    return handleSalesforceIntegrationRoute(async () => {
+        const { id } = await params;
+        assertIntegrationApiKey(request);
+        assertSalesforceRecordId(id, objectLabel);
+        const input = await readPayload(request);
+        const { data } = await updateRecord(id, input);
+        return data;
+    });
+}
+
+export function handleSalesforceIntegrationUiCreateRoute<TInput, TData>(
+    request: MutatingRequest,
+    readPayload: ReadPayload<TInput>,
+    createRecord: CreateIntegrationRecord<TInput, TData>
+): Promise<NextResponse> {
+    return handleSalesforceIntegrationRoute(async () => {
+        assertSameOriginRequest(request);
+        const session = await getSession();
+        if (!session) {
+            throw new SalesforceApiError("Salesforce session is required.", 401);
+        }
+
+        const input = await readPayload(request);
+        const { data } = await createRecord(input);
+        return data;
+    }, 201);
 }
