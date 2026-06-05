@@ -27,6 +27,32 @@ import {
     type SalesforceSearchRecord
 } from "./record-queries";
 
+function createRecordOperations<TCreateInput extends object, TUpdateInput extends object>(objectName: string) {
+    return {
+        create(input: TCreateInput) {
+            return createStandardObject(objectName, input);
+        },
+        update(id: string, input: TUpdateInput) {
+            return updateStandardObject(objectName, id, input);
+        },
+        deleteOne(id: string) {
+            return deleteStandardObject(objectName, id);
+        },
+        deleteMany(ids: string[]) {
+            return deleteStandardObjects(objectName, ids);
+        },
+        createIntegration(input: TCreateInput) {
+            return createIntegrationStandardObject(objectName, input);
+        },
+        updateIntegration(id: string, input: TUpdateInput) {
+            return updateIntegrationStandardObject(objectName, id, input);
+        }
+    };
+}
+
+const accountRecords = createRecordOperations<AccountInput, AccountUpdateInput>("Account");
+const contactRecords = createRecordOperations<ContactInput, ContactUpdateInput>("Contact");
+
 export async function listAccounts() {
     return withStandardObjectConnection(async (connection) => {
         await assertObjectPermission(connection, "Account", "queryable");
@@ -36,27 +62,27 @@ export async function listAccounts() {
 }
 
 export async function createAccount(input: AccountInput) {
-    return createStandardObject("Account", input);
+    return accountRecords.create(input);
 }
 
 export async function updateAccount(id: string, input: AccountUpdateInput) {
-    return updateStandardObject("Account", id, input);
+    return accountRecords.update(id, input);
 }
 
 export async function deleteAccount(id: string) {
-    return deleteStandardObject("Account", id);
+    return accountRecords.deleteOne(id);
 }
 
 export async function deleteAccounts(ids: string[]) {
-    return deleteStandardObjects("Account", ids);
+    return accountRecords.deleteMany(ids);
 }
 
 export async function createIntegrationAccount(input: AccountInput) {
-    return createIntegrationStandardObject("Account", input);
+    return accountRecords.createIntegration(input);
 }
 
 export async function updateIntegrationAccount(id: string, input: AccountUpdateInput) {
-    return updateIntegrationStandardObject("Account", id, input);
+    return accountRecords.updateIntegration(id, input);
 }
 
 export async function listContacts() {
@@ -81,19 +107,19 @@ export async function searchAccountsAndContacts(query: string) {
 }
 
 export async function createContact(input: ContactInput) {
-    return createStandardObject("Contact", input);
+    return contactRecords.create(input);
 }
 
 export async function updateContact(id: string, input: ContactUpdateInput) {
-    return updateStandardObject("Contact", id, input);
+    return contactRecords.update(id, input);
 }
 
 export async function deleteContact(id: string) {
-    return deleteStandardObject("Contact", id);
+    return contactRecords.deleteOne(id);
 }
 
 export async function deleteContacts(ids: string[]) {
-    return deleteStandardObjects("Contact", ids);
+    return contactRecords.deleteMany(ids);
 }
 
 export type { SalesforceQueryResponse, SaveResult };
