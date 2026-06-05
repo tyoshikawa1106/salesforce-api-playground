@@ -4,7 +4,7 @@ import {
     blankAccount,
     blankContact,
     contactRecordToForm
-} from "./Forms";
+} from "./record-forms";
 
 describe("record form builders", () => {
     it("builds blank forms when no record is provided", () => {
