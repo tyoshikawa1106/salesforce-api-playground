@@ -1,7 +1,3 @@
----
-title: ドキュメント
----
-
 # Salesforce API Playground Docs
 
 Salesforce OAuth 2.0 Authorization Code Flow と Salesforce REST API を試すための個人学習用 Next.js アプリのドキュメントです。

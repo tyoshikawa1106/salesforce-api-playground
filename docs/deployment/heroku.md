@@ -1,7 +1,3 @@
----
-title: Heroku デプロイ
----
-
 # Heroku デプロイ
 
 ## 目的

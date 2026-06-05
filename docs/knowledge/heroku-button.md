@@ -1,7 +1,3 @@
----
-title: Heroku Button 仕組みメモ
----
-
 # Heroku Button 仕組みメモ
 
 ## 概要

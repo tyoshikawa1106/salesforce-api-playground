@@ -1,7 +1,3 @@
----
-title: Heroku Pipeline 運用パターンメモ
----
-
 # Heroku Pipeline 運用パターンメモ
 
 ## 概要

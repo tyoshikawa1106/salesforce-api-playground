@@ -1,7 +1,3 @@
----
-title: API Route 構成
----
-
 # API Route 構成
 
 ## 目的

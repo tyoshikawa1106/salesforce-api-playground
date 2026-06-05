@@ -1,7 +1,3 @@
----
-title: Git Flow 開発手法メモ
----
-
 # Git Flow 開発手法メモ
 
 ## 概要
