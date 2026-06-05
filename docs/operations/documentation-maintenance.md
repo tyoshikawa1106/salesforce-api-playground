@@ -1,6 +1,7 @@
 ---
 title: ドキュメント保守
-nav_order: 85
+parent: 運用
+nav_order: 40
 ---
 
 # ドキュメント保守

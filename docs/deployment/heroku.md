@@ -1,6 +1,7 @@
 ---
 title: Heroku デプロイ
-nav_order: 70
+parent: デプロイ
+nav_order: 10
 ---
 
 # Heroku デプロイ

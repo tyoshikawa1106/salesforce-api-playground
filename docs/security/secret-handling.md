@@ -1,6 +1,7 @@
 ---
 title: 秘密情報の扱い
-nav_order: 35
+parent: セキュリティ
+nav_order: 20
 ---
 
 # 秘密情報の扱い

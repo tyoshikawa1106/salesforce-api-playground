@@ -1,6 +1,7 @@
 ---
 title: トラブルシューティング
-nav_order: 80
+parent: 運用
+nav_order: 30
 ---
 
 # トラブルシューティング

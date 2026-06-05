@@ -1,6 +1,7 @@
 ---
 title: Git Flow 開発手法メモ
-nav_order: 70
+parent: ナレッジ
+nav_order: 10
 ---
 
 # Git Flow 開発手法メモ

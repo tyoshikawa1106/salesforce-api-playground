@@ -1,6 +1,7 @@
 ---
 title: CI
-nav_order: 25
+parent: 運用
+nav_order: 10
 ---
 
 # CI
