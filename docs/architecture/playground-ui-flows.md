@@ -74,7 +74,7 @@
 
 ### loading / success / error 表示
 
-- 初回の接続確認中は session 未確認状態として扱い、ログイン導線を含まない loading を表示する。接続後の再取得中は現在の画面を維持し、一覧では empty state 風の loading 文言を表示する。
+- 初回の接続確認中は session 確認前状態として扱い、ログイン導線を含まない loading を表示する。接続後の再取得中は現在の画面を維持し、一覧では empty state 風の loading 文言を表示する。
 - 作成 / 更新 / 削除 / 連携作成の成功と失敗は `NoticeBanner` の toast に集約する。
 - API エラー文言は `components/playground/api.ts` と `lib/playground-api.ts` で UI 表示向けに変換する。
 

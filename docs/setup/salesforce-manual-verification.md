@@ -16,18 +16,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 | Contact と Account の紐づけ | `AccountId` の許可、payload 正規化、Contact service 呼び出しをテストで確認する | 実 Account ID を指定した Contact 作成 / 更新、紐づけ解除、参照権限エラー |
 | Client Credentials Flow | API key 検証、token request 組み立て、連携用 Account API の入力検証をテストで確認する | Integration ユーザーでの token 取得、Account 作成、Account 更新、権限不足時のエラー |
 
-このドキュメントは、ユーザーが検証用組織で実 Salesforce 接続を確認するためのチェックリストです。Codex 作業では実 Salesforce 接続を行わないため、組織固有の validation rule、共有設定、権限セット、IP 制限に依存する挙動は確認済みの事実だけを記録してください。
-
-各表の `状態` は、手動確認の記録欄です。初期値の `未確認` は未完了タスクの一覧ではなく、検証用 Salesforce 組織で確認したときに更新するためのプレースホルダーです。
-
-状態値の凡例:
-
-| 状態 | 意味 |
-| --- | --- |
-| `未確認` | まだ検証用 Salesforce 組織で確認していない |
-| `確認済み` | 期待値どおりに確認できた |
-| `要調査` | 期待値と異なる結果、組織固有設定、権限不足などの追加確認が必要 |
-| `対象外` | 今回の確認対象、接続先組織、または利用機能に該当しない |
+このドキュメントは、ユーザーが検証用組織で実 Salesforce 接続を確認するためのチェックリストです。Codex 作業では実 Salesforce 接続を行わないため、組織固有の validation rule、共有設定、権限セット、IP 制限に依存する挙動は、このファイルではなく PR 本文、Issue コメント、またはトラブルシューティング記録に確認日時と接続先種別を添えて記録します。
 
 ## 事前準備
 
@@ -41,14 +30,14 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 
 ## OAuth login / logout チェックリスト
 
-| No. | 操作 | 期待値 | 状態 |
-| --- | --- | --- | --- |
-| 1 | 未接続状態でトップ画面を開く | 未接続として表示され、Account / Contact 操作は実行されない | 未確認 |
-| 2 | `Connect Salesforce` を実行する | Salesforce 認可画面へ遷移する | 未確認 |
-| 3 | Salesforce で認可する | アプリへ戻り、接続済み状態になる | 未確認 |
-| 4 | ブラウザの開発者ツールで `GET /api/session` を確認する | `connected: true` と session metadata が返る。token や secret は返らない | 未確認 |
-| 5 | `Disconnect` を実行する | Salesforce revoke が試行され、Cookie 削除後に未接続状態へ戻る | 未確認 |
-| 6 | logout 後に Account / Contact 操作を試す | `Not connected to Salesforce.` 相当のエラーになり、Salesforce API は呼ばれない | 未確認 |
+| No. | 操作 | 期待値 |
+| --- | --- | --- |
+| 1 | 未接続状態でトップ画面を開く | 未接続として表示され、Account / Contact 操作は実行されない |
+| 2 | `Connect Salesforce` を実行する | Salesforce 認可画面へ遷移する |
+| 3 | Salesforce で認可する | アプリへ戻り、接続済み状態になる |
+| 4 | ブラウザの開発者ツールで `GET /api/session` を確認する | `connected: true` と session metadata が返る。token や secret は返らない |
+| 5 | `Disconnect` を実行する | Salesforce revoke が試行され、Cookie 削除後に未接続状態へ戻る |
+| 6 | logout 後に Account / Contact 操作を試す | `Not connected to Salesforce.` 相当のエラーになり、Salesforce API は呼ばれない |
 
 確認時の注意:
 
@@ -58,15 +47,15 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 
 ## Account 操作チェックリスト
 
-| No. | 操作 | 期待値 | 状態 |
-| --- | --- | --- | --- |
-| 1 | 接続後に Account タブを開く | Account 一覧が表示される。権限不足の場合は Salesforce エラーが表示される | 未確認 |
-| 2 | `Name` のみで Account を作成する | 作成成功メッセージが表示され、一覧に追加される | 未確認 |
-| 3 | `Phone`、`Website`、`Industry`、`Type`、`BillingCity`、`BillingCountry` を含めて Account を作成する | 許可フィールドが Salesforce に保存される | 未確認 |
-| 4 | 作成した Account を編集する | 変更内容が一覧に反映される | 未確認 |
-| 5 | 任意項目を空にして保存する | 空文字が `null` として扱われ、対象項目がクリアされる | 未確認 |
-| 6 | 作成した Account を削除する | 一覧から削除される | 未確認 |
-| 7 | `Name` 空欄で作成する | ローカル入力検証または API エラーで作成されない | 未確認 |
+| No. | 操作 | 期待値 |
+| --- | --- | --- |
+| 1 | 接続後に Account タブを開く | Account 一覧が表示される。権限不足の場合は Salesforce エラーが表示される |
+| 2 | `Name` のみで Account を作成する | 作成成功メッセージが表示され、一覧に追加される |
+| 3 | `Phone`、`Website`、`Industry`、`Type`、`BillingCity`、`BillingCountry` を含めて Account を作成する | 許可フィールドが Salesforce に保存される |
+| 4 | 作成した Account を編集する | 変更内容が一覧に反映される |
+| 5 | 任意項目を空にして保存する | 空文字が `null` として扱われ、対象項目がクリアされる |
+| 6 | 作成した Account を削除する | 一覧から削除される |
+| 7 | `Name` 空欄で作成する | ローカル入力検証または API エラーで作成されない |
 
 確認時の注意:
 
@@ -75,15 +64,15 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 
 ## Contact 操作チェックリスト
 
-| No. | 操作 | 期待値 | 状態 |
-| --- | --- | --- | --- |
-| 1 | 接続後に Contact タブを開く | Contact 一覧が表示される。権限不足の場合は Salesforce エラーが表示される | 未確認 |
-| 2 | `LastName` のみで Contact を作成する | 作成成功メッセージが表示され、一覧に追加される | 未確認 |
-| 3 | `FirstName`、`Email`、`Phone`、`Title` を含めて Contact を作成する | 許可フィールドが Salesforce に保存される | 未確認 |
-| 4 | 作成した Contact を編集する | 変更内容が一覧に反映される | 未確認 |
-| 5 | 任意項目を空にして保存する | 空文字が `null` として扱われ、対象項目がクリアされる | 未確認 |
-| 6 | 作成した Contact を削除する | 一覧から削除される | 未確認 |
-| 7 | `LastName` 空欄で作成する | ローカル入力検証または API エラーで作成されない | 未確認 |
+| No. | 操作 | 期待値 |
+| --- | --- | --- |
+| 1 | 接続後に Contact タブを開く | Contact 一覧が表示される。権限不足の場合は Salesforce エラーが表示される |
+| 2 | `LastName` のみで Contact を作成する | 作成成功メッセージが表示され、一覧に追加される |
+| 3 | `FirstName`、`Email`、`Phone`、`Title` を含めて Contact を作成する | 許可フィールドが Salesforce に保存される |
+| 4 | 作成した Contact を編集する | 変更内容が一覧に反映される |
+| 5 | 任意項目を空にして保存する | 空文字が `null` として扱われ、対象項目がクリアされる |
+| 6 | 作成した Contact を削除する | 一覧から削除される |
+| 7 | `LastName` 空欄で作成する | ローカル入力検証または API エラーで作成されない |
 
 確認時の注意:
 
@@ -92,13 +81,13 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 
 ## Contact と Account の紐づけチェックリスト
 
-| No. | 操作 | 期待値 | 状態 |
-| --- | --- | --- | --- |
-| 1 | テスト用 Account を作成する | Contact フォームの Account 選択肢に表示される | 未確認 |
-| 2 | Account を指定して Contact を作成する | Contact 一覧に Account 名が表示される | 未確認 |
-| 3 | 既存 Contact の Account を別 Account に変更する | Contact 一覧の Account 名が変更される | 未確認 |
-| 4 | Contact の Account 紐づけを解除する | `AccountId` がクリアされ、Account 名が表示されない | 未確認 |
-| 5 | 参照権限のない Account ID を指定する | Salesforce の参照整合性または権限エラーになる | 未確認 |
+| No. | 操作 | 期待値 |
+| --- | --- | --- |
+| 1 | テスト用 Account を作成する | Contact フォームの Account 選択肢に表示される |
+| 2 | Account を指定して Contact を作成する | Contact 一覧に Account 名が表示される |
+| 3 | 既存 Contact の Account を別 Account に変更する | Contact 一覧の Account 名が変更される |
+| 4 | Contact の Account 紐づけを解除する | `AccountId` がクリアされ、Account 名が表示されない |
+| 5 | 参照権限のない Account ID を指定する | Salesforce の参照整合性または権限エラーになる |
 
 確認時の注意:
 
@@ -107,13 +96,13 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 
 ## Client Credentials Flow チェックリスト
 
-| No. | 操作 | 期待値 | 状態 |
-| --- | --- | --- | --- |
-| 1 | Integration タブから Account を作成する | ログイン済みセッションと Origin / Referer 検証後、Integration ユーザーで Account が作成される | 未確認 |
-| 2 | `POST /api/integration/accounts` を `x-integration-api-key` 付きで実行する | Integration ユーザーで Account が作成され、`{ id, success }` が返る | 未確認 |
-| 3 | `PATCH /api/integration/accounts/[id]` を `x-integration-api-key` 付きで実行する | Integration ユーザーで Account が更新され、`{}` が返る | 未確認 |
-| 4 | 誤った `x-integration-api-key` で実行する | `Invalid integration API key.` になり、Salesforce token 取得は行われない | 未確認 |
-| 5 | `SALESFORCE_INTEGRATION_LOGIN_URL` を My Domain URL にしていることを確認する | token 取得時に `request not supported on this domain` が発生しない | 未確認 |
+| No. | 操作 | 期待値 |
+| --- | --- | --- |
+| 1 | Integration タブから Account を作成する | ログイン済みセッションと Origin / Referer 検証後、Integration ユーザーで Account が作成される |
+| 2 | `POST /api/integration/accounts` を `x-integration-api-key` 付きで実行する | Integration ユーザーで Account が作成され、`{ id, success }` が返る |
+| 3 | `PATCH /api/integration/accounts/[id]` を `x-integration-api-key` 付きで実行する | Integration ユーザーで Account が更新され、`{}` が返る |
+| 4 | 誤った `x-integration-api-key` で実行する | `Invalid integration API key.` になり、Salesforce token 取得は行われない |
+| 5 | `SALESFORCE_INTEGRATION_LOGIN_URL` を My Domain URL にしていることを確認する | token 取得時に `request not supported on this domain` が発生しない |
 
 curl 例は [Salesforce Integration ユーザー連携設定](salesforce-integration-client-credentials.md) を参照してください。
 
@@ -141,11 +130,11 @@ curl 例は [Salesforce Integration ユーザー連携設定](salesforce-integra
 
 ## 記録ルール
 
+- 実行結果は PR 本文、Issue コメント、または [トラブルシューティング](../operations/troubleshooting.md) に記録する。
+- 記録には確認日、接続先種別、実行したチェック範囲、結果、必要な追加確認内容を含める。
 - 実 URL、Salesforce token、Client Secret、`INTEGRATION_API_KEY`、個人環境固有の値は記録しない。
-- 実 Salesforce 接続で確認できていない項目は、チェックリストの初期状態として `未確認` と書く。
-- 確認後の状態は `確認済み`、`要調査`、`対象外` など、後から判断しやすい表記に更新する。
 - 組織固有の validation rule、権限、共有設定、IP 制限が原因と分かった場合のみ、その事実を記録する。
-- 原因が確認できない場合は断定せず、追加調査項目を `TODO` として残す。
+- 原因が確認できない場合は断定せず、必要なら具体的な追加確認内容を Issue または PR コメントに記録する。
 - 確認で作成した Account / Contact は、確認後に削除する。
 
 ## 関連ドキュメント

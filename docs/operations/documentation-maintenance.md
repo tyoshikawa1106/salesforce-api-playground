@@ -12,7 +12,7 @@
 - `docs` 配下を開発者向け一次情報として扱う。
 - ドキュメントは日本語で記載する。
 - 実装から確認できる内容と、外部サービスの画面や組織設定に依存する内容を分ける。
-- 推測で仕様を書かない。確認できない内容は `TODO` または `未確認` と明記する。
+- 推測で仕様を書かない。確認できる要件、外部サービス依存、実接続で記録する結果を分けて書く。
 - 秘密情報、実 URL、個人環境固有の値は記載しない。
 - 正式なリリースノートは GitHub Releases に集約し、`CHANGELOG.md` へ個別変更履歴を追記しない。
 
@@ -30,9 +30,9 @@
 | Heroku の設定、Staging / Production、promote 判断 | `docs/deployment` | Heroku app 名や実 URL は書かない |
 | Issue / PR / CI / release / docs 保守 | `docs/operations` | 現行運用として従う手順を書く |
 | 作業開始、変更後セルフレビュー、PR 前確認 | `docs/operations/development-checklist.md` | 実装詳細ではなく、確認順序と参照先を整理する |
-| 障害やエラーの切り分け | `docs/operations/troubleshooting.md` | 原因が未確認なら断定しない |
+| 障害やエラーの切り分け | `docs/operations/troubleshooting.md` | 原因が確認できるまで断定しない |
 | 比較、背景理解、学習メモ | `docs/knowledge` | 現行手順としては扱わない |
-| 採用した設計判断と見直し条件 | `docs/decisions` | 決定済みの内容と未確認事項を分ける |
+| 採用した設計判断と見直し条件 | `docs/decisions` | 決定済みの内容だけを書く |
 
 ## 更新が必要になりやすい変更
 
@@ -58,7 +58,7 @@
 | 重複 | 同じ詳細手順を複数箇所に増やしていないか |
 | 用語 | Account、Contact、Integration API、Staging / Production などの表記が既存 docs と揃っているか |
 | 秘密情報 | Heroku app 名、実 URL、Salesforce token、Client Secret、My Domain 実値を含まないか |
-| 未確認事項 | 外部サービスの最新画面、組織固有設定、実接続結果を断定していないか |
+| 確認境界 | 外部サービスの最新画面、組織固有設定、実接続結果を断定していないか |
 | 関連リンク | 変更した docs から関連 docs へ戻れるか |
 | 確認コマンド | 変更内容に対して最小限の確認コマンドを選べているか |
 

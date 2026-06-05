@@ -29,18 +29,3 @@ body:
       description: 本来どうなるべきかを書いてください。
     validations:
       required: false
-  - type: dropdown
-    id: area
-    attributes:
-      label: 影響範囲
-      description: 分かる範囲で選んでください。迷う場合は未確認のままで構いません。
-      options:
-        - 未確認
-        - Salesforce / API
-        - UI / SLDS
-        - GitHub / CI
-        - Heroku / デプロイ
-        - docs / README
-        - テスト
-    validations:
-      required: false

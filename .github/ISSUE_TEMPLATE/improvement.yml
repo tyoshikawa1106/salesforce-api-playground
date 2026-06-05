@@ -26,18 +26,3 @@ body:
       description: 影響しそうな画面、API、docs、運用などを書いてください。
     validations:
       required: false
-  - type: dropdown
-    id: area
-    attributes:
-      label: 主な影響範囲
-      description: 後から `area:*` label を付けるときの手がかりにします。
-      options:
-        - 未確認
-        - docs / README
-        - GitHub / CI
-        - Heroku / デプロイ
-        - Salesforce / API
-        - UI / SLDS
-        - テスト
-    validations:
-      required: false

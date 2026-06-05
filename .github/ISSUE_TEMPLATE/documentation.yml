@@ -24,21 +24,6 @@ body:
     id: notes
     attributes:
       label: 補足
-      description: 未確認事項や注意点があれば書いてください。
-    validations:
-      required: false
-  - type: dropdown
-    id: area
-    attributes:
-      label: 影響範囲
-      description: docs 以外にも関係する領域があれば選んでください。
-      options:
-        - docs / README
-        - GitHub / CI
-        - Heroku / デプロイ
-        - Salesforce / API
-        - UI / SLDS
-        - テスト
-        - 未確認
+      description: 注意点や判断材料があれば書いてください。
     validations:
       required: false
