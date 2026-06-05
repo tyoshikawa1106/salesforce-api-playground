@@ -4,6 +4,12 @@ import { type MouseEvent } from "react";
 import { UtilityIcon, type UtilityIconName } from "./SldsIcon";
 import { actionPopoverIds, type ActionPopoverLabel } from "./useGlobalHeaderMenus";
 
+const actionPopoverButtons: { icon: UtilityIconName; label: ActionPopoverLabel }[] = [
+    { icon: "add", label: "グローバルアクション" },
+    { icon: "help", label: "ヘルプ" },
+    { icon: "settings", label: "設定" }
+];
+
 export function GlobalHeaderActions({
     activeActionPopover,
     cancelActionPopoverClose,
@@ -29,36 +35,19 @@ export function GlobalHeaderActions({
 }) {
     return (
         <ul className="slds-global-actions" aria-label="グローバルアクション">
-            <GlobalActionButton
-                icon="add"
-                label="グローバルアクション"
-                popupId={actionPopoverIds["グローバルアクション"]}
-                popupMessage="グローバルアクション"
-                popupOpen={activeActionPopover === "グローバルアクション"}
-                onClick={() => toggleActionPopover("グローバルアクション")}
-                onMouseEnter={cancelActionPopoverClose}
-                onMouseLeave={scheduleActionPopoverClose}
-            />
-            <GlobalActionButton
-                icon="help"
-                label="ヘルプ"
-                popupId={actionPopoverIds["ヘルプ"]}
-                popupMessage="ヘルプ"
-                popupOpen={activeActionPopover === "ヘルプ"}
-                onClick={() => toggleActionPopover("ヘルプ")}
-                onMouseEnter={cancelActionPopoverClose}
-                onMouseLeave={scheduleActionPopoverClose}
-            />
-            <GlobalActionButton
-                icon="settings"
-                label="設定"
-                popupId={actionPopoverIds["設定"]}
-                popupMessage="設定"
-                popupOpen={activeActionPopover === "設定"}
-                onClick={() => toggleActionPopover("設定")}
-                onMouseEnter={cancelActionPopoverClose}
-                onMouseLeave={scheduleActionPopoverClose}
-            />
+            {actionPopoverButtons.map(({ icon, label }) => (
+                <GlobalActionButton
+                    key={label}
+                    icon={icon}
+                    label={label}
+                    popupId={actionPopoverIds[label]}
+                    popupMessage={label}
+                    popupOpen={activeActionPopover === label}
+                    onClick={() => toggleActionPopover(label)}
+                    onMouseEnter={cancelActionPopoverClose}
+                    onMouseLeave={scheduleActionPopoverClose}
+                />
+            ))}
             <GlobalActionButton
                 icon="notification"
                 label="通知"
