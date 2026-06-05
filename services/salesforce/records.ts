@@ -1,5 +1,4 @@
-import type { Connection, DescribeSObjectResult, SaveResult } from "jsforce";
-import { SalesforceApiError } from "@/lib/salesforce/client";
+import type { Connection, SaveResult } from "jsforce";
 import type {
     AccountInput,
     AccountRecord,
@@ -16,6 +15,7 @@ import {
     withIntegrationConnection,
     withStandardObjectConnection
 } from "./client";
+import { assertObjectPermission } from "./object-permissions";
 
 const accountListQuery = [
     "SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate",
@@ -47,16 +47,6 @@ type BulkDeleteResult = {
 type SalesforceRecordConnectionRunner<TData, TResult> = (
     operation: (connection: Connection) => Promise<TData>
 ) => Promise<TResult>;
-type ObjectPermission = "queryable" | "searchable" | "createable" | "updateable" | "deletable";
-type ObjectPermissionActionLabel = "参照" | "検索" | "作成" | "更新" | "削除";
-
-const objectPermissionActionLabels: Record<ObjectPermission, ObjectPermissionActionLabel> = {
-    queryable: "参照",
-    searchable: "検索",
-    createable: "作成",
-    updateable: "更新",
-    deletable: "削除"
-};
 
 function escapeSoslTerm(term: string): string {
     return term.replace(soslReservedCharacters, "\\$&");
@@ -113,22 +103,6 @@ function toSearchResultItem(record: SalesforceSearchRecord): SearchResultItem | 
     }
 
     return null;
-}
-
-async function assertObjectPermission(
-    connection: Connection,
-    objectName: string,
-    permission: ObjectPermission
-): Promise<DescribeSObjectResult> {
-    const describe = await connection.sobject(objectName).describe();
-    if (!describe[permission]) {
-        throw new SalesforceApiError(
-            `${objectName} の${objectPermissionActionLabels[permission]}権限がありません。`,
-            403
-        );
-    }
-
-    return describe;
 }
 
 function createObject<TInput extends object, TResult>(
