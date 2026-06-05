@@ -43,6 +43,7 @@ type UpdateIntegrationRecord<TInput, TData> = (
     id: string,
     input: TInput
 ) => Promise<SalesforceIntegrationRouteResult<TData>>;
+type IntegrationRouteAuth = (request: Pick<Request, "headers">) => Promise<void> | void;
 
 export async function handleSalesforceRoute<T>(
     handler: () => Promise<SalesforceRouteResult<T>>,
@@ -125,17 +126,43 @@ export async function handleSalesforceIntegrationRoute<T>(
     }
 }
 
+function assertIntegrationApiKeyRequest(request: Pick<Request, "headers">) {
+    assertIntegrationApiKey(request);
+}
+
+async function assertIntegrationUiSessionRequest(request: Pick<Request, "headers">) {
+    assertSameOriginRequest(request);
+    const session = await getSession();
+    if (!session) {
+        throw new SalesforceApiError("Salesforce session is required.", 401);
+    }
+}
+
+function handleSalesforceIntegrationCreateRouteWithAuth<TInput, TData>(
+    request: MutatingRequest,
+    authenticate: IntegrationRouteAuth,
+    readPayload: ReadPayload<TInput>,
+    createRecord: CreateIntegrationRecord<TInput, TData>
+): Promise<NextResponse> {
+    return handleSalesforceIntegrationRoute(async () => {
+        await authenticate(request);
+        const input = await readPayload(request);
+        const { data } = await createRecord(input);
+        return data;
+    }, 201);
+}
+
 export function handleSalesforceIntegrationCreateRoute<TInput, TData>(
     request: MutatingRequest,
     readPayload: ReadPayload<TInput>,
     createRecord: CreateIntegrationRecord<TInput, TData>
 ): Promise<NextResponse> {
-    return handleSalesforceIntegrationRoute(async () => {
-        assertIntegrationApiKey(request);
-        const input = await readPayload(request);
-        const { data } = await createRecord(input);
-        return data;
-    }, 201);
+    return handleSalesforceIntegrationCreateRouteWithAuth(
+        request,
+        assertIntegrationApiKeyRequest,
+        readPayload,
+        createRecord
+    );
 }
 
 export function handleSalesforceIntegrationUpdateRoute<TInput, TData>(
@@ -147,7 +174,7 @@ export function handleSalesforceIntegrationUpdateRoute<TInput, TData>(
 ): Promise<NextResponse> {
     return handleSalesforceIntegrationRoute(async () => {
         const { id } = await params;
-        assertIntegrationApiKey(request);
+        assertIntegrationApiKeyRequest(request);
         assertSalesforceRecordId(id, objectLabel);
         const input = await readPayload(request);
         const { data } = await updateRecord(id, input);
@@ -160,15 +187,10 @@ export function handleSalesforceIntegrationUiCreateRoute<TInput, TData>(
     readPayload: ReadPayload<TInput>,
     createRecord: CreateIntegrationRecord<TInput, TData>
 ): Promise<NextResponse> {
-    return handleSalesforceIntegrationRoute(async () => {
-        assertSameOriginRequest(request);
-        const session = await getSession();
-        if (!session) {
-            throw new SalesforceApiError("Salesforce session is required.", 401);
-        }
-
-        const input = await readPayload(request);
-        const { data } = await createRecord(input);
-        return data;
-    }, 201);
+    return handleSalesforceIntegrationCreateRouteWithAuth(
+        request,
+        assertIntegrationUiSessionRequest,
+        readPayload,
+        createRecord
+    );
 }
