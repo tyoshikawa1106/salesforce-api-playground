@@ -1,7 +1,3 @@
----
-title: Playground UI 操作フロー棚卸し
----
-
 # Playground UI 操作フロー棚卸し
 
 ## 目的

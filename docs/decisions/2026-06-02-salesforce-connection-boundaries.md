@@ -1,7 +1,3 @@
----
-title: Salesforce 接続責務を lib と services に分離する
----
-
 # Salesforce 接続責務を lib と services に分離する
 
 ## 日付

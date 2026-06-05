@@ -1,7 +1,3 @@
----
-title: Heroku Pipeline で Staging から Production へ昇格する
----
-
 # Heroku Pipeline で Staging から Production へ昇格する
 
 ## 日付

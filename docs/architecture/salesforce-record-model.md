@@ -1,7 +1,3 @@
----
-title: Salesforce レコードモデル
----
-
 # Salesforce レコードモデル
 
 ## 目的
