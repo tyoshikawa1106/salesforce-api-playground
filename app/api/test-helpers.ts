@@ -22,6 +22,41 @@ export const dummySalesforceSession: SalesforceSession = {
     userId: "005xx0000012345"
 };
 
+export const testAppOrigin = "https://app.example.test";
+
+type ApiRequestOptions = {
+    method?: string;
+    body?: unknown;
+    origin?: string | null;
+    headers?: HeadersInit;
+};
+
+export function apiRequest(path: string, options: ApiRequestOptions = {}): Request {
+    const headers = new Headers(options.headers);
+
+    if (options.origin !== null) {
+        headers.set("origin", options.origin ?? testAppOrigin);
+    }
+
+    const init: RequestInit = {
+        method: options.method ?? "GET",
+        headers
+    };
+
+    if (options.body !== undefined) {
+        headers.set("content-type", headers.get("content-type") ?? "application/json");
+        init.body = JSON.stringify(options.body);
+    }
+
+    return new Request(`${testAppOrigin}${path}`, init);
+}
+
+export function routeParams(id: string): { params: Promise<{ id: string }> } {
+    return {
+        params: Promise.resolve({ id })
+    };
+}
+
 export function nextRequest(
     url: string,
     init?: ConstructorParameters<typeof NextRequest>[1]
@@ -30,14 +65,7 @@ export function nextRequest(
 }
 
 export function jsonRequest(body: unknown, method = "POST"): Request {
-    return new Request("https://app.example.test/api", {
-        method,
-        headers: {
-            "content-type": "application/json",
-            origin: "https://app.example.test"
-        },
-        body: JSON.stringify(body)
-    });
+    return apiRequest("/api", { method, body });
 }
 
 export async function expectJson(response: Response, expected: unknown): Promise<void> {

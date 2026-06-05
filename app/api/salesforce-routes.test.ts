@@ -29,7 +29,7 @@ import {
     updateAccount,
     updateContact
 } from "@/services/salesforce/records";
-import { dummySalesforceSession, expectJson, jsonRequest } from "./test-helpers";
+import { apiRequest, dummySalesforceSession, expectJson, jsonRequest, routeParams } from "./test-helpers";
 
 vi.mock("@/lib/salesforce/client", () => ({
     SalesforceApiError: class SalesforceApiError extends Error {
@@ -146,9 +146,7 @@ describe("Account API route", () => {
         readAccountUpdatePayloadMock.mockResolvedValue(payload);
         updateAccountMock.mockResolvedValue({ data, session });
 
-        const response = await accountRecordRoute.PATCH(request, {
-            params: Promise.resolve({ id: "001xx000003DGbY" })
-        });
+        const response = await accountRecordRoute.PATCH(request, routeParams("001xx000003DGbY"));
 
         expect(readAccountUpdatePayloadMock).toHaveBeenCalledWith(request);
         expect(updateAccountMock).toHaveBeenCalledWith("001xx000003DGbY", payload);
@@ -156,18 +154,11 @@ describe("Account API route", () => {
     });
 
     it("deletes an account with DELETE /sobjects/Account/{id} and no body", async () => {
-        const request = new Request("https://app.example.test/api/accounts/001xx000003DGbY", {
-            method: "DELETE",
-            headers: {
-                origin: "https://app.example.test"
-            }
-        });
+        const request = apiRequest("/api/accounts/001xx000003DGbY", { method: "DELETE" });
         const data = {};
         deleteAccountMock.mockResolvedValue({ data, session });
 
-        const response = await accountRecordRoute.DELETE(request, {
-            params: Promise.resolve({ id: "001xx000003DGbY" })
-        });
+        const response = await accountRecordRoute.DELETE(request, routeParams("001xx000003DGbY"));
 
         expect(deleteAccountMock).toHaveBeenCalledWith("001xx000003DGbY");
         await expectJson(response, data);
@@ -193,13 +184,10 @@ describe("Account API route", () => {
     });
 
     it("rejects account mutations from another origin before calling Salesforce", async () => {
-        const request = new Request("https://app.example.test/api/accounts", {
+        const request = apiRequest("/api/accounts", {
             method: "POST",
-            headers: {
-                origin: "https://evil.example.test",
-                "content-type": "application/json"
-            },
-            body: JSON.stringify({ Name: "Acme" })
+            origin: "https://evil.example.test",
+            body: { Name: "Acme" }
         });
 
         const response = await accountRoute.POST(request);
@@ -213,9 +201,7 @@ describe("Account API route", () => {
     it("rejects invalid account ids before calling Salesforce", async () => {
         const request = jsonRequest({ Phone: "03-1234-5678" }, "PATCH");
 
-        const response = await accountRecordRoute.PATCH(request, {
-            params: Promise.resolve({ id: "003xx000004TmiQ" })
-        });
+        const response = await accountRecordRoute.PATCH(request, routeParams("003xx000004TmiQ"));
 
         expect(readAccountUpdatePayloadMock).not.toHaveBeenCalled();
         expect(updateAccountMock).not.toHaveBeenCalled();
@@ -270,9 +256,7 @@ describe("Contact API route", () => {
         readContactUpdatePayloadMock.mockResolvedValue(payload);
         updateContactMock.mockResolvedValue({ data, session });
 
-        const response = await contactRecordRoute.PATCH(request, {
-            params: Promise.resolve({ id: "003xx000004TmiQ" })
-        });
+        const response = await contactRecordRoute.PATCH(request, routeParams("003xx000004TmiQ"));
 
         expect(readContactUpdatePayloadMock).toHaveBeenCalledWith(request);
         expect(updateContactMock).toHaveBeenCalledWith("003xx000004TmiQ", payload);
@@ -280,18 +264,11 @@ describe("Contact API route", () => {
     });
 
     it("deletes a contact with DELETE /sobjects/Contact/{id} and no body", async () => {
-        const request = new Request("https://app.example.test/api/contacts/003xx000004TmiQ", {
-            method: "DELETE",
-            headers: {
-                origin: "https://app.example.test"
-            }
-        });
+        const request = apiRequest("/api/contacts/003xx000004TmiQ", { method: "DELETE" });
         const data = {};
         deleteContactMock.mockResolvedValue({ data, session });
 
-        const response = await contactRecordRoute.DELETE(request, {
-            params: Promise.resolve({ id: "003xx000004TmiQ" })
-        });
+        const response = await contactRecordRoute.DELETE(request, routeParams("003xx000004TmiQ"));
 
         expect(deleteContactMock).toHaveBeenCalledWith("003xx000004TmiQ");
         await expectJson(response, data);
@@ -317,13 +294,10 @@ describe("Contact API route", () => {
     });
 
     it("rejects contact mutations from another origin before calling Salesforce", async () => {
-        const request = new Request("https://app.example.test/api/contacts", {
+        const request = apiRequest("/api/contacts", {
             method: "POST",
-            headers: {
-                origin: "https://evil.example.test",
-                "content-type": "application/json"
-            },
-            body: JSON.stringify({ LastName: "Yamada" })
+            origin: "https://evil.example.test",
+            body: { LastName: "Yamada" }
         });
 
         const response = await contactRoute.POST(request);
@@ -337,9 +311,7 @@ describe("Contact API route", () => {
     it("rejects invalid contact ids before calling Salesforce", async () => {
         const request = jsonRequest({ Title: "Manager" }, "PATCH");
 
-        const response = await contactRecordRoute.PATCH(request, {
-            params: Promise.resolve({ id: "001xx000003DGbY" })
-        });
+        const response = await contactRecordRoute.PATCH(request, routeParams("001xx000003DGbY"));
 
         expect(readContactUpdatePayloadMock).not.toHaveBeenCalled();
         expect(updateContactMock).not.toHaveBeenCalled();
@@ -359,7 +331,7 @@ describe("Global search API route", () => {
         searchAccountsAndContactsMock.mockResolvedValue({ data: { results }, session });
 
         const response = await searchRoute.GET(
-            new Request("https://app.example.test/api/search?q=Acme")
+            apiRequest("/api/search?q=Acme")
         );
 
         expect(searchAccountsAndContactsMock).toHaveBeenCalledWith("Acme");
@@ -369,7 +341,7 @@ describe("Global search API route", () => {
 
     it("rejects short search queries before calling Salesforce", async () => {
         const response = await searchRoute.GET(
-            new Request("https://app.example.test/api/search?q=A")
+            apiRequest("/api/search?q=A")
         );
 
         expect(searchAccountsAndContactsMock).not.toHaveBeenCalled();
@@ -379,7 +351,7 @@ describe("Global search API route", () => {
 
     it("rejects missing search queries before calling Salesforce", async () => {
         const response = await searchRoute.GET(
-            new Request("https://app.example.test/api/search")
+            apiRequest("/api/search")
         );
 
         expect(searchAccountsAndContactsMock).not.toHaveBeenCalled();
@@ -393,7 +365,7 @@ describe("Global search API route", () => {
         searchAccountsAndContactsMock.mockResolvedValue({ data: { results }, session });
 
         const response = await searchRoute.GET(
-            new Request(`https://app.example.test/api/search?q=${encodeURIComponent(longQuery)}`)
+            apiRequest(`/api/search?q=${encodeURIComponent(longQuery)}`)
         );
 
         expect(searchAccountsAndContactsMock).toHaveBeenCalledWith("A".repeat(80));
@@ -417,9 +389,10 @@ describe("Salesforce API route error handling", () => {
         readContactUpdatePayloadMock.mockResolvedValue({ Title: "Manager" });
         updateContactMock.mockRejectedValue(error);
 
-        const response = await contactRecordRoute.PATCH(jsonRequest({ Title: "Manager" }, "PATCH"), {
-            params: Promise.resolve({ id: "003xx000004TmiQ" })
-        });
+        const response = await contactRecordRoute.PATCH(
+            jsonRequest({ Title: "Manager" }, "PATCH"),
+            routeParams("003xx000004TmiQ")
+        );
 
         expect(salesforceErrorResponseMock).toHaveBeenCalledWith(error);
         await expectJson(response, { error: "Salesforce failed" });

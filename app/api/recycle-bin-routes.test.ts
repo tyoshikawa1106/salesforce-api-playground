@@ -10,7 +10,7 @@ import {
     listRecycleBinItems,
     undeleteRecycleBinItems
 } from "@/services/salesforce/recycle-bin";
-import { dummySalesforceSession, expectJson, jsonRequest } from "./test-helpers";
+import { apiRequest, dummySalesforceSession, expectJson, jsonRequest } from "./test-helpers";
 
 vi.mock("@/lib/salesforce/client", () => ({
     SalesforceApiError: class SalesforceApiError extends Error {
@@ -111,13 +111,10 @@ describe("Recycle Bin API routes", () => {
     });
 
     it("rejects undelete requests from another origin before reading payload", async () => {
-        const request = new Request("https://app.example.test/api/recycle-bin/undelete", {
+        const request = apiRequest("/api/recycle-bin/undelete", {
             method: "POST",
-            headers: {
-                origin: "https://evil.example.test",
-                "content-type": "application/json"
-            },
-            body: JSON.stringify({ items: [{ objectApiName: "Account", id: "001xx000003DGbY" }] })
+            origin: "https://evil.example.test",
+            body: { items: [{ objectApiName: "Account", id: "001xx000003DGbY" }] }
         });
 
         const response = await recycleBinUndeleteRoute.POST(request);
