@@ -8,7 +8,11 @@ body:
     id: summary
     attributes:
       label: 問題
-      description: 何が起きているかを簡潔に書いてください。
+      description: 何が起きているか、対象の画面・API・ファイル、影響範囲を書いてください。
+      placeholder: |
+        対象:
+        発生している問題:
+        影響範囲:
     validations:
       required: true
   - type: textarea
@@ -26,6 +30,6 @@ body:
     id: expected
     attributes:
       label: 期待する動作
-      description: 本来どうなるべきかを書いてください。
+      description: 本来どうなるべきか、確認済みの前提や今回扱わない範囲があれば書いてください。
     validations:
       required: false
