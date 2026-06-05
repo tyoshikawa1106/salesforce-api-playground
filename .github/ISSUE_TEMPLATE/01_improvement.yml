@@ -1,6 +1,6 @@
-name: 改善メモ
-description: 機能改善、UI 改善、運用改善を記録する
-title: "[Improvement] "
+name: 機能・改善
+description: 機能追加、UI、ドキュメント、運用の改善を記録する
+title: "[Feature/Improvement] "
 labels:
   - enhancement
   - type:improvement
@@ -8,8 +8,8 @@ body:
   - type: textarea
     id: summary
     attributes:
-      label: 概要
-      description: 改善したい内容を簡潔に書いてください。
+      label: 内容
+      description: 改善したい内容を書いてください。
     validations:
       required: true
   - type: textarea
@@ -20,9 +20,9 @@ body:
     validations:
       required: false
   - type: textarea
-    id: scope
+    id: notes
     attributes:
-      label: 対象範囲
-      description: 影響しそうな画面、API、docs、運用などを書いてください。
+      label: 補足
+      description: 関連する画面、API、docs、運用、判断材料などがあれば書いてください。
     validations:
       required: false

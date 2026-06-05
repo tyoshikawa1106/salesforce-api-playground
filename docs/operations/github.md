@@ -135,16 +135,15 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - Issue が Pull Request で解決される場合は、PR 本文やコメントで Issue 番号を参照する。
 - GitHub の Issue 自動クローズは default branch へのマージ時に closing keyword を解釈するため、PR が Issue を完了させる場合は `Closes #<Issue番号>` などを PR body に記載する。
 - Issue template は `.github/ISSUE_TEMPLATE` 配下で管理する。
-- Issue template は入力項目を増やしすぎず、概要、対象範囲、補足など最小限の項目にする。
+- Issue template は入力項目を増やしすぎず、問題、内容、目的、対象、補足など最小限の項目にする。
 - Issue template の初期 label は、作成時に判断できる範囲に限定する。必要な `area:*`、milestone、Project は triage または PR 作成時に設定する。
 
 ### Issue template の使い分け
 
 | Template | 用途 |
 | --- | --- |
+| `機能・改善` | 機能追加、UI、ドキュメント、運用の改善を記録する |
 | `不具合報告` | 動作不良や想定外の挙動を記録する |
-| `改善メモ` | 機能改善、UI 改善、運用改善を記録する |
-| `ドキュメント改善` | README や docs の追加・修正を記録する |
 
 ## Pull Request 運用
 
@@ -190,7 +189,8 @@ main -> codex/... -> main
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Pull Request 作成後は、Project への自動追加結果、milestone の設定漏れ、label の設定漏れがないか確認する。
-- Pull Request template の管理情報欄には、主な影響範囲、milestone / Project / label の設定状態、ready for review 条件を簡潔に記載する。
+- Pull Request template には、関連 Issue、変更内容、チェック結果、レビュー観点を記載する。
+- milestone、Project、label、Draft / Ready for review 状態は GitHub の管理情報として扱い、PR 本文で二重管理しない。
 - Draft PR 作成後は、CI / CodeQL など required checks の結果を確認し、pass したら ready for review へ変更する。最終報告前に `isDraft: false` または GitHub UI 上の ready 状態を確認する。
 - CI が pending の間は ready for review にしない。時間の都合で待機を中断する場合は、draft のままであることと pending check を最終報告に明記する。
 - Codex が Pull Request の milestone / Project を設定できない場合は、PR 本文または最終報告に未設定理由を記載し、手動設定対象として扱う。
