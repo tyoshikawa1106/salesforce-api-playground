@@ -103,9 +103,9 @@
 - UI / CSS / SLDS 構造の変更: 影響範囲に応じて `npm run slds:lint` / `npm run lint` / `npm run typecheck` / `npm run test:coverage` を選ぶ
 - ビルド設定、Next.js 設定、依存関係、環境変数の扱い、広範囲な UI 変更: `npm run build` を含める
 - PR 作成前、外部共有前、CI 失敗後の修正確認、変更範囲が広い場合は full check（`npm run lint` / `npm run slds:lint` / `npm run typecheck` / `npm run test:coverage` / `npm run build`）を推奨する
-- 実行しない項目がある場合は PR 本文に理由を書く。
-- 未実行の確認は、変更内容のレビュー判断に関係する項目のみ記載する。
+- 実行しない項目がある場合は、レビュー判断に関係するものだけ PR 本文に理由を書く。
+- 実 Salesforce 接続のように Codex 作業で恒常的に実施しない確認は、Salesforce 接続や手動確認がレビュー判断に関係する変更の場合だけ記載する。
 
 ## PR Body
 
-PR 本文は `.github/pull_request_template.md` に従う。動作確認は表形式で、各コマンドの正常 / 異常を明記する。
+PR 本文は `.github/pull_request_template.md` に従う。チェック結果は表形式で、実行 / 未実行の種別と、各コマンドまたはチェック項目の正常 / 異常を明記する。
