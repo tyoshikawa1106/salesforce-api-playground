@@ -1,4 +1,4 @@
-import type { Connection, SaveResult } from "jsforce";
+import type { SaveResult } from "jsforce";
 import type {
     AccountInput,
     AccountRecord,
@@ -9,12 +9,15 @@ import type {
     SearchResultItem,
     SalesforceQueryResponse
 } from "@/lib/salesforce/records";
+import { withStandardObjectConnection } from "./client";
 import {
-    createdSalesforceResult,
-    emptySalesforceResult,
-    withIntegrationConnection,
-    withStandardObjectConnection
-} from "./client";
+    createIntegrationStandardObject,
+    createStandardObject,
+    deleteStandardObject,
+    deleteStandardObjects,
+    updateIntegrationStandardObject,
+    updateStandardObject
+} from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
 const accountListQuery = [
@@ -38,15 +41,6 @@ type SalesforceSearchRecord = Partial<AccountRecord & ContactRecord> & {
         type?: string;
     };
 };
-
-type CreatedRecordResult = ReturnType<typeof createdSalesforceResult>;
-type EmptyRecordResult = ReturnType<typeof emptySalesforceResult>;
-type BulkDeleteResult = {
-    results: SaveResult[];
-};
-type SalesforceRecordConnectionRunner<TData, TResult> = (
-    operation: (connection: Connection) => Promise<TData>
-) => Promise<TResult>;
 
 function escapeSoslTerm(term: string): string {
     return term.replace(soslReservedCharacters, "\\$&");
@@ -103,81 +97,6 @@ function toSearchResultItem(record: SalesforceSearchRecord): SearchResultItem | 
     }
 
     return null;
-}
-
-function createObject<TInput extends object, TResult>(
-    runWithConnection: SalesforceRecordConnectionRunner<CreatedRecordResult, TResult>,
-    objectName: string,
-    input: TInput
-) {
-    return runWithConnection(async (connection) => {
-        await assertObjectPermission(connection, objectName, "createable");
-        const result = await connection.sobject(objectName).create(input);
-        return createdSalesforceResult(result);
-    });
-}
-
-function updateObject<TInput extends object, TResult>(
-    runWithConnection: SalesforceRecordConnectionRunner<EmptyRecordResult, TResult>,
-    objectName: string,
-    id: string,
-    input: TInput
-) {
-    return runWithConnection(async (connection) => {
-        await assertObjectPermission(connection, objectName, "updateable");
-        const result = await connection.sobject(objectName).update({ Id: id, ...input });
-        return emptySalesforceResult(result);
-    });
-}
-
-function deleteObject<TResult>(
-    runWithConnection: SalesforceRecordConnectionRunner<EmptyRecordResult, TResult>,
-    objectName: string,
-    id: string
-) {
-    return runWithConnection(async (connection) => {
-        await assertObjectPermission(connection, objectName, "deletable");
-        const result = await connection.sobject(objectName).destroy(id);
-        return emptySalesforceResult(result);
-    });
-}
-
-function deleteObjects<TResult>(
-    runWithConnection: SalesforceRecordConnectionRunner<BulkDeleteResult, TResult>,
-    objectName: string,
-    ids: string[]
-) {
-    return runWithConnection(async (connection) => {
-        await assertObjectPermission(connection, objectName, "deletable");
-        const results = await connection.sobject(objectName).destroy(ids);
-        return {
-            results: Array.isArray(results) ? results : [results]
-        };
-    });
-}
-
-function createStandardObject<TInput extends object>(objectName: string, input: TInput) {
-    return createObject(withStandardObjectConnection, objectName, input);
-}
-
-function updateStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
-    return updateObject(withStandardObjectConnection, objectName, id, input);
-}
-
-function deleteStandardObject(objectName: string, id: string) {
-    return deleteObject(withStandardObjectConnection, objectName, id);
-}
-
-function deleteStandardObjects(objectName: string, ids: string[]) {
-    return deleteObjects(withStandardObjectConnection, objectName, ids);
-}
-
-function createIntegrationStandardObject<TInput extends object>(objectName: string, input: TInput) {
-    return createObject(withIntegrationConnection, objectName, input);
-}
-
-function updateIntegrationStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
-    return updateObject(withIntegrationConnection, objectName, id, input);
 }
 
 export async function listAccounts() {
