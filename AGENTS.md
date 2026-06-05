@@ -45,6 +45,9 @@
 - PR が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Codex が GitHub Connector または `gh` で milestone / Project を安全に設定できない場合は、PR 本文または最終報告に未設定理由を記載し、手動設定対象として扱う。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
+- トークン消費を抑えるため、通常開発ではエージェントは原則として PR 作成、checks 確認、ready for review 化までを担当し、PR の merge はユーザーが行う。
+- ユーザーが明示的に PR merge まで依頼した場合のみ、エージェントは checks pass、ready for review 化、merge、`main` 同期、マージ済み作業ブランチ削除まで実施してよい。
+- 複数 Issue を連続対応する場合、merge 後処理や状態確認は必要最小限の GitHub API 項目に絞り、Issue / PR / checks の詳細本文を繰り返し取得しすぎない。
 - 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
 - Dependabot PR をエージェントが merge する場合も、`main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
 - PR マージ前に GitHub Actions が pass していることを確認する。
