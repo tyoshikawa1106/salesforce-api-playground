@@ -6,7 +6,7 @@ import {
     blankAccount,
     blankContact,
     contactRecordToForm
-} from "./Forms";
+} from "./record-forms";
 import {
     createIntegrationAccountMutation,
     deleteRecordMutation,

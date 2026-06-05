@@ -6,7 +6,7 @@ import {
     saveAccountMutation,
     saveContactMutation
 } from "./mutations";
-import { blankAccount, blankContact } from "./Forms";
+import { blankAccount, blankContact } from "./record-forms";
 import type { Account, Contact, DeleteState, ModalState } from "./types";
 
 const account: Account = {
