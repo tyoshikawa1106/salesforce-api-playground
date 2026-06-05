@@ -11,7 +11,7 @@ import {
     updateIntegrationAccount
 } from "@/services/salesforce/records";
 import { getSession } from "@/lib/salesforce/session";
-import { expectJson } from "./test-helpers";
+import { expectJson, routeParams } from "./test-helpers";
 
 vi.mock("@/lib/salesforce/client", () => ({
     SalesforceApiError: class SalesforceApiError extends Error {
@@ -120,9 +120,7 @@ describe("Integration Account API route", () => {
         readAccountUpdatePayloadMock.mockResolvedValue(payload);
         updateIntegrationAccountMock.mockResolvedValue({ data: {} });
 
-        const response = await integrationAccountRecordRoute.PATCH(request, {
-            params: Promise.resolve({ id: "001xx000003DGbY" })
-        });
+        const response = await integrationAccountRecordRoute.PATCH(request, routeParams("001xx000003DGbY"));
 
         expect(readAccountUpdatePayloadMock).toHaveBeenCalledWith(request);
         expect(updateIntegrationAccountMock).toHaveBeenCalledWith("001xx000003DGbY", payload);
@@ -143,9 +141,7 @@ describe("Integration Account API route", () => {
     it("rejects invalid account ids before calling Salesforce", async () => {
         const request = integrationRequest({ Phone: "03-1234-5678" }, "PATCH");
 
-        const response = await integrationAccountRecordRoute.PATCH(request, {
-            params: Promise.resolve({ id: "003xx000004TmiQ" })
-        });
+        const response = await integrationAccountRecordRoute.PATCH(request, routeParams("003xx000004TmiQ"));
 
         expect(readAccountUpdatePayloadMock).not.toHaveBeenCalled();
         expect(updateIntegrationAccountMock).not.toHaveBeenCalled();
