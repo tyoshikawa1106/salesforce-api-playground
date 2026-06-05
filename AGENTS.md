@@ -32,7 +32,7 @@
 - Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
 - `main` へ直接コミットしない。
 - コミットは作業単位で分割し、コミットメッセージは `<type>: <summary>` の形式で書く。
-- 通常開発 PR の title も `<type>: <summary>` の形式で書き、PR 全体の主目的に合う type を使う。
+- 通常開発 PR の title も `<type>: <日本語summary>` の形式で書き、PR 全体の主目的に合う type を使う。summary は原則として日本語で、変更内容が具体的に分かる表現にする。
 - `type` は `feat`、`fix`、`docs`、`test`、`refactor`、`style`、`ci`、`chore` から選ぶ。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
 - Draft PR を作成した通常開発作業では、最終報告前に PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
@@ -41,7 +41,9 @@
 - GitHub が自動生成する merge commit message は、この形式の対象外とする。
 - PR が Issue を完了させる場合は、body に `Closes #<Issue番号>` などの GitHub closing keyword を記載し、`main` へのマージ時に Issue が自動クローズされるようにする。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
-- Issue / PR は原則として適切な milestone と Project `Salesforce API Playground` に紐付ける。
+- Issue の背景には、対象ファイルや画面、現状の問題、放置した場合のリスク、対応する理由を具体的に書く。抽象的な「整理する」「改善する」だけで終わらせない。
+- PR 本文の変更内容には、何を変えたかだけでなく、なぜその形にしたか、影響範囲、既存挙動を維持した点を必要に応じて書く。
+- Issue / PR は原則として適切な milestone と Project `Salesforce API Playground` に紐付ける。作成後は自動追加の成否を確認し、未設定の場合は手動設定または未設定理由の記録を行う。
 - PR が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Codex が GitHub Connector または `gh` で milestone / Project を安全に設定できない場合は、PR 本文または最終報告に未設定理由を記載し、手動設定対象として扱う。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
