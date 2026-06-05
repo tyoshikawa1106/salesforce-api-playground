@@ -1,11 +1,13 @@
 import type { FormEvent } from "react";
 import type { AccountForm } from "@/lib/salesforce/records";
-import { getContactName } from "./formatting";
 import { HomePanel } from "./HomePanel";
 import { IntegrationPanel } from "./IntegrationPanel";
-import { ObjectHomeHeader } from "./ObjectHome";
-import { AccountPanel, ContactPanel } from "./RecordLists";
-import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
+import {
+    AccountDetailWorkspace,
+    AccountListWorkspace,
+    ContactDetailWorkspace,
+    ContactListWorkspace
+} from "./RecordWorkspacePanels";
 import { RecycleBinPanel } from "./RecycleBinPanel";
 import type { Account, ActiveTab, Contact, DeleteState, RecycleBinItem } from "./types";
 
@@ -62,9 +64,11 @@ export function PlaygroundWorkspace({
     onRestoreRecycleBinEmpty,
     onRefresh
 }: PlaygroundWorkspaceProps) {
+    const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
+
     return (
         <main className="slds-template_default">
-            <section className={activeTab === "home" ? "slds-card" : "playground-workspace"}>
+            <section className={sectionClassName}>
                 {activeTab === "home" ? (
                     <HomePanel
                         accountsCount={accounts.length}
@@ -77,77 +81,51 @@ export function PlaygroundWorkspace({
                 ) : null}
 
                 {activeTab === "accounts" && connected && !selectedAccount ? (
-                    <>
-                        <ObjectHomeHeader
-                            activeTab="accounts"
-                            loading={loading}
-                            onCreate={onCreateAccount}
-                            onRefresh={onRefresh}
-                        />
-                        <AccountPanel
-                            accounts={accounts}
-                            loading={loading}
-                            connected={connected}
-                            onOpen={onOpenAccount}
-                            onEdit={onEditAccount}
-                            onDelete={(record) => onDeleteRecord({ type: "account", ids: [record.Id], label: record.Name })}
-                            onBulkDelete={(records) =>
-                                onDeleteRecord({
-                                    type: "account",
-                                    ids: records.map((record) => record.Id),
-                                    label: `選択した取引先 ${records.length} 件`
-                                })
-                            }
-                            onBulkDeleteEmpty={onBulkDeleteEmpty}
-                        />
-                    </>
+                    <AccountListWorkspace
+                        accounts={accounts}
+                        connected={connected}
+                        loading={loading}
+                        onBulkDeleteEmpty={onBulkDeleteEmpty}
+                        onCreate={onCreateAccount}
+                        onDeleteRecord={onDeleteRecord}
+                        onEdit={onEditAccount}
+                        onOpen={onOpenAccount}
+                        onRefresh={onRefresh}
+                    />
                 ) : null}
 
                 {activeTab === "accounts" && connected && selectedAccount ? (
-                    <AccountRecordPage
+                    <AccountDetailWorkspace
                         account={selectedAccount}
-                        contacts={contacts.filter((contact) => contact.AccountId === selectedAccount.Id)}
-                        onDelete={(record) => onDeleteRecord({ type: "account", ids: [record.Id], label: record.Name })}
+                        contacts={contacts}
+                        loading={loading}
+                        onDeleteRecord={onDeleteRecord}
                         onEdit={onEditAccount}
                         onRefresh={onRefresh}
-                        loading={loading}
                     />
                 ) : null}
 
                 {activeTab === "contacts" && connected && !selectedContact ? (
-                    <>
-                        <ObjectHomeHeader
-                            activeTab="contacts"
-                            loading={loading}
-                            onCreate={onCreateContact}
-                            onRefresh={onRefresh}
-                        />
-                        <ContactPanel
-                            contacts={contacts}
-                            loading={loading}
-                            connected={connected}
-                            onOpen={onOpenContact}
-                            onEdit={onEditContact}
-                            onDelete={(record) => onDeleteRecord({ type: "contact", ids: [record.Id], label: getContactName(record) })}
-                            onBulkDelete={(records) =>
-                                onDeleteRecord({
-                                    type: "contact",
-                                    ids: records.map((record) => record.Id),
-                                    label: `選択した取引先責任者 ${records.length} 件`
-                                })
-                            }
-                            onBulkDeleteEmpty={onBulkDeleteEmpty}
-                        />
-                    </>
+                    <ContactListWorkspace
+                        connected={connected}
+                        contacts={contacts}
+                        loading={loading}
+                        onBulkDeleteEmpty={onBulkDeleteEmpty}
+                        onCreate={onCreateContact}
+                        onDeleteRecord={onDeleteRecord}
+                        onEdit={onEditContact}
+                        onOpen={onOpenContact}
+                        onRefresh={onRefresh}
+                    />
                 ) : null}
 
                 {activeTab === "contacts" && connected && selectedContact ? (
-                    <ContactRecordPage
+                    <ContactDetailWorkspace
                         contact={selectedContact}
-                        onDelete={(record) => onDeleteRecord({ type: "contact", ids: [record.Id], label: getContactName(record) })}
+                        loading={loading}
+                        onDeleteRecord={onDeleteRecord}
                         onEdit={onEditContact}
                         onRefresh={onRefresh}
-                        loading={loading}
                     />
                 ) : null}
 
