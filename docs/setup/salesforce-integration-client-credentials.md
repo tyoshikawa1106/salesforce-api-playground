@@ -1,7 +1,5 @@
 ---
 title: Salesforce Integration ユーザー連携設定
-parent: セットアップ
-nav_order: 10
 ---
 
 # Salesforce Integration ユーザー連携設定

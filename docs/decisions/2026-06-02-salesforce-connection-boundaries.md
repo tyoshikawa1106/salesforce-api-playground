@@ -1,7 +1,5 @@
 ---
 title: Salesforce 接続責務を lib と services に分離する
-parent: 意思決定記録
-nav_order: 40
 ---
 
 # Salesforce 接続責務を lib と services に分離する

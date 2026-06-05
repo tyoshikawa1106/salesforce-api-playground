@@ -1,7 +1,5 @@
 ---
 title: GitHub Flow 開発手法メモ
-parent: ナレッジ
-nav_order: 20
 ---
 
 # GitHub Flow 開発手法メモ

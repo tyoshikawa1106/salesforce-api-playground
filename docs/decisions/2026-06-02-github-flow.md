@@ -1,7 +1,5 @@
 ---
 title: GitHub Flow を通常開発のブランチモデルにする
-parent: 意思決定記録
-nav_order: 10
 ---
 
 # GitHub Flow を通常開発のブランチモデルにする

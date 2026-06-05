@@ -1,7 +1,5 @@
 ---
 title: Node.js 24 を実行環境の基準にする
-parent: 意思決定記録
-nav_order: 30
 ---
 
 # Node.js 24 を実行環境の基準にする

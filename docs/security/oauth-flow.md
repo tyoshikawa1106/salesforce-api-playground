@@ -1,7 +1,5 @@
 ---
 title: OAuth フロー
-parent: セキュリティ
-nav_order: 10
 ---
 
 # OAuth フロー

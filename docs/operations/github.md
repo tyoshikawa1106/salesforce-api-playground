@@ -1,7 +1,5 @@
 ---
 title: GitHub 運用
-parent: 運用
-nav_order: 20
 ---
 
 # GitHub 運用

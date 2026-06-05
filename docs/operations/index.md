@@ -1,7 +1,5 @@
 ---
 title: 運用
-nav_order: 80
-has_children: true
 ---
 
 # 運用

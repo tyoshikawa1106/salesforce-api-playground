@@ -1,7 +1,5 @@
 ---
 title: デプロイ
-nav_order: 40
-has_children: true
 ---
 
 # デプロイ

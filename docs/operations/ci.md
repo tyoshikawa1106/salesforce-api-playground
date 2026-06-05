@@ -1,7 +1,5 @@
 ---
 title: CI
-parent: 運用
-nav_order: 10
 ---
 
 # CI

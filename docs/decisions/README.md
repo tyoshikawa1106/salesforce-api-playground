@@ -1,7 +1,5 @@
 ---
 title: 意思決定記録
-nav_order: 60
-has_children: true
 ---
 
 # 意思決定記録

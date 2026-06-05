@@ -1,7 +1,5 @@
 ---
 title: Playground UI 操作フロー棚卸し
-parent: 設計
-nav_order: 20
 ---
 
 # Playground UI 操作フロー棚卸し
