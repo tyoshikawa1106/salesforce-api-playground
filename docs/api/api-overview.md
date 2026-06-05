@@ -1,6 +1,7 @@
 ---
 title: API 概要
-nav_order: 20
+parent: API
+nav_order: 10
 ---
 
 # API 概要

@@ -1,6 +1,7 @@
 ---
 title: Heroku Button 仕組みメモ
-nav_order: 73
+parent: ナレッジ
+nav_order: 30
 ---
 
 # Heroku Button 仕組みメモ

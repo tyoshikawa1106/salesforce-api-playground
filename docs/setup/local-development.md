@@ -1,6 +1,7 @@
 ---
 title: ローカル開発
-nav_order: 40
+parent: セットアップ
+nav_order: 30
 ---
 
 # ローカル開発

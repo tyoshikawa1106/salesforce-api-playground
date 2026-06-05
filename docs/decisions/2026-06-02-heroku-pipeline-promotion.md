@@ -1,6 +1,7 @@
 ---
 title: Heroku Pipeline で Staging から Production へ昇格する
-nav_order: 62
+parent: 意思決定記録
+nav_order: 20
 ---
 
 # Heroku Pipeline で Staging から Production へ昇格する

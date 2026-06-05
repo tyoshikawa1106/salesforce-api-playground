@@ -1,6 +1,7 @@
 ---
 title: システム概要
-nav_order: 10
+parent: 設計
+nav_order: 40
 ---
 
 # システム概要

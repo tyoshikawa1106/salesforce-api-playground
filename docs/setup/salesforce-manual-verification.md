@@ -1,6 +1,7 @@
 ---
 title: Salesforce 手動確認
-nav_order: 55
+parent: セットアップ
+nav_order: 20
 ---
 
 # Salesforce 手動確認

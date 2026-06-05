@@ -1,6 +1,7 @@
 ---
 title: 開発チェックリスト
-nav_order: 82
+parent: 運用
+nav_order: 50
 ---
 
 # 開発チェックリスト

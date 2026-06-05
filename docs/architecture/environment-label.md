@@ -1,6 +1,7 @@
 ---
 title: 環境ラベル
-nav_order: 24
+parent: 設計
+nav_order: 60
 ---
 
 # 環境ラベル

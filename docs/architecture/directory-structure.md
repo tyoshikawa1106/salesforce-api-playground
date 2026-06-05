@@ -1,6 +1,7 @@
 ---
 title: ディレクトリ構成
-nav_order: 15
+parent: 設計
+nav_order: 50
 ---
 
 # ディレクトリ構成

@@ -1,6 +1,7 @@
 ---
 title: ナレッジ
-nav_order: 69
+nav_order: 50
+has_children: true
 ---
 
 # ナレッジ
@@ -11,8 +12,8 @@ nav_order: 69
 
 ## 開発手法
 
-- [GitHub Flow 開発手法メモ](github-flow.md)
 - [Git Flow 開発手法メモ](git-flow.md)
+- [GitHub Flow 開発手法メモ](github-flow.md)
 - [プロジェクト初期セットアップガイド](project-bootstrap-guide.md)
 
 ## Heroku

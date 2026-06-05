@@ -1,6 +1,7 @@
 ---
 title: API Route 構成
-nav_order: 18
+parent: 設計
+nav_order: 10
 ---
 
 # API Route 構成

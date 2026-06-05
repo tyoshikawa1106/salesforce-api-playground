@@ -1,6 +1,7 @@
 ---
 title: Heroku Pipeline 運用パターンメモ
-nav_order: 72
+parent: ナレッジ
+nav_order: 40
 ---
 
 # Heroku Pipeline 運用パターンメモ
