@@ -16,6 +16,12 @@
 - 秘密情報、実 URL、個人環境固有の値は記載しない。
 - 正式なリリースノートは GitHub Releases に集約し、`CHANGELOG.md` へ個別変更履歴を追記しない。
 
+## `CHANGELOG.md` の扱い
+
+`CHANGELOG.md` は、GitHub Releases への入口として残します。通常の開発作業では更新対象にせず、個別の変更履歴や PR ごとの説明は Pull Request、Issue、対象 Release tag の GitHub Releases に記録します。
+
+Release notes の作成、tag の扱い、公開済み Release notes の修正範囲は [GitHub 運用](github.md#release-notes-運用) を優先します。
+
 ## 配置判断
 
 | 書きたい内容 | 置き場所 | 補足 |
