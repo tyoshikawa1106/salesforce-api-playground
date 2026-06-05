@@ -1,7 +1,28 @@
 "use client";
 
-import { type ReactNode, useEffect, useId, useRef } from "react";
+import { type MouseEvent, type ReactNode, useEffect, useId, useRef } from "react";
 import { UtilityButtonIcon } from "./Navigation";
+
+export function DataTable({
+    ariaLabel,
+    children
+}: {
+    ariaLabel: string;
+    children: ReactNode;
+}) {
+    return (
+        <div className="slds-scrollable_x">
+            <table
+                className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
+                role="grid"
+                aria-label={ariaLabel}
+                aria-multiselectable="true"
+            >
+                {children}
+            </table>
+        </div>
+    );
+}
 
 export function RecordTableActions<Record>({
     record,
@@ -130,6 +151,55 @@ export function SelectionCheckbox({
                 <span className="slds-form-element__label slds-assistive-text">{ariaLabel}</span>
             </label>
         </div>
+    );
+}
+
+export function SelectionHeaderCell({
+    ariaLabel,
+    checked,
+    mixed,
+    onChange
+}: {
+    ariaLabel: string;
+    checked: boolean;
+    mixed: boolean;
+    onChange: () => void;
+}) {
+    return (
+        <th className="slds-text-align_right slds-cell_action-mode" role="cell" style={{ width: "3.25rem" }}>
+            <div className="slds-th__action slds-th__action_form">
+                <SelectionCheckbox ariaLabel={ariaLabel} checked={checked} mixed={mixed} onChange={onChange} />
+            </div>
+        </th>
+    );
+}
+
+export function SelectionCell({
+    ariaLabel,
+    checked,
+    onChange,
+    toggleOnCellClick = false
+}: {
+    ariaLabel: string;
+    checked: boolean;
+    onChange: () => void;
+    toggleOnCellClick?: boolean;
+}) {
+    function handleCellClick(event: MouseEvent<HTMLTableCellElement>) {
+        if (toggleOnCellClick && event.target === event.currentTarget) {
+            onChange();
+        }
+    }
+
+    return (
+        <td
+            className="slds-text-align_right slds-cell_action-mode"
+            data-label="選択"
+            role="gridcell"
+            onClick={handleCellClick}
+        >
+            <SelectionCheckbox ariaLabel={ariaLabel} checked={checked} mixed={false} onChange={onChange} />
+        </td>
     );
 }
 

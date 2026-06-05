@@ -1,7 +1,13 @@
 "use client";
 
 import { formatDate } from "./formatting";
-import { DataTableColumnHeader, SelectionCheckbox, TableCell } from "./RecordListTableParts";
+import {
+    DataTable,
+    DataTableColumnHeader,
+    SelectionCell,
+    SelectionHeaderCell,
+    TableCell
+} from "./RecordListTableParts";
 import { StandardIcon, type StandardIconName } from "./SldsIcon";
 import type { RecycleBinItem } from "./types";
 
@@ -58,64 +64,42 @@ export function RecycleBinTable({
     onToggleVisibleSelection: () => void;
 }) {
     return (
-        <div className="slds-scrollable_x">
-            <table
-                className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
-                role="grid"
-                aria-label="ごみ箱の項目一覧"
-                aria-multiselectable="true"
-            >
-                <thead>
-                    <tr className="slds-line-height_reset">
-                        <th className="slds-text-align_right slds-cell_action-mode" role="cell" style={{ width: "3.25rem" }}>
-                            <div className="slds-th__action slds-th__action_form">
-                                <SelectionCheckbox
-                                    ariaLabel="表示中の項目をすべて選択"
-                                    checked={allVisibleSelected}
-                                    mixed={someVisibleSelected}
-                                    onChange={onToggleVisibleSelection}
-                                />
+        <DataTable ariaLabel="ごみ箱の項目一覧">
+            <thead>
+                <tr className="slds-line-height_reset">
+                    <SelectionHeaderCell
+                        ariaLabel="表示中の項目をすべて選択"
+                        checked={allVisibleSelected}
+                        mixed={someVisibleSelected}
+                        onChange={onToggleVisibleSelection}
+                    />
+                    <DataTableColumnHeader label="名前" />
+                    <DataTableColumnHeader label="種別" />
+                    <DataTableColumnHeader label="削除日時" />
+                    <DataTableColumnHeader label="削除したユーザー" />
+                </tr>
+            </thead>
+            <tbody>
+                {items.map((item) => (
+                    <tr key={`${item.objectApiName}:${item.id}`} className="slds-hint-parent" aria-selected={selectedIds.has(item.id)}>
+                        <SelectionCell
+                            ariaLabel={`${item.objectLabel} ${item.name} を選択`}
+                            checked={selectedIds.has(item.id)}
+                            onChange={() => onToggleSelection(item.id)}
+                            toggleOnCellClick
+                        />
+                        <th className="slds-cell_action-mode" scope="row" data-label="名前">
+                            <div className="slds-truncate" title={item.name}>
+                                {item.name}
                             </div>
                         </th>
-                        <DataTableColumnHeader label="名前" />
-                        <DataTableColumnHeader label="種別" />
-                        <DataTableColumnHeader label="削除日時" />
-                        <DataTableColumnHeader label="削除したユーザー" />
+                        <TableCell label="種別" value={<RecycleBinObjectType item={item} />} />
+                        <TableCell label="削除日時" value={formatDate(item.deletedAt)} />
+                        <TableCell label="削除したユーザー" value={item.deletedByName} />
                     </tr>
-                </thead>
-                <tbody>
-                    {items.map((item) => (
-                        <tr key={`${item.objectApiName}:${item.id}`} className="slds-hint-parent" aria-selected={selectedIds.has(item.id)}>
-                            <td
-                                className="slds-text-align_right slds-cell_action-mode"
-                                data-label="選択"
-                                role="gridcell"
-                                onClick={(event) => {
-                                    if (event.target === event.currentTarget) {
-                                        onToggleSelection(item.id);
-                                    }
-                                }}
-                            >
-                                <SelectionCheckbox
-                                    ariaLabel={`${item.objectLabel} ${item.name} を選択`}
-                                    checked={selectedIds.has(item.id)}
-                                    mixed={false}
-                                    onChange={() => onToggleSelection(item.id)}
-                                />
-                            </td>
-                            <th className="slds-cell_action-mode" scope="row" data-label="名前">
-                                <div className="slds-truncate" title={item.name}>
-                                    {item.name}
-                                </div>
-                            </th>
-                            <TableCell label="種別" value={<RecycleBinObjectType item={item} />} />
-                            <TableCell label="削除日時" value={formatDate(item.deletedAt)} />
-                            <TableCell label="削除したユーザー" value={item.deletedByName} />
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                ))}
+            </tbody>
+        </DataTable>
     );
 }
 
