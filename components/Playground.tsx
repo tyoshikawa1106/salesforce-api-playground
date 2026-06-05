@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import type { EnvironmentLabel } from "@/lib/environment-label";
 import { EnvironmentLabelBanner } from "./playground/EnvironmentLabelBanner";
 import { AppNavigation } from "./playground/Navigation";
@@ -52,6 +53,52 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         );
     }
 
+    const workspaceProps = {
+        accountForm: recordMutations.integrationAccountForm,
+        accounts,
+        activeTab,
+        connected: session.connected,
+        contacts,
+        recycleBinItems,
+        instanceUrl: session.instanceUrl,
+        loading,
+        saving: recordMutations.saving,
+        selectedAccount,
+        selectedContact,
+        onAccountFormChange: recordMutations.setIntegrationAccountForm,
+        onCreateAccount: () => recordMutations.openAccountModal(),
+        onCreateContact: () => recordMutations.openContactModal(),
+        onCreateIntegrationAccount: recordMutations.createIntegrationAccount,
+        onDeleteRecord: recordMutations.setDeleteState,
+        onEditAccount: recordMutations.openAccountModal,
+        onEditContact: recordMutations.openContactModal,
+        onOpenAccount: (record) => setSelectedAccountId(record.Id),
+        onOpenContact: (record) => setSelectedContactId(record.Id),
+        onBulkDeleteEmpty: () => showNotice({ tone: "info", message: "削除対象がチェックされていません。" }),
+        onRestoreRecycleBinItems: recordMutations.openRestoreModal,
+        onRestoreRecycleBinEmpty: () => showNotice({ tone: "info", message: "復元対象がチェックされていません。" }),
+        onRefresh: loadAll
+    } satisfies ComponentProps<typeof PlaygroundWorkspace>;
+
+    const recordModalProps = {
+        accountForm: recordMutations.accountForm,
+        accountOptions,
+        contactForm: recordMutations.contactForm,
+        deleteState: recordMutations.deleteState,
+        modal: recordMutations.modal,
+        restoreState: recordMutations.restoreState,
+        saving: recordMutations.saving,
+        onAccountFormChange: recordMutations.setAccountForm,
+        onCancelDelete: recordMutations.closeDeleteModal,
+        onCancelRestore: recordMutations.closeRestoreModal,
+        onCloseRecordModal: recordMutations.closeRecordModal,
+        onConfirmDelete: recordMutations.confirmDelete,
+        onConfirmRestore: recordMutations.confirmRestore,
+        onContactFormChange: recordMutations.setContactForm,
+        onSaveAccount: recordMutations.saveAccount,
+        onSaveContact: recordMutations.saveContact
+    } satisfies ComponentProps<typeof RecordModals>;
+
     return (
         <div>
             <EnvironmentLabelBanner environmentLabel={environmentLabel} />
@@ -59,51 +106,9 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             <GlobalHeader connected={session.connected} onSelectSearchResult={openSearchResult} />
             <AppNavigation activeTab={activeTab} connected={session.connected} onChange={changeTab} />
 
-            <PlaygroundWorkspace
-                accountForm={recordMutations.integrationAccountForm}
-                accounts={accounts}
-                activeTab={activeTab}
-                connected={session.connected}
-                contacts={contacts}
-                recycleBinItems={recycleBinItems}
-                instanceUrl={session.instanceUrl}
-                loading={loading}
-                saving={recordMutations.saving}
-                selectedAccount={selectedAccount}
-                selectedContact={selectedContact}
-                onAccountFormChange={recordMutations.setIntegrationAccountForm}
-                onCreateAccount={() => recordMutations.openAccountModal()}
-                onCreateContact={() => recordMutations.openContactModal()}
-                onCreateIntegrationAccount={recordMutations.createIntegrationAccount}
-                onDeleteRecord={recordMutations.setDeleteState}
-                onEditAccount={recordMutations.openAccountModal}
-                onEditContact={recordMutations.openContactModal}
-                onOpenAccount={(record) => setSelectedAccountId(record.Id)}
-                onOpenContact={(record) => setSelectedContactId(record.Id)}
-                onBulkDeleteEmpty={() => showNotice({ tone: "info", message: "削除対象がチェックされていません。" })}
-                onRestoreRecycleBinItems={recordMutations.openRestoreModal}
-                onRestoreRecycleBinEmpty={() => showNotice({ tone: "info", message: "復元対象がチェックされていません。" })}
-                onRefresh={loadAll}
-            />
+            <PlaygroundWorkspace {...workspaceProps} />
 
-            <RecordModals
-                accountForm={recordMutations.accountForm}
-                accountOptions={accountOptions}
-                contactForm={recordMutations.contactForm}
-                deleteState={recordMutations.deleteState}
-                modal={recordMutations.modal}
-                restoreState={recordMutations.restoreState}
-                saving={recordMutations.saving}
-                onAccountFormChange={recordMutations.setAccountForm}
-                onCancelDelete={recordMutations.closeDeleteModal}
-                onCancelRestore={recordMutations.closeRestoreModal}
-                onCloseRecordModal={recordMutations.closeRecordModal}
-                onConfirmDelete={recordMutations.confirmDelete}
-                onConfirmRestore={recordMutations.confirmRestore}
-                onContactFormChange={recordMutations.setContactForm}
-                onSaveAccount={recordMutations.saveAccount}
-                onSaveContact={recordMutations.saveContact}
-            />
+            <RecordModals {...recordModalProps} />
         </div>
     );
 }
