@@ -1,6 +1,6 @@
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { Account } from "./types";
-import { accountTextFields, contactTextFields } from "./record-forms";
+import { accountTextFields, contactAccountField, contactTextFields } from "./record-forms";
 
 export function AccountFormFields({
     value,
@@ -14,6 +14,7 @@ export function AccountFormFields({
             {accountTextFields.map((field) => (
                 <TextField
                     key={field.key}
+                    id={field.id}
                     label={field.label}
                     required={field.required}
                     type={field.type}
@@ -39,6 +40,7 @@ export function ContactFormFields({
             {contactTextFields.map((field) => (
                 <TextField
                     key={field.key}
+                    id={field.id}
                     label={field.label}
                     required={field.required}
                     type={field.type}
@@ -47,12 +49,12 @@ export function ContactFormFields({
                 />
             ))}
             <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
-                <label className="slds-form-element__label" htmlFor="contact-account">
-                    取引先
+                <label className="slds-form-element__label" htmlFor={contactAccountField.id}>
+                    {contactAccountField.label}
                 </label>
                 <div className="slds-form-element__control">
                     <select
-                        id="contact-account"
+                        id={contactAccountField.id}
                         className="slds-select"
                         value={value.AccountId}
                         onChange={(event) => onChange({ ...value, AccountId: event.target.value })}
@@ -71,19 +73,20 @@ export function ContactFormFields({
 }
 
 function TextField({
+    id,
     label,
     value,
     onChange,
     type = "text",
     required = false
 }: {
+    id: string;
     label: string;
     value: string;
     onChange: (value: string) => void;
     type?: string;
     required?: boolean;
 }) {
-    const id = label.toLowerCase().replaceAll(" ", "-");
     return (
         <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
             <label className="slds-form-element__label" htmlFor={id}>

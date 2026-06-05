@@ -1,10 +1,13 @@
 import { type FormEvent, useState } from "react";
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import {
+    accountTextFields,
     accountRecordToForm,
     blankAccount,
     blankContact,
-    contactRecordToForm
+    contactRecordToForm,
+    contactTextFields,
+    getRequiredFieldMessage
 } from "./record-forms";
 import {
     createIntegrationAccountMutation,
@@ -26,6 +29,9 @@ type MutationRunnerOptions = {
     onSuccess?: () => Promise<void> | void;
     onError?: () => Promise<void> | void;
 };
+
+const accountNameRequiredMessage = getRequiredFieldMessage(accountTextFields, "Name");
+const contactLastNameRequiredMessage = getRequiredFieldMessage(contactTextFields, "LastName");
 
 export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOptions) {
     const [saving, setSaving] = useState(false);
@@ -70,7 +76,7 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
     async function saveAccount(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!accountForm.Name.trim()) {
-            showNotice({ tone: "error", message: "取引先名は必須です。" });
+            showNotice({ tone: "error", message: accountNameRequiredMessage });
             return;
         }
 
@@ -87,7 +93,7 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
     async function saveContact(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!contactForm.LastName.trim()) {
-            showNotice({ tone: "error", message: "取引先責任者の姓は必須です。" });
+            showNotice({ tone: "error", message: contactLastNameRequiredMessage });
             return;
         }
 
@@ -104,7 +110,7 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
     async function createIntegrationAccount(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!integrationAccountForm.Name.trim()) {
-            showNotice({ tone: "error", message: "取引先名は必須です。" });
+            showNotice({ tone: "error", message: accountNameRequiredMessage });
             return;
         }
 

@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+    accountTextFields,
     accountRecordToForm,
     blankAccount,
     blankContact,
-    contactRecordToForm
+    contactAccountField,
+    contactRecordToForm,
+    contactTextFields,
+    getRequiredFieldMessage
 } from "./record-forms";
 
 describe("record form builders", () => {
@@ -49,5 +53,23 @@ describe("record form builders", () => {
             Title: "",
             AccountId: "001xx000003DGbY"
         });
+    });
+
+    it("defines stable form field ids and required messages", () => {
+        expect(accountTextFields.find((field) => field.key === "BillingCity")).toMatchObject({
+            id: "account-billing-city",
+            label: "請求先市区郡"
+        });
+        expect(contactTextFields.find((field) => field.key === "LastName")).toMatchObject({
+            id: "contact-last-name",
+            required: true,
+            requiredMessage: "取引先責任者の姓は必須です。"
+        });
+        expect(contactAccountField).toEqual({
+            key: "AccountId",
+            id: "contact-account",
+            label: "取引先"
+        });
+        expect(getRequiredFieldMessage(accountTextFields, "Name")).toBe("取引先名は必須です。");
     });
 });
