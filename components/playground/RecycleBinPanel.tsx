@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDate } from "./formatting";
-import { PageHeader, PageHeaderControl } from "./ObjectHome";
+import { PageHeader, PageHeaderControl } from "./PageHeader";
 import { useListSelectionState } from "./record-list-state";
 import { DataTableColumnHeader, SelectionCheckbox, TableCell } from "./RecordListTableParts";
 import { StandardIcon, type StandardIconName } from "./SldsIcon";

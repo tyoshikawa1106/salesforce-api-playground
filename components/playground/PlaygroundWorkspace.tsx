@@ -1,7 +1,9 @@
 import type { FormEvent } from "react";
 import type { AccountForm } from "@/lib/salesforce/records";
 import { getContactName } from "./formatting";
-import { HomePanel, IntegrationPanel, ObjectHomeHeader } from "./ObjectHome";
+import { HomePanel } from "./HomePanel";
+import { IntegrationPanel } from "./IntegrationPanel";
+import { ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
 import { RecycleBinPanel } from "./RecycleBinPanel";
