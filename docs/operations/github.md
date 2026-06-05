@@ -136,8 +136,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - GitHub の Issue 自動クローズは default branch へのマージ時に closing keyword を解釈するため、PR が Issue を完了させる場合は `Closes #<Issue番号>` などを PR body に記載する。
 - Issue template は `.github/ISSUE_TEMPLATE` 配下で管理する。
 - Issue template は入力項目を増やしすぎず、概要、対象範囲、補足など最小限の項目にする。
-- Issue template の初期 label は、作成時に判断できる範囲に限定する。影響範囲が不明な Issue は、triage 時に `area:*` を追加する。
-- Issue template の dropdown は、label を自動決定するためではなく、triage 時に `area:*` や milestone を選びやすくするための入力欄として扱う。
+- Issue template の初期 label は、作成時に判断できる範囲に限定する。必要な `area:*`、milestone、Project は triage または PR 作成時に設定する。
 
 ### Issue template の使い分け
 
@@ -146,7 +145,6 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 | `不具合報告` | 動作不良や想定外の挙動を記録する |
 | `改善メモ` | 機能改善、UI 改善、運用改善を記録する |
 | `ドキュメント改善` | README や docs の追加・修正を記録する |
-| `学習 TODO` | 学習中に調べたいことや後で試したいことを記録する。必要に応じて docs / knowledge に整理する |
 
 ## Pull Request 運用
 
@@ -422,7 +420,7 @@ Dependabot version updates は `.github/dependabot.yml` で管理します。
 
 | 項目 | 状態 | 運用方針 |
 | --- | --- | --- |
-| Issues | 有効 | 作業予定、学習 TODO、改善メモを Issue で管理する |
+| Issues | 有効 | 作業予定、不具合、改善、ドキュメント修正を Issue で管理する |
 | Projects | 有効 | Issue / PR の進行状況を整理する |
 | Wiki | 無効 | 一次情報は `README.md` と `docs` 配下に集約する |
 | Discussions | 無効 | 個人学習リポジトリのため、議論は Issue / PR に集約する |

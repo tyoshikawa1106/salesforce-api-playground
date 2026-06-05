@@ -212,10 +212,11 @@ Salesforce 組織や OAuth 設定を変更した場合、既存の localhost Coo
 - 公式リソースを手作業でコピーして固定化しない。
 - SLDS の互換性チェックと修正支援には `@salesforce-ux/slds-linter` を使う。
 
-## TODO / 未確認
+## Salesforce 実接続の扱い
 
-- Salesforce 外部クライアントアプリケーション作成手順の最新画面ラベルは未確認。OAuth 要件と callback URL の一次情報は [OAuth フロー](../security/oauth-flow.md) を参照。
-- ローカルで Salesforce に実接続した場合の組織固有エラー例は未確認。Codex 作業では実 Salesforce 接続を行わないため、発生時は [トラブルシューティング](../operations/troubleshooting.md) に秘密情報を除いて記録する。
+Salesforce 外部クライアントアプリケーションの OAuth 設定は、Salesforce Help の External Client Apps 向け手順で確認します。2026-06-06 時点で確認する主な画面領域は `External Client Apps Manager`、`OAuth Settings`、`Callback URL`、OAuth scope、Authorization Code Flow / Client Credentials Flow の有効化項目です。
+
+OAuth 要件、callback URL、PKCE の扱いは [OAuth フロー](../security/oauth-flow.md) を一次情報として参照してください。実 Salesforce 組織への接続は Codex 作業では行わないため、組織固有の validation rule、権限、共有設定、IP 制限に起因するエラーは、発生時に [トラブルシューティング](../operations/troubleshooting.md) へ秘密情報を除いて記録します。
 
 ## 関連ドキュメント
 
