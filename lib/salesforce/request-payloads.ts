@@ -23,6 +23,12 @@ type SalesforcePayloadOptions = {
     required: readonly string[];
 };
 
+type SalesforcePayloadReaderConfig = {
+    createRequired: readonly string[];
+    fields: readonly string[];
+    objectLabel: string;
+};
+
 type SalesforcePayloadValue = string | null;
 type SalesforcePayload = Record<string, SalesforcePayloadValue>;
 
@@ -105,6 +111,31 @@ async function readSalesforcePayload<T>(
     return validateSalesforcePayload(body, options) as T;
 }
 
+function createSalesforcePayloadReaders<TCreate, TUpdate>({
+    createRequired,
+    fields,
+    objectLabel
+}: SalesforcePayloadReaderConfig) {
+    return {
+        readCreatePayload(request: JsonRequest): Promise<TCreate> {
+            return readSalesforcePayload<TCreate>(request, {
+                allowNull: false,
+                fields,
+                objectLabel,
+                required: createRequired
+            });
+        },
+        readUpdatePayload(request: JsonRequest): Promise<TUpdate> {
+            return readSalesforcePayload<TUpdate>(request, {
+                allowNull: true,
+                fields,
+                objectLabel,
+                required: []
+            });
+        }
+    };
+}
+
 export async function readBulkDeletePayload(request: JsonRequest): Promise<BulkDeleteInput> {
     const body = await readJsonBody(request);
 
@@ -179,38 +210,19 @@ export async function readRecycleBinUndeletePayload(request: JsonRequest): Promi
     return { items };
 }
 
-export async function readAccountCreatePayload(request: JsonRequest): Promise<AccountInput> {
-    return readSalesforcePayload<AccountInput>(request, {
-        allowNull: false,
-        fields: accountFieldNames,
-        objectLabel: "Account",
-        required: ["Name"]
-    });
-}
+const accountPayloadReaders = createSalesforcePayloadReaders<AccountInput, AccountUpdateInput>({
+    createRequired: ["Name"],
+    fields: accountFieldNames,
+    objectLabel: "Account"
+});
 
-export async function readAccountUpdatePayload(request: JsonRequest): Promise<AccountUpdateInput> {
-    return readSalesforcePayload<AccountUpdateInput>(request, {
-        allowNull: true,
-        fields: accountFieldNames,
-        objectLabel: "Account",
-        required: []
-    });
-}
+const contactPayloadReaders = createSalesforcePayloadReaders<ContactInput, ContactUpdateInput>({
+    createRequired: ["LastName"],
+    fields: contactFieldNames,
+    objectLabel: "Contact"
+});
 
-export async function readContactCreatePayload(request: JsonRequest): Promise<ContactInput> {
-    return readSalesforcePayload<ContactInput>(request, {
-        allowNull: false,
-        fields: contactFieldNames,
-        objectLabel: "Contact",
-        required: ["LastName"]
-    });
-}
-
-export async function readContactUpdatePayload(request: JsonRequest): Promise<ContactUpdateInput> {
-    return readSalesforcePayload<ContactUpdateInput>(request, {
-        allowNull: true,
-        fields: contactFieldNames,
-        objectLabel: "Contact",
-        required: []
-    });
-}
+export const readAccountCreatePayload = accountPayloadReaders.readCreatePayload;
+export const readAccountUpdatePayload = accountPayloadReaders.readUpdatePayload;
+export const readContactCreatePayload = contactPayloadReaders.readCreatePayload;
+export const readContactUpdatePayload = contactPayloadReaders.readUpdatePayload;
