@@ -10,6 +10,38 @@ type UsePlaygroundDataOptions = {
     showNotice: (notice: Notice) => void;
 };
 
+type ConnectedPlaygroundData = {
+    accounts: Account[];
+    contacts: Contact[];
+    recycleBinItems: RecycleBinItem[];
+};
+
+async function loadSession() {
+    return apiRequest<SessionInfo>(
+        buildPlaygroundApiRequest(playgroundApiPaths.session)
+    );
+}
+
+async function loadConnectedPlaygroundData(): Promise<ConnectedPlaygroundData> {
+    const [accountResult, contactResult, recycleBinResult] = await Promise.all([
+        apiRequest<{ accounts: Account[] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.accounts)
+        ),
+        apiRequest<{ contacts: Contact[] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.contacts)
+        ),
+        apiRequest<{ items: RecycleBinItem[] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.recycleBin)
+        )
+    ]);
+
+    return {
+        accounts: accountResult.accounts,
+        contacts: contactResult.contacts,
+        recycleBinItems: recycleBinResult.items
+    };
+}
+
 export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const [session, setSession] = useState<SessionInfo | null>(null);
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -42,34 +74,25 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         setSelectedContactId(null);
     }, []);
 
+    const applyConnectedData = useCallback((data: ConnectedPlaygroundData) => {
+        setAccounts(data.accounts);
+        setContacts(data.contacts);
+        setRecycleBinItems(data.recycleBinItems);
+        setSelectedAccountId((currentId) => keepSelectedRecordId(currentId, data.accounts));
+        setSelectedContactId((currentId) => keepSelectedRecordId(currentId, data.contacts));
+    }, []);
+
     const loadAll = useCallback(async () => {
         setLoading(true);
         try {
-            const nextSession = await apiRequest<SessionInfo>(
-                buildPlaygroundApiRequest(playgroundApiPaths.session)
-            );
+            const nextSession = await loadSession();
             if (!nextSession.connected) {
                 resetConnectedState();
                 return;
             }
             setSession(nextSession);
 
-            const [accountResult, contactResult, recycleBinResult] = await Promise.all([
-                apiRequest<{ accounts: Account[] }>(
-                    buildPlaygroundApiRequest(playgroundApiPaths.accounts)
-                ),
-                apiRequest<{ contacts: Contact[] }>(
-                    buildPlaygroundApiRequest(playgroundApiPaths.contacts)
-                ),
-                apiRequest<{ items: RecycleBinItem[] }>(
-                    buildPlaygroundApiRequest(playgroundApiPaths.recycleBin)
-                )
-            ]);
-            setAccounts(accountResult.accounts);
-            setContacts(contactResult.contacts);
-            setRecycleBinItems(recycleBinResult.items);
-            setSelectedAccountId((currentId) => keepSelectedRecordId(currentId, accountResult.accounts));
-            setSelectedContactId((currentId) => keepSelectedRecordId(currentId, contactResult.contacts));
+            applyConnectedData(await loadConnectedPlaygroundData());
         } catch (error) {
             if (error instanceof PlaygroundApiError && error.status === 401) {
                 resetConnectedState();
@@ -81,7 +104,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         } finally {
             setLoading(false);
         }
-    }, [resetConnectedState, showNotice]);
+    }, [applyConnectedData, resetConnectedState, showNotice]);
 
     const changeTab = useCallback((nextTab: ActiveTab) => {
         setActiveTab(nextTab);
