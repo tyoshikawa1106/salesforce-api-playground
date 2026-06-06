@@ -47,7 +47,7 @@ docs/decisions/
 | `docs/setup/` | ローカル開発、外部サービス設定、手動確認手順 |
 | `docs/security/` | 認証、秘密情報、Cookie、CSRF、token 管理 |
 | `docs/operations/` | GitHub、CI、デプロイ、障害対応 |
-| `docs/knowledge/` | 学習メモ、比較、次回以降に再利用する知見 |
+| `docs/knowledge/` | 学習内容、比較、次回以降に再利用する個人ナレッジ |
 | `docs/decisions/` | 技術選定や運用判断の設計判断メモ |
 | `.github/workflows/` | CI、Issue / PR 自動化、品質ゲート |
 | `.github/ISSUE_TEMPLATE/` | Issue の種類ごとの入力テンプレート |

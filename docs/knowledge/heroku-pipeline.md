@@ -1,4 +1,4 @@
-# Heroku Pipeline 運用パターンメモ
+# Heroku Pipeline 運用パターン
 
 ## 概要
 

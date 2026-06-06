@@ -40,7 +40,7 @@ git switch -c codex/<作業内容>
 | 環境ラベル | `lib/environment-label.ts`, UI 表示箇所 | [環境ラベル](../architecture/environment-label.md), [ローカル開発](../setup/local-development.md), [Heroku デプロイ](../deployment/heroku.md) |
 | 環境変数 / 起動方式 | `.env.example`, `package.json`, `Procfile`, `app.json` | [ローカル開発](../setup/local-development.md), [Heroku デプロイ](../deployment/heroku.md), [秘密情報](../security/secret-handling.md) |
 | GitHub Actions / templates | `.github/workflows`, `.github/ISSUE_TEMPLATE`, `.github/pull_request_template.md` | [GitHub 運用](github.md), [CI](ci.md), [困ったとき](troubleshooting.md) |
-| Heroku 運用 | `app.json`, `Procfile`, Heroku 関連 docs | [Heroku デプロイ](../deployment/heroku.md), [GitHub 運用](github.md), [Heroku Pipeline 運用パターンメモ](../knowledge/heroku-pipeline.md) |
+| Heroku 運用 | `app.json`, `Procfile`, Heroku 関連 docs | [Heroku デプロイ](../deployment/heroku.md), [GitHub 運用](github.md), [Heroku Pipeline 運用パターン](../knowledge/heroku-pipeline.md) |
 | docs のみ | `README.md`, `docs`, `.github/*template*` | [ドキュメント更新](documentation-maintenance.md), [CI](ci.md), [秘密情報](../security/secret-handling.md) |
 
 ## 実装前に決めること

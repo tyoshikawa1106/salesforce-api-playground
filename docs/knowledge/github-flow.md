@@ -1,4 +1,4 @@
-# GitHub Flow 開発手法メモ
+# GitHub Flow 開発手法
 
 ## 概要
 
