@@ -4,6 +4,7 @@
 
 - [Git Flow 開発手法メモ](git-flow.md)
 - [GitHub Flow 開発手法メモ](github-flow.md)
+- [業務本番化の検討観点](production-readiness.md)
 - [プロジェクト初期セットアップガイド](project-bootstrap-guide.md)
 
 ## Heroku
