@@ -34,9 +34,3 @@ Heroku Pipeline を使い、GitHub `main` への merge 後に Staging app へ自
 ## 見直し条件
 
 Heroku 以外へ移行する場合、Production への自動反映を許可する運用に変える場合、または Staging / Production 以外の環境が必要になった場合に見直す。
-
-## 関連ドキュメント
-
-- [Heroku デプロイ](../deployment/heroku.md)
-- [GitHub 運用](../operations/github.md)
-- [Issue #196](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/196)

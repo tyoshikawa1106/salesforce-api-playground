@@ -49,7 +49,13 @@
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
 - トークン消費を抑えるため、通常開発ではエージェントは原則として PR 作成、checks 確認、ready for review 化までを担当し、PR の merge はユーザーが行う。
 - ユーザーが明示的に PR merge まで依頼した場合のみ、エージェントは checks pass、ready for review 化、merge、`main` 同期、マージ済み作業ブランチ削除まで実施してよい。
-- 複数 Issue を連続対応する場合、merge 後処理や状態確認は必要最小限の GitHub API 項目に絞り、Issue / PR / checks の詳細本文を繰り返し取得しすぎない。
+- ユーザーが「目標を設定します」と明示した連続作業では、作業開始時に Codex の目標機能を開始し、完了時に目標を complete にして token 使用量と経過時間を報告する。目標機能を利用できない場合は、その理由を最終報告に記載する。
+- 複数 Issue を連続対応する場合、Issue / PR は内容やリスクが近いものを可能な範囲でまとめ、PR 数を増やしすぎない。ユーザーが順番実装や個別 PR を明示した場合はその指示を優先する。
+- 複数 Issue / PR を連続対応する場合、GitHub API / CLI の取得項目は必要最小限に絞る。`gh pr view` は原則 `state,isDraft,mergeStateStatus,url,headRefName,baseRefName` などに限定し、Issue / PR / checks の本文や check 一覧を繰り返し全文取得しない。
+- `gh pr checks --watch` で pass を確認した後は、同じ PR の checks を何度も再取得しない。最終確認は required checks の pass、draft 解除、merge 済み状態など、判断に必要な項目だけ確認する。
+- Project へ手動追加する場合は、user Project では `gh project item-add 1 --owner @me --url <URL>` を優先し、owner 指定の試行錯誤を避ける。
+- Issue / PR 本文は具体性を保ちつつ簡潔に書く。対象、現状、リスク、対応内容、確認結果は残すが、同じ背景やチェック説明を複数箇所で長く重複させない。
+- 連続作業では、各 PR で変更範囲に応じた最小確認を行い、最後の作業または全体完了前に必要な full check をまとめて実行する。CI 失敗後の修正や広範囲変更では、該当 PR で必要な確認を追加する。
 - 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
 - Dependabot PR をエージェントが merge する場合も、`main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
 - PR マージ前に GitHub Actions が pass していることを確認する。

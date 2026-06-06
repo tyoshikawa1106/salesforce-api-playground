@@ -30,7 +30,7 @@ export default defineConfig({
         coverage: {
             provider: "v8",
             reporter: ["text", "html", "json-summary"],
-            include: ["app/api/**/*.ts", "lib/**/*.ts"],
+            include: ["app/api/**/*.ts", "lib/**/*.ts", "services/salesforce/**/*.ts"],
             exclude: ["**/*.test.ts", "app/api/test-helpers.ts"],
             thresholds: {
                 statements: 90,

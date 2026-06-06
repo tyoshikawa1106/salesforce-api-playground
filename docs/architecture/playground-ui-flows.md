@@ -1,10 +1,4 @@
-# Playground UI 操作フロー棚卸し
-
-## 目的
-
-このドキュメントは、`components/playground` 配下の主要画面、操作フロー、SLDS / アクセシビリティ観点の改善候補を整理します。
-
-`components/playground` の配置判断は [ディレクトリ構成](directory-structure.md)、アプリ全体の構成は [システム概要](system-overview.md)、API Routes と Salesforce API 連携の詳細は [API 概要](../api/api-overview.md) を参照してください。
+# Playground UI 操作フロー
 
 ## 対象コンポーネント
 
@@ -78,7 +72,7 @@
 - 作成 / 更新 / 削除 / 連携作成の成功と失敗は `NoticeBanner` の toast に集約する。
 - API エラー文言は `components/playground/api.ts` と `lib/playground-api.ts` で UI 表示向けに変換する。
 
-## 棚卸し時点で直した小さな不整合
+## これまでに直した小さな不整合
 
 - 主要ナビゲーションの active item に `aria-current="page"` を付与した。
 - 更新アイコン画像を装飾扱いにして、ボタン側の assistive text へ読み上げを集約した。

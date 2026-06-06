@@ -1,11 +1,5 @@
 # 環境ラベル
 
-## 目的
-
-このドキュメントは、画面上部に表示する環境ラベルの判定仕様を整理します。
-
-Heroku Config Vars と Staging / Production の使い分けは [Heroku デプロイ](../deployment/heroku.md)、ローカル設定は [ローカル開発](../setup/local-development.md) を参照してください。
-
 ## 役割
 
 環境ラベルは、Local、Staging、Heroku Button で作成した standalone app など、本番相当ではない環境を画面上で見分けるための表示です。
@@ -53,10 +47,3 @@ Production 相当では `APP_ENV_LABEL` が設定されていても、`APP_ENV` 
 - 本番判定や認可制御には使わない。
 - Heroku Staging / Production の実 app 名や URL は docs に書かない。
 - Heroku Button で作成した app は管理済み Staging app ではないため、`APP_ENV=playground` などで見分けられるようにする。
-
-## 関連ドキュメント
-
-- [システム概要](system-overview.md)
-- [Heroku デプロイ](../deployment/heroku.md)
-- [ローカル開発](../setup/local-development.md)
-- [秘密情報の扱い](../security/secret-handling.md)
