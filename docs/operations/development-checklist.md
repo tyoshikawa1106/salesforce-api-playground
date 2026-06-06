@@ -28,6 +28,7 @@ git switch -c codex/<作業内容>
 | 入力検証 / 許可フィールド | `lib/salesforce/request-payloads.ts`, `lib/salesforce/record-fields.ts` | [Salesforce レコードモデル](../architecture/salesforce-record-model.md), [Salesforce での確認](../setup/salesforce-manual-verification.md) |
 | Integration API | `app/api/integration`, `lib/salesforce/integration-security.ts`, `lib/salesforce/client.ts` | [Integration ユーザー設定](../setup/salesforce-integration-client-credentials.md), [API](../api/api-overview.md) |
 | UI / SLDS | `components/Playground.tsx`, `components/playground`, `app/globals.css` | [Playground UI 操作フロー](../architecture/playground-ui-flows.md), [Salesforce での確認](../setup/salesforce-manual-verification.md) |
+| Salesforce 手動確認 | 実 Salesforce 接続後の OAuth / Account / Contact / Integration 操作 | [Salesforce での確認](../setup/salesforce-manual-verification.md), [困ったとき](troubleshooting.md) |
 | 環境ラベル | `lib/environment-label.ts`, UI 表示箇所 | [環境ラベル](../architecture/environment-label.md), [ローカル開発](../setup/local-development.md), [Heroku デプロイ](../deployment/heroku.md) |
 | 環境変数 / 起動方式 | `.env.example`, `package.json`, `Procfile`, `app.json` | [ローカル開発](../setup/local-development.md), [Heroku デプロイ](../deployment/heroku.md), [秘密情報](../security/secret-handling.md) |
 | GitHub Actions / templates | `.github/workflows`, `.github/ISSUE_TEMPLATE`, `.github/pull_request_template.md` | [GitHub 運用](github.md), [CI](ci.md), [困ったとき](troubleshooting.md) |
