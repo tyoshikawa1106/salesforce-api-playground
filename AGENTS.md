@@ -34,6 +34,9 @@
 - コミットは作業単位で分割し、コミットメッセージは `<type>: <summary>` の形式で書く。
 - 通常開発 PR の title も `<type>: <日本語summary>` の形式で書き、PR 全体の主目的に合う type を使う。summary は原則として日本語で、変更内容が具体的に分かる表現にする。
 - `type` は `feat`、`fix`、`docs`、`test`、`refactor`、`style`、`ci`、`chore` から選ぶ。
+- Issue title は prefix を付けず、問題、背景、要望、調査対象が通知上でも分かる自然な日本語の文にする。
+- Issue title には `feat:`、`fix:`、`docs:`、`refactor:` などの PR title 向け prefix を付けない。
+- Issue title に `Closes #<Issue番号>` のような PR closing keyword だけを使わない。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
 - Draft PR を作成した通常開発作業では、最終報告前に PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
@@ -41,7 +44,8 @@
 - GitHub が自動生成する merge commit message は、この形式の対象外とする。
 - PR が Issue を完了させる場合は、body に `Closes #<Issue番号>` などの GitHub closing keyword を記載し、`main` へのマージ時に Issue が自動クローズされるようにする。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
-- Issue の背景には、対象ファイルや画面、現状の問題、放置した場合のリスク、対応する理由を具体的に書く。抽象的な「整理する」「改善する」だけで終わらせない。
+- Issue body は固定セクションを必須にせず、自由記述を基本にする。ただし後から読む人が対象、現状、困っていること、期待する状態のいずれかを判断できる具体性は残す。
+- 不具合報告は、可能な範囲で現象、再現手順、期待する動作を揃える。
 - PR 本文の変更内容には、何を変えたかだけでなく、なぜその形にしたか、影響範囲、既存挙動を維持した点を必要に応じて書く。
 - Issue / PR は原則として適切な milestone と Project `Salesforce API Playground` に紐付ける。作成後は自動追加の成否を確認し、未設定の場合は手動設定または未設定理由の記録を行う。
 - PR が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。

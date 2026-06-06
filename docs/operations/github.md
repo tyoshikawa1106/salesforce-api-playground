@@ -127,16 +127,21 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 - これから行う作業や検討事項は Issue として作成する。
 - Issue には、milestone、Project `Salesforce API Playground`、label を設定する。
+- Issue title は prefix を付けず、問題、背景、要望、調査対象が通知上でも分かる自然な日本語の文にする。
+- Issue title には `feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`style:`、`ci:`、`chore:` などの PR title 向け prefix を付けない。
+- Issue title に `Closes #<Issue番号>` のような PR closing keyword だけを使わない。Issue が Pull Request で解決される場合の closing keyword は PR body に記載する。
 - Codex が Issue の milestone / Project を設定できない場合は、最終報告または関連 PR 本文に未設定理由を記載し、手動設定対象として扱う。
 - 新規 Issue と Pull Request は `.github/workflows/auto-assign.yml` により、作成時に owner へ自動 assign し、Project `Salesforce API Playground` へ自動追加する。
 - Issue / Pull Request の assignee を変更する場合は、workflow の `ASSIGNEE` を変更する。
 - Issue が Pull Request で解決される場合は、PR 本文やコメントで Issue 番号を参照する。
 - GitHub の Issue 自動クローズは default branch へのマージ時に closing keyword を解釈するため、PR が Issue を完了させる場合は `Closes #<Issue番号>` などを PR body に記載する。
 - Issue template は `.github/ISSUE_TEMPLATE` 配下で管理する。
-- Issue template は入力項目を増やしすぎず、問題、内容、対象、補足など最小限の項目にする。
+- Issue template は書き出しを助ける補助線として扱い、入力項目を増やしすぎない。
+- 機能追加、改善、運用改善、docs、Codex 作業の Issue は自由記述を基本にし、必要なら補足欄へ関連ファイルや対象範囲を書く。
+- 不具合報告の Issue は、可能な範囲で現象、再現手順、期待する動作を揃える。
 - Issue template の初期 label は、作成時に判断できる範囲に限定する。必要な `area:*`、milestone、Project は triage または PR 作成時に設定する。
 
-Issue の本文は、後から読む人が「なぜこの作業が必要か」「どこを見ればよいか」を判断できる粒度で書きます。抽象的な「整理する」「改善する」だけで終わらせず、以下を含めます。
+Issue の本文は、固定セクションを必須にせず、自然文や箇条書きで書いてよいです。後から読む人が「何の話か」「なぜ必要か」「どこを見ればよいか」を判断できるように、以下のいずれかが分かる具体性は残します。
 
 | 項目 | 書く内容 |
 | --- | --- |
@@ -164,8 +169,8 @@ GitHub 運用を改善する。
 
 | Template | 用途 |
 | --- | --- |
-| `機能・改善` | 機能追加、UI、ドキュメント、運用の改善を記録する |
-| `不具合報告` | 動作不良や想定外の挙動を記録する |
+| `機能・改善` | 機能追加、UI、ドキュメント、運用改善、Codex 作業を自由記述寄りで記録する |
+| `不具合報告` | 動作不良や想定外の挙動について、現象、再現手順、期待する動作を可能な範囲で揃える |
 
 ## Pull Request 運用
 
@@ -255,6 +260,8 @@ gh issue view <Issue番号> --json state,stateReason,url
 ### PR title / body の書き方
 
 通常開発 PR の title は `<type>: <日本語summary>` の形式にします。`type` は `feat`、`fix`、`docs`、`test`、`refactor`、`style`、`ci`、`chore` から選びます。summary は日本語で、PR 全体の変更意図が分かる具体的な表現にします。
+
+この title 形式は Pull Request と commit message のためのもので、Issue title には使いません。PR title 形式は運用上の基本ルールとして扱い、title lint や CI による強制チェックは置きません。
 
 | 良い例 | 避ける例 |
 | --- | --- |

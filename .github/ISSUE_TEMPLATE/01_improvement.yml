@@ -1,34 +1,22 @@
 name: 機能・改善
 description: 機能追加、UI、ドキュメント、運用の改善を記録する
-title: "[Feature/Improvement] "
 labels:
   - enhancement
   - type:improvement
 body:
   - type: textarea
-    id: summary
+    id: memo
     attributes:
-      label: 内容
-      description: 改善したい対象、現状の問題、対応したい内容を書いてください。
+      label: メモ
+      description: 気になっていること、変えたいこと、相談したいことを自由に書いてください。
       placeholder: |
-        対象:
-        現状:
-        対応内容:
+        例:
+        README の入口情報が多く、初見で目的別に探しづらい。
+        docs 側へ詳細を寄せて、README は主要な入口に絞りたい。
     validations:
       required: true
   - type: textarea
-    id: value
-    attributes:
-      label: 目的
-      description: なぜ必要か、放置した場合のリスク、何が良くなるかを書いてください。
-      placeholder: |
-        背景:
-        リスク:
-        期待する効果:
-    validations:
-      required: false
-  - type: textarea
-    id: notes
+    id: context
     attributes:
       label: 補足
       description: 関連する画面、API、ファイル、docs、運用、今回やらないことなどがあれば書いてください。
