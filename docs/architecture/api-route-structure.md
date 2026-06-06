@@ -48,6 +48,8 @@ flowchart LR
 | `handleSalesforceUpdateRoute()` | URL params の `id` 取得、Origin / Referer 検証、Salesforce record ID 検証、payload 読み取り、更新処理をまとめる |
 | `handleSalesforceDeleteRoute()` | URL params の `id` 取得、Origin / Referer 検証、Salesforce record ID 検証、削除処理をまとめる |
 | `handleSalesforceBulkDeleteRoute()` | Origin / Referer 検証、payload の `ids` 読み取り、Salesforce record ID 配列検証、複数削除処理をまとめる |
+| `createSalesforceCollectionRouteHandlers()` | Account / Contact のような一覧、作成、複数削除を持つ同型 Route の handler 定義をまとめる |
+| `createSalesforceRecordRouteHandlers()` | Account / Contact のような `[id]` 更新、削除を持つ同型 Route の handler 定義をまとめる |
 | `handleSalesforceIntegrationRoute()` | Cookie session を前提にしない Integration API の JSON response とエラー変換をまとめる |
 
 通常の Account / Contact API は、service 層が `{ data, session }` を返し、`handleSalesforceRoute()` が `jsonWithSession()` で response と session Cookie 更新を行います。Integration API は refresh token を持つ画面 session とは別の Client Credentials Flow を使うため、`handleSalesforceIntegrationRoute()` で Cookie session 更新を行いません。

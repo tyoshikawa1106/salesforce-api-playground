@@ -2,21 +2,16 @@ import {
     readAccountCreatePayload,
     readBulkDeletePayload
 } from "@/lib/salesforce/request-payloads";
-import {
-    handleSalesforceBulkDeleteRoute,
-    handleSalesforceCreateRoute,
-    handleSalesforceRoute
-} from "@/lib/salesforce/route-handler";
+import { createSalesforceCollectionRouteHandlers } from "@/lib/salesforce/route-handler";
 import { createAccount, deleteAccounts, listAccounts } from "@/services/salesforce/records";
 
-export async function GET() {
-    return handleSalesforceRoute(() => listAccounts());
-}
+const accountRoutes = createSalesforceCollectionRouteHandlers({
+    objectLabel: "Account",
+    readCreatePayload: readAccountCreatePayload,
+    readBulkDeletePayload,
+    listRecords: listAccounts,
+    createRecord: createAccount,
+    deleteRecords: deleteAccounts
+});
 
-export async function POST(request: Request) {
-    return handleSalesforceCreateRoute(request, readAccountCreatePayload, createAccount);
-}
-
-export async function DELETE(request: Request) {
-    return handleSalesforceBulkDeleteRoute(request, "Account", readBulkDeletePayload, deleteAccounts);
-}
+export const { GET, POST, DELETE } = accountRoutes;

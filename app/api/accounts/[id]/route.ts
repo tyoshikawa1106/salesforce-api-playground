@@ -1,21 +1,12 @@
 import { readAccountUpdatePayload } from "@/lib/salesforce/request-payloads";
-import {
-    handleSalesforceDeleteRoute,
-    handleSalesforceUpdateRoute
-} from "@/lib/salesforce/route-handler";
-import type { SalesforceRouteParams } from "@/lib/salesforce/route-handler";
+import { createSalesforceRecordRouteHandlers } from "@/lib/salesforce/route-handler";
 import { deleteAccount, updateAccount } from "@/services/salesforce/records";
 
-export async function PATCH(request: Request, { params }: SalesforceRouteParams) {
-    return handleSalesforceUpdateRoute(
-        request,
-        { params },
-        "Account",
-        readAccountUpdatePayload,
-        updateAccount
-    );
-}
+const accountRecordRoutes = createSalesforceRecordRouteHandlers({
+    objectLabel: "Account",
+    readUpdatePayload: readAccountUpdatePayload,
+    updateRecord: updateAccount,
+    deleteRecord: deleteAccount
+});
 
-export async function DELETE(request: Request, { params }: SalesforceRouteParams) {
-    return handleSalesforceDeleteRoute(request, { params }, "Account", deleteAccount);
-}
+export const { PATCH, DELETE } = accountRecordRoutes;

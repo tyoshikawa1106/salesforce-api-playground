@@ -1,5 +1,11 @@
-import { getContactName } from "./formatting";
 import { ObjectHomeHeader } from "./ObjectHome";
+import {
+    accountBulkDeleteLabel,
+    accountDeleteState,
+    contactBulkDeleteLabel,
+    contactDeleteLabel,
+    contactDeleteState
+} from "./record-actions";
 import { AccountPanel, ContactPanel } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
 import type { Account, Contact, DeleteState } from "./types";
@@ -40,7 +46,7 @@ export function AccountListWorkspace({
                 onOpen={onOpen}
                 onEdit={onEdit}
                 onDelete={(record) => onDeleteRecord(accountDeleteState([record], record.Name))}
-                onBulkDelete={(records) => onDeleteRecord(accountDeleteState(records, `選択した取引先 ${records.length} 件`))}
+                onBulkDelete={(records) => onDeleteRecord(accountDeleteState(records, accountBulkDeleteLabel(records)))}
                 onBulkDeleteEmpty={onBulkDeleteEmpty}
             />
         </>
@@ -109,8 +115,8 @@ export function ContactListWorkspace({
                 connected={connected}
                 onOpen={onOpen}
                 onEdit={onEdit}
-                onDelete={(record) => onDeleteRecord(contactDeleteState([record], getContactName(record)))}
-                onBulkDelete={(records) => onDeleteRecord(contactDeleteState(records, `選択した取引先責任者 ${records.length} 件`))}
+                onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
+                onBulkDelete={(records) => onDeleteRecord(contactDeleteState(records, contactBulkDeleteLabel(records)))}
                 onBulkDeleteEmpty={onBulkDeleteEmpty}
             />
         </>
@@ -133,26 +139,10 @@ export function ContactDetailWorkspace({
     return (
         <ContactRecordPage
             contact={contact}
-            onDelete={(record) => onDeleteRecord(contactDeleteState([record], getContactName(record)))}
+            onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
             onEdit={onEdit}
             onRefresh={onRefresh}
             loading={loading}
         />
     );
-}
-
-function accountDeleteState(records: Account[], label: string): DeleteState {
-    return {
-        type: "account",
-        ids: records.map((record) => record.Id),
-        label
-    };
-}
-
-function contactDeleteState(records: Contact[], label: string): DeleteState {
-    return {
-        type: "contact",
-        ids: records.map((record) => record.Id),
-        label
-    };
 }

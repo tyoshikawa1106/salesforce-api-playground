@@ -3,6 +3,7 @@ import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-
 import type { SessionInfo } from "@/lib/playground-api";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest, PlaygroundApiError } from "./api";
+import { keepSelectedRecordId, upsertRecordById } from "./playground-data-state";
 import type { Account, ActiveTab, Contact, Notice, RecycleBinItem } from "./types";
 
 type UsePlaygroundDataOptions = {
@@ -67,12 +68,8 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
             setAccounts(accountResult.accounts);
             setContacts(contactResult.contacts);
             setRecycleBinItems(recycleBinResult.items);
-            setSelectedAccountId((currentId) =>
-                currentId && accountResult.accounts.some((account) => account.Id === currentId) ? currentId : null
-            );
-            setSelectedContactId((currentId) =>
-                currentId && contactResult.contacts.some((contact) => contact.Id === currentId) ? currentId : null
-            );
+            setSelectedAccountId((currentId) => keepSelectedRecordId(currentId, accountResult.accounts));
+            setSelectedContactId((currentId) => keepSelectedRecordId(currentId, contactResult.contacts));
         } catch (error) {
             if (error instanceof PlaygroundApiError && error.status === 401) {
                 resetConnectedState();
@@ -95,20 +92,14 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
 
     const openSearchResult = useCallback((result: SearchResultItem) => {
         if (result.type === "account") {
-            setAccounts((currentAccounts) => [
-                result.record,
-                ...currentAccounts.filter((account) => account.Id !== result.record.Id)
-            ]);
+            setAccounts((currentAccounts) => upsertRecordById(currentAccounts, result.record));
             setSelectedContactId(null);
             setSelectedAccountId(result.record.Id);
             setActiveTab("accounts");
             return;
         }
 
-        setContacts((currentContacts) => [
-            result.record,
-            ...currentContacts.filter((contact) => contact.Id !== result.record.Id)
-        ]);
+        setContacts((currentContacts) => upsertRecordById(currentContacts, result.record));
         setSelectedAccountId(null);
         setSelectedContactId(result.record.Id);
         setActiveTab("contacts");

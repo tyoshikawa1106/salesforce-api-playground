@@ -3,16 +3,30 @@ import type {
     ContactRecord,
     SearchResultItem
 } from "@/lib/salesforce/records";
+import { accountFieldNames, contactFieldNames } from "@/lib/salesforce/record-fields";
+
+export const accountQueryFields = [
+    "Id",
+    ...accountFieldNames,
+    "LastModifiedDate"
+] as const;
+
+export const contactQueryFields = [
+    "Id",
+    ...contactFieldNames,
+    "Account.Name",
+    "LastModifiedDate"
+] as const;
 
 export const accountListQuery = [
-    "SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate",
+    `SELECT ${accountQueryFields.join(", ")}`,
     "FROM Account",
     "ORDER BY LastModifiedDate DESC",
     "LIMIT 100"
 ].join(" ");
 
 export const contactListQuery = [
-    "SELECT Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate",
+    `SELECT ${contactQueryFields.join(", ")}`,
     "FROM Contact",
     "ORDER BY LastModifiedDate DESC",
     "LIMIT 100"
@@ -40,8 +54,8 @@ export function buildGlobalSearchSosl(query: string): string {
 
     return [
         `FIND {${searchExpression}} IN ALL FIELDS RETURNING`,
-        "Account(Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate LIMIT 5),",
-        "Contact(Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate LIMIT 5)"
+        `Account(${accountQueryFields.join(", ")} LIMIT 5),`,
+        `Contact(${contactQueryFields.join(", ")} LIMIT 5)`
     ].join(" ");
 }
 
