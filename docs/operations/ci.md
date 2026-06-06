@@ -11,11 +11,15 @@
 
 workflow の job 名は `Lint, typecheck, and build` です。変更内容により docs-only と full check を切り替えます。
 
+同じ Pull Request または branch で新しい CI run が始まった場合、古い進行中の run は自動 cancel します。push を重ねたときに古い commit の確認結果が残り続けないようにするためです。
+
 ## 変更範囲の判定
 
 CI は `Detect change scope` step で変更ファイルを調べ、`docs_only` と `ui_related` を判定します。
 
 Pull Request では PR base SHA と head SHA の差分を見ます。`main` push では `before` SHA と `github.sha` の差分を見ます。初回 push など `before` がすべて `0` の場合は、対象 commit の変更ファイルを見ます。
+
+変更ファイル一覧は runner の一時ディレクトリに置き、repository workspace には作業用ファイルを残しません。
 
 ## docs-only
 
