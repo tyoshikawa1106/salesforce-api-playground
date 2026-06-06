@@ -86,6 +86,18 @@ Salesforce の参照整合性エラーや権限エラーは `details` と `error
 
 UI 表示を改善する場合は、代表的な `errorCode` ごとに安全な表示文言へ変換します。validation rule、権限不足、参照整合性エラーの確認は運用者が検証用組織で行います。
 
+## Salesforce 手動確認結果の記録
+
+[Salesforce での確認](../setup/salesforce-manual-verification.md) は、実 Salesforce 接続後に確認する操作項目のチェックリストです。実行結果や組織固有のトラブルは、PR 本文、Issue コメント、またはこのドキュメントに記録します。
+
+記録する内容:
+
+- 確認日、接続先種別、実行したチェック範囲、結果を記録する。
+- 追加確認が必要な場合は、具体的な確認内容を記録する。
+- 実 URL、Salesforce token、Client Secret、`INTEGRATION_API_KEY`、個人環境固有の値は記録しない。
+- 組織固有の validation rule、権限、共有設定、IP 制限が原因と分かった場合のみ、その事実を記録する。
+- 原因が確認できない場合は断定しない。
+
 ## Heroku
 
 Heroku の起動方式、Config Vars、PR merge 後の release / dyno 確認は [Heroku デプロイ](../deployment/heroku.md) を参照してください。
