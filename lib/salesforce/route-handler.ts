@@ -13,7 +13,7 @@ import type { SalesforceObjectLabel } from "./request-security";
 import type { SalesforceSession } from "./session";
 import { getSession } from "./session";
 
-type SalesforceRouteResult<T> = {
+export type SalesforceRouteResult<T> = {
     data: T;
     session: SalesforceSession;
 };
@@ -44,6 +44,22 @@ type UpdateIntegrationRecord<TInput, TData> = (
     input: TInput
 ) => Promise<SalesforceIntegrationRouteResult<TData>>;
 type IntegrationRouteAuth = (request: Pick<Request, "headers">) => Promise<void> | void;
+
+type SalesforceCollectionRouteConfig<TCreateInput, TListData, TCreateData, TBulkDeleteData> = {
+    objectLabel: SalesforceObjectLabel;
+    readCreatePayload: ReadPayload<TCreateInput>;
+    readBulkDeletePayload: ReadPayload<BulkDeleteInput>;
+    listRecords: () => Promise<SalesforceRouteResult<TListData>>;
+    createRecord: CreateRecord<TCreateInput, TCreateData>;
+    deleteRecords: BulkDeleteRecord<TBulkDeleteData>;
+};
+
+type SalesforceRecordRouteConfig<TUpdateInput, TUpdateData, TDeleteData> = {
+    objectLabel: SalesforceObjectLabel;
+    readUpdatePayload: ReadPayload<TUpdateInput>;
+    updateRecord: UpdateRecord<TUpdateInput, TUpdateData>;
+    deleteRecord: DeleteRecord<TDeleteData>;
+};
 
 export async function handleSalesforceRoute<T>(
     handler: () => Promise<SalesforceRouteResult<T>>,
@@ -113,6 +129,43 @@ export function handleSalesforceBulkDeleteRoute<TData>(
         input.ids.forEach((id) => assertSalesforceRecordId(id, objectLabel));
         return deleteRecords(input.ids);
     });
+}
+
+export function createSalesforceCollectionRouteHandlers<TCreateInput, TListData, TCreateData, TBulkDeleteData>({
+    createRecord,
+    deleteRecords,
+    listRecords,
+    objectLabel,
+    readBulkDeletePayload,
+    readCreatePayload
+}: SalesforceCollectionRouteConfig<TCreateInput, TListData, TCreateData, TBulkDeleteData>) {
+    return {
+        GET() {
+            return handleSalesforceRoute(() => listRecords());
+        },
+        POST(request: Request) {
+            return handleSalesforceCreateRoute(request, readCreatePayload, createRecord);
+        },
+        DELETE(request: Request) {
+            return handleSalesforceBulkDeleteRoute(request, objectLabel, readBulkDeletePayload, deleteRecords);
+        }
+    };
+}
+
+export function createSalesforceRecordRouteHandlers<TUpdateInput, TUpdateData, TDeleteData>({
+    deleteRecord,
+    objectLabel,
+    readUpdatePayload,
+    updateRecord
+}: SalesforceRecordRouteConfig<TUpdateInput, TUpdateData, TDeleteData>) {
+    return {
+        PATCH(request: Request, params: SalesforceRouteParams) {
+            return handleSalesforceUpdateRoute(request, params, objectLabel, readUpdatePayload, updateRecord);
+        },
+        DELETE(request: Request, params: SalesforceRouteParams) {
+            return handleSalesforceDeleteRoute(request, params, objectLabel, deleteRecord);
+        }
+    };
 }
 
 export async function handleSalesforceIntegrationRoute<T>(

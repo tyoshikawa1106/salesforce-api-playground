@@ -7,22 +7,8 @@ import {
     saveContactMutation
 } from "./mutations";
 import { blankAccount, blankContact } from "./record-forms";
-import type { Account, Contact, DeleteState, ModalState } from "./types";
-
-const account: Account = {
-    Id: "001xx000003DGbY",
-    Name: "Acme"
-};
-
-const contact: Contact = {
-    Id: "003xx000004TmiQ",
-    FirstName: "Taro",
-    LastName: "Yamada",
-    AccountId: account.Id,
-    Account: {
-        Name: account.Name
-    }
-};
+import { accountFixture, contactFixture } from "./test-fixtures";
+import type { DeleteState, ModalState } from "./types";
 
 afterEach(() => {
     vi.unstubAllGlobals();
@@ -40,7 +26,7 @@ describe("playground record mutations", () => {
 
         await expect(saveAccountMutation(null, { ...blankAccount, Name: "Acme" })).resolves.toBe("取引先を作成しました。");
 
-        const editModal: ModalState = { type: "account", mode: "edit", record: account };
+        const editModal: ModalState = { type: "account", mode: "edit", record: accountFixture };
         await expect(saveAccountMutation(editModal, { ...blankAccount, Name: "Updated Acme" })).resolves.toBe("取引先を更新しました。");
 
         expect(fetchMock).toHaveBeenNthCalledWith(
@@ -50,7 +36,7 @@ describe("playground record mutations", () => {
         );
         expect(fetchMock).toHaveBeenNthCalledWith(
             2,
-            `/api/accounts/${account.Id}`,
+            `/api/accounts/${accountFixture.Id}`,
             expect.objectContaining({ method: "PATCH" })
         );
     });
@@ -60,7 +46,7 @@ describe("playground record mutations", () => {
 
         await expect(saveContactMutation(null, { ...blankContact, LastName: "Yamada" })).resolves.toBe("取引先責任者を作成しました。");
 
-        const editModal: ModalState = { type: "contact", mode: "edit", record: contact };
+        const editModal: ModalState = { type: "contact", mode: "edit", record: contactFixture };
         await expect(saveContactMutation(editModal, { ...blankContact, LastName: "Suzuki" })).resolves.toBe("取引先責任者を更新しました。");
 
         expect(fetchMock).toHaveBeenNthCalledWith(
@@ -70,7 +56,7 @@ describe("playground record mutations", () => {
         );
         expect(fetchMock).toHaveBeenNthCalledWith(
             2,
-            `/api/contacts/${contact.Id}`,
+            `/api/contacts/${contactFixture.Id}`,
             expect.objectContaining({ method: "PATCH" })
         );
     });
@@ -90,12 +76,12 @@ describe("playground record mutations", () => {
 
     it("deletes records through the matching resource route", async () => {
         const fetchMock = stubSuccessfulFetch();
-        const deleteState: DeleteState = { type: "contact", ids: [contact.Id], label: "Taro Yamada" };
+        const deleteState: DeleteState = { type: "contact", ids: [contactFixture.Id], label: "Taro Yamada" };
 
         await expect(deleteRecordMutation(deleteState)).resolves.toBe("Taro Yamada を削除しました。");
 
         expect(fetchMock).toHaveBeenCalledWith(
-            `/api/contacts/${contact.Id}`,
+            `/api/contacts/${contactFixture.Id}`,
             expect.objectContaining({ method: "DELETE" })
         );
     });
@@ -104,7 +90,7 @@ describe("playground record mutations", () => {
         const fetchMock = stubSuccessfulFetch();
         const deleteState: DeleteState = {
             type: "account",
-            ids: [account.Id, "001xx000003DGbZ"],
+            ids: [accountFixture.Id, "001xx000003DGbZ"],
             label: "選択した取引先 2 件"
         };
 
@@ -115,7 +101,7 @@ describe("playground record mutations", () => {
             "/api/accounts",
             expect.objectContaining({
                 method: "DELETE",
-                body: JSON.stringify({ ids: [account.Id, "001xx000003DGbZ"] })
+                body: JSON.stringify({ ids: [accountFixture.Id, "001xx000003DGbZ"] })
             })
         );
     });
@@ -128,13 +114,13 @@ describe("playground record mutations", () => {
                 {
                     objectApiName: "Account",
                     objectLabel: "取引先",
-                    id: account.Id,
-                    name: account.Name
+                    id: accountFixture.Id,
+                    name: accountFixture.Name
                 },
                 {
                     objectApiName: "Contact",
                     objectLabel: "取引先責任者",
-                    id: contact.Id,
+                    id: contactFixture.Id,
                     name: "Taro Yamada"
                 }
             ])
@@ -146,8 +132,8 @@ describe("playground record mutations", () => {
                 method: "POST",
                 body: JSON.stringify({
                     items: [
-                        { objectApiName: "Account", id: account.Id },
-                        { objectApiName: "Contact", id: contact.Id }
+                        { objectApiName: "Account", id: accountFixture.Id },
+                        { objectApiName: "Contact", id: contactFixture.Id }
                     ]
                 })
             })

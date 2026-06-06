@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
     buildAccountCreatePayload,
     buildAccountUpdatePayload,
+    buildBulkDeleteRecordsRequest,
     buildContactCreatePayload,
     buildContactUpdatePayload,
+    buildCreateRecordRequest,
+    buildDeleteRecordRequest,
     buildPlaygroundApiRequest,
+    buildUpdateRecordRequest,
     compactPayload,
     playgroundApiPaths
 } from "./playground-api";
@@ -59,6 +63,30 @@ describe("buildPlaygroundApiRequest", () => {
                 },
                 method: "POST",
                 body: "{\"LastName\":\"Yamada\"}"
+            }
+        });
+    });
+});
+
+describe("record request builders", () => {
+    it("builds create, update, delete, and bulk delete requests for resources", () => {
+        expect(buildCreateRecordRequest("accounts", { Name: "Acme" })).toMatchObject({
+            url: "/api/accounts",
+            init: { method: "POST" }
+        });
+        expect(buildUpdateRecordRequest("contacts", "003xx000004TmiQ", { LastName: "Yamada" })).toMatchObject({
+            url: "/api/contacts/003xx000004TmiQ",
+            init: { method: "PATCH" }
+        });
+        expect(buildDeleteRecordRequest("accounts", "001xx000003DGbY")).toMatchObject({
+            url: "/api/accounts/001xx000003DGbY",
+            init: { method: "DELETE" }
+        });
+        expect(buildBulkDeleteRecordsRequest("contacts", ["003xx000004TmiQ"])).toMatchObject({
+            url: "/api/contacts",
+            init: {
+                method: "DELETE",
+                body: JSON.stringify({ ids: ["003xx000004TmiQ"] })
             }
         });
     });

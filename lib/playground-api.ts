@@ -67,6 +67,44 @@ export function buildPlaygroundApiRequest(
     };
 }
 
+function collectionPath(resource: PlaygroundApiResource) {
+    return resource === "accounts" ? playgroundApiPaths.accounts : playgroundApiPaths.contacts;
+}
+
+export function buildCreateRecordRequest(resource: PlaygroundApiResource, body: unknown): PlaygroundApiRequest {
+    return buildPlaygroundApiRequest(collectionPath(resource), {
+        method: "POST",
+        body
+    });
+}
+
+export function buildUpdateRecordRequest(
+    resource: PlaygroundApiResource,
+    id: string,
+    body: unknown
+): PlaygroundApiRequest {
+    return buildPlaygroundApiRequest(playgroundApiPaths.record(resource, id), {
+        method: "PATCH",
+        body
+    });
+}
+
+export function buildDeleteRecordRequest(resource: PlaygroundApiResource, id: string): PlaygroundApiRequest {
+    return buildPlaygroundApiRequest(playgroundApiPaths.record(resource, id), {
+        method: "DELETE"
+    });
+}
+
+export function buildBulkDeleteRecordsRequest(
+    resource: PlaygroundApiResource,
+    ids: string[]
+): PlaygroundApiRequest {
+    return buildPlaygroundApiRequest(collectionPath(resource), {
+        method: "DELETE",
+        body: { ids }
+    });
+}
+
 export function compactPayload<T extends Record<string, string>>(
     form: T
 ): CreatePayload<T>;

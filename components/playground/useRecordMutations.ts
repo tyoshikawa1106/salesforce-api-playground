@@ -16,18 +16,12 @@ import {
     saveAccountMutation,
     saveContactMutation
 } from "./mutations";
+import { runMutationWithNotice } from "./mutation-runner";
 import type { Account, Contact, DeleteState, ModalState, Notice, RecycleBinItem, RestoreState } from "./types";
 
 type UseRecordMutationsOptions = {
     loadAll: () => Promise<void>;
     showNotice: (notice: Notice) => void;
-};
-
-type MutationRunnerOptions = {
-    runMutation: () => Promise<string>;
-    fallbackErrorMessage: string;
-    onSuccess?: () => Promise<void> | void;
-    onError?: () => Promise<void> | void;
 };
 
 const accountNameRequiredMessage = getRequiredFieldMessage(accountTextFields, "Name");
@@ -52,27 +46,6 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         setModal(record ? { type: "contact", mode: "edit", record } : { type: "contact", mode: "create" });
     }
 
-    async function runMutationWithNotice({
-        runMutation,
-        fallbackErrorMessage,
-        onSuccess,
-        onError
-    }: MutationRunnerOptions) {
-        setSaving(true);
-        try {
-            showNotice({ tone: "success", message: await runMutation() });
-            await onSuccess?.();
-        } catch (error) {
-            showNotice({
-                tone: "error",
-                message: error instanceof Error ? error.message : fallbackErrorMessage
-            });
-            await onError?.();
-        } finally {
-            setSaving(false);
-        }
-    }
-
     async function saveAccount(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!accountForm.Name.trim()) {
@@ -83,6 +56,8 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         await runMutationWithNotice({
             runMutation: () => saveAccountMutation(modal, accountForm),
             fallbackErrorMessage: "取引先の保存に失敗しました。",
+            setSaving,
+            showNotice,
             onSuccess: async () => {
                 setModal(null);
                 await loadAll();
@@ -100,6 +75,8 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         await runMutationWithNotice({
             runMutation: () => saveContactMutation(modal, contactForm),
             fallbackErrorMessage: "取引先責任者の保存に失敗しました。",
+            setSaving,
+            showNotice,
             onSuccess: async () => {
                 setModal(null);
                 await loadAll();
@@ -117,6 +94,8 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         await runMutationWithNotice({
             runMutation: () => createIntegrationAccountMutation(integrationAccountForm),
             fallbackErrorMessage: "連携ユーザーでの取引先作成に失敗しました。",
+            setSaving,
+            showNotice,
             onSuccess: async () => {
                 setIntegrationAccountForm(blankAccount);
                 await loadAll();
@@ -132,6 +111,8 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         await runMutationWithNotice({
             runMutation: () => deleteRecordMutation(deleteState),
             fallbackErrorMessage: "削除に失敗しました。",
+            setSaving,
+            showNotice,
             onSuccess: async () => {
                 setDeleteState(null);
                 await loadAll();
@@ -156,6 +137,8 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         await runMutationWithNotice({
             runMutation: () => restoreRecycleBinItemsMutation(restoreState.items),
             fallbackErrorMessage: "復元に失敗しました。",
+            setSaving,
+            showNotice,
             onSuccess: async () => {
                 setRestoreState(null);
                 await loadAll();
