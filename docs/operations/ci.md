@@ -23,7 +23,7 @@ Pull Request では PR base SHA と head SHA の差分を見ます。`main` push
 
 | 対象 | 例 |
 | --- | --- |
-| Markdown | `README.md`, `CHANGELOG.md` |
+| Markdown | `README.md` |
 | docs 配下 | `docs/**/*.md` |
 | PR template | `.github/pull_request_template.md` |
 | Issue templates | `.github/ISSUE_TEMPLATE/*` |
