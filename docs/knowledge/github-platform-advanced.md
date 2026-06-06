@@ -16,6 +16,46 @@ Issue で背景を固定する
 -> tag と Release notes で公開履歴を固定する
 ```
 
+## Issue と Pull Request を分ける設計
+
+Issue と Pull Request は、どちらも GitHub 上の作業単位に見えますが、設計上の役割は違います。
+
+Issue は「問題や目的の管理」です。Pull Request は「解決案と差分の管理」です。
+
+| 観点 | Issue | Pull Request |
+| --- | --- | --- |
+| 主語 | やるべきこと、困っていること | 変更したこと、取り込みたい差分 |
+| 時点 | 実装前から存在できる | 作業ブランチの差分ができてから作る |
+| 読者 | 作業者、triage する人、後から背景を追う人 | reviewer、merge 判断する人、CI 結果を見る人 |
+| 完了 | 対応方針が実現され、必要なら closing keyword で close される | review と CI を通り、`main` に merge される |
+| 書かない方がよいこと | 実装差分の細かい説明 | Issue に書くべき背景の長い再説明 |
+
+Issue と PR の本文が同じ内容になる場合は、どちらかの役割が曖昧になっています。Issue には背景と達成条件を置き、PR には変更内容と確認結果を置くと、後から読み返しやすくなります。
+
+### 対応関係のパターン
+
+Issue と PR は必ず 1 対 1 とは限りません。
+
+| パターン | 向いているケース | 書き方 |
+| --- | --- | --- |
+| 1 Issue / 1 PR | 小さな不具合修正、docs 追加、設定変更 | PR body に `Closes #<Issue番号>` を書く |
+| 1 Issue / 複数 PR | 大きな設計テーマ、段階的な移行 | 各 PR で Issue を参照し、最後の PR だけ closing keyword を使う |
+| 複数 Issue / 1 PR | 近い docs 整備、同じ原因の小修正 | PR body に複数の closing keyword を書く |
+| Issue なし PR | ごく小さな typo、緊急の軽微修正 | なぜ Issue なしでよいか PR body に書く |
+
+1 Issue / 複数 PR の場合、途中の PR で `Closes #...` を書くと、Issue が早く close されます。まだ残作業があるなら `Refs #...` や `Related to #...` のように参照だけにします。
+
+### Project 上での見分け方
+
+Project では、Issue と PR を同じ列に並べることがあります。その場合も、見る観点を分けます。
+
+| Project item | 見ること |
+| --- | --- |
+| Issue | 作業テーマとして残っているか、完了条件が満たされたか |
+| Pull Request | review 待ちか、CI 待ちか、merge 可能か |
+
+Issue が `Done` でも PR が open なら、変更はまだ `main` に入っていない可能性があります。PR が merge 済みでも Issue が open なら、closing keyword がない、または残作業がある可能性があります。
+
 ## Issue 設計の応用
 
 Issue は「作業を忘れないためのメモ」ではなく、変更判断の前提を固定する場所として使います。

@@ -42,6 +42,24 @@ Closes #123
 
 この keyword は、PR が default branch に merge された時点で GitHub に解釈され、対象 Issue を自動 close します。
 
+## Issue と Pull Request の違い
+
+Issue と Pull Request は似た場所で使いますが、役割は分けて考えます。
+
+| 対象 | 主な役割 | 書くこと |
+| --- | --- | --- |
+| Issue | 何を、なぜ対応するかを整理する | 背景、現状、影響、完了条件 |
+| Pull Request | どう変更したかを提示する | 差分、実装方針、確認結果、レビュー観点 |
+
+Issue は、変更前に目的や問題を固定する場所です。Pull Request は、作業ブランチで行った具体的な変更を `main` に取り込むための提案です。
+
+```text
+Issue: 何が問題で、何を達成したいか
+PR: そのために、どのファイルをどう変えたか
+```
+
+Issue がなくても Pull Request は作れますが、背景が残りにくくなります。Pull Request がなくても Issue は存在できますが、作業としてはまだ `main` に反映されていません。
+
 ## GitHub Project
 
 GitHub Project は、Issue や Pull Request を一覧し、作業状況を管理するためのボードです。
