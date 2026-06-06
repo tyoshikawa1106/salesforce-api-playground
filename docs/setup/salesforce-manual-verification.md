@@ -1,10 +1,4 @@
-# Salesforce 手動確認
-
-## 目的
-
-このドキュメントは、実 Salesforce 組織に接続したあとにユーザーが手動確認する操作フローと、Codex 作業でローカルテストにより確認できる範囲を分けて整理します。
-
-Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer Edition、Trailhead ハンズオン組織、Sandbox などへの OAuth 接続、実データの作成、更新、削除、Client Credentials Flow の疎通はユーザーが自身の検証用組織で実施します。
+# Salesforce での確認
 
 ## 確認範囲の切り分け
 
@@ -16,7 +10,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 | Contact と Account の紐づけ | `AccountId` の許可、payload 正規化、Contact service 呼び出しをテストで確認する | 実 Account ID を指定した Contact 作成 / 更新、紐づけ解除、参照権限エラー |
 | Client Credentials Flow | API key 検証、token request 組み立て、連携用 Account API の入力検証をテストで確認する | Integration ユーザーでの token 取得、Account 作成、Account 更新、権限不足時のエラー |
 
-このドキュメントは、ユーザーが検証用組織で実 Salesforce 接続を確認するためのチェックリストです。Codex 作業では実 Salesforce 接続を行わないため、組織固有の validation rule、共有設定、権限セット、IP 制限に依存する挙動は、このファイルではなく PR 本文、Issue コメント、またはトラブルシューティング記録に確認日時と接続先種別を添えて記録します。
+このドキュメントは、ユーザーが検証用組織で実 Salesforce 接続を確認するためのチェックリストです。Codex 作業では実 Salesforce 接続を行わないため、組織固有の validation rule、共有設定、権限セット、IP 制限に依存する挙動は、このファイルではなく PR 本文、Issue コメント、または困ったとき記録に確認日時と接続先種別を添えて記録します。
 
 ## 事前準備
 
@@ -26,7 +20,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 4. 検証用データを作成 / 削除できる Salesforce 組織を使う。本番組織の実データでは確認しない。
 5. `npm run dev` でローカルアプリを起動し、`http://localhost:3000` を開く。
 
-設定の詳細は [ローカル開発](local-development.md)、[OAuth フロー](../security/oauth-flow.md)、[Salesforce Integration ユーザー連携設定](salesforce-integration-client-credentials.md) を参照してください。
+設定の詳細は [ローカル開発](local-development.md)、[OAuth フロー](../security/oauth-flow.md)、[Integration ユーザー設定](salesforce-integration-client-credentials.md) を参照してください。
 
 ## OAuth login / logout チェックリスト
 
@@ -104,7 +98,7 @@ Codex 作業では実 Salesforce 接続は行いません。Salesforce Developer
 | 4 | 誤った `x-integration-api-key` で実行する | `Invalid integration API key.` になり、Salesforce token 取得は行われない |
 | 5 | `SALESFORCE_INTEGRATION_LOGIN_URL` を My Domain URL にしていることを確認する | token 取得時に `request not supported on this domain` が発生しない |
 
-curl 例は [Salesforce Integration ユーザー連携設定](salesforce-integration-client-credentials.md) を参照してください。
+curl 例は [Integration ユーザー設定](salesforce-integration-client-credentials.md) を参照してください。
 
 確認時の注意:
 
@@ -130,17 +124,9 @@ curl 例は [Salesforce Integration ユーザー連携設定](salesforce-integra
 
 ## 記録ルール
 
-- 実行結果は PR 本文、Issue コメント、または [トラブルシューティング](../operations/troubleshooting.md) に記録する。
+- 実行結果は PR 本文、Issue コメント、または [困ったとき](../operations/troubleshooting.md) に記録する。
 - 記録には確認日、接続先種別、実行したチェック範囲、結果、必要な追加確認内容を含める。
 - 実 URL、Salesforce token、Client Secret、`INTEGRATION_API_KEY`、個人環境固有の値は記録しない。
 - 組織固有の validation rule、権限、共有設定、IP 制限が原因と分かった場合のみ、その事実を記録する。
 - 原因が確認できない場合は断定せず、必要なら具体的な追加確認内容を Issue または PR コメントに記録する。
 - 確認で作成した Account / Contact は、確認後に削除する。
-
-## 関連ドキュメント
-
-- [ローカル開発](local-development.md)
-- [OAuth フロー](../security/oauth-flow.md)
-- [API 概要](../api/api-overview.md)
-- [Salesforce Integration ユーザー連携設定](salesforce-integration-client-credentials.md)
-- [トラブルシューティング](../operations/troubleshooting.md)

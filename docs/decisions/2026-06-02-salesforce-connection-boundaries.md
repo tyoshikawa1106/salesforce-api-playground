@@ -35,10 +35,3 @@ Salesforce 接続責務は以下の境界で分離する。
 ## 見直し条件
 
 Salesforce 以外の外部サービス接続が増え、サービス層の配置規約を再整理する必要が出た場合、または `jsforce` 以外の接続方式へ移行する場合に見直す。
-
-## 関連ドキュメント
-
-- [システム概要](../architecture/system-overview.md)
-- [API 概要](../api/api-overview.md)
-- [OAuth フロー](../security/oauth-flow.md)
-- [Issue #196](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/196)

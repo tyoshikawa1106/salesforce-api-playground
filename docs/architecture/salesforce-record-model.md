@@ -1,11 +1,5 @@
 # Salesforce レコードモデル
 
-## 目的
-
-このドキュメントは、Playground が扱う Salesforce 標準オブジェクト、許可フィールド、入力正規化、ID 検証、検索対象を整理します。
-
-API Route ごとのリクエスト / レスポンスは [API 概要](../api/api-overview.md)、Route Handler の責務境界は [API Route 構成](api-route-structure.md) を参照してください。
-
 ## 対象オブジェクト
 
 現行実装で画面と API から操作する Salesforce オブジェクトは以下です。
@@ -122,7 +116,7 @@ Integration API は Contact を操作しません。Contact の連携 API が必
 - Account / Contact へ追加された必須項目
 - 参照先 Account の存在と参照権限
 
-これらが原因のエラーは、Salesforce / jsforce から返る `details` と `errorCode` を確認します。秘密情報を含む値は API レスポンスとサーバーログで mask します。代表的な切り分けは [トラブルシューティング](../operations/troubleshooting.md) を参照してください。
+これらが原因のエラーは、Salesforce / jsforce から返る `details` と `errorCode` を確認します。秘密情報を含む値は API レスポンスとサーバーログで mask します。代表的な切り分けは [困ったとき](../operations/troubleshooting.md) を参照してください。
 
 ## 変更時の確認
 
@@ -133,13 +127,5 @@ Account / Contact の許可フィールド、入力正規化、SOQL / SOSL、ID 
 | 許可フィールド | `lib/salesforce/record-fields.ts`, `lib/salesforce/request-payloads.test.ts`, UI フォーム |
 | SOQL / SOSL 取得項目 | `services/salesforce/records.ts`, `services/salesforce/records.test.ts`, API response 型 |
 | ID 検証 | `lib/salesforce/request-security.ts`, `lib/salesforce/request-security.test.ts`, Route テスト |
-| Integration API | `app/api/integration-routes.test.ts`, [Salesforce Integration ユーザー連携設定](../setup/salesforce-integration-client-credentials.md) |
-| UI 表示 | [Playground UI 操作フロー棚卸し](playground-ui-flows.md), [Salesforce 手動確認](../setup/salesforce-manual-verification.md) |
-
-## 関連ドキュメント
-
-- [API 概要](../api/api-overview.md)
-- [API Route 構成](api-route-structure.md)
-- [Playground UI 操作フロー棚卸し](playground-ui-flows.md)
-- [Salesforce 手動確認](../setup/salesforce-manual-verification.md)
-- [トラブルシューティング](../operations/troubleshooting.md)
+| Integration API | `app/api/integration-routes.test.ts`, [Integration ユーザー設定](../setup/salesforce-integration-client-credentials.md) |
+| UI 表示 | [Playground UI 操作フロー](playground-ui-flows.md), [Salesforce での確認](../setup/salesforce-manual-verification.md) |

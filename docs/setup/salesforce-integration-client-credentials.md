@@ -1,10 +1,4 @@
-# Salesforce Integration ユーザー連携設定
-
-## 目的
-
-このドキュメントは、Salesforce Integration ライセンスの連携用ユーザーを使い、Client Credentials Flow でサーバー間連携 API の `/api/integration/accounts` と `/api/integration/accounts/[id]` を実行するための Salesforce 側設定を整理します。画面の Integration タブ用 `/api/integration/ui/accounts` も同じ Salesforce 側設定を使いますが、`x-integration-api-key` はブラウザへ公開しません。
-
-この設定は、既存の `Connect Salesforce` ボタンで使う Authorization Code Flow とは別の外部クライアントアプリケーションを使う前提です。
+# Integration ユーザー設定
 
 ## 全体像
 
@@ -223,11 +217,3 @@ curl -X PATCH http://localhost:3000/api/integration/accounts/<ACCOUNT_ID> \
 | `このユーザーライセンスでは次の権限は許可されません: 取引先の作成` | ユーザーに `Salesforce API Integration` 権限セットライセンスが割り当てられていない | ユーザー詳細の `権限セットライセンスの割り当て` で `Salesforce API Integration` を追加する |
 | `NOT_FOUND`, `The requested resource does not exist` | OAuth は通っているが、API バージョン、オブジェクト権限、項目権限などで Salesforce REST API 呼び出しが失敗している | まず Account の Object / Field 権限を確認する。必要に応じて API バージョンも確認する |
 | `Invalid integration API key.` | `x-integration-api-key` が `INTEGRATION_API_KEY` と一致しない | curl のヘッダーに実際の値を指定する。`<INTEGRATION_API_KEY>` はプレースホルダー |
-
-## 関連ドキュメント
-
-- [OAuth フロー](../security/oauth-flow.md)
-- [API 概要](../api/api-overview.md)
-- [ローカル開発](local-development.md)
-- [Salesforce 手動確認](salesforce-manual-verification.md)
-- [トラブルシューティング](../operations/troubleshooting.md)
