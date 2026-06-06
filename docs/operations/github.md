@@ -89,8 +89,8 @@ workflow で使う GitHub Projects v2 の owner、Project number、field ID、op
 手動で追加する場合は、以下を実行します。
 
 ```bash
-gh project item-add 1 --owner tyoshikawa1106 --url https://github.com/tyoshikawa1106/salesforce-api-playground/issues/<Issue番号>
-gh project item-add 1 --owner tyoshikawa1106 --url https://github.com/tyoshikawa1106/salesforce-api-playground/pull/<PR番号>
+gh project item-add 1 --owner @me --url https://github.com/tyoshikawa1106/salesforce-api-playground/issues/<Issue番号>
+gh project item-add 1 --owner @me --url https://github.com/tyoshikawa1106/salesforce-api-playground/pull/<PR番号>
 ```
 
 完了済みの Issue / Pull Request を手動で `Done` に移す場合は、Project 画面で対象 item の status を更新します。CLI で更新する場合は、対象 item ID、Project ID、Status field ID、`Done` option ID を確認してから実行します。
@@ -228,6 +228,33 @@ main -> codex/... -> main
 - Assignee は、マージまで見る担当者を明示したい場合に手動で設定する。
 - マージ済み PR にも、後から milestone と label を設定してよい。
 - Pull Request のマージは原則としてユーザーが行う。ただし Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが GitHub 上の PR merge 操作として実行してよい。
+
+### 連続 Issue / PR 対応時の token 節約
+
+複数 Issue / PR を連続して扱う場合は、作業品質を落とさずに token と API 出力を抑えます。前提として、ユーザーが「目標を設定します」と明示した場合は、作業開始時に Codex の目標機能を開始し、完了時に complete にして token 使用量と経過時間を報告します。目標機能を開始できなかった場合は、最終報告で理由を明記します。
+
+連続対応では以下を基本方針にします。
+
+| 対象 | 方針 |
+| --- | --- |
+| Issue / PR 分割 | 内容やリスクが近い docs / refactor 系は、可能ならまとめて 1 PR にする。ユーザーが順番対応や個別 PR を明示した場合はその指示を優先する |
+| Issue / PR 本文 | 対象、現状、リスク、対応内容、確認結果は残す。同じ背景や確認理由を複数箇所で長く重複させない |
+| `gh pr view` | 原則として `state,isDraft,mergeStateStatus,url,headRefName,baseRefName` など、判断に必要な JSON field だけ取得する |
+| `gh pr checks` | `--watch` で pass を確認した後は同じ check 一覧を繰り返し取得しない。再取得は失敗時、ready 化前、merge 前など判断が変わる時に限る |
+| Project 追加 | user Project は `gh project item-add 1 --owner @me --url <URL>` を使う。owner 指定の試行錯誤を避ける |
+| merge 後確認 | PR は `state,mergedAt,headRefName,baseRefName,url`、Issue は `state,stateReason,url` などに絞る。本文は再取得しない |
+| full check | 各 PR では変更範囲に応じた最小確認を行い、最後の作業または全体完了前に full check をまとめて実行する |
+
+例:
+
+```bash
+gh pr view <PR番号> --json state,isDraft,mergeStateStatus,url,headRefName,baseRefName
+gh pr checks <PR番号> --watch --interval 10
+gh pr view <PR番号> --json state,mergedAt,headRefName,baseRefName,url
+gh issue view <Issue番号> --json state,stateReason,url
+```
+
+各 PR で CI pass、ready for review、merge 可否を確認することは維持します。ただし、CI の詳細 log、Issue / PR body、check rollup の全文は、失敗調査やレビュー判断に必要な場合だけ取得します。
 
 ### PR title / body の書き方
 
