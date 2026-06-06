@@ -23,8 +23,9 @@
 
 - このリポジトリは GitHub Flow として運用する。
 - `main` は唯一の長期ブランチとして扱い、常にデプロイ可能な安定状態を保つ。
-- 作業ブランチは `main` から `codex/...` の形式で作成する。
-- Pull Request は原則として `codex/...` などの作業ブランチから `main` に向ける。
+- 通常の作業ブランチは `main` から `feature/...` の形式で作成する。
+- Codex 作業ブランチは `main` から `codex/...` の形式で作成する。
+- Pull Request は原則として `feature/...` または `codex/...` などの作業ブランチから `main` に向ける。
 - `develop` は旧 Git Flow 運用の統合ブランチとして削除済みとし、再作成しない。
 - `release/*` と `hotfix/*` は旧 Git Flow 運用の一時ブランチとして新規作成しない。
 - Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本とする。
@@ -45,7 +46,7 @@
 - GitHub が自動生成する merge commit message は、この形式の対象外とする。
 - PR が Issue を完了させる場合は、body に `Closes #<Issue番号>` などの GitHub closing keyword を記載し、`main` へのマージ時に Issue が自動クローズされるようにする。
 - PR が既存 Issue の一部対応に留まる場合、エージェント判断で新規 Issue を作成して `Closes` 先を差し替えない。Issue / PR の紐付け方が曖昧な場合は、PR 本文更新や GitHub 上の状態変更を行う前にユーザーへ確認する。
-- PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
+- PR title に `codex` プレフィックスを付けない。`codex/...` は Codex 作業ブランチ名に限定する。
 - Issue body は固定セクションを必須にせず、自由記述を基本にする。ただし後から読む人が対象、現状、困っていること、期待する状態のいずれかを判断できる具体性は残す。
 - 不具合報告は、可能な範囲で現象、再現手順、期待する動作を揃える。
 - PR 本文の変更内容には、何を変えたかだけでなく、なぜその形にしたか、影響範囲、既存挙動を維持した点を必要に応じて書く。
@@ -65,7 +66,7 @@
 - 例外として Dependabot PR は、ユーザーが対象 PR と実行可否を明示し、CI pass と差分確認が完了している場合に限り、エージェントが merge してよい。
 - Dependabot PR をエージェントが merge する場合も、`main` へ直接コミットせず、GitHub 上の PR merge 操作として実行する。
 - PR マージ前に GitHub Actions が pass していることを確認する。
-- PR が `main` にマージ済みであることを確認したら、`main` に戻して GitHub と同期し、マージ済みの `codex/...` ブランチを削除する。
+- PR が `main` にマージ済みであることを確認したら、`main` に戻して GitHub と同期し、マージ済みの作業ブランチを削除する。
 - GitHub Releases / Release notes を正式なリリースノートとして扱う。Release notes は tag ベースで扱い、対象 tag に含まれない PR を既存 Release notes に追記しない。同じ日付の変更でも、tag 作成後に merge された PR は次回 Release に含める。
 - Release tag は原則 1 日 1 回 `vYYYY.MM.DD` として作成する。同日中に追加 Release を分ける必要がある場合のみ `vYYYY.MM.DD-2`、`vYYYY.MM.DD-3` のような連番 suffix を使う。
 - Release 作成時は、先に `git tag <tag> <commit>` と `git push origin <tag>` で tag を明示的に作成し、`gh release create` には `--verify-tag`、`--notes-start-tag <前回tag>`、`--latest` を付ける。tag 未作成のまま `gh release create` に tag を自動作成させない。

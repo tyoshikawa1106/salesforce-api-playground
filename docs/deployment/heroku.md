@@ -54,14 +54,15 @@ Staging app / Production app の作成有無、Pipeline stage、GitHub auto depl
 
 | GitHub ブランチ | Heroku app | 用途 | merge 後の確認 |
 | --- | --- | --- | --- |
-| `codex/...` | なし | 個別作業ブランチ | PR checks |
+| `feature/...` | なし | 通常の個別作業ブランチ | PR checks |
+| `codex/...` | なし | Codex 用の個別作業ブランチ | PR checks |
 | `main` | Staging app | merge 後の自動デプロイと確認 | `main` push workflow、Staging release、Staging dyno |
 | promote | Production app | Staging 確認後の本番反映 | Production release、Production dyno |
 | `develop` / `release/*` / `hotfix/*` | なし | 旧 Git Flow 運用のブランチ | `develop` は削除済み。`release/*` / `hotfix/*` は新規作成しない |
 
 通常開発の流れ:
 
-1. `main` から `codex/...` などの作業ブランチを作成する。
+1. `main` から通常作業では `feature/...`、Codex 作業では `codex/...` の作業ブランチを作成する。
 2. 作業ブランチから `main` へ draft PR を作成する。
 3. GitHub Actions が pass するまで PR checks を確認する。
 4. Required checks が pass したら ready for review にし、PR が draft ではないことを再確認する。
