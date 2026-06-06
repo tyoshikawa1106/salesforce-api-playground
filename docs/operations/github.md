@@ -356,7 +356,7 @@ Issue を完了させない小変更では、closing keyword を書かずに `Is
 
 ## Release notes 運用
 
-GitHub Releases は、Release tag が指す `main` 上の commit までに含まれる変更履歴を記録するために使います。このリポジトリの正式なリリースノートは GitHub Releases に集約し、`CHANGELOG.md` には個別の変更履歴を追記しません。
+GitHub Releases は、Release tag が指す `main` 上の commit までに含まれる変更履歴を記録するために使います。このリポジトリの正式なリリースノートは GitHub Releases に集約し、`CHANGELOG.md` は作成しません。
 
 GitHub の自動生成 Release notes は、merged pull requests、contributors、full changelog link を含められます。`.github/release.yml` を使うと、Pull Request の label に基づいてカテゴリ分けできます。詳細な仕様は GitHub Docs の Automatically generated release notes を参照します。
 
