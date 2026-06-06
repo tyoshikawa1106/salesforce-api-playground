@@ -34,6 +34,9 @@
 - コミットは作業単位で分割し、コミットメッセージは `<type>: <summary>` の形式で書く。
 - 通常開発 PR の title も `<type>: <日本語summary>` の形式で書き、PR 全体の主目的に合う type を使う。summary は原則として日本語で、変更内容が具体的に分かる表現にする。
 - `type` は `feat`、`fix`、`docs`、`test`、`refactor`、`style`、`ci`、`chore` から選ぶ。
+- Issue title は prefix を付けず、問題、背景、要望、調査対象が通知上でも分かる自然な日本語の文にする。
+- Issue title には `feat:`、`fix:`、`docs:`、`refactor:` などの PR title 向け prefix を付けない。
+- Issue title に `Closes #<Issue番号>` のような PR closing keyword だけを使わない。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
 - Draft PR を作成した通常開発作業では、最終報告前に PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。

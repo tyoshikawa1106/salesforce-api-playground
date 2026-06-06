@@ -127,6 +127,9 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 
 - これから行う作業や検討事項は Issue として作成する。
 - Issue には、milestone、Project `Salesforce API Playground`、label を設定する。
+- Issue title は prefix を付けず、問題、背景、要望、調査対象が通知上でも分かる自然な日本語の文にする。
+- Issue title には `feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`style:`、`ci:`、`chore:` などの PR title 向け prefix を付けない。
+- Issue title に `Closes #<Issue番号>` のような PR closing keyword だけを使わない。Issue が Pull Request で解決される場合の closing keyword は PR body に記載する。
 - Codex が Issue の milestone / Project を設定できない場合は、最終報告または関連 PR 本文に未設定理由を記載し、手動設定対象として扱う。
 - 新規 Issue と Pull Request は `.github/workflows/auto-assign.yml` により、作成時に owner へ自動 assign し、Project `Salesforce API Playground` へ自動追加する。
 - Issue / Pull Request の assignee を変更する場合は、workflow の `ASSIGNEE` を変更する。
@@ -255,6 +258,8 @@ gh issue view <Issue番号> --json state,stateReason,url
 ### PR title / body の書き方
 
 通常開発 PR の title は `<type>: <日本語summary>` の形式にします。`type` は `feat`、`fix`、`docs`、`test`、`refactor`、`style`、`ci`、`chore` から選びます。summary は日本語で、PR 全体の変更意図が分かる具体的な表現にします。
+
+この title 形式は Pull Request と commit message のためのもので、Issue title には使いません。PR title 形式は運用上の基本ルールとして扱い、title lint や CI による強制チェックは置きません。
 
 | 良い例 | 避ける例 |
 | --- | --- |
