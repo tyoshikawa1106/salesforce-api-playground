@@ -6,7 +6,7 @@ Salesforce OAuth と REST API を試すための Next.js アプリです。
 
 ## ドキュメント
 
-- [ドキュメント](https://tyoshikawa1106.github.io/salesforce-api-playground/)
+- [Salesforce API Playground](https://tyoshikawa1106.github.io/salesforce-api-playground/)
 
 ## 開発ルール
 
