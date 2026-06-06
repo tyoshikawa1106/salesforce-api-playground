@@ -62,6 +62,8 @@ full check で実行するもの:
 | coverage summary | `coverage/coverage-summary.json` がある場合に GitHub Step Summary へ出力 |
 | `npm run build` | Next.js production build |
 
+coverage 対象は `vitest.config.ts` で定義します。現在は `app/api/**/*.ts`、`lib/**/*.ts`、`services/salesforce/**/*.ts` を対象にし、`*.test.ts` と `app/api/test-helpers.ts` は除外します。
+
 ## SLDS lint
 
 full check のうち、以下の変更がある場合は `ui_related=true` になり、`npm run slds:lint` を実行します。
