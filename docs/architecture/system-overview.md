@@ -115,7 +115,7 @@ Account / Contact は `services/salesforce/records.ts` で標準オブジェク�
 
 | 操作 | Account | Contact |
 | --- | --- | --- |
-| 一覧 | `SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate FROM Account ...` | `SELECT Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate FROM Contact ...` |
+| 一覧 | `SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate, LastModifiedBy.Name FROM Account ...` | `SELECT Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate, LastModifiedBy.Name FROM Contact ...` |
 | 作成 | `connection.sobject("Account").create(input)` | `connection.sobject("Contact").create(input)` |
 | 更新 | `connection.sobject("Account").update({ Id: id, ...input })` | `connection.sobject("Contact").update({ Id: id, ...input })` |
 | 削除 | `connection.sobject("Account").destroy(id)` | `connection.sobject("Contact").destroy(id)` |

@@ -5,28 +5,38 @@ import type {
 } from "@/lib/salesforce/records";
 import { accountFieldNames, contactFieldNames } from "@/lib/salesforce/record-fields";
 
-export const accountQueryFields = [
+const accountSearchFields = [
     "Id",
     ...accountFieldNames,
     "LastModifiedDate"
 ] as const;
 
-export const contactQueryFields = [
+const contactSearchFields = [
     "Id",
     ...contactFieldNames,
     "Account.Name",
     "LastModifiedDate"
 ] as const;
 
+const accountListQueryFields = [
+    ...accountSearchFields,
+    "LastModifiedBy.Name"
+] as const;
+
+const contactListQueryFields = [
+    ...contactSearchFields,
+    "LastModifiedBy.Name"
+] as const;
+
 export const accountListQuery = [
-    `SELECT ${accountQueryFields.join(", ")}`,
+    `SELECT ${accountListQueryFields.join(", ")}`,
     "FROM Account",
     "ORDER BY LastModifiedDate DESC",
     "LIMIT 100"
 ].join(" ");
 
 export const contactListQuery = [
-    `SELECT ${contactQueryFields.join(", ")}`,
+    `SELECT ${contactListQueryFields.join(", ")}`,
     "FROM Contact",
     "ORDER BY LastModifiedDate DESC",
     "LIMIT 100"
@@ -54,8 +64,8 @@ export function buildGlobalSearchSosl(query: string): string {
 
     return [
         `FIND {${searchExpression}} IN ALL FIELDS RETURNING`,
-        `Account(${accountQueryFields.join(", ")} LIMIT 5),`,
-        `Contact(${contactQueryFields.join(", ")} LIMIT 5)`
+        `Account(${accountSearchFields.join(", ")} LIMIT 5),`,
+        `Contact(${contactSearchFields.join(", ")} LIMIT 5)`
     ].join(" ");
 }
 
