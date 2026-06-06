@@ -54,49 +54,67 @@ export default function Playground({ environmentLabel = null }: { environmentLab
     }
 
     const workspaceProps = {
-        accountForm: recordMutations.integrationAccountForm,
-        accounts,
-        activeTab,
-        connected: session.connected,
-        contacts,
-        recycleBinItems,
-        instanceUrl: session.instanceUrl,
-        loading,
-        saving: recordMutations.saving,
-        selectedAccount,
-        selectedContact,
-        onAccountFormChange: recordMutations.setIntegrationAccountForm,
-        onCreateAccount: () => recordMutations.openAccountModal(),
-        onCreateContact: () => recordMutations.openContactModal(),
-        onCreateIntegrationAccount: recordMutations.createIntegrationAccount,
-        onDeleteRecord: recordMutations.setDeleteState,
-        onEditAccount: recordMutations.openAccountModal,
-        onEditContact: recordMutations.openContactModal,
-        onOpenAccount: (record) => setSelectedAccountId(record.Id),
-        onOpenContact: (record) => setSelectedContactId(record.Id),
-        onBulkDeleteEmpty: () => showNotice({ tone: "info", message: "削除対象がチェックされていません。" }),
-        onRestoreRecycleBinItems: recordMutations.openRestoreModal,
-        onRestoreRecycleBinEmpty: () => showNotice({ tone: "info", message: "復元対象がチェックされていません。" }),
-        onRefresh: loadAll
+        view: {
+            activeTab,
+            loading
+        },
+        session: {
+            connected: session.connected,
+            instanceUrl: session.instanceUrl
+        },
+        recordSelection: {
+            accounts,
+            contacts,
+            selectedAccount,
+            selectedContact
+        },
+        recordActions: {
+            onCreateAccount: () => recordMutations.openAccountModal(),
+            onCreateContact: () => recordMutations.openContactModal(),
+            onDeleteRecord: recordMutations.setDeleteState,
+            onEditAccount: recordMutations.openAccountModal,
+            onEditContact: recordMutations.openContactModal,
+            onOpenAccount: (record) => setSelectedAccountId(record.Id),
+            onOpenContact: (record) => setSelectedContactId(record.Id),
+            onBulkDeleteEmpty: () => showNotice({ tone: "info", message: "削除対象がチェックされていません。" }),
+            onRefresh: loadAll
+        },
+        integrationForm: {
+            accountForm: recordMutations.integrationAccountForm,
+            saving: recordMutations.saving,
+            onAccountFormChange: recordMutations.setIntegrationAccountForm,
+            onCreateAccount: recordMutations.createIntegrationAccount
+        },
+        recycleBinActions: {
+            items: recycleBinItems,
+            onRestoreItems: recordMutations.openRestoreModal,
+            onRestoreEmpty: () => showNotice({ tone: "info", message: "復元対象がチェックされていません。" })
+        }
     } satisfies ComponentProps<typeof PlaygroundWorkspace>;
 
     const recordModalProps = {
-        accountForm: recordMutations.accountForm,
-        accountOptions,
-        contactForm: recordMutations.contactForm,
-        deleteState: recordMutations.deleteState,
-        modal: recordMutations.modal,
-        restoreState: recordMutations.restoreState,
-        saving: recordMutations.saving,
-        onAccountFormChange: recordMutations.setAccountForm,
-        onCancelDelete: recordMutations.closeDeleteModal,
-        onCancelRestore: recordMutations.closeRestoreModal,
-        onCloseRecordModal: recordMutations.closeRecordModal,
-        onConfirmDelete: recordMutations.confirmDelete,
-        onConfirmRestore: recordMutations.confirmRestore,
-        onContactFormChange: recordMutations.setContactForm,
-        onSaveAccount: recordMutations.saveAccount,
-        onSaveContact: recordMutations.saveContact
+        forms: {
+            accountForm: recordMutations.accountForm,
+            accountOptions,
+            contactForm: recordMutations.contactForm,
+            onAccountFormChange: recordMutations.setAccountForm,
+            onContactFormChange: recordMutations.setContactForm
+        },
+        state: {
+            deleteState: recordMutations.deleteState,
+            modal: recordMutations.modal,
+            restoreState: recordMutations.restoreState,
+            saving: recordMutations.saving
+        },
+        actions: {
+            onCancelDelete: recordMutations.closeDeleteModal,
+            onCancelRestore: recordMutations.closeRestoreModal,
+            onCloseRecordModal: recordMutations.closeRecordModal,
+            onConfirmDelete: recordMutations.confirmDelete,
+            onConfirmRestore: recordMutations.confirmRestore,
+            onSaveAccount: recordMutations.saveAccount,
+            onSaveContact: recordMutations.saveContact
+        }
     } satisfies ComponentProps<typeof RecordModals>;
 
     return (
