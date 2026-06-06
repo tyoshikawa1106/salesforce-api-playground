@@ -13,6 +13,7 @@
 | 実 Salesforce 組織で手動確認する | [Salesforce 手動確認](setup/salesforce-manual-verification.md) |
 | API Route とレスポンスを確認する | [API 概要](api/api-overview.md) |
 | UI の主要操作フローを確認する | [Playground UI 操作フロー棚卸し](architecture/playground-ui-flows.md) |
+| 技術スタックの役割を確認する | [技術スタック説明](knowledge/technology-stack.md) |
 | 作業開始から PR 前までの確認を行う | [開発チェックリスト](operations/development-checklist.md) |
 | CI の確認内容を把握する | [CI](operations/ci.md) |
 | GitHub Issue / PR / Release 運用を確認する | [GitHub 運用](operations/github.md) |

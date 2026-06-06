@@ -7,6 +7,10 @@
 - [業務本番化の検討観点](production-readiness.md)
 - [プロジェクト初期セットアップガイド](project-bootstrap-guide.md)
 
+## 技術理解
+
+- [技術スタック説明](technology-stack.md)
+
 ## Heroku
 
 - [Heroku Button 仕組みメモ](heroku-button.md)
