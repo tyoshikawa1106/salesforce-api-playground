@@ -177,6 +177,8 @@ npm run test:coverage
 
 `npm run test:coverage` は単なる coverage 表示ではなく、`vitest.config.ts` の全体 threshold を満たすか確認します。現在の threshold は Statements 90%、Branches 85%、Functions 90%、Lines 90% です。CI では docs / template のみの変更を除き、Pull Request と `main` push の品質ゲートとして実行します。
 
+coverage 対象は `app/api/**/*.ts`、`lib/**/*.ts`、`services/salesforce/**/*.ts` です。`*.test.ts` と `app/api/test-helpers.ts` は対象から除外します。
+
 HTML レポートは `coverage/index.html` に生成されます。`coverage/` は `.gitignore` で除外されているため、生成してもコミット対象にはなりません。
 
 ## 実装確認に使う主なテスト
