@@ -27,6 +27,7 @@ API request body で許可するフィールドは `lib/salesforce/record-fields
 | `BillingCity` | 任意 | 任意、空文字は `null` | 取得する |
 | `BillingCountry` | 任意 | 任意、空文字は `null` | 取得する |
 | `LastModifiedDate` | request 不可 | request 不可 | 取得する |
+| `LastModifiedBy.Name` | request 不可 | request 不可 | 一覧で取得する |
 
 ### Contact
 
@@ -40,6 +41,7 @@ API request body で許可するフィールドは `lib/salesforce/record-fields
 | `AccountId` | 任意 | 任意、空文字は `null` | 取得する |
 | `Account.Name` | request 不可 | request 不可 | 取得する |
 | `LastModifiedDate` | request 不可 | request 不可 | 取得する |
+| `LastModifiedBy.Name` | request 不可 | request 不可 | 一覧で取得する |
 
 `Account.Name` は Contact 一覧と検索結果の表示用に取得する参照先項目です。Contact の作成 / 更新 payload では `AccountId` のみを受け付けます。
 

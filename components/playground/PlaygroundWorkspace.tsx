@@ -72,8 +72,6 @@ export function PlaygroundWorkspace({
                         contactsCount={contacts.length}
                         connected={connected}
                         instanceUrl={instanceUrl}
-                        loading={loading}
-                        onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
 

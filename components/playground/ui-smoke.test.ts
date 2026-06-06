@@ -22,7 +22,10 @@ const account: Account = {
     Type: "Customer",
     BillingCity: "Tokyo",
     BillingCountry: "Japan",
-    LastModifiedDate: "2026-05-01T10:00:00.000Z"
+    LastModifiedDate: "2026-05-01T10:00:00.000Z",
+    LastModifiedBy: {
+        Name: "Admin User"
+    }
 };
 
 const contact: Contact = {
@@ -36,7 +39,10 @@ const contact: Contact = {
     Account: {
         Name: account.Name
     },
-    LastModifiedDate: "2026-05-01T10:00:00.000Z"
+    LastModifiedDate: "2026-05-01T10:00:00.000Z",
+    LastModifiedBy: {
+        Name: "Sales User"
+    }
 };
 
 const noop = () => {};
@@ -121,6 +127,8 @@ describe("playground UI smoke rendering", () => {
         );
 
         expect(accountMarkup).toContain("Acme");
+        expect(accountMarkup).toContain("最終更新者");
+        expect(accountMarkup).toContain("Admin User");
         expect(accountMarkup).toContain("1 件");
         expect(accountMarkup).toContain("このリストを検索...");
         expect(accountMarkup).toContain("role=\"grid\"");
@@ -157,6 +165,8 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).not.toContain("slds-row-number");
         expect(accountMarkup).not.toContain("data-label=\"行番号\"");
         expect(contactMarkup).toContain("Taro Yamada");
+        expect(contactMarkup).toContain("最終更新者");
+        expect(contactMarkup).toContain("Sales User");
         expect(contactMarkup).toContain("1 件");
         expect(contactMarkup).toContain("Manager");
         expect(contactMarkup).toContain("aria-label=\"表示中の取引先責任者をすべて選択\"");
@@ -333,8 +343,8 @@ describe("playground UI smoke rendering", () => {
             })
         );
 
-        expect(markup).toContain("title=\"レコード一覧\"");
-        expect(markup).toContain("レコード一覧");
+        expect(markup).toContain("title=\"リストビュー\"");
+        expect(markup).toContain("リストビュー");
         expect(markup).not.toContain("最近参照したデータ");
         expect(markup).not.toContain("たった今更新");
         expect(markup).not.toContain("slds-page-header__meta-text");
@@ -347,17 +357,15 @@ describe("playground UI smoke rendering", () => {
                 accountsCount: 2,
                 contactsCount: 3,
                 connected: true,
-                instanceUrl: "https://example.my.salesforce.com",
-                loading: false,
-                onRefresh: noop
+                instanceUrl: "https://example.my.salesforce.com"
             })
         );
 
         expect(markup).toContain("slds-text-title_caps\">ホーム");
         expect(markup).toContain("slds-page-header__meta-text");
-        expect(markup).toContain("OAuth と REST API で取引先 / 取引先責任者を直接操作する学習アプリ");
-        expect(markup).toContain("slds-button_icon-border-filled");
-        expect(markup).toContain("slds-button__icon");
+        expect(markup).toContain("Salesforce OAuth と REST API を試すための Next.js アプリ");
+        expect(markup).not.toContain("slds-button_icon-border-filled");
+        expect(markup).not.toContain("title=\"更新\"");
         expect(markup).not.toContain("slds-text-title_caps\">App");
     });
 

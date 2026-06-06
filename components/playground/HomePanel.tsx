@@ -1,19 +1,15 @@
-import { PageHeader, PageHeaderControl, RefreshButton } from "./PageHeader";
+import { PageHeader } from "./PageHeader";
 
 export function HomePanel({
     accountsCount,
     contactsCount,
     connected,
-    instanceUrl,
-    loading,
-    onRefresh
+    instanceUrl
 }: {
     accountsCount: number;
     contactsCount: number;
     connected: boolean;
     instanceUrl?: string;
-    loading: boolean;
-    onRefresh: () => void;
 }) {
     return (
         <>
@@ -21,12 +17,7 @@ export function HomePanel({
                 tab="home"
                 eyebrow="ホーム"
                 title="Salesforce API Playground"
-                metaText="OAuth と REST API で取引先 / 取引先責任者を直接操作する学習アプリ"
-                actions={
-                    <PageHeaderControl>
-                        <RefreshButton loading={loading} onRefresh={onRefresh} />
-                    </PageHeaderControl>
-                }
+                metaText="Salesforce OAuth と REST API を試すための Next.js アプリ"
             />
 
             <div className="slds-p-around_medium">

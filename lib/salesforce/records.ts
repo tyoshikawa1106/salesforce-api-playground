@@ -14,6 +14,9 @@ export type AccountRecord = {
     BillingCity?: string;
     BillingCountry?: string;
     LastModifiedDate?: string;
+    LastModifiedBy?: {
+        Name?: string;
+    };
 };
 
 export type AccountInput = {
@@ -46,6 +49,9 @@ export type ContactRecord = {
         Name?: string;
     };
     LastModifiedDate?: string;
+    LastModifiedBy?: {
+        Name?: string;
+    };
 };
 
 export type ContactInput = {

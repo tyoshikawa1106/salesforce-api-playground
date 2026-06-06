@@ -49,7 +49,8 @@ const accountListConfig: RecordListConfig<Account> = {
         { label: "Web サイト", getValue: (account) => account.Website },
         { label: "業種", getValue: (account) => account.Industry },
         { label: "請求先", getValue: getAccountBilling },
-        { label: "最終更新日", getValue: (account) => formatDate(account.LastModifiedDate) }
+        { label: "最終更新日", getValue: (account) => formatDate(account.LastModifiedDate) },
+        { label: "最終更新者", getValue: (account) => account.LastModifiedBy?.Name }
     ],
     filterListRecords: filterAccounts,
     getRecordLabel: (account) => account.Name
@@ -72,7 +73,8 @@ const contactListConfig: RecordListConfig<Contact> = {
         { label: "取引先名", getValue: (contact) => contact.Account?.Name },
         { label: "メール", getValue: (contact) => contact.Email },
         { label: "電話", getValue: (contact) => contact.Phone },
-        { label: "最終更新日", getValue: (contact) => formatDate(contact.LastModifiedDate) }
+        { label: "最終更新日", getValue: (contact) => formatDate(contact.LastModifiedDate) },
+        { label: "最終更新者", getValue: (contact) => contact.LastModifiedBy?.Name }
     ],
     filterListRecords: filterContacts,
     getRecordLabel: getContactName

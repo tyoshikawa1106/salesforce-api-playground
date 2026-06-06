@@ -19,6 +19,7 @@ import {
     deleteAccount,
     deleteAccounts,
     listAccounts,
+    listContacts,
     searchAccountsAndContacts,
     updateIntegrationAccount,
     updateContact
@@ -148,6 +149,42 @@ describe("Salesforce record services", () => {
             refreshToken: "refresh-token",
             version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
         });
+        expect(jsforceMocks.query).toHaveBeenCalledWith(
+            "SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate, LastModifiedBy.Name FROM Account ORDER BY LastModifiedDate DESC LIMIT 100"
+        );
+    });
+
+    it("lists contacts with the last modified user field", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.query.mockResolvedValue({
+            records: [
+                {
+                    Id: "003xx000004TmiQ",
+                    LastName: "Yamada",
+                    LastModifiedBy: {
+                        Name: "Sales User"
+                    }
+                }
+            ]
+        });
+
+        await expect(listContacts()).resolves.toEqual({
+            data: {
+                contacts: [
+                    {
+                        Id: "003xx000004TmiQ",
+                        LastName: "Yamada",
+                        LastModifiedBy: {
+                            Name: "Sales User"
+                        }
+                    }
+                ]
+            },
+            session
+        });
+        expect(jsforceMocks.query).toHaveBeenCalledWith(
+            "SELECT Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate, LastModifiedBy.Name FROM Contact ORDER BY LastModifiedDate DESC LIMIT 100"
+        );
     });
 
     it("uses jsforce standard object create for accounts", async () => {
