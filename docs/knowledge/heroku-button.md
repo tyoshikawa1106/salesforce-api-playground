@@ -1,4 +1,4 @@
-# Heroku Button 仕組みメモ
+# Heroku Button の仕組み
 
 ## 概要
 

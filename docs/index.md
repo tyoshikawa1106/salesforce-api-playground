@@ -17,7 +17,7 @@
 - [デプロイ](deployment/)
 - [運用](operations/)
 
-### メモ
+### ナレッジ
 
-- [学習メモ](knowledge/)
+- [個人ナレッジ](knowledge/)
 - [設計判断メモ](decisions/)
