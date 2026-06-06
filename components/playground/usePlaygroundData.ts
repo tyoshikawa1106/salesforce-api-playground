@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-api";
 import type { SessionInfo } from "@/lib/playground-api";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest, PlaygroundApiError } from "./api";
-import { keepSelectedRecordId, upsertRecordById } from "./playground-data-state";
+import { getSearchResultStatePatch } from "./playground-data-state";
 import type { Account, ActiveTab, Contact, Notice, RecycleBinItem } from "./types";
+import { usePlaygroundSelection } from "./usePlaygroundSelection";
 
 type UsePlaygroundDataOptions = {
     showNotice: (notice: Notice) => void;
@@ -47,40 +48,34 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [recycleBinItems, setRecycleBinItems] = useState<RecycleBinItem[]>([]);
-    const [activeTab, setActiveTab] = useState<ActiveTab>("home");
-    const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
-    const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-
-    const accountOptions = useMemo(
-        () => [...accounts].sort((a, b) => a.Name.localeCompare(b.Name, "ja")),
-        [accounts]
-    );
-    const selectedAccount = useMemo(
-        () => accounts.find((account) => account.Id === selectedAccountId) ?? null,
-        [accounts, selectedAccountId]
-    );
-    const selectedContact = useMemo(
-        () => contacts.find((contact) => contact.Id === selectedContactId) ?? null,
-        [contacts, selectedContactId]
-    );
+    const {
+        accountOptions,
+        activeTab,
+        changeTab: selectTab,
+        keepSelectionForData,
+        openAccount,
+        openContact,
+        resetConnectedSelection,
+        selectedAccount,
+        selectedContact,
+        setSelectedAccountId,
+        setSelectedContactId
+    } = usePlaygroundSelection({ accounts, contacts });
     const resetConnectedState = useCallback(() => {
         setSession({ connected: false });
         setAccounts([]);
         setContacts([]);
         setRecycleBinItems([]);
-        setActiveTab("home");
-        setSelectedAccountId(null);
-        setSelectedContactId(null);
-    }, []);
+        resetConnectedSelection();
+    }, [resetConnectedSelection]);
 
     const applyConnectedData = useCallback((data: ConnectedPlaygroundData) => {
         setAccounts(data.accounts);
         setContacts(data.contacts);
         setRecycleBinItems(data.recycleBinItems);
-        setSelectedAccountId((currentId) => keepSelectedRecordId(currentId, data.accounts));
-        setSelectedContactId((currentId) => keepSelectedRecordId(currentId, data.contacts));
-    }, []);
+        keepSelectionForData(data.accounts, data.contacts);
+    }, [keepSelectionForData]);
 
     const loadAll = useCallback(async () => {
         setLoading(true);
@@ -107,26 +102,22 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     }, [applyConnectedData, resetConnectedState, showNotice]);
 
     const changeTab = useCallback((nextTab: ActiveTab) => {
-        setActiveTab(nextTab);
-        setSelectedAccountId(null);
-        setSelectedContactId(null);
+        selectTab(nextTab);
         void loadAll();
-    }, [loadAll]);
+    }, [loadAll, selectTab]);
 
     const openSearchResult = useCallback((result: SearchResultItem) => {
-        if (result.type === "account") {
-            setAccounts((currentAccounts) => upsertRecordById(currentAccounts, result.record));
-            setSelectedContactId(null);
-            setSelectedAccountId(result.record.Id);
-            setActiveTab("accounts");
+        const patch = getSearchResultStatePatch(result, accounts, contacts);
+
+        if (patch.type === "account") {
+            setAccounts(patch.accounts);
+            openAccount(patch.selectedAccountId);
             return;
         }
 
-        setContacts((currentContacts) => upsertRecordById(currentContacts, result.record));
-        setSelectedAccountId(null);
-        setSelectedContactId(result.record.Id);
-        setActiveTab("contacts");
-    }, []);
+        setContacts(patch.contacts);
+        openContact(patch.selectedContactId);
+    }, [accounts, contacts, openAccount, openContact]);
 
     useEffect(() => {
         void loadAll();
