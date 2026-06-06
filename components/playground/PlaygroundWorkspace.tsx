@@ -12,58 +12,55 @@ import { RecycleBinPanel } from "./RecycleBinPanel";
 import type { Account, ActiveTab, Contact, DeleteState, RecycleBinItem } from "./types";
 
 type PlaygroundWorkspaceProps = {
-    accountForm: AccountForm;
-    accounts: Account[];
-    activeTab: ActiveTab;
-    connected: boolean;
-    contacts: Contact[];
-    recycleBinItems: RecycleBinItem[];
-    instanceUrl?: string;
-    loading: boolean;
-    saving: boolean;
-    selectedAccount: Account | null;
-    selectedContact: Contact | null;
-    onAccountFormChange: (value: AccountForm) => void;
-    onCreateAccount: () => void;
-    onCreateContact: () => void;
-    onCreateIntegrationAccount: (event: FormEvent<HTMLFormElement>) => void;
-    onDeleteRecord: (deleteState: DeleteState) => void;
-    onEditAccount: (record: Account) => void;
-    onEditContact: (record: Contact) => void;
-    onOpenAccount: (record: Account) => void;
-    onOpenContact: (record: Contact) => void;
-    onBulkDeleteEmpty: () => void;
-    onRestoreRecycleBinItems: (items: RecycleBinItem[]) => void;
-    onRestoreRecycleBinEmpty: () => void;
-    onRefresh: () => void;
+    view: {
+        activeTab: ActiveTab;
+        loading: boolean;
+    };
+    session: {
+        connected: boolean;
+        instanceUrl?: string;
+    };
+    recordSelection: {
+        accounts: Account[];
+        contacts: Contact[];
+        selectedAccount: Account | null;
+        selectedContact: Contact | null;
+    };
+    recordActions: {
+        onCreateAccount: () => void;
+        onCreateContact: () => void;
+        onDeleteRecord: (deleteState: DeleteState) => void;
+        onEditAccount: (record: Account) => void;
+        onEditContact: (record: Contact) => void;
+        onOpenAccount: (record: Account) => void;
+        onOpenContact: (record: Contact) => void;
+        onBulkDeleteEmpty: () => void;
+        onRefresh: () => void;
+    };
+    integrationForm: {
+        accountForm: AccountForm;
+        saving: boolean;
+        onAccountFormChange: (value: AccountForm) => void;
+        onCreateAccount: (event: FormEvent<HTMLFormElement>) => void;
+    };
+    recycleBinActions: {
+        items: RecycleBinItem[];
+        onRestoreItems: (items: RecycleBinItem[]) => void;
+        onRestoreEmpty: () => void;
+    };
 };
 
 export function PlaygroundWorkspace({
-    accountForm,
-    accounts,
-    activeTab,
-    connected,
-    contacts,
-    recycleBinItems,
-    instanceUrl,
-    loading,
-    saving,
-    selectedAccount,
-    selectedContact,
-    onAccountFormChange,
-    onCreateAccount,
-    onCreateContact,
-    onCreateIntegrationAccount,
-    onDeleteRecord,
-    onEditAccount,
-    onEditContact,
-    onOpenAccount,
-    onOpenContact,
-    onBulkDeleteEmpty,
-    onRestoreRecycleBinItems,
-    onRestoreRecycleBinEmpty,
-    onRefresh
+    view,
+    session,
+    recordSelection,
+    recordActions,
+    integrationForm,
+    recycleBinActions
 }: PlaygroundWorkspaceProps) {
+    const { activeTab, loading } = view;
+    const { connected, instanceUrl } = session;
+    const { accounts, contacts, selectedAccount, selectedContact } = recordSelection;
     const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
 
     return (
@@ -76,7 +73,7 @@ export function PlaygroundWorkspace({
                         connected={connected}
                         instanceUrl={instanceUrl}
                         loading={loading}
-                        onRefresh={onRefresh}
+                        onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
 
@@ -85,12 +82,12 @@ export function PlaygroundWorkspace({
                         accounts={accounts}
                         connected={connected}
                         loading={loading}
-                        onBulkDeleteEmpty={onBulkDeleteEmpty}
-                        onCreate={onCreateAccount}
-                        onDeleteRecord={onDeleteRecord}
-                        onEdit={onEditAccount}
-                        onOpen={onOpenAccount}
-                        onRefresh={onRefresh}
+                        onBulkDeleteEmpty={recordActions.onBulkDeleteEmpty}
+                        onCreate={recordActions.onCreateAccount}
+                        onDeleteRecord={recordActions.onDeleteRecord}
+                        onEdit={recordActions.onEditAccount}
+                        onOpen={recordActions.onOpenAccount}
+                        onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
 
@@ -99,9 +96,9 @@ export function PlaygroundWorkspace({
                         account={selectedAccount}
                         contacts={contacts}
                         loading={loading}
-                        onDeleteRecord={onDeleteRecord}
-                        onEdit={onEditAccount}
-                        onRefresh={onRefresh}
+                        onDeleteRecord={recordActions.onDeleteRecord}
+                        onEdit={recordActions.onEditAccount}
+                        onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
 
@@ -110,12 +107,12 @@ export function PlaygroundWorkspace({
                         connected={connected}
                         contacts={contacts}
                         loading={loading}
-                        onBulkDeleteEmpty={onBulkDeleteEmpty}
-                        onCreate={onCreateContact}
-                        onDeleteRecord={onDeleteRecord}
-                        onEdit={onEditContact}
-                        onOpen={onOpenContact}
-                        onRefresh={onRefresh}
+                        onBulkDeleteEmpty={recordActions.onBulkDeleteEmpty}
+                        onCreate={recordActions.onCreateContact}
+                        onDeleteRecord={recordActions.onDeleteRecord}
+                        onEdit={recordActions.onEditContact}
+                        onOpen={recordActions.onOpenContact}
+                        onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
 
@@ -123,29 +120,29 @@ export function PlaygroundWorkspace({
                     <ContactDetailWorkspace
                         contact={selectedContact}
                         loading={loading}
-                        onDeleteRecord={onDeleteRecord}
-                        onEdit={onEditContact}
-                        onRefresh={onRefresh}
+                        onDeleteRecord={recordActions.onDeleteRecord}
+                        onEdit={recordActions.onEditContact}
+                        onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
 
                 {activeTab === "integration" && connected ? (
                     <IntegrationPanel
-                        accountForm={accountForm}
+                        accountForm={integrationForm.accountForm}
                         loading={loading}
-                        saving={saving}
-                        onAccountFormChange={onAccountFormChange}
-                        onCreateAccount={onCreateIntegrationAccount}
-                        onRefresh={onRefresh}
+                        saving={integrationForm.saving}
+                        onAccountFormChange={integrationForm.onAccountFormChange}
+                        onCreateAccount={integrationForm.onCreateAccount}
+                        onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
 
                 {activeTab === "recycleBin" && connected ? (
                     <RecycleBinPanel
-                        items={recycleBinItems}
+                        items={recycleBinActions.items}
                         loading={loading}
-                        onRestore={onRestoreRecycleBinItems}
-                        onRestoreEmpty={onRestoreRecycleBinEmpty}
+                        onRestore={recycleBinActions.onRestoreItems}
+                        onRestoreEmpty={recycleBinActions.onRestoreEmpty}
                     />
                 ) : null}
             </section>
