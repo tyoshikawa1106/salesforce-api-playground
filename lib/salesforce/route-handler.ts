@@ -131,6 +131,18 @@ export function handleSalesforceBulkDeleteRoute<TData>(
     });
 }
 
+export function handleSalesforceActionRoute<TInput, TData>(
+    request: MutatingRequest,
+    readPayload: ReadPayload<TInput>,
+    runAction: (input: TInput) => Promise<SalesforceRouteResult<TData>>
+): Promise<NextResponse> {
+    return handleSalesforceRoute(async () => {
+        assertSameOriginRequest(request);
+        const input = await readPayload(request);
+        return runAction(input);
+    });
+}
+
 export function createSalesforceCollectionRouteHandlers<TCreateInput, TListData, TCreateData, TBulkDeleteData>({
     createRecord,
     deleteRecords,

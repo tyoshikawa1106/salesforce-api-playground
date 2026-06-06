@@ -24,6 +24,14 @@ type UseRecordMutationsOptions = {
     showNotice: (notice: Notice) => void;
 };
 
+type SaveRecordFormOptions = {
+    event: FormEvent<HTMLFormElement>;
+    formIsValid: boolean;
+    requiredMessage: string;
+    runMutation: () => Promise<string>;
+    fallbackErrorMessage: string;
+};
+
 const accountNameRequiredMessage = getRequiredFieldMessage(accountTextFields, "Name");
 const contactLastNameRequiredMessage = getRequiredFieldMessage(contactTextFields, "LastName");
 
@@ -46,16 +54,22 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         setModal(record ? { type: "contact", mode: "edit", record } : { type: "contact", mode: "create" });
     }
 
-    async function saveAccount(event: FormEvent<HTMLFormElement>) {
+    async function saveRecordForm({
+        event,
+        fallbackErrorMessage,
+        formIsValid,
+        requiredMessage,
+        runMutation
+    }: SaveRecordFormOptions) {
         event.preventDefault();
-        if (!accountForm.Name.trim()) {
-            showNotice({ tone: "error", message: accountNameRequiredMessage });
+        if (!formIsValid) {
+            showNotice({ tone: "error", message: requiredMessage });
             return;
         }
 
         await runMutationWithNotice({
-            runMutation: () => saveAccountMutation(modal, accountForm),
-            fallbackErrorMessage: "取引先の保存に失敗しました。",
+            runMutation,
+            fallbackErrorMessage,
             setSaving,
             showNotice,
             onSuccess: async () => {
@@ -65,22 +79,23 @@ export function useRecordMutations({ loadAll, showNotice }: UseRecordMutationsOp
         });
     }
 
-    async function saveContact(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        if (!contactForm.LastName.trim()) {
-            showNotice({ tone: "error", message: contactLastNameRequiredMessage });
-            return;
-        }
+    async function saveAccount(event: FormEvent<HTMLFormElement>) {
+        await saveRecordForm({
+            event,
+            formIsValid: Boolean(accountForm.Name.trim()),
+            requiredMessage: accountNameRequiredMessage,
+            runMutation: () => saveAccountMutation(modal, accountForm),
+            fallbackErrorMessage: "取引先の保存に失敗しました。"
+        });
+    }
 
-        await runMutationWithNotice({
+    async function saveContact(event: FormEvent<HTMLFormElement>) {
+        await saveRecordForm({
+            event,
+            formIsValid: Boolean(contactForm.LastName.trim()),
+            requiredMessage: contactLastNameRequiredMessage,
             runMutation: () => saveContactMutation(modal, contactForm),
-            fallbackErrorMessage: "取引先責任者の保存に失敗しました。",
-            setSaving,
-            showNotice,
-            onSuccess: async () => {
-                setModal(null);
-                await loadAll();
-            }
+            fallbackErrorMessage: "取引先責任者の保存に失敗しました。"
         });
     }
 

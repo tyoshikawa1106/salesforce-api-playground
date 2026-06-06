@@ -5,9 +5,11 @@ import {
     buildBulkDeleteRecordsRequest,
     buildContactCreatePayload,
     buildContactUpdatePayload,
+    buildCreateRecordPayload,
     buildCreateRecordRequest,
     buildDeleteRecordRequest,
     buildPlaygroundApiRequest,
+    buildUpdateRecordPayload,
     buildUpdateRecordRequest,
     compactPayload,
     playgroundApiPaths
@@ -178,6 +180,34 @@ describe("form payload builders", () => {
             Phone: null,
             Title: "Manager",
             AccountId: null
+        });
+    });
+
+    it("builds resource-specific create and update payloads", () => {
+        expect(buildCreateRecordPayload("accounts", {
+            Name: " Acme ",
+            Phone: "",
+            Website: "",
+            Industry: "",
+            Type: "",
+            BillingCity: "",
+            BillingCountry: ""
+        })).toMatchObject({
+            Name: "Acme",
+            Phone: undefined
+        });
+
+        expect(buildUpdateRecordPayload("contacts", {
+            FirstName: "",
+            LastName: " Yamada ",
+            Email: "",
+            Phone: "",
+            Title: "",
+            AccountId: ""
+        })).toMatchObject({
+            FirstName: null,
+            LastName: "Yamada",
+            Email: null
         });
     });
 });

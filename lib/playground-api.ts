@@ -28,6 +28,11 @@ type PlaygroundApiRequestOptions = {
     body?: unknown;
 };
 
+type RecordPayloadBuilders<TForm extends Record<string, string>, TCreateInput, TUpdateInput> = {
+    buildCreatePayload: (form: TForm) => TCreateInput;
+    buildUpdatePayload: (form: TForm) => TUpdateInput;
+};
+
 export type CreatePayload<T extends Record<string, string>> = Partial<{
     [K in keyof T]: string | undefined;
 }>;
@@ -68,7 +73,7 @@ export function buildPlaygroundApiRequest(
 }
 
 function collectionPath(resource: PlaygroundApiResource) {
-    return resource === "accounts" ? playgroundApiPaths.accounts : playgroundApiPaths.contacts;
+    return playgroundApiResourcePaths[resource];
 }
 
 export function buildCreateRecordRequest(resource: PlaygroundApiResource, body: unknown): PlaygroundApiRequest {
@@ -138,4 +143,49 @@ export function buildContactCreatePayload(form: ContactForm): ContactInput {
 
 export function buildContactUpdatePayload(form: ContactForm): ContactUpdateInput {
     return compactPayload(form, { emptyAsNull: true });
+}
+
+const playgroundApiResourcePaths: Record<PlaygroundApiResource, string> = {
+    accounts: playgroundApiPaths.accounts,
+    contacts: playgroundApiPaths.contacts
+};
+
+const recordPayloadBuilders: {
+    accounts: RecordPayloadBuilders<AccountForm, AccountInput, AccountUpdateInput>;
+    contacts: RecordPayloadBuilders<ContactForm, ContactInput, ContactUpdateInput>;
+} = {
+    accounts: {
+        buildCreatePayload: buildAccountCreatePayload,
+        buildUpdatePayload: buildAccountUpdatePayload
+    },
+    contacts: {
+        buildCreatePayload: buildContactCreatePayload,
+        buildUpdatePayload: buildContactUpdatePayload
+    }
+};
+
+export function buildCreateRecordPayload(resource: "accounts", form: AccountForm): AccountInput;
+export function buildCreateRecordPayload(resource: "contacts", form: ContactForm): ContactInput;
+export function buildCreateRecordPayload(
+    resource: PlaygroundApiResource,
+    form: AccountForm | ContactForm
+): AccountInput | ContactInput {
+    if (resource === "accounts") {
+        return recordPayloadBuilders.accounts.buildCreatePayload(form as AccountForm);
+    }
+
+    return recordPayloadBuilders.contacts.buildCreatePayload(form as ContactForm);
+}
+
+export function buildUpdateRecordPayload(resource: "accounts", form: AccountForm): AccountUpdateInput;
+export function buildUpdateRecordPayload(resource: "contacts", form: ContactForm): ContactUpdateInput;
+export function buildUpdateRecordPayload(
+    resource: PlaygroundApiResource,
+    form: AccountForm | ContactForm
+): AccountUpdateInput | ContactUpdateInput {
+    if (resource === "accounts") {
+        return recordPayloadBuilders.accounts.buildUpdatePayload(form as AccountForm);
+    }
+
+    return recordPayloadBuilders.contacts.buildUpdatePayload(form as ContactForm);
 }
