@@ -38,10 +38,3 @@
 ## 見直し条件
 
 複数人開発、定期リリース、長期の release branch が必要になり、`main` だけでは変更管理が難しくなった場合に見直す。
-
-## 関連ドキュメント
-
-- [GitHub 運用](../operations/github.md)
-- [Heroku デプロイ](../deployment/heroku.md)
-- [Issue #196](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/196)
-- [Issue #204](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/204)

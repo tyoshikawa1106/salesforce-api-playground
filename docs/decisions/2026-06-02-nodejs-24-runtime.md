@@ -34,9 +34,3 @@ Node.js 24 をローカル開発、CI、Heroku runtime の基準にする。
 ## 見直し条件
 
 Next.js、React、Heroku stack、または依存パッケージのサポート範囲が変わり、Node.js 24 を基準にする利点がなくなった場合に見直す。
-
-## 関連ドキュメント
-
-- [ローカル開発](../setup/local-development.md)
-- [Heroku デプロイ](../deployment/heroku.md)
-- [Issue #196](https://github.com/tyoshikawa1106/salesforce-api-playground/issues/196)

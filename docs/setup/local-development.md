@@ -1,9 +1,5 @@
 # ローカル開発
 
-## 目的
-
-このドキュメントは、ローカルで開発環境を準備し、確認コマンドを実行するための手順を整理します。
-
 ## 概要
 
 このプロジェクトは Next.js 16 / TypeScript / React 19 で実装されています。依存関係は npm で管理し、ローカル実行時は `.env.local` に Salesforce 外部クライアントアプリケーションの設定を入れます。
@@ -218,14 +214,4 @@ Salesforce 組織や OAuth 設定を変更した場合、既存の localhost Coo
 
 Salesforce 外部クライアントアプリケーションの OAuth 設定は、Salesforce Help の External Client Apps 向け手順で確認します。2026-06-06 時点で確認する主な画面領域は `External Client Apps Manager`、`OAuth Settings`、`Callback URL`、OAuth scope、Authorization Code Flow / Client Credentials Flow の有効化項目です。
 
-OAuth 要件、callback URL、PKCE の扱いは [OAuth フロー](../security/oauth-flow.md) を一次情報として参照してください。実 Salesforce 組織への接続は Codex 作業では行わないため、組織固有の validation rule、権限、共有設定、IP 制限に起因するエラーは、発生時に [トラブルシューティング](../operations/troubleshooting.md) へ秘密情報を除いて記録します。
-
-## 関連ドキュメント
-
-- [システム概要](../architecture/system-overview.md)
-- [OAuth フロー](../security/oauth-flow.md)
-- [Salesforce Integration ユーザー連携設定](salesforce-integration-client-credentials.md)
-- [Salesforce 手動確認](salesforce-manual-verification.md)
-- [API 概要](../api/api-overview.md)
-- [開発チェックリスト](../operations/development-checklist.md)
-- [トラブルシューティング](../operations/troubleshooting.md)
+OAuth 要件、callback URL、PKCE の扱いは [OAuth フロー](../security/oauth-flow.md) を一次情報として参照してください。実 Salesforce 組織への接続は Codex 作業では行わないため、組織固有の validation rule、権限、共有設定、IP 制限に起因するエラーは、発生時に [困ったとき](../operations/troubleshooting.md) へ秘密情報を除いて記録します。

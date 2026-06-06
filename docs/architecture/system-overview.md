@@ -1,8 +1,4 @@
-# システム概要
-
-## 目的
-
-このドキュメントは、`salesforce-api-playground` の全体構成、主要コンポーネント、外部連携の関係を開発者が把握するための一次情報として管理します。
+# システム全体
 
 ## 概要
 
@@ -159,16 +155,7 @@ Salesforce API version は環境変数ではなく、`lib/salesforce/api-version
 
 ## 補足
 
-- Salesforce 組織ごとの validation rule、権限、参照整合性、必須項目追加による挙動は、組織設定に依存します。API エラー表示方針と rate limit 方針は [API 概要](../api/api-overview.md) と [トラブルシューティング](../operations/troubleshooting.md) を参照。
+- Salesforce 組織ごとの validation rule、権限、参照整合性、必須項目追加による挙動は、組織設定に依存します。API エラー表示方針と rate limit 方針は [API](../api/api-overview.md) と [困ったとき](../operations/troubleshooting.md) を参照。
 - `organizationId` は OAuth token response の `id` URL から session に保存します。レスポンスや API 呼び出しには使用していません。
 - 環境ラベルの表示判定は [環境ラベル](environment-label.md) を参照。
 - Heroku Pipeline、release と GitHub merge commit の対応、dyno 起動状態、ロールバック手順の確認観点は [Heroku デプロイ](../deployment/heroku.md) を参照。
-
-## 関連ドキュメント
-
-- [API 概要](../api/api-overview.md)
-- [OAuth フロー](../security/oauth-flow.md)
-- [環境ラベル](environment-label.md)
-- [秘密情報の扱い](../security/secret-handling.md)
-- [Heroku デプロイ](../deployment/heroku.md)
-- [ローカル開発](../setup/local-development.md)
