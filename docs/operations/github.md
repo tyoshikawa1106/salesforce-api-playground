@@ -130,6 +130,7 @@ label は、標準ラベル、`area:*`、`type:*` を組み合わせて使いま
 - Issue title は prefix を付けず、問題、背景、要望、調査対象が通知上でも分かる自然な日本語の文にする。
 - Issue title には `feat:`、`fix:`、`docs:`、`test:`、`refactor:`、`style:`、`ci:`、`chore:` などの PR title 向け prefix を付けない。
 - Issue title に `Closes #<Issue番号>` のような PR closing keyword だけを使わない。Issue が Pull Request で解決される場合の closing keyword は PR body に記載する。
+- エージェントは、ユーザーの明示的な依頼なしに Issue を新規作成したり、既存 Issue / PR の対応関係を増やしたりしない。親 Issue の一部だけを実装する場合も、個別 Issue を作るか、親 Issue に `Closes` を付けるか、`Issue なし` とするかをユーザーに確認してから行う。
 - Codex が Issue の milestone / Project を設定できない場合は、最終報告または関連 PR 本文に未設定理由を記載し、手動設定対象として扱う。
 - 新規 Issue と Pull Request は `.github/workflows/auto-assign.yml` により、作成時に owner へ自動 assign し、Project `Salesforce API Playground` へ自動追加する。
 - Issue / Pull Request の assignee を変更する場合は、workflow の `ASSIGNEE` を変更する。
@@ -215,6 +216,7 @@ main -> codex/... -> main
 
 - Pull Request には、変更内容に合う milestone、Project `Salesforce API Playground`、label を設定する。
 - Pull Request が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
+- Pull Request が既存 Issue の一部対応に留まる場合、エージェント判断で新規 Issue を作成して `Closes` 先を差し替えない。Issue / PR の紐付け方が曖昧な場合は、PR 本文更新や GitHub 上の状態変更を行う前にユーザーへ確認する。
 - Pull Request 作成後は、Project への自動追加結果、milestone の設定漏れ、label の設定漏れがないか確認する。
 - Pull Request template には、関連 Issue、変更内容、チェック結果、レビュー観点を記載する。
 - milestone、Project、label、Draft / Ready for review 状態は GitHub の管理情報として扱い、PR 本文で二重管理しない。

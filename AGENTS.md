@@ -37,12 +37,14 @@
 - Issue title は prefix を付けず、問題、背景、要望、調査対象が通知上でも分かる自然な日本語の文にする。
 - Issue title には `feat:`、`fix:`、`docs:`、`refactor:` などの PR title 向け prefix を付けない。
 - Issue title に `Closes #<Issue番号>` のような PR closing keyword だけを使わない。
+- エージェントは、ユーザーの明示的な依頼なしに Issue / PR を新規作成したり、既存 Issue / PR の対応関係を増やしたりしない。親 Issue の一部だけを実装する場合も、個別 Issue を作るか、親 Issue に `Closes` を付けるか、`Issue なし` とするかをユーザーに確認してから行う。
 - 開発完了後は原則 draft PR を作成し、GitHub Actions が pass した後に ready for review へ変更する。
 - Draft PR を作成した通常開発作業では、最終報告前に PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
 - GitHub が自動生成する merge commit message は、この形式の対象外とする。
 - PR が Issue を完了させる場合は、body に `Closes #<Issue番号>` などの GitHub closing keyword を記載し、`main` へのマージ時に Issue が自動クローズされるようにする。
+- PR が既存 Issue の一部対応に留まる場合、エージェント判断で新規 Issue を作成して `Closes` 先を差し替えない。Issue / PR の紐付け方が曖昧な場合は、PR 本文更新や GitHub 上の状態変更を行う前にユーザーへ確認する。
 - PR title に `codex` プレフィックスを付けない。`codex/...` は作業ブランチ名に限定する。
 - Issue body は固定セクションを必須にせず、自由記述を基本にする。ただし後から読む人が対象、現状、困っていること、期待する状態のいずれかを判断できる具体性は残す。
 - 不具合報告は、可能な範囲で現象、再現手順、期待する動作を揃える。
