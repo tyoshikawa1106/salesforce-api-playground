@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ObjectHomeHeader } from "./ObjectHome";
 import {
     accountBulkDeleteLabel,
@@ -8,7 +9,33 @@ import {
 } from "./record-actions";
 import { AccountPanel, ContactPanel } from "./RecordLists";
 import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
-import type { Account, Contact, DeleteState } from "./types";
+import type { Account, ActiveTab, Contact, DeleteState } from "./types";
+
+function RecordListWorkspaceFrame({
+    activeTab,
+    children,
+    loading,
+    onCreate,
+    onRefresh
+}: {
+    activeTab: Extract<ActiveTab, "accounts" | "contacts">;
+    children: ReactNode;
+    loading: boolean;
+    onCreate: () => void;
+    onRefresh: () => void;
+}) {
+    return (
+        <>
+            <ObjectHomeHeader
+                activeTab={activeTab}
+                loading={loading}
+                onCreate={onCreate}
+                onRefresh={onRefresh}
+            />
+            {children}
+        </>
+    );
+}
 
 export function AccountListWorkspace({
     accounts,
@@ -32,13 +59,12 @@ export function AccountListWorkspace({
     onRefresh: () => void;
 }) {
     return (
-        <>
-            <ObjectHomeHeader
-                activeTab="accounts"
-                loading={loading}
-                onCreate={onCreate}
-                onRefresh={onRefresh}
-            />
+        <RecordListWorkspaceFrame
+            activeTab="accounts"
+            loading={loading}
+            onCreate={onCreate}
+            onRefresh={onRefresh}
+        >
             <AccountPanel
                 accounts={accounts}
                 loading={loading}
@@ -49,7 +75,7 @@ export function AccountListWorkspace({
                 onBulkDelete={(records) => onDeleteRecord(accountDeleteState(records, accountBulkDeleteLabel(records)))}
                 onBulkDeleteEmpty={onBulkDeleteEmpty}
             />
-        </>
+        </RecordListWorkspaceFrame>
     );
 }
 
@@ -102,13 +128,12 @@ export function ContactListWorkspace({
     onRefresh: () => void;
 }) {
     return (
-        <>
-            <ObjectHomeHeader
-                activeTab="contacts"
-                loading={loading}
-                onCreate={onCreate}
-                onRefresh={onRefresh}
-            />
+        <RecordListWorkspaceFrame
+            activeTab="contacts"
+            loading={loading}
+            onCreate={onCreate}
+            onRefresh={onRefresh}
+        >
             <ContactPanel
                 contacts={contacts}
                 loading={loading}
@@ -119,7 +144,7 @@ export function ContactListWorkspace({
                 onBulkDelete={(records) => onDeleteRecord(contactDeleteState(records, contactBulkDeleteLabel(records)))}
                 onBulkDeleteEmpty={onBulkDeleteEmpty}
             />
-        </>
+        </RecordListWorkspaceFrame>
     );
 }
 
