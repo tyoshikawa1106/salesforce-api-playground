@@ -5,6 +5,7 @@
 - [Git Flow 開発手法メモ](git-flow.md)
 - [GitHub Flow 開発手法メモ](github-flow.md)
 - [GitHub 関連機能の基礎メモ](github-platform-concepts.md)
+- [GitHub 関連機能の応用メモ](github-platform-advanced.md)
 - [業務本番化の検討観点](production-readiness.md)
 - [プロジェクト初期セットアップガイド](project-bootstrap-guide.md)
 
