@@ -8,6 +8,13 @@
 - エラーログ、テスト fixture、スクリーンショット、PR 本文に実値が含まれないか確認する。
 - 実 Salesforce 接続結果を記録する場合も、組織名、ユーザー名、record id、URL、token、client id は伏せる。
 
+## AI / Codex 作業時の扱い
+
+- Codex には `.env`、`.env.*`、秘密鍵、証明書、token、password、refresh token、client secret などの実値を含み得るファイルを読ませない。
+- 環境変数や Heroku Config Vars の実値を terminal output、回答、Issue、PR、docs に表示しない。
+- 設定方法を説明する場合は `.env.example`、placeholder、localhost、example domain を使う。
+- 実値の確認が必要な場合は、Codex が値を読むのではなく、ユーザーがローカル環境や管理画面で確認する。
+
 ## 書いてよい値
 
 | 種類 | 例 | 用途 |

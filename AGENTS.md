@@ -10,6 +10,14 @@
 - 個人情報、機密情報、秘密情報、実 URL、個人環境固有の値はコミットしない。
 - 新しい依存関係は原則追加しない。必要な場合は理由を説明し、ユーザー承認後に追加する。
 
+## 秘密情報の扱い
+
+- Codex は `.env`、`.env.*`、秘密鍵、証明書、token、password、refresh token、client secret などの実値を含み得るファイルを読まない。
+- 環境変数や Heroku Config Vars の実値を terminal output、回答、Issue、PR、docs、test fixture、screenshot に出さない。
+- 設定手順や環境変数を説明する場合は `.env.example`、placeholder、localhost、example domain を使う。
+- Salesforce Connected App Client Secret、JWT 秘密鍵、Salesforce access token / refresh token、Heroku API Token、GitHub Personal Access Token は秘密情報として扱う。
+- 実値の確認が必要な場合は、Codex が値を読むのではなく、ユーザーに設定有無や照合結果を確認してもらう。
+
 ## エージェント作業手順
 
 - 作業開始時は `git status` を確認し、既存の未コミット変更を把握する。
