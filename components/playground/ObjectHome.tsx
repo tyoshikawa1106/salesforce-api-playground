@@ -25,8 +25,8 @@ export function ObjectHomeHeader({
                         <RefreshButton loading={loading} onRefresh={onRefresh} />
                     </PageHeaderControl>
                     <PageHeaderControl>
-                        <button className="slds-button slds-button_brand heroku-brand-action" type="button" onClick={onCreate}>
-                            新規{objectLabel}
+                        <button className="slds-button slds-button_neutral" type="button" onClick={onCreate}>
+                            新規
                         </button>
                     </PageHeaderControl>
                 </>
