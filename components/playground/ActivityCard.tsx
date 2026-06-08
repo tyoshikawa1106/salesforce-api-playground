@@ -498,7 +498,7 @@ function TaskDockedComposer({
                                     </div>
                                 </div>
                                 <div className="slds-form-element__row">
-                                    <div className="slds-form-element slds-size_1-of-2">
+                                    <div className="slds-form-element slds-size_1-of-1">
                                         <QuickActionInput
                                             icon="event"
                                             label="期日"
@@ -507,7 +507,7 @@ function TaskDockedComposer({
                                             onChange={(ActivityDate) => onChange({ ...form, ActivityDate })}
                                         />
                                     </div>
-                                    <div className="slds-form-element slds-size_1-of-2">
+                                    <div className="slds-form-element slds-size_1-of-1">
                                         <QuickActionInput label="割り当て先" required value="現在のユーザー" readOnly onChange={() => undefined} />
                                     </div>
                                 </div>
@@ -516,10 +516,10 @@ function TaskDockedComposer({
                                     <LookupPreview label="関連先" objectLabel="取引先" placeholder="取引先を検索..." value={context.parentType === "account" ? context.parentName : context.relatedName || ""} />
                                 </div>
                                 <div className="slds-form-element__row">
-                                    <div className="slds-form-element slds-size_1-of-2">
+                                    <div className="slds-form-element slds-size_1-of-1">
                                         <QuickActionInput label="状況" value={form.Status} onChange={(Status) => onChange({ ...form, Status })} />
                                     </div>
-                                    <div className="slds-form-element slds-size_1-of-2">
+                                    <div className="slds-form-element slds-size_1-of-1">
                                         <QuickActionInput label="優先度" value={form.Priority} onChange={(Priority) => onChange({ ...form, Priority })} />
                                     </div>
                                 </div>
@@ -608,7 +608,7 @@ function LookupPreview({
     const listboxId = objectLabel === "取引先" ? "task-related-account-listbox" : "task-name-contact-listbox";
 
     return (
-        <div className="slds-form-element slds-size_1-of-2">
+        <div className="slds-form-element slds-size_1-of-1">
             <label className="slds-form-element__label">{label}</label>
             <div className="slds-form-element__control">
                 {value ? (
