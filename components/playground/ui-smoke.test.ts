@@ -112,7 +112,6 @@ describe("playground UI smoke rendering", () => {
                 onDelete: noop,
                 onEdit: noop,
                 onOpen: noop,
-                onOpenAccountById: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop
             })
@@ -125,6 +124,7 @@ describe("playground UI smoke rendering", () => {
                 onDelete: noop,
                 onEdit: noop,
                 onOpen: noop,
+                onOpenAccountById: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop
             })
