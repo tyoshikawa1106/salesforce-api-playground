@@ -2,191 +2,36 @@
 
 import { type CSSProperties, type FormEvent, type KeyboardEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-api";
-import type { ActivityParentType, ActivityTimelineItem } from "@/lib/salesforce/activities";
+import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import { apiRequest } from "./api";
+import {
+    buildCalendarWeeks,
+    buildDateValue,
+    buildDefaultTaskLookups,
+    compactActivityPayload,
+    compactLookupOptions,
+    formatDateInputValue,
+    getCalendarBaseDate,
+    getDefaultTaskForm,
+    getLookupApiObject,
+    getLookupObjectLabel,
+    getTaskFormErrorLabels,
+    normalizeDateInputValue,
+    taskSubjectOptions,
+    type ActivityLookupApiResponse,
+    type ActivityLookupOption,
+    type ActivityRecordContext,
+    type LookupObjectLabel,
+    type TaskForm,
+    type TaskFormErrors,
+    type TaskLookupState,
+    validateTaskForm,
+    weekDayLabels
+} from "./activity-task-form";
 import { formatDate } from "./formatting";
 import { StandardIcon, UtilityIcon } from "./SldsIcon";
 
-type TaskForm = {
-    Subject: string;
-    ActivityDate: string;
-    Status: string;
-    Priority: string;
-    Description: string;
-};
-
-type TaskFormErrorKey = "assignedUserName" | "Status" | "Subject";
-type TaskFormErrors = Partial<Record<TaskFormErrorKey, string>>;
-
-type LookupObjectLabel = "ユーザー" | "取引先" | "取引先責任者";
-export type ActivityLookupOption = {
-    id: string;
-    label: string;
-    meta?: string;
-    objectLabel: LookupObjectLabel;
-};
-type ActivityLookupApiObject = "account" | "contact" | "user";
-type ActivityLookupApiOption = {
-    id: string;
-    label: string;
-    meta?: string;
-    object: ActivityLookupApiObject;
-};
-type ActivityLookupApiResponse = {
-    options: ActivityLookupApiOption[];
-};
-type TaskLookupState = {
-    assigned?: ActivityLookupOption;
-    name?: ActivityLookupOption;
-    related?: ActivityLookupOption;
-};
-
-const taskSubjectOptions = ["", "Call", "Email", "Send Letter", "Send Quote", "Other"] as const;
-const taskFormErrorLabels = {
-    Subject: "件名",
-    assignedUserName: "割り当て先",
-    Status: "状況"
-} as const satisfies Record<TaskFormErrorKey, string>;
-const weekDayLabels = ["日", "月", "火", "水", "木", "金", "土"] as const;
-
-type ActivityRecordContext = {
-    assignedUserName?: string;
-    assignedUserId?: string;
-    parentId: string;
-    parentName: string;
-    parentType: ActivityParentType;
-    relatedId?: string;
-    relatedName?: string;
-};
-
-function compactActivityPayload<T extends Record<string, string>>(form: T) {
-    return Object.fromEntries(
-        Object.entries(form).map(([key, value]) => {
-            const trimmed = value.trim();
-            return [key, trimmed || undefined];
-        })
-    );
-}
-
-function buildDateValue(date: Date): string {
-    const year = date.getFullYear();
-    const month = `${date.getMonth() + 1}`.padStart(2, "0");
-    const day = `${date.getDate()}`.padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-}
-
-function getDefaultTaskForm(): TaskForm {
-    return {
-        Subject: "",
-        ActivityDate: buildDateValue(new Date()),
-        Status: "Not Started",
-        Priority: "Normal",
-        Description: ""
-    };
-}
-
-function formatDateInputValue(value: string): string {
-    return value ? value.replaceAll("-", "/") : "";
-}
-
-function getCalendarBaseDate(value: string): Date {
-    const normalized = normalizeDateInputValue(value);
-    if (!normalized) {
-        return new Date();
-    }
-
-    const [year, month, day] = normalized.split("-").map(Number);
-
-    return new Date(year, month - 1, day);
-}
-
-function normalizeDateInputValue(value: string): string {
-    const match = value.trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
-    if (!match) {
-        return "";
-    }
-
-    const year = Number(match[1]);
-    const month = Number(match[2]);
-    const day = Number(match[3]);
-    const date = new Date(year, month - 1, day);
-
-    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
-        return "";
-    }
-
-    return buildDateValue(date);
-}
-
-function buildCalendarWeeks(displayDate: Date) {
-    const firstDay = new Date(displayDate.getFullYear(), displayDate.getMonth(), 1);
-    const startDate = new Date(firstDay);
-    startDate.setDate(firstDay.getDate() - firstDay.getDay());
-
-    return Array.from({ length: 6 }, (_, weekIndex) =>
-        Array.from({ length: 7 }, (_, dayIndex) => {
-            const date = new Date(startDate);
-            date.setDate(startDate.getDate() + weekIndex * 7 + dayIndex);
-
-            return date;
-        })
-    );
-}
-
-function validateTaskForm(form: TaskForm, assignedUserName?: string): TaskFormErrors {
-    const errors: TaskFormErrors = {};
-
-    if (!form.Subject.trim()) {
-        errors.Subject = "件名を入力してください。";
-    }
-
-    if (!assignedUserName?.trim()) {
-        errors.assignedUserName = "割り当て先を選択してください。";
-    }
-
-    if (!form.Status.trim()) {
-        errors.Status = "状況を選択してください。";
-    }
-
-    return errors;
-}
-
-function getTaskFormErrorLabels(errors: TaskFormErrors) {
-    return (Object.keys(errors) as TaskFormErrorKey[]).map((key) => taskFormErrorLabels[key]);
-}
-
-function compactLookupOptions(options: ActivityLookupOption[]) {
-    const seen = new Set<string>();
-
-    return options.filter((option) => {
-        const key = `${option.objectLabel}:${option.id || option.label}`;
-        if (!option.label || seen.has(key)) {
-            return false;
-        }
-
-        seen.add(key);
-        return true;
-    });
-}
-
-function buildDefaultTaskLookups({
-    assignedOptions,
-    context,
-    nameOptions,
-    relatedOptions
-}: {
-    assignedOptions: ActivityLookupOption[];
-    context: ActivityRecordContext;
-    nameOptions: ActivityLookupOption[];
-    relatedOptions: ActivityLookupOption[];
-}): TaskLookupState {
-    return {
-        assigned: assignedOptions[0],
-        name: context.parentType === "contact" ? nameOptions[0] : undefined,
-        related: relatedOptions[0]
-    };
-}
+export type { ActivityLookupOption } from "./activity-task-form";
 
 export function ActivityCard({
     assignedUserName,
@@ -875,39 +720,6 @@ function TaskDockedComposer({
     );
 }
 
-function QuickActionInput({
-    error,
-    icon,
-    label,
-    onChange,
-    readOnly = false,
-    required = false,
-    type = "text",
-    value
-}: {
-    error?: string;
-    icon?: "event" | "search";
-    label: string;
-    onChange: (value: string) => void;
-    readOnly?: boolean;
-    required?: boolean;
-    type?: string;
-    value: string;
-}) {
-    return (
-        <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <span className="slds-form-element__label">{required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}</span>
-            <span className="slds-form-element__control">
-                <span className={icon ? "slds-input-has-icon slds-input-has-icon_right" : undefined}>
-                    <input className="slds-input" type={type} readOnly={readOnly} required={required} aria-invalid={Boolean(error)} value={value} onChange={(event) => onChange(event.target.value)} />
-                    {icon ? <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default" name={icon} /> : null}
-                </span>
-            </span>
-            <FieldError message={error} />
-        </div>
-    );
-}
-
 function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
     const errorLabels = getTaskFormErrorLabels(errors);
 
@@ -1507,30 +1319,6 @@ function getLookupIconMeta(objectLabel: LookupObjectLabel) {
     }
 
     return { iconClassName: "slds-icon-standard-user", iconName: "user" as const };
-}
-
-function getLookupApiObject(objectLabel: LookupObjectLabel): ActivityLookupApiObject {
-    if (objectLabel === "取引先") {
-        return "account";
-    }
-
-    if (objectLabel === "取引先責任者") {
-        return "contact";
-    }
-
-    return "user";
-}
-
-function getLookupObjectLabel(object: ActivityLookupApiObject): LookupObjectLabel {
-    if (object === "account") {
-        return "取引先";
-    }
-
-    if (object === "contact") {
-        return "取引先責任者";
-    }
-
-    return "ユーザー";
 }
 
 function FieldError({ message }: { message?: string }) {

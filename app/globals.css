@@ -357,7 +357,7 @@ body {
 }
 
 .playground-task-composer {
-    height: 34rem;
+    height: 80vh;
     max-height: calc(100vh - 8rem);
     overflow: hidden;
     transition: height 0.12s ease-out, box-shadow 0.12s ease-out;
@@ -369,7 +369,7 @@ body {
 }
 
 .playground-task-error-summary {
-    border-bottom: 1px solid var(--slds-g-color-border-base-1, #c9c9c9);
+    border-bottom: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
     margin-bottom: var(--slds-g-spacing-5, 1.5rem);
     padding-bottom: var(--slds-g-spacing-4, 1rem);
 }
@@ -384,10 +384,6 @@ body {
 
 .playground-task-datepicker {
     z-index: 7100;
-}
-
-.playground-task-datepicker__year {
-    min-width: 6rem;
 }
 
 .playground-task-composer-backdrop {
