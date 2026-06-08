@@ -248,11 +248,11 @@ body {
 }
 
 .playground-activity-card__body {
-    padding: var(--slds-g-spacing-4, 1rem);
+    padding: 0 var(--slds-g-spacing-3, 0.75rem) var(--slds-g-spacing-3, 0.75rem);
 }
 
 .playground-activity-card__panel {
-    padding: var(--slds-g-spacing-4, 1rem) 0 0;
+    padding: var(--slds-g-spacing-2, 0.5rem) 0 0;
 }
 
 .playground-activity-panel {
@@ -260,7 +260,7 @@ body {
 }
 
 .playground-activity-composer-bar {
-    margin-bottom: var(--slds-g-spacing-5, 1.5rem);
+    margin-bottom: var(--slds-g-spacing-4, 1rem);
 }
 
 .playground-activity-composer-action {
@@ -291,17 +291,7 @@ body {
 }
 
 .playground-activity-toolbar {
-    margin-bottom: var(--slds-g-spacing-5, 1.5rem);
-}
-
-.playground-activity-filter {
-    flex: 1 1 auto;
-    text-align: right;
-}
-
-.playground-activity-settings {
-    flex: 0 0 auto;
-    margin-left: var(--slds-g-spacing-4, 1rem);
+    margin-bottom: var(--slds-g-spacing-3, 0.75rem);
 }
 
 .playground-activity-links {
@@ -309,7 +299,6 @@ body {
     column-gap: var(--slds-g-spacing-3, 0.75rem);
     display: flex;
     justify-content: flex-end;
-    margin-top: var(--slds-g-spacing-3, 0.75rem);
 }
 
 .playground-activity-section-title {
@@ -319,8 +308,22 @@ body {
 }
 
 .playground-activity-section-title__content {
+    align-items: center;
     background: transparent;
     border: 0;
+    display: flex;
+}
+
+.playground-activity-section-title__aside {
+    margin-left: auto;
+}
+
+.playground-activity-section-icon {
+    transition: transform 0.1s ease-in-out;
+}
+
+.playground-activity-section-icon_collapsed {
+    transform: rotate(-90deg);
 }
 
 .playground-activity-timeline__list {
@@ -331,6 +334,18 @@ body {
     padding-bottom: var(--slds-g-spacing-4, 1rem);
 }
 
+.playground-activity-entry-icon {
+    transition: transform 0.1s ease-in-out;
+}
+
+.playground-activity-entry-icon_collapsed {
+    transform: rotate(-90deg);
+}
+
+.playground-activity-timeline-item__title_completed {
+    text-decoration: line-through;
+}
+
 .playground-activity-checkbox {
     display: inline-flex;
 }
@@ -338,10 +353,6 @@ body {
 .playground-activity-empty {
     border-left: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
     margin-left: var(--slds-g-spacing-4, 1rem);
-}
-
-.playground-activity-search-hint {
-    margin-top: var(--slds-g-spacing-4, 1rem);
 }
 
 .playground-activity-docked-container {

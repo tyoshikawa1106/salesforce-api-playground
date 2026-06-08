@@ -54,7 +54,11 @@ export const playgroundApiPaths = {
 
         return `/api/activity-lookups?${searchParams.toString()}`;
     },
+    activityEvents: "/api/activities/events",
     activityTasks: "/api/activities/tasks",
+    activityTask(id: string): string {
+        return `/api/activities/tasks/${encodeURIComponent(id)}`;
+    },
     session: "/api/session",
     accounts: "/api/accounts",
     contacts: "/api/contacts",

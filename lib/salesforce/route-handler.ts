@@ -25,7 +25,7 @@ export type SalesforceRouteParams = {
 };
 
 type JsonRequest = Pick<Request, "json">;
-type MutatingRequest = Pick<Request, "headers" | "json">;
+type MutatingRequest = Pick<Request, "headers" | "json" | "url">;
 
 type ReadPayload<TInput> = (request: JsonRequest) => Promise<TInput>;
 type CreateRecord<TInput, TData> = (input: TInput) => Promise<SalesforceRouteResult<TData>>;
@@ -43,7 +43,7 @@ type UpdateIntegrationRecord<TInput, TData> = (
     id: string,
     input: TInput
 ) => Promise<SalesforceIntegrationRouteResult<TData>>;
-type IntegrationRouteAuth = (request: Pick<Request, "headers">) => Promise<void> | void;
+type IntegrationRouteAuth = (request: Pick<Request, "headers" | "url">) => Promise<void> | void;
 
 type SalesforceCollectionRouteConfig<TCreateInput, TListData, TCreateData, TBulkDeleteData> = {
     objectLabel: SalesforceObjectLabel;
@@ -104,7 +104,7 @@ export function handleSalesforceUpdateRoute<TInput, TData>(
 }
 
 export function handleSalesforceDeleteRoute<TData>(
-    request: Pick<Request, "headers">,
+    request: Pick<Request, "headers" | "url">,
     { params }: SalesforceRouteParams,
     objectLabel: SalesforceObjectLabel,
     deleteRecord: DeleteRecord<TData>
@@ -195,7 +195,7 @@ function assertIntegrationApiKeyRequest(request: Pick<Request, "headers">) {
     assertIntegrationApiKey(request);
 }
 
-async function assertIntegrationUiSessionRequest(request: Pick<Request, "headers">) {
+async function assertIntegrationUiSessionRequest(request: Pick<Request, "headers" | "url">) {
     assertSameOriginRequest(request);
     const session = await getSession();
     if (!session) {

@@ -1,19 +1,25 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as activitiesRoute from "./activities/route";
+import * as activityEventsRoute from "./activities/events/route";
 import * as activityTasksRoute from "./activities/tasks/route";
+import * as activityTaskRoute from "./activities/tasks/[id]/route";
 import {
     jsonWithSession,
     salesforceErrorResponse
 } from "@/lib/salesforce/client";
 import {
     readActivityParentFromUrl,
-    readTaskActivityCreatePayload
+    readEventActivityCreatePayload,
+    readTaskActivityCreatePayload,
+    readTaskActivityUpdatePayload
 } from "@/lib/salesforce/activity-payloads";
 import {
+    createEventActivity,
     createTaskActivity,
-    listActivities
+    listActivities,
+    updateTaskActivity
 } from "@/services/salesforce/activities";
-import { apiRequest, dummySalesforceSession, expectJson, jsonRequest } from "./test-helpers";
+import { apiRequest, dummySalesforceSession, expectJson, jsonRequest, routeParams } from "./test-helpers";
 
 vi.mock("@/lib/salesforce/client", () => ({
     SalesforceApiError: class SalesforceApiError extends Error {
@@ -41,19 +47,27 @@ vi.mock("@/lib/salesforce/client", () => ({
 
 vi.mock("@/lib/salesforce/activity-payloads", () => ({
     readActivityParentFromUrl: vi.fn(),
-    readTaskActivityCreatePayload: vi.fn()
+    readEventActivityCreatePayload: vi.fn(),
+    readTaskActivityCreatePayload: vi.fn(),
+    readTaskActivityUpdatePayload: vi.fn()
 }));
 
 vi.mock("@/services/salesforce/activities", () => ({
+    createEventActivity: vi.fn(),
     createTaskActivity: vi.fn(),
-    listActivities: vi.fn()
+    listActivities: vi.fn(),
+    updateTaskActivity: vi.fn()
 }));
 
 const jsonWithSessionMock = vi.mocked(jsonWithSession);
 const salesforceErrorResponseMock = vi.mocked(salesforceErrorResponse);
 const readActivityParentFromUrlMock = vi.mocked(readActivityParentFromUrl);
+const readEventActivityCreatePayloadMock = vi.mocked(readEventActivityCreatePayload);
 const readTaskActivityCreatePayloadMock = vi.mocked(readTaskActivityCreatePayload);
+const readTaskActivityUpdatePayloadMock = vi.mocked(readTaskActivityUpdatePayload);
+const createEventActivityMock = vi.mocked(createEventActivity);
 const createTaskActivityMock = vi.mocked(createTaskActivity);
+const updateTaskActivityMock = vi.mocked(updateTaskActivity);
 const listActivitiesMock = vi.mocked(listActivities);
 const session = dummySalesforceSession;
 
@@ -116,6 +130,45 @@ describe("Activity API routes", () => {
         await expectJson(response, data);
     });
 
+    it("creates events from the request payload", async () => {
+        const request = jsonRequest({ Subject: "Meeting" });
+        const payload = {
+            parentType: "account" as const,
+            parentId: "001xx000003DGbY",
+            Subject: "Meeting",
+            StartDateTime: "2026-06-08T10:00:00.000Z",
+            EndDateTime: "2026-06-08T11:00:00.000Z"
+        };
+        const data = { id: "00Uxx0000012345", success: true } as const;
+        readEventActivityCreatePayloadMock.mockResolvedValue(payload);
+        createEventActivityMock.mockResolvedValue({ data, session });
+
+        const response = await activityEventsRoute.POST(request);
+
+        expect(readEventActivityCreatePayloadMock).toHaveBeenCalledWith(request);
+        expect(createEventActivityMock).toHaveBeenCalledWith(payload);
+        expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session);
+        await expectJson(response, data);
+    });
+
+    it("updates task status from the request payload", async () => {
+        const request = apiRequest("/api/activities/tasks/00Txx0000012345", {
+            method: "PATCH",
+            body: { Status: "Completed" }
+        });
+        const payload = { Status: "Completed" };
+        const data = {};
+        readTaskActivityUpdatePayloadMock.mockResolvedValue(payload);
+        updateTaskActivityMock.mockResolvedValue({ data, session });
+
+        const response = await activityTaskRoute.PATCH(request, routeParams("00Txx0000012345"));
+
+        expect(readTaskActivityUpdatePayloadMock).toHaveBeenCalledWith(request);
+        expect(updateTaskActivityMock).toHaveBeenCalledWith("00Txx0000012345", payload);
+        expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session);
+        await expectJson(response, data);
+    });
+
     it("rejects activity mutations from another origin before reading payload", async () => {
         const request = apiRequest("/api/activities/tasks", {
             method: "POST",
@@ -129,6 +182,20 @@ describe("Activity API routes", () => {
         expect(createTaskActivityMock).not.toHaveBeenCalled();
         expect(response.status).toBe(403);
         await expectJson(response, { error: "Invalid request origin." });
+    });
+
+    it("rejects task updates for non-task ids before reading payload", async () => {
+        const request = apiRequest("/api/activities/tasks/001xx000003DGbY", {
+            method: "PATCH",
+            body: { Status: "Completed" }
+        });
+
+        const response = await activityTaskRoute.PATCH(request, routeParams("001xx000003DGbY"));
+
+        expect(readTaskActivityUpdatePayloadMock).not.toHaveBeenCalled();
+        expect(updateTaskActivityMock).not.toHaveBeenCalled();
+        expect(response.status).toBe(400);
+        await expectJson(response, { error: "Invalid Task id." });
     });
 
     it("delegates list errors to salesforceErrorResponse", async () => {

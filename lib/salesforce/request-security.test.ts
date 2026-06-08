@@ -12,9 +12,13 @@ vi.mock("./config", () => ({
 
 const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
 
-function requestWithHeaders(headers: HeadersInit): Pick<Request, "headers"> {
+function requestWithHeaders(
+    headers: HeadersInit,
+    url = "https://app.example.test/api/accounts"
+): Pick<Request, "headers" | "url"> {
     return {
-        headers: new Headers(headers)
+        headers: new Headers(headers),
+        url
     };
 }
 
@@ -65,6 +69,46 @@ describe("assertSameOriginRequest", () => {
 
         expect(() =>
             assertSameOriginRequest(requestWithHeaders({ origin: "https://evil.example.test" }))
+        ).toThrow("Invalid request origin.");
+    });
+
+    it("accepts localhost requests when the request origin matches the request URL origin", () => {
+        getSalesforceConfigMock.mockReturnValue({
+            clientId: "client-id",
+            clientSecret: "client-secret",
+            loginUrl: "https://login.example.test",
+            redirectUri: "http://localhost:3000/api/auth/callback",
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION,
+            sessionSecret: "session-secret"
+        });
+
+        expect(() =>
+            assertSameOriginRequest(
+                requestWithHeaders(
+                    { origin: "http://localhost:3003" },
+                    "http://localhost:3003/api/activities/events"
+                )
+            )
+        ).not.toThrow();
+    });
+
+    it("rejects localhost requests when the request origin does not match the request URL origin", () => {
+        getSalesforceConfigMock.mockReturnValue({
+            clientId: "client-id",
+            clientSecret: "client-secret",
+            loginUrl: "https://login.example.test",
+            redirectUri: "http://localhost:3000/api/auth/callback",
+            apiVersion: DEFAULT_SALESFORCE_API_VERSION,
+            sessionSecret: "session-secret"
+        });
+
+        expect(() =>
+            assertSameOriginRequest(
+                requestWithHeaders(
+                    { origin: "http://localhost:3003" },
+                    "http://localhost:3004/api/activities/events"
+                )
+            )
         ).toThrow("Invalid request origin.");
     });
 

@@ -9,22 +9,33 @@ import {
     buildDateValue,
     buildDefaultTaskLookups,
     compactActivityPayload,
+    compactEventActivityPayload,
     compactLookupOptions,
     formatDateInputValue,
+    buildDateTimeInputValue,
+    getDateTimeDateValue,
+    getDateTimeTimeValue,
     getCalendarBaseDate,
+    getDefaultEventForm,
     getDefaultTaskForm,
+    getEventFormErrorLabels,
     getLookupApiObject,
     getLookupObjectLabel,
     getTaskFormErrorLabels,
     normalizeDateInputValue,
+    normalizeTimeInputValue,
     taskSubjectOptions,
+    timeOptions,
     type ActivityLookupApiResponse,
     type ActivityLookupOption,
     type ActivityRecordContext,
+    type EventForm,
+    type EventFormErrors,
     type LookupObjectLabel,
     type TaskForm,
     type TaskFormErrors,
     type TaskLookupState,
+    validateEventForm,
     validateTaskForm,
     weekDayLabels
 } from "./activity-task-form";
@@ -32,6 +43,11 @@ import { formatDate } from "./formatting";
 import { StandardIcon, UtilityIcon } from "./SldsIcon";
 
 export type { ActivityLookupOption } from "./activity-task-form";
+
+type TaskStatusOverride = {
+    previousStatus: string;
+    status: string;
+};
 
 export function ActivityCard({
     assignedUserName,
@@ -52,11 +68,14 @@ export function ActivityCard({
     const [activeTab, setActiveTab] = useState<"activity" | "related">("activity");
     const [activities, setActivities] = useState<ActivityTimelineItem[]>([]);
     const [activityMessage, setActivityMessage] = useState("");
+    const [eventForm, setEventForm] = useState<EventForm>(() => getDefaultEventForm());
+    const [eventFormErrors, setEventFormErrors] = useState<EventFormErrors>({});
     const [taskForm, setTaskForm] = useState<TaskForm>(() => getDefaultTaskForm());
     const [taskFormErrors, setTaskFormErrors] = useState<TaskFormErrors>({});
-    const [composerOpen, setComposerOpen] = useState(false);
+    const [activeComposer, setActiveComposer] = useState<"event" | "task" | null>(null);
     const [composerExpanded, setComposerExpanded] = useState(false);
     const [composerMinimized, setComposerMinimized] = useState(false);
+    const [taskStatusOverrides, setTaskStatusOverrides] = useState<Record<string, TaskStatusOverride>>({});
     const [loadingActivities, setLoadingActivities] = useState(false);
     const [savingActivity, setSavingActivity] = useState(false);
     const hasRelatedContent = Boolean(relatedContent);
@@ -125,6 +144,7 @@ export function ActivityCard({
             });
 
             setActivities(data.activities);
+            setTaskStatusOverrides({});
             setActivityMessage("");
         } catch (error) {
             setActivityMessage(error instanceof Error ? error.message : "活動を読み込めませんでした。");
@@ -156,19 +176,97 @@ export function ActivityCard({
                     method: "POST",
                     body: {
                         ...parentPayload,
-                        ...compactActivityPayload(taskForm)
+                        ...compactActivityPayload(taskForm),
+                        OwnerId: taskLookups.assigned?.id,
+                        WhoId: taskLookups.name?.objectLabel === "取引先責任者" ? taskLookups.name.id : undefined,
+                        WhatId: taskLookups.related?.objectLabel === "取引先" ? taskLookups.related.id : undefined
                     }
                 })
             );
             setTaskForm(getDefaultTaskForm());
             setTaskLookups(defaultTaskLookups);
             setTaskFormErrors({});
-            setComposerOpen(false);
+            setActiveComposer(null);
             setComposerExpanded(false);
+            setComposerMinimized(false);
             setActivityMessage("ToDo を作成しました。");
             await loadActivities();
         } catch (error) {
             setActivityMessage(error instanceof Error ? error.message : "ToDo の作成に失敗しました。");
+        } finally {
+            setSavingActivity(false);
+        }
+    }
+
+    async function toggleTaskCompleted(activity: Extract<ActivityTimelineItem, { type: "task" }>) {
+        const override = taskStatusOverrides[activity.id];
+        const currentStatus = override?.status ?? activity.status ?? "Not Started";
+        const completed = currentStatus === "Completed";
+        const previousStatus = override?.previousStatus ?? activity.status ?? "Not Started";
+        const nextStatus = completed ? previousStatus : "Completed";
+
+        setTaskStatusOverrides((current) => ({
+            ...current,
+            [activity.id]: {
+                previousStatus,
+                status: nextStatus
+            }
+        }));
+        setActivityMessage("");
+
+        try {
+            await apiRequest(
+                buildPlaygroundApiRequest(playgroundApiPaths.activityTask(activity.id), {
+                    method: "PATCH",
+                    body: {
+                        Status: nextStatus
+                    }
+                })
+            );
+        } catch (error) {
+            setTaskStatusOverrides((current) => {
+                const next = { ...current };
+                delete next[activity.id];
+                return next;
+            });
+            setActivityMessage(error instanceof Error ? error.message : "ToDo の状況更新に失敗しました。");
+        }
+    }
+
+    async function saveEvent(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const validationErrors = validateEventForm(eventForm, taskLookups.assigned?.label);
+
+        setEventFormErrors(validationErrors);
+        if (Object.keys(validationErrors).length > 0) {
+            setActivityMessage("");
+            return;
+        }
+
+        setSavingActivity(true);
+        try {
+            await apiRequest(
+                buildPlaygroundApiRequest(playgroundApiPaths.activityEvents, {
+                    method: "POST",
+                    body: {
+                        ...parentPayload,
+                        ...compactEventActivityPayload(eventForm),
+                        OwnerId: taskLookups.assigned?.id,
+                        WhoId: taskLookups.name?.objectLabel === "取引先責任者" ? taskLookups.name.id : undefined,
+                        WhatId: taskLookups.related?.objectLabel === "取引先" ? taskLookups.related.id : undefined
+                    }
+                })
+            );
+            setEventForm(getDefaultEventForm());
+            setTaskLookups(defaultTaskLookups);
+            setEventFormErrors({});
+            setActiveComposer(null);
+            setComposerExpanded(false);
+            setComposerMinimized(false);
+            setActivityMessage("行動を作成しました。");
+            await loadActivities();
+        } catch (error) {
+            setActivityMessage(error instanceof Error ? error.message : "行動の作成に失敗しました。");
         } finally {
             setSavingActivity(false);
         }
@@ -221,28 +319,43 @@ export function ActivityCard({
                         <ActivityPanel
                             activities={activities}
                             context={context}
+                            taskStatusOverrides={taskStatusOverrides}
                             loading={loadingActivities}
                             message={activityMessage}
+                            activeComposer={activeComposer}
+                            eventForm={eventForm}
+                            eventFormErrors={eventFormErrors}
                             taskForm={taskForm}
-                            composerOpen={composerOpen}
                             composerExpanded={composerExpanded}
                             composerMinimized={composerMinimized}
                             taskFormErrors={taskFormErrors}
                             saving={savingActivity}
                             onCloseComposer={() => {
-                                setComposerOpen(false);
+                                setActiveComposer(null);
                                 setComposerExpanded(false);
                                 setComposerMinimized(false);
                                 setTaskLookups(defaultTaskLookups);
+                                setEventFormErrors({});
                                 setTaskFormErrors({});
                             }}
-                            onOpenComposer={() => {
+                            onOpenEventComposer={() => {
                                 setTaskLookups(defaultTaskLookups);
-                                setComposerOpen(true);
+                                setActiveComposer("event");
+                                setComposerMinimized(false);
+                            }}
+                            onOpenTaskComposer={() => {
+                                setTaskLookups(defaultTaskLookups);
+                                setActiveComposer("task");
                                 setComposerMinimized(false);
                             }}
                             onRefresh={loadActivities}
+                            onSaveEvent={saveEvent}
                             onSaveTask={saveTask}
+                            onToggleTaskCompleted={toggleTaskCompleted}
+                            onEventFormChange={(value) => {
+                                setEventForm(value);
+                                setEventFormErrors({});
+                            }}
                             onTaskFormChange={(value) => {
                                 setTaskForm(value);
                                 setTaskFormErrors({});
@@ -255,6 +368,7 @@ export function ActivityCard({
                             lookups={taskLookups}
                             onLookupChange={(value) => {
                                 setTaskLookups(value);
+                                setEventFormErrors({});
                                 setTaskFormErrors({});
                             }}
                             onToggleComposerExpanded={() => {
@@ -274,32 +388,41 @@ export function ActivityCard({
 }
 
 function ActivityPanel({
+    activeComposer,
     activities,
-    composerOpen,
     composerExpanded,
     composerMinimized,
     context,
+    eventForm,
+    eventFormErrors,
     lookupOptions,
     lookups,
     loading,
     message,
     saving,
+    taskStatusOverrides,
     taskForm,
     taskFormErrors,
     onCloseComposer,
-    onOpenComposer,
-    onRefresh,
+    onEventFormChange,
     onLookupChange,
+    onOpenEventComposer,
+    onOpenTaskComposer,
+    onRefresh,
+    onSaveEvent,
     onSaveTask,
     onTaskFormChange,
+    onToggleTaskCompleted,
     onToggleComposerExpanded,
     onToggleComposerMinimized
 }: {
+    activeComposer: "event" | "task" | null;
     activities: ActivityTimelineItem[];
-    composerOpen: boolean;
     composerExpanded: boolean;
     composerMinimized: boolean;
     context: ActivityRecordContext;
+    eventForm: EventForm;
+    eventFormErrors: EventFormErrors;
     lookupOptions: {
         assigned: ActivityLookupOption[];
         name: ActivityLookupOption[];
@@ -309,24 +432,70 @@ function ActivityPanel({
     loading: boolean;
     message: string;
     saving: boolean;
+    taskStatusOverrides: Record<string, TaskStatusOverride>;
     taskForm: TaskForm;
     taskFormErrors: TaskFormErrors;
     onCloseComposer: () => void;
+    onEventFormChange: (value: EventForm) => void;
     onLookupChange: (value: TaskLookupState) => void;
-    onOpenComposer: () => void;
+    onOpenEventComposer: () => void;
+    onOpenTaskComposer: () => void;
     onRefresh: () => void;
+    onSaveEvent: (event: FormEvent<HTMLFormElement>) => void;
     onSaveTask: (event: FormEvent<HTMLFormElement>) => void;
     onTaskFormChange: (value: TaskForm) => void;
+    onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
     onToggleComposerExpanded: () => void;
     onToggleComposerMinimized: () => void;
 }) {
+    const timelineSections = groupActivityTimelineSections(activities, taskStatusOverrides);
+    const [expandedSectionKeys, setExpandedSectionKeys] = useState<Set<string>>(() => new Set());
+    const allSectionsExpanded = timelineSections.length > 0
+        && timelineSections.every((section) => expandedSectionKeys.has(section.key));
+
+    function toggleAllTimelineSections() {
+        setExpandedSectionKeys(allSectionsExpanded
+            ? new Set()
+            : new Set(timelineSections.map((section) => section.key)));
+    }
+
+    function toggleTimelineSection(key: string) {
+        setExpandedSectionKeys((current) => {
+            const next = new Set(current);
+            if (next.has(key)) {
+                next.delete(key);
+            } else {
+                next.add(key);
+            }
+
+            return next;
+        });
+    }
+
     return (
         <div className="playground-activity-panel">
-            <ActivityComposerBar onOpenTask={onOpenComposer} />
-            <ActivityTimelineToolbar loading={loading} onRefresh={onRefresh} />
+            <ActivityComposerBar onOpenEvent={onOpenEventComposer} onOpenTask={onOpenTaskComposer} />
+            <ActivityTimelineToolbar
+                allSectionsExpanded={allSectionsExpanded}
+                loading={loading}
+                sectionCount={timelineSections.length}
+                onRefresh={onRefresh}
+                onToggleAllSections={toggleAllTimelineSections}
+            />
             {message ? <p className="slds-text-color_weak slds-m-bottom_x-small">{message}</p> : null}
-            {loading ? <p className="slds-text-color_weak slds-p-around_medium">活動を読み込んでいます...</p> : <ActivityTimeline activities={activities} context={context} />}
-            {composerOpen ? (
+            {loading ? (
+                <p className="slds-text-color_weak slds-p-around_medium">活動を読み込んでいます...</p>
+            ) : (
+                <ActivityTimeline
+                    context={context}
+                    expandedSectionKeys={expandedSectionKeys}
+                    sections={timelineSections}
+                    taskStatusOverrides={taskStatusOverrides}
+                    onToggleSection={toggleTimelineSection}
+                    onToggleTaskCompleted={onToggleTaskCompleted}
+                />
+            )}
+            {activeComposer === "task" ? (
                 <TaskDockedComposer
                     errors={taskFormErrors}
                     expanded={composerExpanded}
@@ -343,13 +512,39 @@ function ActivityPanel({
                     onToggleExpanded={onToggleComposerExpanded}
                 />
             ) : null}
+            {activeComposer === "event" ? (
+                <EventDockedComposer
+                    errors={eventFormErrors}
+                    expanded={composerExpanded}
+                    form={eventForm}
+                    lookupOptions={lookupOptions}
+                    lookups={lookups}
+                    minimized={composerMinimized}
+                    saving={saving}
+                    onCancel={onCloseComposer}
+                    onChange={onEventFormChange}
+                    onLookupChange={onLookupChange}
+                    onToggleMinimized={onToggleComposerMinimized}
+                    onSubmit={onSaveEvent}
+                    onToggleExpanded={onToggleComposerExpanded}
+                />
+            ) : null}
         </div>
     );
 }
 
-function ActivityComposerBar({ onOpenTask }: { onOpenTask: () => void }) {
+function ActivityComposerBar({
+    onOpenEvent,
+    onOpenTask
+}: {
+    onOpenEvent: () => void;
+    onOpenTask: () => void;
+}) {
     const taskIconStyle = {
         "--sds-c-icon-color-background": "var(--slds-c-icon-color-background, rgb(59, 167, 85))"
+    } as CSSProperties;
+    const eventIconStyle = {
+        "--sds-c-icon-color-background": "var(--slds-c-icon-color-background, rgb(235, 112, 146))"
     } as CSSProperties;
 
     return (
@@ -378,39 +573,61 @@ function ActivityComposerBar({ onOpenTask }: { onOpenTask: () => void }) {
                     </button>
                 </div>
             </li>
+            <li className="slds-button-group-item">
+                <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label="新規行動" part="button-group">
+                    <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label="新規行動" title="新規行動" value="NewEvent" onClick={onOpenEvent}>
+                        <span className="slds-icon-standard-event slds-icon_container playground-activity-composer-action__icon" title="新規行動">
+                            <span className="playground-activity-composer-action__icon-boundary" style={eventIconStyle}>
+                                <StandardIcon className="slds-icon slds-icon_small" name="event" />
+                            </span>
+                            <span className="slds-assistive-text">新規行動</span>
+                        </span>
+                        <span className="hidden playground-activity-composer-action__label" aria-hidden="true">新規行動</span>
+                    </button>
+                    <button
+                        className="slds-button slds-button_icon-border-filled fix-slds-button_icon-border-filled slds-button_last playground-activity-composer-action__menu"
+                        type="button"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        title="追加の 新規行動 アクションはありません"
+                        disabled
+                    >
+                        <UtilityIcon className="slds-button__icon" name="down" />
+                        <span className="slds-assistive-text">追加の 新規行動 アクションはありません</span>
+                    </button>
+                </div>
+            </li>
         </ul>
     );
 }
 
 function ActivityTimelineToolbar({
+    allSectionsExpanded,
     loading,
-    onRefresh
+    sectionCount,
+    onRefresh,
+    onToggleAllSections
 }: {
+    allSectionsExpanded: boolean;
     loading: boolean;
+    sectionCount: number;
     onRefresh: () => void;
+    onToggleAllSections: () => void;
 }) {
     return (
         <div className="playground-activity-toolbar">
-            <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                <p className="slds-text-body_regular slds-text-color_weak playground-activity-filter">
-                    条件: 常時・すべての活動・すべての種別
-                </p>
-                <button className="slds-button slds-button_icon slds-button_icon-border playground-activity-settings" type="button" title="活動設定">
-                    <UtilityIcon className="slds-button__icon" name="settings" />
-                    <span className="slds-assistive-text">活動設定</span>
-                </button>
-            </div>
             <div className="slds-text-align_right playground-activity-links">
                 <button className="slds-button_reset slds-text-link" type="button" disabled={loading} onClick={() => void onRefresh()}>
                     更新
                 </button>
                 <span aria-hidden="true">・</span>
-                <button className="slds-button_reset slds-text-link" type="button">
-                    すべて展開
-                </button>
-                <span aria-hidden="true">・</span>
-                <button className="slds-button_reset slds-text-link" type="button">
-                    すべて表示
+                <button
+                    className="slds-button_reset slds-text-link"
+                    type="button"
+                    disabled={loading || sectionCount === 0}
+                    onClick={onToggleAllSections}
+                >
+                    {allSectionsExpanded ? "すべて折りたたむ" : "すべて展開"}
                 </button>
             </div>
         </div>
@@ -418,37 +635,164 @@ function ActivityTimelineToolbar({
 }
 
 function ActivityTimeline({
-    activities,
-    context
+    context,
+    expandedSectionKeys,
+    sections,
+    taskStatusOverrides,
+    onToggleSection,
+    onToggleTaskCompleted
 }: {
-    activities: ActivityTimelineItem[];
     context: ActivityRecordContext;
+    expandedSectionKeys: Set<string>;
+    sections: ActivityTimelineSection[];
+    taskStatusOverrides: Record<string, TaskStatusOverride>;
+    onToggleSection: (key: string) => void;
+    onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
 }) {
     return (
         <section className="playground-activity-timeline">
-            <h3 className="slds-section__title playground-activity-section-title">
-                <button className="slds-button slds-section__title-action playground-activity-section-title__content" type="button" aria-expanded="true">
-                    <UtilityIcon className="slds-section__title-action-icon slds-button__icon slds-button__icon_left" name="switch" />
-                    <span className="slds-truncate" title="今後 & 期限切れ">今後 &amp; 期限切れ</span>
-                </button>
-            </h3>
-            {activities.length === 0 ? (
-                <ActivityTimelineEmpty />
+            {sections.length === 0 ? (
+                <>
+                    <ActivityTimelineSectionTitle title="今後 & 期限切れ" />
+                    <ActivityTimelineEmpty />
+                </>
             ) : (
-                <ul className="slds-timeline playground-activity-timeline__list">
-                    {activities.map((activity) => (
-                        <ActivityTimelineEntry activity={activity} context={context} key={`${activity.type}-${activity.id}`} />
-                    ))}
-                </ul>
+                sections.map((section) => {
+                    const expanded = expandedSectionKeys.has(section.key);
+
+                    return (
+                    <div className="playground-activity-timeline__section" key={section.key}>
+                        <ActivityTimelineSectionTitle
+                            aside={section.aside}
+                            expanded={expanded}
+                            title={section.title}
+                            onToggle={() => onToggleSection(section.key)}
+                        />
+                        {expanded ? (
+                            <ul className="slds-timeline playground-activity-timeline__list">
+                                {section.activities.map((activity) => (
+                                    <ActivityTimelineEntry
+                                        activity={activity}
+                                        context={context}
+                                        history={section.history}
+                                        key={`${activity.type}-${activity.id}`}
+                                        statusOverride={activity.type === "task" ? taskStatusOverrides[activity.id] : undefined}
+                                        onToggleTaskCompleted={onToggleTaskCompleted}
+                                    />
+                                ))}
+                            </ul>
+                        ) : null}
+                    </div>
+                    );
+                })
             )}
-            <ActivitySearchHint />
-            <div className="slds-text-align_center slds-m-top_medium">
-                <button className="slds-button slds-button_brand" type="button">
-                    すべての活動を表示
-                </button>
-            </div>
         </section>
     );
+}
+
+function ActivityTimelineSectionTitle({
+    aside,
+    expanded = false,
+    onToggle,
+    title
+}: {
+    aside?: string;
+    expanded?: boolean;
+    onToggle?: () => void;
+    title: string;
+}) {
+    return (
+        <h3 className="slds-section__title playground-activity-section-title">
+            <button
+                className="slds-button slds-section__title-action playground-activity-section-title__content"
+                type="button"
+                aria-expanded={expanded}
+                onClick={onToggle}
+            >
+                <UtilityIcon className={`slds-section__title-action-icon slds-button__icon slds-button__icon_left playground-activity-section-icon ${
+                    expanded ? "" : "playground-activity-section-icon_collapsed"
+                }`} name="switch" />
+                <span className="slds-truncate" title={title}>{title}</span>
+                {aside ? <span className="slds-text-body_regular playground-activity-section-title__aside">{aside}</span> : null}
+            </button>
+        </h3>
+    );
+}
+
+type ActivityTimelineSection = {
+    activities: ActivityTimelineItem[];
+    aside?: string;
+    history: boolean;
+    key: string;
+    title: string;
+};
+
+function groupActivityTimelineSections(
+    activities: ActivityTimelineItem[],
+    taskStatusOverrides: Record<string, TaskStatusOverride>
+): ActivityTimelineSection[] {
+    const futureActivities = activities.filter((activity) => !isHistoryActivity(activity, taskStatusOverrides));
+    const historyActivities = activities.filter((activity) => isHistoryActivity(activity, taskStatusOverrides));
+    const sections: ActivityTimelineSection[] = [];
+
+    if (futureActivities.length > 0) {
+        sections.push({
+            activities: futureActivities,
+            history: false,
+            key: "future",
+            title: "今後 & 期限切れ"
+        });
+    }
+
+    for (const [monthKey, monthActivities] of groupHistoryActivitiesByMonth(historyActivities).entries()) {
+        sections.push({
+            activities: monthActivities,
+            aside: monthKey === buildDateValue(new Date()).slice(0, 7) ? "今月" : undefined,
+            history: true,
+            key: `month-${monthKey}`,
+            title: formatTimelineMonthTitle(monthKey)
+        });
+    }
+
+    return sections;
+}
+
+function isHistoryActivity(
+    activity: ActivityTimelineItem,
+    taskStatusOverrides: Record<string, TaskStatusOverride>
+): boolean {
+    if (activity.type === "task") {
+        return activity.status === "Completed" && !taskStatusOverrides[activity.id];
+    }
+
+    if (!activity.startDateTime) {
+        return false;
+    }
+
+    return new Date(activity.startDateTime).getTime() < Date.now();
+}
+
+function groupHistoryActivitiesByMonth(
+    activities: ActivityTimelineItem[]
+): Map<string, ActivityTimelineItem[]> {
+    const groups = new Map<string, ActivityTimelineItem[]>();
+
+    for (const activity of activities) {
+        const activityDate = activity.type === "task" ? activity.date : activity.startDateTime;
+        const monthKey = activityDate ? activityDate.slice(0, 7) : "no-date";
+        groups.set(monthKey, [...(groups.get(monthKey) ?? []), activity]);
+    }
+
+    return new Map([...groups.entries()].sort(([a], [b]) => b.localeCompare(a)));
+}
+
+function formatTimelineMonthTitle(monthKey: string): string {
+    if (monthKey === "no-date") {
+        return "期日なし";
+    }
+
+    const [year, month] = monthKey.split("-");
+    return `${Number(month)}月・${year}`;
 }
 
 function ActivityTimelineEmpty() {
@@ -462,26 +806,47 @@ function ActivityTimelineEmpty() {
 function ActivityTimelineEntry({
     activity,
     context,
+    history = false,
+    statusOverride,
+    onToggleTaskCompleted,
     preview = false
 }: {
     activity: ActivityTimelineItem;
     context: ActivityRecordContext;
+    history?: boolean;
+    statusOverride?: TaskStatusOverride;
+    onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
     preview?: boolean;
 }) {
+    const [expanded, setExpanded] = useState(false);
     const isTask = activity.type === "task";
-    const date = isTask ? formatDate(activity.date) : formatDate(activity.startDateTime);
+    const effectiveTaskStatus = isTask ? statusOverride?.status ?? activity.status ?? "" : "";
+    const isCompletedTask = effectiveTaskStatus === "Completed";
+    const showTaskCheckbox = isTask && !history;
+    const date = isTask ? formatTaskDueDate(activity.date) : formatDate(activity.startDateTime);
     const title = activity.subject || (isTask ? "ToDo" : "行動");
     const itemClassName = isTask ? "slds-timeline__item_task" : "slds-timeline__item_event";
+    const expandedClassName = expanded ? "slds-is-open" : "";
+    const titleClassName = isCompletedTask && !history ? "playground-activity-timeline-item__title_completed" : undefined;
+    const taskSummary = isTask ? getTaskSummary(activity, context, isCompletedTask) : "";
 
     return (
         <li>
-            <div className={`slds-timeline__item_expandable ${itemClassName} playground-activity-timeline-item`}>
+            <div className={`slds-timeline__item_expandable ${itemClassName} ${expandedClassName} playground-activity-timeline-item`}>
                 <span className="slds-assistive-text">{isTask ? "ToDo" : "行動"}</span>
                 <div className="slds-media">
                     <div className="slds-media__figure">
-                        <button className="slds-button slds-button_icon" type="button" aria-expanded="false" title={`${title} の詳細を表示`}>
-                            <UtilityIcon className="slds-button__icon slds-timeline__details-action-icon" name="switch" />
-                            <span className="slds-assistive-text">{title} の詳細を表示</span>
+                        <button
+                            className="slds-button slds-button_icon"
+                            type="button"
+                            aria-expanded={expanded}
+                            title={expanded ? `${title} の詳細を閉じる` : `${title} の詳細を表示`}
+                            onClick={() => setExpanded((current) => !current)}
+                        >
+                            <UtilityIcon className={`slds-button__icon slds-timeline__details-action-icon playground-activity-entry-icon ${
+                                expanded ? "" : "playground-activity-entry-icon_collapsed"
+                            }`} name="switch" />
+                            <span className="slds-assistive-text">{expanded ? `${title} の詳細を閉じる` : `${title} の詳細を表示`}</span>
                         </button>
                         <span className={`slds-icon_container ${isTask ? "slds-icon-standard-task" : "slds-icon-standard-event"} slds-timeline__icon`} title={isTask ? "ToDo" : "行動"}>
                             <StandardIcon className="slds-icon slds-icon_small" name={isTask ? "task" : "event"} />
@@ -491,9 +856,15 @@ function ActivityTimelineEntry({
                     <div className="slds-media__body">
                         <div className="slds-grid slds-grid_align-spread slds-timeline__trigger">
                             <div className="slds-grid slds-grid_vertical-align-center slds-truncate_container_75 slds-no-space">
-                                {isTask ? (
+                                {showTaskCheckbox ? (
                                     <span className="slds-checkbox playground-activity-checkbox">
-                                        <input id={`activity-checkbox-${activity.id}`} type="checkbox" disabled={preview} />
+                                        <input
+                                            id={`activity-checkbox-${activity.id}`}
+                                            type="checkbox"
+                                            checked={isCompletedTask}
+                                            disabled={preview}
+                                            onChange={() => onToggleTaskCompleted(activity)}
+                                        />
                                         <label className="slds-checkbox__label" htmlFor={`activity-checkbox-${activity.id}`}>
                                             <span className="slds-checkbox_faux" />
                                             <span className="slds-form-element__label slds-assistive-text">完了としてマーク</span>
@@ -501,13 +872,13 @@ function ActivityTimelineEntry({
                                     </span>
                                 ) : null}
                                 <h4 className="slds-truncate" title={title}>
-                                    <a href="#" onClick={(event) => event.preventDefault()}>
+                                    <a className={titleClassName} href="#" onClick={(event) => event.preventDefault()}>
                                         <strong>{title}</strong>
                                     </a>
                                 </h4>
                             </div>
                             <div className="slds-timeline__actions slds-timeline__actions_inline">
-                                <p className="slds-timeline__date">{date === "-" ? "期日なし" : date}</p>
+                                <p className={date === "昨日" && !history ? "slds-timeline__date slds-text-color_error" : "slds-timeline__date"}>{date}</p>
                                 <button className="slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small" type="button" title="その他の操作">
                                     <UtilityIcon className="slds-button__icon" name="down" />
                                     <span className="slds-assistive-text">その他の操作</span>
@@ -516,12 +887,7 @@ function ActivityTimelineEntry({
                         </div>
                         <p className="slds-m-horizontal_xx-small slds-text-body_small">
                             {isTask ? (
-                                <>
-                                    <a href="#" onClick={(event) => event.preventDefault()}>{context.parentName}</a>
-                                    {" さんとの今後の ToDo"}
-                                    {activity.status ? ` / ${activity.status}` : ""}
-                                    {activity.priority ? ` / ${activity.priority}` : ""}
-                                </>
+                                taskSummary
                             ) : (
                                 <>
                                     行動
@@ -537,18 +903,216 @@ function ActivityTimelineEntry({
     );
 }
 
-function ActivitySearchHint() {
+function formatTaskDueDate(value?: string): string {
+    if (!value) {
+        return "期日なし";
+    }
+
+    const today = buildDateValue(new Date());
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayValue = buildDateValue(yesterday);
+
+    if (value === today) {
+        return "今日";
+    }
+
+    if (value === yesterdayValue) {
+        return "昨日";
+    }
+
+    return formatDate(value);
+}
+
+function getTaskSummary(
+    activity: Extract<ActivityTimelineItem, { type: "task" }>,
+    context: ActivityRecordContext,
+    completed: boolean
+) {
+    if (completed) {
+        return "ToDo がありました";
+    }
+
+    const contactName = activity.whoName || (context.parentType === "contact" ? context.parentName : "");
+    if (contactName) {
+        return `${contactName} さんとの今後の ToDo があります`;
+    }
+
+    return "今後の ToDo があります";
+}
+
+function EventDockedComposer({
+    errors,
+    expanded,
+    form,
+    lookupOptions,
+    lookups,
+    minimized,
+    saving,
+    onCancel,
+    onChange,
+    onLookupChange,
+    onSubmit,
+    onToggleExpanded,
+    onToggleMinimized
+}: {
+    errors: EventFormErrors;
+    expanded: boolean;
+    form: EventForm;
+    lookupOptions: {
+        assigned: ActivityLookupOption[];
+        name: ActivityLookupOption[];
+        related: ActivityLookupOption[];
+    };
+    lookups: TaskLookupState;
+    minimized: boolean;
+    saving: boolean;
+    onCancel: () => void;
+    onChange: (value: EventForm) => void;
+    onLookupChange: (value: TaskLookupState) => void;
+    onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+    onToggleExpanded: () => void;
+    onToggleMinimized: () => void;
+}) {
+    const composerStateClass = minimized ? "slds-is-closed" : "slds-is-open";
+    const minimizeTitle = minimized ? "復元" : "最小化";
+    const expandTitle = expanded ? "復元" : "最大化";
+    const composer = (
+        <form
+            className={`slds-docked-composer slds-grid slds-grid_vertical ${composerStateClass} playground-task-composer ${
+                expanded ? "playground-task-composer_expanded" : ""
+            }`}
+            onSubmit={onSubmit}
+            noValidate
+            role="dialog"
+            aria-labelledby="new-event-composer-title"
+            aria-describedby="new-event-composer-body"
+        >
+            <header className="slds-docked-composer__header slds-grid slds-shrink-none" aria-live="assertive">
+                <div className="slds-media slds-media_center slds-has-flexi-truncate">
+                    <div className="slds-media__figure slds-m-right_x-small">
+                        <span className="slds-icon_container" title="行動">
+                            <StandardIcon className="slds-icon slds-icon_small slds-icon-text-default" name="event" />
+                            <span className="slds-assistive-text">行動</span>
+                        </span>
+                    </div>
+                    <div className="slds-media__body">
+                        <h2 className="slds-truncate" id="new-event-composer-title" title="新規行動">新規行動</h2>
+                    </div>
+                </div>
+                <div className="slds-col_bump-left slds-shrink-none">
+                    <button className="slds-button slds-button_icon slds-button_icon-bare slds-p-around_xx-small" type="button" title={minimizeTitle} onClick={onToggleMinimized}>
+                        <UtilityIcon className="slds-button__icon" name="minimize_window" />
+                        <span className="slds-assistive-text">{minimizeTitle}</span>
+                    </button>
+                    <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title={expandTitle} onClick={onToggleExpanded}>
+                        <UtilityIcon className="slds-button__icon" name={expanded ? "contract_alt" : "expand_alt"} />
+                        <span className="slds-assistive-text">{expandTitle}</span>
+                    </button>
+                    <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title="閉じる" onClick={onCancel}>
+                        <UtilityIcon className="slds-button__icon" name="close" />
+                        <span className="slds-assistive-text">閉じる</span>
+                    </button>
+                </div>
+            </header>
+            <fieldset className="slds-docked-composer__body slds-docked-composer__body_form slds-form_compound slds-grow slds-shrink slds-scrollable_y playground-task-composer__body" id="new-event-composer-body">
+                <legend className="slds-assistive-text">新規行動</legend>
+                <EventFormErrorSummary errors={errors} />
+                <div className="slds-form-element__control">
+                    <div className="slds-form-element__group">
+                        <div className="slds-form-element__row">
+                            <QuickActionSubjectCombobox
+                                error={errors.Subject}
+                                label="件名"
+                                required
+                                value={form.Subject}
+                                onChange={(Subject) => onChange({ ...form, Subject })}
+                            />
+                        </div>
+                        <div className="slds-form-element__row">
+                            <QuickActionDateTimePicker
+                                error={errors.StartDateTime}
+                                label="開始"
+                                required
+                                idPrefix="event-start"
+                                value={form.StartDateTime}
+                                onChange={(StartDateTime) => onChange({ ...form, StartDateTime })}
+                            />
+                        </div>
+                        <div className="slds-form-element__row">
+                            <QuickActionDateTimePicker
+                                error={errors.EndDateTime}
+                                label="終了"
+                                required
+                                idPrefix="event-end"
+                                value={form.EndDateTime}
+                                onChange={(EndDateTime) => onChange({ ...form, EndDateTime })}
+                            />
+                        </div>
+                        <div className="slds-form-element__row">
+                            <QuickActionLookup
+                                label="名前"
+                                objectLabel="取引先責任者"
+                                options={lookupOptions.name}
+                                placeholder="取引先責任者を検索..."
+                                value={lookups.name}
+                                onChange={(name) => onLookupChange({ ...lookups, name })}
+                            />
+                        </div>
+                        <div className="slds-form-element__row">
+                            <QuickActionLookup
+                                label="関連先"
+                                objectLabel="取引先"
+                                options={lookupOptions.related}
+                                placeholder="取引先を検索..."
+                                value={lookups.related}
+                                onChange={(related) => onLookupChange({ ...lookups, related })}
+                            />
+                        </div>
+                        <div className="slds-form-element__row">
+                            <QuickActionLookup
+                                error={errors.assignedUserName}
+                                label="割り当て先"
+                                objectLabel="ユーザー"
+                                options={lookupOptions.assigned}
+                                placeholder="ユーザーを検索..."
+                                required
+                                value={lookups.assigned}
+                                onChange={(assigned) => onLookupChange({ ...lookups, assigned })}
+                            />
+                        </div>
+                        <div className="slds-form-element__row">
+                            <QuickActionTextInput
+                                label="場所"
+                                value={form.Location}
+                                onChange={(Location) => onChange({ ...form, Location })}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <footer className="slds-docked-composer__footer slds-shrink-none slds-grid_align-end">
+                <button className="slds-button slds-button_brand" type="submit" disabled={saving}>
+                    保存
+                </button>
+            </footer>
+        </form>
+    );
+
+    if (expanded) {
+        return (
+            <>
+                <div className="slds-backdrop slds-backdrop_open playground-task-composer-backdrop" />
+                <div className="playground-task-composer-modal">
+                    {composer}
+                </div>
+            </>
+        );
+    }
+
     return (
-        <div className="slds-scoped-notification slds-media slds-media_center slds-theme_shade playground-activity-search-hint" role="status">
-            <div className="slds-media__figure">
-                <span className="slds-icon_container slds-icon-utility-info" title="情報">
-                    <UtilityIcon className="slds-icon slds-icon_x-small slds-icon-text-default" name="help" />
-                    <span className="slds-assistive-text">情報</span>
-                </span>
-            </div>
-            <div className="slds-media__body">
-                <p>表示する内容を変更するには、検索条件を変更してください。</p>
-            </div>
+        <div className="slds-docked_container playground-activity-docked-container">
+            {composer}
         </div>
     );
 }
@@ -740,6 +1304,229 @@ function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
     );
 }
 
+function EventFormErrorSummary({ errors }: { errors: EventFormErrors }) {
+    const errorLabels = getEventFormErrorLabels(errors);
+
+    if (errorLabels.length === 0) {
+        return null;
+    }
+
+    return (
+        <div className="playground-task-error-summary">
+            <div className="slds-notify slds-notify_alert slds-alert_error playground-task-error-alert" role="alert">
+                <span className="slds-assistive-text">エラー</span>
+                <h2>このページのエラーを確認してください。</h2>
+            </div>
+            <p className="slds-text-color_error slds-m-top_small">
+                次の必須項目を入力する必要があります: {errorLabels.join("、")}
+            </p>
+        </div>
+    );
+}
+
+function QuickActionTextInput({
+    error,
+    label,
+    onChange,
+    required = false,
+    value
+}: {
+    error?: string;
+    label: string;
+    onChange: (value: string) => void;
+    required?: boolean;
+    value: string;
+}) {
+    const inputId = `activity-text-${label}`;
+
+    return (
+        <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
+            <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}</label>
+            <div className="slds-form-element__control">
+                <input
+                    className="slds-input"
+                    id={inputId}
+                    type="text"
+                    aria-invalid={Boolean(error)}
+                    maxLength={255}
+                    required={required}
+                    value={value}
+                    onChange={(event) => onChange(event.target.value)}
+                />
+                <FieldError message={error} />
+            </div>
+        </div>
+    );
+}
+
+function QuickActionDateTimePicker({
+    error,
+    idPrefix,
+    label,
+    onChange,
+    required = false,
+    value
+}: {
+    error?: string;
+    idPrefix: string;
+    label: string;
+    onChange: (value: string) => void;
+    required?: boolean;
+    value: string;
+}) {
+    const dateValue = getDateTimeDateValue(value);
+    const timeValue = getDateTimeTimeValue(value);
+
+    function changeDate(nextDate: string) {
+        onChange(buildDateTimeInputValue(nextDate, timeValue));
+    }
+
+    function changeTime(nextTime: string) {
+        const normalizedTime = normalizeTimeInputValue(nextTime);
+        onChange(buildDateTimeInputValue(dateValue, normalizedTime || nextTime));
+    }
+
+    return (
+        <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
+            <fieldset className="slds-form-element__control" aria-invalid={Boolean(error)}>
+                <legend className="slds-form-element__label">
+                    {required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}
+                </legend>
+                <div className="slds-grid slds-gutters_x-small">
+                    <div className="slds-col slds-size_2-of-3">
+                        <QuickActionDatepicker
+                            hideLabel
+                            idPrefix={`${idPrefix}-date`}
+                            label={`${label}日`}
+                            value={dateValue}
+                            onChange={changeDate}
+                        />
+                    </div>
+                    <div className="slds-col slds-size_1-of-3">
+                        <QuickActionTimepicker
+                            idPrefix={`${idPrefix}-time`}
+                            label={`${label}時刻`}
+                            value={timeValue}
+                            onChange={changeTime}
+                        />
+                    </div>
+                </div>
+                <FieldError message={error} />
+            </fieldset>
+        </div>
+    );
+}
+
+function QuickActionTimepicker({
+    idPrefix,
+    label,
+    onChange,
+    value
+}: {
+    idPrefix: string;
+    label: string;
+    onChange: (value: string) => void;
+    value: string;
+}) {
+    const [open, setOpen] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(() => Math.max(timeOptions.indexOf(value), 0));
+    const inputId = `${idPrefix}-input`;
+    const listboxId = `${idPrefix}-listbox`;
+    const activeOptionId = `${listboxId}-option-${activeIndex}`;
+
+    function selectTime(nextValue: string) {
+        onChange(nextValue);
+        setOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setOpen(true);
+            setActiveIndex((current) => Math.min(current + 1, timeOptions.length - 1));
+            return;
+        }
+
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setOpen(true);
+            setActiveIndex((current) => Math.max(current - 1, 0));
+            return;
+        }
+
+        if (event.key === "Enter" && open) {
+            event.preventDefault();
+            selectTime(timeOptions[activeIndex]);
+            return;
+        }
+
+        if (event.key === "Escape") {
+            setOpen(false);
+        }
+    }
+
+    return (
+        <div
+            className={`slds-combobox_container slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
+            onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) {
+                    setOpen(false);
+                }
+            }}
+        >
+            <label className="slds-form-element__label slds-assistive-text" htmlFor={inputId}>{label}</label>
+            <div className="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click">
+                <div className="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                    <input
+                        className="slds-combobox__input slds-input"
+                        id={inputId}
+                        type="text"
+                        role="combobox"
+                        aria-autocomplete="list"
+                        aria-controls={listboxId}
+                        aria-expanded={open}
+                        aria-haspopup="listbox"
+                        aria-activedescendant={open ? activeOptionId : undefined}
+                        autoComplete="off"
+                        value={value}
+                        onChange={(event) => {
+                            onChange(event.target.value);
+                            setOpen(true);
+                        }}
+                        onFocus={() => setOpen(true)}
+                        onKeyDown={handleKeyDown}
+                    />
+                    <span className="slds-input__icon slds-input__icon_right slds-icon-text-default" aria-hidden="true">
+                        <UtilityIcon className="slds-icon slds-icon_x-small" name="clock" />
+                    </span>
+                </div>
+                {open ? (
+                    <div className="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-5" id={listboxId} role="listbox" aria-label={label}>
+                        {timeOptions.map((option, index) => (
+                            <div
+                                className={`slds-media slds-listbox__option slds-media_center slds-media_small slds-listbox__option_plain ${activeIndex === index ? "slds-has-focus" : ""}`}
+                                id={`${listboxId}-option-${index}`}
+                                key={option}
+                                role="option"
+                                aria-selected={value === option}
+                                onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    selectTime(option);
+                                }}
+                                onMouseEnter={() => setActiveIndex(index)}
+                            >
+                                <span className="slds-media__body">
+                                    <span title={option}>{option}</span>
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ) : null}
+            </div>
+        </div>
+    );
+}
+
 function QuickActionSubjectCombobox({
     error,
     label,
@@ -873,10 +1660,14 @@ function QuickActionSubjectCombobox({
 }
 
 function QuickActionDatepicker({
+    hideLabel = false,
+    idPrefix = "task-activity-date",
     label,
     onChange,
     value
 }: {
+    hideLabel?: boolean;
+    idPrefix?: string;
     label: string;
     onChange: (value: string) => void;
     value: string;
@@ -885,9 +1676,10 @@ function QuickActionDatepicker({
     const [open, setOpen] = useState(false);
     const [displayYear, setDisplayYear] = useState(initialDate.getFullYear());
     const [displayMonth, setDisplayMonth] = useState(initialDate.getMonth());
-    const inputId = "task-activity-date-input";
-    const formatHelpId = "task-activity-date-format";
-    const calendarId = "task-activity-date-calendar";
+    const inputId = `${idPrefix}-input`;
+    const formatHelpId = `${idPrefix}-format`;
+    const calendarId = `${idPrefix}-calendar`;
+    const yearId = `${idPrefix}-year`;
     const selectedValue = normalizeDateInputValue(value);
     const todayValue = buildDateValue(new Date());
     const displayDate = new Date(displayYear, displayMonth, 1);
@@ -915,7 +1707,7 @@ function QuickActionDatepicker({
 
     return (
         <>
-            <label className="slds-form-element__label" htmlFor={inputId}>{label}</label>
+            <label className={`slds-form-element__label ${hideLabel ? "slds-assistive-text" : ""}`} htmlFor={inputId}>{label}</label>
             <div className="slds-form-element__control">
                 <div
                     className={`slds-dropdown-trigger slds-dropdown-trigger_click slds-size_1-of-1 ${open ? "slds-is-open" : ""}`}
@@ -966,9 +1758,9 @@ function QuickActionDatepicker({
                                     </div>
                                 </div>
                                 <div className="slds-shrink-none">
-                                    <label className="slds-form-element__label slds-assistive-text" htmlFor="task-activity-date-year">年の取得</label>
+                                    <label className="slds-form-element__label slds-assistive-text" htmlFor={yearId}>年の取得</label>
                                     <div className="slds-select_container">
-                                        <select className="slds-select playground-task-datepicker__year" id="task-activity-date-year" value={displayYear} onChange={(event) => setDisplayYear(Number(event.target.value))}>
+                                        <select className="slds-select playground-task-datepicker__year" id={yearId} value={displayYear} onChange={(event) => setDisplayYear(Number(event.target.value))}>
                                             {yearOptions.map((year) => <option key={year} value={year}>{year}</option>)}
                                         </select>
                                     </div>

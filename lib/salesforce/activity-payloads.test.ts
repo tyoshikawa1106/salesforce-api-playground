@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
     readActivityParentFromUrl,
-    readTaskActivityCreatePayload
+    readEventActivityCreatePayload,
+    readTaskActivityCreatePayload,
+    readTaskActivityUpdatePayload
 } from "./activity-payloads";
 
 function jsonRequest(body: unknown): Pick<Request, "json"> {
@@ -18,6 +20,9 @@ describe("Salesforce activity payload readers", () => {
                 parentId: "001xx000003DGbY",
                 Subject: " Call customer ",
                 ActivityDate: "2026-06-08",
+                OwnerId: "005xx0000012345",
+                WhoId: "003xx000004TmiQ",
+                WhatId: "001xx000003DGbY",
                 Status: " Not Started ",
                 Priority: "",
                 Description: " Follow up "
@@ -27,9 +32,76 @@ describe("Salesforce activity payload readers", () => {
             parentId: "001xx000003DGbY",
             Subject: "Call customer",
             ActivityDate: "2026-06-08",
+            OwnerId: "005xx0000012345",
+            WhoId: "003xx000004TmiQ",
+            WhatId: "001xx000003DGbY",
             Status: "Not Started",
             Priority: undefined,
             Description: "Follow up"
+        });
+    });
+
+    it("normalizes event create payloads for contacts", async () => {
+        await expect(
+            readEventActivityCreatePayload(jsonRequest({
+                parentType: "contact",
+                parentId: "003xx000004TmiQ",
+                Subject: " Meeting ",
+                StartDateTime: " 2026-06-08T10:00:00.000Z ",
+                EndDateTime: "2026-06-08T11:00:00.000Z",
+                OwnerId: "005xx0000012345",
+                WhoId: "003xx000004TmiQ",
+                WhatId: "001xx000003DGbY",
+                Location: "",
+                Description: " Discuss plan "
+            }))
+        ).resolves.toEqual({
+            parentType: "contact",
+            parentId: "003xx000004TmiQ",
+            Subject: "Meeting",
+            StartDateTime: "2026-06-08T10:00:00.000Z",
+            EndDateTime: "2026-06-08T11:00:00.000Z",
+            OwnerId: "005xx0000012345",
+            WhoId: "003xx000004TmiQ",
+            WhatId: "001xx000003DGbY",
+            Location: undefined,
+            Description: "Discuss plan"
+        });
+    });
+
+    it("rejects invalid activity lookup ids", async () => {
+        await expect(
+            readEventActivityCreatePayload(jsonRequest({
+                parentType: "account",
+                parentId: "001xx000003DGbY",
+                Subject: "Meeting",
+                StartDateTime: "2026-06-08T10:00:00.000Z",
+                EndDateTime: "2026-06-08T11:00:00.000Z",
+                OwnerId: "003xx000004TmiQ"
+            }))
+        ).rejects.toMatchObject({
+            message: "Invalid User id.",
+            status: 400
+        });
+    });
+
+    it("normalizes task update payloads", async () => {
+        await expect(
+            readTaskActivityUpdatePayload(jsonRequest({
+                Status: " Completed "
+            }))
+        ).resolves.toEqual({
+            Status: "Completed"
+        });
+    });
+
+    it("omits empty task update fields", async () => {
+        await expect(
+            readTaskActivityUpdatePayload(jsonRequest({
+                Status: " "
+            }))
+        ).resolves.toEqual({
+            Status: undefined
         });
     });
 
@@ -77,6 +149,21 @@ describe("Salesforce activity payload readers", () => {
             }))
         ).rejects.toMatchObject({
             message: "Subject is required.",
+            status: 400
+        });
+    });
+
+    it("rejects missing required event fields", async () => {
+        await expect(
+            readEventActivityCreatePayload(jsonRequest({
+                parentType: "account",
+                parentId: "001xx000003DGbY",
+                Subject: "Meeting",
+                StartDateTime: "2026-06-08T10:00:00.000Z",
+                EndDateTime: ""
+            }))
+        ).rejects.toMatchObject({
+            message: "EndDateTime is required.",
             status: 400
         });
     });

@@ -81,6 +81,7 @@ export function AccountListWorkspace({
 
 export function AccountDetailWorkspace({
     account,
+    assignedUserId,
     assignedUserName,
     contacts,
     loading,
@@ -90,6 +91,7 @@ export function AccountDetailWorkspace({
     onRefresh
 }: {
     account: Account;
+    assignedUserId?: string;
     assignedUserName?: string;
     contacts: Contact[];
     loading: boolean;
@@ -101,6 +103,7 @@ export function AccountDetailWorkspace({
     return (
         <AccountRecordPage
             account={account}
+            assignedUserId={assignedUserId}
             assignedUserName={assignedUserName}
             contacts={contacts.filter((contact) => contact.AccountId === account.Id)}
             onDelete={(record) => onDeleteRecord(accountDeleteState([record], record.Name))}
@@ -158,6 +161,7 @@ export function ContactListWorkspace({
 }
 
 export function ContactDetailWorkspace({
+    assignedUserId,
     assignedUserName,
     contact,
     loading,
@@ -166,6 +170,7 @@ export function ContactDetailWorkspace({
     onOpenAccount,
     onRefresh
 }: {
+    assignedUserId?: string;
     assignedUserName?: string;
     contact: Contact;
     loading: boolean;
@@ -176,6 +181,7 @@ export function ContactDetailWorkspace({
 }) {
     return (
         <ContactRecordPage
+            assignedUserId={assignedUserId}
             assignedUserName={assignedUserName}
             contact={contact}
             onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}

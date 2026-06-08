@@ -2,7 +2,9 @@ import { SalesforceApiError } from "./client";
 import type {
     ActivityParent,
     ActivityParentType,
-    TaskActivityInput
+    EventActivityInput,
+    TaskActivityInput,
+    TaskActivityUpdateInput
 } from "./activities";
 import { assertSalesforceRecordId } from "./request-security";
 
@@ -76,13 +78,70 @@ async function readActivityBody(request: JsonRequest): Promise<Record<string, un
 
 export async function readTaskActivityCreatePayload(request: JsonRequest): Promise<TaskActivityInput> {
     const body = await readActivityBody(request);
+    const OwnerId = readOptionalString(body, "OwnerId");
+    const WhoId = readOptionalString(body, "WhoId");
+    const WhatId = readOptionalString(body, "WhatId");
+
+    if (OwnerId) {
+        assertSalesforceRecordId(OwnerId, "User");
+    }
+
+    if (WhoId) {
+        assertSalesforceRecordId(WhoId, "Contact");
+    }
+
+    if (WhatId) {
+        assertSalesforceRecordId(WhatId, "Account");
+    }
 
     return {
         ...readParent(body),
         Subject: readRequiredString(body, "Subject"),
         ActivityDate: readOptionalString(body, "ActivityDate"),
+        ...(OwnerId ? { OwnerId } : {}),
+        ...(WhoId ? { WhoId } : {}),
+        ...(WhatId ? { WhatId } : {}),
         Status: readOptionalString(body, "Status"),
         Priority: readOptionalString(body, "Priority"),
+        Description: readOptionalString(body, "Description")
+    };
+}
+
+export async function readTaskActivityUpdatePayload(request: JsonRequest): Promise<TaskActivityUpdateInput> {
+    const body = await readActivityBody(request);
+
+    return {
+        Status: readOptionalString(body, "Status")
+    };
+}
+
+export async function readEventActivityCreatePayload(request: JsonRequest): Promise<EventActivityInput> {
+    const body = await readActivityBody(request);
+    const OwnerId = readOptionalString(body, "OwnerId");
+    const WhoId = readOptionalString(body, "WhoId");
+    const WhatId = readOptionalString(body, "WhatId");
+
+    if (OwnerId) {
+        assertSalesforceRecordId(OwnerId, "User");
+    }
+
+    if (WhoId) {
+        assertSalesforceRecordId(WhoId, "Contact");
+    }
+
+    if (WhatId) {
+        assertSalesforceRecordId(WhatId, "Account");
+    }
+
+    return {
+        ...readParent(body),
+        Subject: readRequiredString(body, "Subject"),
+        StartDateTime: readRequiredString(body, "StartDateTime"),
+        EndDateTime: readRequiredString(body, "EndDateTime"),
+        ...(OwnerId ? { OwnerId } : {}),
+        ...(WhoId ? { WhoId } : {}),
+        ...(WhatId ? { WhatId } : {}),
+        Location: readOptionalString(body, "Location"),
         Description: readOptionalString(body, "Description")
     };
 }
