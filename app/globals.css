@@ -343,14 +343,14 @@ body {
     position: fixed;
     right: var(--slds-g-spacing-4, 1rem);
     top: auto;
-    width: min(44rem, calc(100vw - 2rem));
+    width: min(36rem, calc(100vw - 2rem));
     z-index: 7000;
 }
 
 .playground-task-composer {
     height: 34rem;
     max-height: calc(100vh - 8rem);
-    width: min(44rem, calc(100vw - 2rem));
+    width: min(36rem, calc(100vw - 2rem));
 }
 
 .playground-task-composer__body {
