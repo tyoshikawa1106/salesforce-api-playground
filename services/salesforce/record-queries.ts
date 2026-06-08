@@ -8,6 +8,7 @@ import { accountFieldNames, contactFieldNames } from "@/lib/salesforce/record-fi
 const accountSearchFields = [
     "Id",
     ...accountFieldNames,
+    "CreatedDate",
     "LastModifiedDate"
 ] as const;
 
@@ -15,6 +16,7 @@ const contactSearchFields = [
     "Id",
     ...contactFieldNames,
     "Account.Name",
+    "CreatedDate",
     "LastModifiedDate"
 ] as const;
 
@@ -82,6 +84,7 @@ export function toSearchResultItem(record: SalesforceSearchRecord): SearchResult
                 Type: record.Type,
                 BillingCity: record.BillingCity,
                 BillingCountry: record.BillingCountry,
+                CreatedDate: record.CreatedDate,
                 LastModifiedDate: record.LastModifiedDate
             }
         };
@@ -97,8 +100,10 @@ export function toSearchResultItem(record: SalesforceSearchRecord): SearchResult
                 Email: record.Email,
                 Phone: record.Phone,
                 Title: record.Title,
+                Department: record.Department,
                 AccountId: record.AccountId,
                 Account: record.Account,
+                CreatedDate: record.CreatedDate,
                 LastModifiedDate: record.LastModifiedDate
             }
         };

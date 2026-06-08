@@ -1,13 +1,15 @@
 import type { ReactNode } from "react";
 import { StandardPageHeaderIcon, UtilityButtonIcon } from "./Navigation";
 
-export function DetailBlock({ label, value }: { label: string; value: string }) {
+export function DetailBlock({ label, value }: { label: string; value: ReactNode }) {
+    const title = typeof value === "string" ? value : undefined;
+
     return (
         <li className="slds-page-header__detail-block slds-size_1-of-1 slds-small-size_1-of-2 slds-large-size_1-of-5 playground-record-detail-block">
             <p className="slds-text-title slds-truncate" title={label}>
                 {label}
             </p>
-            <p className="slds-truncate" title={value}>
+            <p className="slds-truncate" title={title}>
                 {value}
             </p>
         </li>

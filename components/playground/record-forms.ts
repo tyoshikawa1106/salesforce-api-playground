@@ -31,6 +31,7 @@ const contactFieldLabels: Record<ContactFieldName, string> = {
     Email: "メール",
     Phone: "電話",
     Title: "役職",
+    Department: "部署",
     AccountId: "取引先"
 };
 

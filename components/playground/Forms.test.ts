@@ -43,6 +43,7 @@ describe("record form builders", () => {
                 FirstName: "Taro",
                 LastName: "Yamada",
                 Email: "taro@example.test",
+                Department: "Sales",
                 AccountId: "001xx000003DGbY"
             })
         ).toEqual({
@@ -51,6 +52,7 @@ describe("record form builders", () => {
             Email: "taro@example.test",
             Phone: "",
             Title: "",
+            Department: "Sales",
             AccountId: "001xx000003DGbY"
         });
     });
@@ -64,6 +66,10 @@ describe("record form builders", () => {
             id: "contact-last-name",
             required: true,
             requiredMessage: "取引先責任者の姓は必須です。"
+        });
+        expect(contactTextFields.find((field) => field.key === "Department")).toMatchObject({
+            id: "contact-department",
+            label: "部署"
         });
         expect(contactAccountField).toEqual({
             key: "AccountId",

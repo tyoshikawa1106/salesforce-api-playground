@@ -33,6 +33,7 @@ type PlaygroundWorkspaceProps = {
         onEditAccount: (record: Account) => void;
         onEditContact: (record: Contact) => void;
         onOpenAccount: (record: Account) => void;
+        onOpenAccountById: (accountId: string) => void;
         onOpenContact: (record: Contact) => void;
         onBulkDeleteEmpty: () => void;
         onRefresh: () => void;
@@ -68,8 +69,6 @@ export function PlaygroundWorkspace({
             <section className={sectionClassName}>
                 {activeTab === "home" ? (
                     <HomePanel
-                        accountsCount={accounts.length}
-                        contactsCount={contacts.length}
                         connected={connected}
                         instanceUrl={instanceUrl}
                     />
@@ -96,6 +95,7 @@ export function PlaygroundWorkspace({
                         loading={loading}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditAccount}
+                        onOpenContact={recordActions.onOpenContact}
                         onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
@@ -109,6 +109,7 @@ export function PlaygroundWorkspace({
                         onCreate={recordActions.onCreateContact}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditContact}
+                        onOpenAccount={recordActions.onOpenAccountById}
                         onOpen={recordActions.onOpenContact}
                         onRefresh={recordActions.onRefresh}
                     />
@@ -120,6 +121,7 @@ export function PlaygroundWorkspace({
                         loading={loading}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditContact}
+                        onOpenAccount={recordActions.onOpenAccountById}
                         onRefresh={recordActions.onRefresh}
                     />
                 ) : null}

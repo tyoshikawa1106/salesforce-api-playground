@@ -235,6 +235,19 @@ body {
     --slds-c-card-header-spacing-inline: 0.5rem;
 }
 
+.playground-record-section-icon {
+    transition: transform 0.1s ease-in-out;
+}
+
+.playground-record-section-icon_collapsed {
+    transform: rotate(-90deg);
+}
+
+.playground-activity-quick-action {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
 @media (max-width: 767px) {
     .playground-login-page {
         padding-left: var(--slds-g-spacing-3, 0.75rem);

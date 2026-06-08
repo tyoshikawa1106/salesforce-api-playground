@@ -42,6 +42,11 @@ export type UpdatePayload<T extends Record<string, string>> = Partial<{
 }>;
 
 export const playgroundApiPaths = {
+    activities(parentType: "account" | "contact", parentId: string): string {
+        return `/api/activities?parentType=${encodeURIComponent(parentType)}&parentId=${encodeURIComponent(parentId)}`;
+    },
+    activityEvents: "/api/activities/events",
+    activityTasks: "/api/activities/tasks",
     session: "/api/session",
     accounts: "/api/accounts",
     contacts: "/api/contacts",

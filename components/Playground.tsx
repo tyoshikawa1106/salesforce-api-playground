@@ -24,12 +24,12 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         loading,
         loadAll,
         openSearchResult,
+        openAccount,
+        openContact,
         recycleBinItems,
         selectedAccount,
         selectedContact,
         session,
-        setSelectedAccountId,
-        setSelectedContactId
     } = usePlaygroundData({ showNotice });
     const recordMutations = useRecordMutations({ loadAll, showNotice });
 
@@ -74,8 +74,9 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             onDeleteRecord: recordMutations.setDeleteState,
             onEditAccount: recordMutations.openAccountModal,
             onEditContact: recordMutations.openContactModal,
-            onOpenAccount: (record) => setSelectedAccountId(record.Id),
-            onOpenContact: (record) => setSelectedContactId(record.Id),
+            onOpenAccount: (record) => openAccount(record.Id),
+            onOpenAccountById: openAccount,
+            onOpenContact: (record) => openContact(record.Id),
             onBulkDeleteEmpty: () => showNotice({ tone: "info", message: "削除対象がチェックされていません。" }),
             onRefresh: loadAll
         },

@@ -162,6 +162,7 @@ describe("form payload builders", () => {
             Email: " ",
             Phone: "",
             Title: " Manager ",
+            Department: " Sales ",
             AccountId: ""
         };
 
@@ -171,6 +172,7 @@ describe("form payload builders", () => {
             Email: undefined,
             Phone: undefined,
             Title: "Manager",
+            Department: "Sales",
             AccountId: undefined
         });
         expect(buildContactUpdatePayload(form)).toEqual({
@@ -179,6 +181,7 @@ describe("form payload builders", () => {
             Email: null,
             Phone: null,
             Title: "Manager",
+            Department: "Sales",
             AccountId: null
         });
     });
@@ -203,6 +206,7 @@ describe("form payload builders", () => {
             Email: "",
             Phone: "",
             Title: "",
+            Department: "",
             AccountId: ""
         })).toMatchObject({
             FirstName: null,

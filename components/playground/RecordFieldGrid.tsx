@@ -1,4 +1,10 @@
-export function RecordFieldGrid({ fields }: { fields: Array<[string, string | undefined]> }) {
+import type { ReactNode } from "react";
+
+function renderFieldValue(value: ReactNode) {
+    return value === undefined || value === null || value === "" ? "-" : value;
+}
+
+export function RecordFieldGrid({ fields }: { fields: Array<[string, ReactNode]> }) {
     return (
         <section className="slds-theme_default">
             <div className="slds-grid slds-wrap slds-gutters_x-small">
@@ -7,7 +13,7 @@ export function RecordFieldGrid({ fields }: { fields: Array<[string, string | un
                         <div className="slds-form-element slds-form-element_readonly slds-form-element_stacked slds-p-vertical_x-small slds-border_bottom">
                             <span className="slds-form-element__label">{label}</span>
                             <div className="slds-form-element__control">
-                                <span className="slds-form-element__static">{value || "-"}</span>
+                                <span className="slds-form-element__static">{renderFieldValue(value)}</span>
                             </div>
                         </div>
                     </div>
