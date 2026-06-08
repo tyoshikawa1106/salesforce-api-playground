@@ -264,7 +264,9 @@ body {
 }
 
 .playground-activity-composer-action {
-    min-width: var(--slds-g-sizing-12, 5rem);
+    min-width: auto;
+    padding-left: var(--slds-g-spacing-2, 0.5rem);
+    padding-right: var(--slds-g-spacing-2, 0.5rem);
 }
 
 .playground-activity-composer-action__icon {
