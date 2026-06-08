@@ -2,7 +2,6 @@ import type { SaveResult } from "jsforce";
 import type {
     ActivityParent,
     ActivityTimelineItem,
-    EventActivityInput,
     EventActivityRecord,
     TaskActivityInput,
     TaskActivityRecord
@@ -109,15 +108,6 @@ export async function createTaskActivity(input: TaskActivityInput) {
     const { parentId, parentType, ...fields } = input;
 
     return createStandardObject("Task", {
-        ...fields,
-        [activityRelationField(parentType)]: parentId
-    });
-}
-
-export async function createEventActivity(input: EventActivityInput) {
-    const { parentId, parentType, ...fields } = input;
-
-    return createStandardObject("Event", {
         ...fields,
         [activityRelationField(parentType)]: parentId
     });

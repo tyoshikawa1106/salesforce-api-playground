@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
     readActivityParentFromUrl,
-    readEventActivityCreatePayload,
     readTaskActivityCreatePayload
 } from "./activity-payloads";
 
@@ -34,28 +33,6 @@ describe("Salesforce activity payload readers", () => {
         });
     });
 
-    it("normalizes event create payloads for contacts", async () => {
-        await expect(
-            readEventActivityCreatePayload(jsonRequest({
-                parentType: "contact",
-                parentId: "003xx000004TmiQ",
-                Subject: " Meeting ",
-                StartDateTime: "2026-06-08T10:00:00.000Z",
-                EndDateTime: "2026-06-08T11:00:00.000Z",
-                Location: " Online ",
-                Description: ""
-            }))
-        ).resolves.toEqual({
-            parentType: "contact",
-            parentId: "003xx000004TmiQ",
-            Subject: "Meeting",
-            StartDateTime: "2026-06-08T10:00:00.000Z",
-            EndDateTime: "2026-06-08T11:00:00.000Z",
-            Location: "Online",
-            Description: undefined
-        });
-    });
-
     it("reads activity parents from URL query parameters", () => {
         expect(readActivityParentFromUrl(new Request("https://app.example.test/api/activities?parentType=contact&parentId=003xx000004TmiQ"))).toEqual({
             parentType: "contact",
@@ -81,7 +58,7 @@ describe("Salesforce activity payload readers", () => {
     });
 
     it("rejects invalid JSON bodies", async () => {
-        await expect(readEventActivityCreatePayload({
+        await expect(readTaskActivityCreatePayload({
             json: async () => {
                 throw new SyntaxError("Unexpected end of JSON input");
             }
@@ -91,16 +68,15 @@ describe("Salesforce activity payload readers", () => {
         });
     });
 
-    it("rejects missing required event fields", async () => {
+    it("rejects missing required task fields", async () => {
         await expect(
-            readEventActivityCreatePayload(jsonRequest({
+            readTaskActivityCreatePayload(jsonRequest({
                 parentType: "contact",
                 parentId: "003xx000004TmiQ",
-                Subject: "Meeting",
-                StartDateTime: "2026-06-08T10:00:00.000Z"
+                Subject: " "
             }))
         ).rejects.toMatchObject({
-            message: "EndDateTime is required.",
+            message: "Subject is required.",
             status: 400
         });
     });

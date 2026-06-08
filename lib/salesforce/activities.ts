@@ -13,14 +13,6 @@ export type TaskActivityInput = ActivityParent & {
     Description?: string;
 };
 
-export type EventActivityInput = ActivityParent & {
-    Subject: string;
-    StartDateTime: string;
-    EndDateTime: string;
-    Location?: string;
-    Description?: string;
-};
-
 export type TaskActivityRecord = {
     Id: string;
     Subject?: string;

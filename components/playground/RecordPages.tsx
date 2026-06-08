@@ -16,6 +16,7 @@ type RecordPageFrameProps<Record extends { Id: string }> = {
     tab: "accounts" | "contacts";
     objectLabel: string;
     title: string;
+    activityRelatedName?: string;
     loading: boolean;
     headerDetails: ReactNode;
     relatedContent?: ReactNode;
@@ -31,6 +32,7 @@ function RecordPageFrame<Record extends { Id: string }>({
     tab,
     objectLabel,
     title,
+    activityRelatedName,
     loading,
     headerDetails,
     relatedContent,
@@ -68,7 +70,13 @@ function RecordPageFrame<Record extends { Id: string }>({
                     />
                 </div>
                 <div>
-                    <ActivityCard parentId={record.Id} parentType={tab === "accounts" ? "account" : "contact"} relatedContent={relatedContent} />
+                    <ActivityCard
+                        parentId={record.Id}
+                        parentName={title}
+                        parentType={tab === "accounts" ? "account" : "contact"}
+                        relatedContent={relatedContent}
+                        relatedName={activityRelatedName}
+                    />
                 </div>
             </div>
         </div>
@@ -128,6 +136,7 @@ export function AccountRecordPage({
             tab="accounts"
             objectLabel="取引先"
             title={account.Name}
+            activityRelatedName={account.Name}
             loading={loading}
             onDelete={onDelete}
             onEdit={onEdit}
@@ -193,6 +202,7 @@ export function ContactRecordPage({
             tab="contacts"
             objectLabel="取引先責任者"
             title={getContactName(contact)}
+            activityRelatedName={contact.Account?.Name}
             loading={loading}
             onDelete={onDelete}
             onEdit={onEdit}

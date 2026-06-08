@@ -2,7 +2,6 @@ import { SalesforceApiError } from "./client";
 import type {
     ActivityParent,
     ActivityParentType,
-    EventActivityInput,
     TaskActivityInput
 } from "./activities";
 import { assertSalesforceRecordId } from "./request-security";
@@ -84,19 +83,6 @@ export async function readTaskActivityCreatePayload(request: JsonRequest): Promi
         ActivityDate: readOptionalString(body, "ActivityDate"),
         Status: readOptionalString(body, "Status"),
         Priority: readOptionalString(body, "Priority"),
-        Description: readOptionalString(body, "Description")
-    };
-}
-
-export async function readEventActivityCreatePayload(request: JsonRequest): Promise<EventActivityInput> {
-    const body = await readActivityBody(request);
-
-    return {
-        ...readParent(body),
-        Subject: readRequiredString(body, "Subject"),
-        StartDateTime: readRequiredString(body, "StartDateTime"),
-        EndDateTime: readRequiredString(body, "EndDateTime"),
-        Location: readOptionalString(body, "Location"),
         Description: readOptionalString(body, "Description")
     };
 }

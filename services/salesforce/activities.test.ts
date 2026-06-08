@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SalesforceSession } from "@/lib/salesforce/session";
 import {
-    createEventActivity,
     createTaskActivity,
     listActivities
 } from "./activities";
@@ -149,25 +148,4 @@ describe("Salesforce activity services", () => {
         });
     });
 
-    it("creates contact events with WhoId", async () => {
-        createStandardObjectMock.mockResolvedValue({
-            data: { id: "00Uxx0000012345", success: true },
-            session
-        });
-
-        await createEventActivity({
-            parentType: "contact",
-            parentId: "003xx000004TmiQ",
-            Subject: "Meeting",
-            StartDateTime: "2026-06-08T10:00:00.000Z",
-            EndDateTime: "2026-06-08T11:00:00.000Z"
-        });
-
-        expect(createStandardObjectMock).toHaveBeenCalledWith("Event", {
-            Subject: "Meeting",
-            StartDateTime: "2026-06-08T10:00:00.000Z",
-            EndDateTime: "2026-06-08T11:00:00.000Z",
-            WhoId: "003xx000004TmiQ"
-        });
-    });
 });
