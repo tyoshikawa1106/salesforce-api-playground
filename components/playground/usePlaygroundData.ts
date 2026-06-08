@@ -131,6 +131,8 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         contacts,
         loading,
         loadAll,
+        openAccount,
+        openContact,
         openSearchResult,
         recycleBinItems,
         selectedAccount,

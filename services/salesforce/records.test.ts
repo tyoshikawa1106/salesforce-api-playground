@@ -150,7 +150,7 @@ describe("Salesforce record services", () => {
             version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
         });
         expect(jsforceMocks.query).toHaveBeenCalledWith(
-            "SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate, LastModifiedBy.Name FROM Account ORDER BY LastModifiedDate DESC LIMIT 100"
+            "SELECT Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, CreatedDate, LastModifiedDate, LastModifiedBy.Name FROM Account ORDER BY LastModifiedDate DESC LIMIT 100"
         );
     });
 
@@ -183,7 +183,7 @@ describe("Salesforce record services", () => {
             session
         });
         expect(jsforceMocks.query).toHaveBeenCalledWith(
-            "SELECT Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate, LastModifiedBy.Name FROM Contact ORDER BY LastModifiedDate DESC LIMIT 100"
+            "SELECT Id, FirstName, LastName, Email, Phone, Title, Department, AccountId, Account.Name, CreatedDate, LastModifiedDate, LastModifiedBy.Name FROM Contact ORDER BY LastModifiedDate DESC LIMIT 100"
         );
     });
 
@@ -384,7 +384,7 @@ describe("Salesforce record services", () => {
             session
         });
         expect(jsforceMocks.search).toHaveBeenCalledWith(
-            "FIND {Acme*} IN ALL FIELDS RETURNING Account(Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, LastModifiedDate LIMIT 5), Contact(Id, FirstName, LastName, Email, Phone, Title, AccountId, Account.Name, LastModifiedDate LIMIT 5)"
+            "FIND {Acme*} IN ALL FIELDS RETURNING Account(Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, CreatedDate, LastModifiedDate LIMIT 5), Contact(Id, FirstName, LastName, Email, Phone, Title, Department, AccountId, Account.Name, CreatedDate, LastModifiedDate LIMIT 5)"
         );
     });
 

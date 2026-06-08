@@ -58,6 +58,7 @@ describe("Salesforce request payload readers", () => {
             FirstName: null,
             LastName: " Yamada ",
             AccountId: null,
+            Department: " Sales ",
             Title: ""
         };
 
@@ -65,6 +66,7 @@ describe("Salesforce request payload readers", () => {
             FirstName: null,
             LastName: "Yamada",
             AccountId: null,
+            Department: "Sales",
             Title: null
         });
     });

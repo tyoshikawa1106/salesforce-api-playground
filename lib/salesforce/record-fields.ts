@@ -14,6 +14,7 @@ export const contactFieldNames = [
     "Email",
     "Phone",
     "Title",
+    "Department",
     "AccountId"
 ] as const;
 

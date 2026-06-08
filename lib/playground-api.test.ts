@@ -33,6 +33,9 @@ describe("playgroundApiPaths", () => {
         expect(playgroundApiPaths.record("contacts", "003xx000004TmiQ/../../x?<script>")).toBe(
             "/api/contacts/003xx000004TmiQ%2F..%2F..%2Fx%3F%3Cscript%3E"
         );
+        expect(playgroundApiPaths.activityLookups("contact", "Gonzalez & Edge")).toBe(
+            "/api/activity-lookups?object=contact&q=Gonzalez+%26+Edge"
+        );
     });
 });
 
@@ -162,6 +165,7 @@ describe("form payload builders", () => {
             Email: " ",
             Phone: "",
             Title: " Manager ",
+            Department: " Sales ",
             AccountId: ""
         };
 
@@ -171,6 +175,7 @@ describe("form payload builders", () => {
             Email: undefined,
             Phone: undefined,
             Title: "Manager",
+            Department: "Sales",
             AccountId: undefined
         });
         expect(buildContactUpdatePayload(form)).toEqual({
@@ -179,6 +184,7 @@ describe("form payload builders", () => {
             Email: null,
             Phone: null,
             Title: "Manager",
+            Department: "Sales",
             AccountId: null
         });
     });
@@ -203,6 +209,7 @@ describe("form payload builders", () => {
             Email: "",
             Phone: "",
             Title: "",
+            Department: "",
             AccountId: ""
         })).toMatchObject({
             FirstName: null,

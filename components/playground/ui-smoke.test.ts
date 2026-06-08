@@ -22,6 +22,7 @@ const account: Account = {
     Type: "Customer",
     BillingCity: "Tokyo",
     BillingCountry: "Japan",
+    CreatedDate: "2026-04-01T10:00:00.000Z",
     LastModifiedDate: "2026-05-01T10:00:00.000Z",
     LastModifiedBy: {
         Name: "Admin User"
@@ -35,10 +36,12 @@ const contact: Contact = {
     Email: "taro@example.test",
     Phone: "090-1234-5678",
     Title: "Manager",
+    Department: "Sales",
     AccountId: account.Id,
     Account: {
         Name: account.Name
     },
+    CreatedDate: "2026-04-01T10:00:00.000Z",
     LastModifiedDate: "2026-05-01T10:00:00.000Z",
     LastModifiedBy: {
         Name: "Sales User"
@@ -121,6 +124,7 @@ describe("playground UI smoke rendering", () => {
                 onDelete: noop,
                 onEdit: noop,
                 onOpen: noop,
+                onOpenAccountById: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop
             })
@@ -272,6 +276,7 @@ describe("playground UI smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
+                onOpenContact: noop,
                 onRefresh: noop
             })
         );
@@ -281,25 +286,36 @@ describe("playground UI smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
+                onOpenAccount: noop,
                 onRefresh: noop
             })
         );
 
+        expect(accountMarkup).toContain("詳細");
         expect(accountMarkup).toContain("関連");
-        expect(accountMarkup).toContain("取引先責任者 (1)");
+        expect(accountMarkup).toContain("今後 &amp; 期限切れ");
+        expect(accountMarkup).toContain("条件: 常時・すべての活動・すべての種別");
+        expect(accountMarkup).toContain("すべての活動を表示");
+        expect(accountMarkup).toContain("表示する内容を変更するには、検索条件を変更してください。");
         expect(accountMarkup).toContain("slds-m-top_small playground-record-body");
         expect(accountMarkup).toContain("slds-tabs_default slds-tabs_card playground-record-tabs");
         expect(accountMarkup).toContain("slds-tabs_default__content slds-show slds-p-around_x-small");
-        expect(accountMarkup).toContain("aria-controls=\"record-related-panel\"");
-        expect(accountMarkup).toContain("aria-labelledby=\"record-related-tab\"");
-        expect(accountMarkup).toContain("slds-box slds-box_x-small slds-theme_default slds-m-bottom_x-small");
-        expect(accountMarkup).toContain("slds-card slds-card_boundary playground-record-related-card");
+        expect(accountMarkup).toContain("aria-controls=\"record-details-panel\"");
+        expect(accountMarkup).toContain("aria-labelledby=\"record-details-tab\"");
+        expect(accountMarkup).toContain("aria-controls=\"activity-related-panel\"");
+        expect(accountMarkup).not.toContain("Chatter");
+        expect(accountMarkup).not.toContain("取引先責任者 (1)");
         expect(accountMarkup).not.toContain("新規取引先責任者");
         expect(accountMarkup).not.toContain("slds-box slds-box_x-small slds-theme_default\"><div class=\"slds-grid slds-wrap slds-gutters_x-small");
         expect(accountMarkup).toContain("slds-button-group");
         expect(accountMarkup).not.toContain("slds-button_destructive");
         expect(contactMarkup).toContain("取引先");
-        expect(contactMarkup).toContain("この取引先責任者に関連する活動はまだありません。");
+        expect(contactMarkup).toContain("slds-button_reset slds-text-link");
+        expect(contactMarkup).toContain("新規ToDo");
+        expect(contactMarkup).toContain("今後 &amp; 期限切れ");
+        expect(contactMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
+        expect(contactMarkup).not.toContain("Chatter");
+        expect(contactMarkup).not.toContain("この取引先責任者に関連する活動はまだありません。");
         expect(contactMarkup).toContain("slds-m-top_small playground-record-body");
         expect(contactMarkup).not.toContain("新規ケース");
     });
@@ -358,8 +374,6 @@ describe("playground UI smoke rendering", () => {
     it("renders the Home page header with SLDS meta text and refresh icon button", () => {
         const markup = renderToStaticMarkup(
             createElement(HomePanel, {
-                accountsCount: 2,
-                contactsCount: 3,
                 connected: true,
                 instanceUrl: "https://example.my.salesforce.com"
             })
@@ -368,6 +382,7 @@ describe("playground UI smoke rendering", () => {
         expect(markup).toContain("slds-text-title_caps\">ホーム");
         expect(markup).toContain("slds-page-header__meta-text");
         expect(markup).toContain("Salesforce OAuth と REST API を試すための Next.js アプリ");
+        expect(markup).not.toContain("取引先責任者");
         expect(markup).not.toContain("slds-button_icon-border-filled");
         expect(markup).not.toContain("title=\"更新\"");
         expect(markup).not.toContain("slds-text-title_caps\">App");

@@ -81,25 +81,31 @@ export function AccountListWorkspace({
 
 export function AccountDetailWorkspace({
     account,
+    assignedUserName,
     contacts,
     loading,
     onDeleteRecord,
     onEdit,
+    onOpenContact,
     onRefresh
 }: {
     account: Account;
+    assignedUserName?: string;
     contacts: Contact[];
     loading: boolean;
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Account) => void;
+    onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
 }) {
     return (
         <AccountRecordPage
             account={account}
+            assignedUserName={assignedUserName}
             contacts={contacts.filter((contact) => contact.AccountId === account.Id)}
             onDelete={(record) => onDeleteRecord(accountDeleteState([record], record.Name))}
             onEdit={onEdit}
+            onOpenContact={onOpenContact}
             onRefresh={onRefresh}
             loading={loading}
         />
@@ -114,6 +120,7 @@ export function ContactListWorkspace({
     onCreate,
     onDeleteRecord,
     onEdit,
+    onOpenAccount,
     onOpen,
     onRefresh
 }: {
@@ -124,6 +131,7 @@ export function ContactListWorkspace({
     onCreate: () => void;
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Contact) => void;
+    onOpenAccount: (accountId: string) => void;
     onOpen: (record: Contact) => void;
     onRefresh: () => void;
 }) {
@@ -139,6 +147,7 @@ export function ContactListWorkspace({
                 loading={loading}
                 connected={connected}
                 onOpen={onOpen}
+                onOpenAccountById={onOpenAccount}
                 onEdit={onEdit}
                 onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
                 onBulkDelete={(records) => onDeleteRecord(contactDeleteState(records, contactBulkDeleteLabel(records)))}
@@ -149,23 +158,29 @@ export function ContactListWorkspace({
 }
 
 export function ContactDetailWorkspace({
+    assignedUserName,
     contact,
     loading,
     onDeleteRecord,
     onEdit,
+    onOpenAccount,
     onRefresh
 }: {
+    assignedUserName?: string;
     contact: Contact;
     loading: boolean;
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Contact) => void;
+    onOpenAccount: (accountId: string) => void;
     onRefresh: () => void;
 }) {
     return (
         <ContactRecordPage
+            assignedUserName={assignedUserName}
             contact={contact}
             onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
             onEdit={onEdit}
+            onOpenAccount={onOpenAccount}
             onRefresh={onRefresh}
             loading={loading}
         />

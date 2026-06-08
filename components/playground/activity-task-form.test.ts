@@ -1,0 +1,113 @@
+import { describe, expect, it } from "vitest";
+import {
+    buildCalendarWeeks,
+    buildDateValue,
+    buildDefaultTaskLookups,
+    compactActivityPayload,
+    compactLookupOptions,
+    formatDateInputValue,
+    getLookupApiObject,
+    getLookupObjectLabel,
+    getTaskFormErrorLabels,
+    normalizeDateInputValue,
+    validateTaskForm,
+    type ActivityLookupOption,
+    type ActivityRecordContext,
+    type TaskForm
+} from "./activity-task-form";
+
+const validTaskForm: TaskForm = {
+    Subject: "Call",
+    ActivityDate: "2026-06-08",
+    Status: "Not Started",
+    Priority: "Normal",
+    Description: ""
+};
+
+describe("activity task form helpers", () => {
+    it("compacts task payload fields before sending them to the API", () => {
+        expect(compactActivityPayload({
+            Subject: "  Call  ",
+            Description: "   "
+        })).toEqual({
+            Subject: "Call",
+            Description: undefined
+        });
+    });
+
+    it("normalizes and formats date values", () => {
+        expect(buildDateValue(new Date(2026, 5, 8))).toBe("2026-06-08");
+        expect(formatDateInputValue("2026-06-08")).toBe("2026/06/08");
+        expect(normalizeDateInputValue("2026/6/8")).toBe("2026-06-08");
+        expect(normalizeDateInputValue("2026/02/30")).toBe("");
+    });
+
+    it("builds a six-week calendar grid from the visible month", () => {
+        const weeks = buildCalendarWeeks(new Date(2026, 5, 8));
+
+        expect(weeks).toHaveLength(6);
+        expect(weeks[0]).toHaveLength(7);
+        expect(buildDateValue(weeks[0][0])).toBe("2026-05-31");
+        expect(buildDateValue(weeks[1][1])).toBe("2026-06-08");
+    });
+
+    it("validates required task fields", () => {
+        const errors = validateTaskForm({
+            ...validTaskForm,
+            Subject: "",
+            Status: ""
+        }, "");
+
+        expect(errors).toEqual({
+            Subject: "件名を入力してください。",
+            assignedUserName: "割り当て先を選択してください。",
+            Status: "状況を選択してください。"
+        });
+        expect(getTaskFormErrorLabels(errors)).toEqual(["件名", "割り当て先", "状況"]);
+    });
+
+    it("deduplicates lookup options while keeping object boundaries", () => {
+        const options: ActivityLookupOption[] = [
+            { id: "001A", label: "Edge Communications", objectLabel: "取引先" },
+            { id: "001A", label: "Edge Communications", objectLabel: "取引先" },
+            { id: "001A", label: "Edge Communications", objectLabel: "取引先責任者" },
+            { id: "empty", label: "", objectLabel: "取引先" }
+        ];
+
+        expect(compactLookupOptions(options)).toEqual([
+            { id: "001A", label: "Edge Communications", objectLabel: "取引先" },
+            { id: "001A", label: "Edge Communications", objectLabel: "取引先責任者" }
+        ]);
+    });
+
+    it("builds default lookups from the current record context", () => {
+        const assigned = { id: "005A", label: "Yoshikawa Taiki", objectLabel: "ユーザー" } as const;
+        const contact = { id: "003A", label: "Gonzalez Rose", objectLabel: "取引先責任者" } as const;
+        const account = { id: "001A", label: "Edge Communications", objectLabel: "取引先" } as const;
+        const context: ActivityRecordContext = {
+            parentId: "003A",
+            parentName: "Gonzalez Rose",
+            parentType: "contact"
+        };
+
+        expect(buildDefaultTaskLookups({
+            assignedOptions: [assigned],
+            context,
+            nameOptions: [contact],
+            relatedOptions: [account]
+        })).toEqual({
+            assigned,
+            name: contact,
+            related: account
+        });
+    });
+
+    it("maps lookup labels to API objects and back", () => {
+        expect(getLookupApiObject("取引先")).toBe("account");
+        expect(getLookupApiObject("取引先責任者")).toBe("contact");
+        expect(getLookupApiObject("ユーザー")).toBe("user");
+        expect(getLookupObjectLabel("account")).toBe("取引先");
+        expect(getLookupObjectLabel("contact")).toBe("取引先責任者");
+        expect(getLookupObjectLabel("user")).toBe("ユーザー");
+    });
+});

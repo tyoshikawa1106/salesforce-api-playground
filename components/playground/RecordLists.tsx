@@ -4,6 +4,7 @@ import type { Account, Contact } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
 import { RecordListPanel } from "./RecordListPanel";
 import { filterRecords } from "./record-list-state";
+import { renderEmailLink, renderPhoneLink, renderWebsiteLink } from "./RecordValueLinks";
 import type { RecordListColumn } from "./record-list-types";
 import type { RecordListMessages } from "./record-list-types";
 
@@ -45,8 +46,8 @@ const accountListConfig: RecordListConfig<Account> = {
         filteredEmpty: "検索条件に一致する取引先が見つかりません。"
     },
     columns: [
-        { label: "電話", getValue: (account) => account.Phone },
-        { label: "Web サイト", getValue: (account) => account.Website },
+        { label: "電話", getValue: (account) => renderPhoneLink(account.Phone) },
+        { label: "Web サイト", getValue: (account) => renderWebsiteLink(account.Website) },
         { label: "業種", getValue: (account) => account.Industry },
         { label: "請求先", getValue: getAccountBilling },
         { label: "最終更新日", getValue: (account) => formatDate(account.LastModifiedDate) },
@@ -70,15 +71,32 @@ const contactListConfig: RecordListConfig<Contact> = {
     },
     columns: [
         { label: "役職", getValue: (contact) => contact.Title },
-        { label: "取引先名", getValue: (contact) => contact.Account?.Name },
-        { label: "メール", getValue: (contact) => contact.Email },
-        { label: "電話", getValue: (contact) => contact.Phone },
+        { label: "メール", getValue: (contact) => renderEmailLink(contact.Email) },
+        { label: "電話", getValue: (contact) => renderPhoneLink(contact.Phone) },
         { label: "最終更新日", getValue: (contact) => formatDate(contact.LastModifiedDate) },
         { label: "最終更新者", getValue: (contact) => contact.LastModifiedBy?.Name }
     ],
     filterListRecords: filterContacts,
     getRecordLabel: getContactName
 };
+
+function renderAccountNameLink(contact: Contact, onOpenAccountById: (accountId: string) => void) {
+    const accountId = contact.AccountId;
+
+    if (!accountId) {
+        return contact.Account?.Name;
+    }
+
+    return (
+        <button
+            className="slds-button_reset slds-text-link"
+            type="button"
+            onClick={() => onOpenAccountById(accountId)}
+        >
+            {contact.Account?.Name || accountId}
+        </button>
+    );
+}
 
 function RecordPanel<Record extends { Id: string }>({
     config,
@@ -125,11 +143,26 @@ export function AccountPanel({
 
 export function ContactPanel({
     contacts,
+    onOpenAccountById,
     ...props
 }: Omit<RecordPanelProps<Contact>, "records"> & {
     contacts: Contact[];
+    onOpenAccountById: (accountId: string) => void;
 }) {
-    return <RecordPanel config={contactListConfig} records={contacts} {...props} />;
+    return (
+        <RecordPanel
+            config={{
+                ...contactListConfig,
+                columns: [
+                    { label: "役職", getValue: (contact) => contact.Title },
+                    { label: "取引先名", getValue: (contact) => renderAccountNameLink(contact, onOpenAccountById) },
+                    ...contactListConfig.columns.slice(1)
+                ]
+            }}
+            records={contacts}
+            {...props}
+        />
+    );
 }
 
 export function filterAccounts(accounts: Account[], searchTerm: string) {

@@ -1,13 +1,9 @@
 import { PageHeader } from "./PageHeader";
 
 export function HomePanel({
-    accountsCount,
-    contactsCount,
     connected,
     instanceUrl
 }: {
-    accountsCount: number;
-    contactsCount: number;
     connected: boolean;
     instanceUrl?: string;
 }) {
@@ -22,10 +18,17 @@ export function HomePanel({
 
             <div className="slds-p-around_medium">
                 <div className="slds-grid slds-wrap slds-gutters">
-                    <StatusSummary label="接続" value={connected ? "接続済み" : "未接続"} tone={connected ? "success" : "default"} />
-                    <StatusSummary label="取引先" value={String(accountsCount)} />
-                    <StatusSummary label="取引先責任者" value={String(contactsCount)} />
-                    <StatusSummary label="インスタンス" value={connected ? instanceUrl ?? "-" : "OAuth が必要です"} />
+                    <StatusSummary
+                        label="接続"
+                        value={connected ? "接続済み" : "未接続"}
+                        tone={connected ? "success" : "default"}
+                        widthClassName="slds-large-size_1-of-3"
+                    />
+                    <StatusSummary
+                        label="インスタンス"
+                        value={connected ? instanceUrl ?? "-" : "OAuth が必要です"}
+                        widthClassName="slds-large-size_2-of-3"
+                    />
                 </div>
             </div>
         </>
@@ -35,14 +38,16 @@ export function HomePanel({
 function StatusSummary({
     label,
     value,
-    tone = "default"
+    tone = "default",
+    widthClassName
 }: {
     label: string;
     value: string;
     tone?: "default" | "success";
+    widthClassName: string;
 }) {
     return (
-        <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4">
+        <div className={`slds-col slds-size_1-of-1 slds-medium-size_1-of-2 ${widthClassName}`}>
             <article className={`slds-tile slds-box slds-box_x-small ${tone === "success" ? "slds-theme_success" : "slds-theme_default"}`}>
                 <h2 className="slds-tile__title slds-truncate" title={label}>
                     {label}

@@ -13,6 +13,7 @@ export type AccountRecord = {
     Type?: string;
     BillingCity?: string;
     BillingCountry?: string;
+    CreatedDate?: string;
     LastModifiedDate?: string;
     LastModifiedBy?: {
         Name?: string;
@@ -44,10 +45,12 @@ export type ContactRecord = {
     Email?: string;
     Phone?: string;
     Title?: string;
+    Department?: string;
     AccountId?: string;
     Account?: {
         Name?: string;
     };
+    CreatedDate?: string;
     LastModifiedDate?: string;
     LastModifiedBy?: {
         Name?: string;
@@ -60,6 +63,7 @@ export type ContactInput = {
     Email?: string;
     Phone?: string;
     Title?: string;
+    Department?: string;
     AccountId?: string;
 };
 

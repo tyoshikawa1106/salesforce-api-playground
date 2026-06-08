@@ -19,6 +19,7 @@ type PlaygroundWorkspaceProps = {
     session: {
         connected: boolean;
         instanceUrl?: string;
+        userName?: string;
     };
     recordSelection: {
         accounts: Account[];
@@ -33,6 +34,7 @@ type PlaygroundWorkspaceProps = {
         onEditAccount: (record: Account) => void;
         onEditContact: (record: Contact) => void;
         onOpenAccount: (record: Account) => void;
+        onOpenAccountById: (accountId: string) => void;
         onOpenContact: (record: Contact) => void;
         onBulkDeleteEmpty: () => void;
         onRefresh: () => void;
@@ -59,7 +61,7 @@ export function PlaygroundWorkspace({
     recycleBinActions
 }: PlaygroundWorkspaceProps) {
     const { activeTab, loading } = view;
-    const { connected, instanceUrl } = session;
+    const { connected, instanceUrl, userName } = session;
     const { accounts, contacts, selectedAccount, selectedContact } = recordSelection;
     const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
 
@@ -68,8 +70,6 @@ export function PlaygroundWorkspace({
             <section className={sectionClassName}>
                 {activeTab === "home" ? (
                     <HomePanel
-                        accountsCount={accounts.length}
-                        contactsCount={contacts.length}
                         connected={connected}
                         instanceUrl={instanceUrl}
                     />
@@ -92,10 +92,12 @@ export function PlaygroundWorkspace({
                 {activeTab === "accounts" && connected && selectedAccount ? (
                     <AccountDetailWorkspace
                         account={selectedAccount}
+                        assignedUserName={userName}
                         contacts={contacts}
                         loading={loading}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditAccount}
+                        onOpenContact={recordActions.onOpenContact}
                         onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
@@ -109,6 +111,7 @@ export function PlaygroundWorkspace({
                         onCreate={recordActions.onCreateContact}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditContact}
+                        onOpenAccount={recordActions.onOpenAccountById}
                         onOpen={recordActions.onOpenContact}
                         onRefresh={recordActions.onRefresh}
                     />
@@ -116,10 +119,12 @@ export function PlaygroundWorkspace({
 
                 {activeTab === "contacts" && connected && selectedContact ? (
                     <ContactDetailWorkspace
+                        assignedUserName={userName}
                         contact={selectedContact}
                         loading={loading}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditContact}
+                        onOpenAccount={recordActions.onOpenAccountById}
                         onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
