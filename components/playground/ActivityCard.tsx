@@ -250,7 +250,7 @@ function ActivityComposerBar({ onOpenTask }: { onOpenTask: () => void }) {
                             <span className="slds-assistive-text">新規ToDo</span>
                         </span>
                     </button>
-                    <button className="slds-button slds-button_icon slds-button_icon-border-filled playground-activity-composer-action__menu" type="button" title="新規ToDoのその他の操作" onClick={onOpenTask}>
+                    <button className="slds-button slds-button_icon slds-button_icon-border-filled playground-activity-composer-action__menu" type="button" title="新規ToDoのその他の操作" disabled>
                         <UtilityIcon className="slds-button__icon" name="down" />
                         <span className="slds-assistive-text">新規ToDoのその他の操作</span>
                     </button>
