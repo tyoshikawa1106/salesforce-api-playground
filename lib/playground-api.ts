@@ -12,6 +12,7 @@ export type SessionInfo = {
     instanceUrl?: string;
     issuedAt?: number;
     userId?: string;
+    userName?: string;
 };
 
 export type PlaygroundApiResource = "accounts" | "contacts";
@@ -44,6 +45,14 @@ export type UpdatePayload<T extends Record<string, string>> = Partial<{
 export const playgroundApiPaths = {
     activities(parentType: "account" | "contact", parentId: string): string {
         return `/api/activities?parentType=${encodeURIComponent(parentType)}&parentId=${encodeURIComponent(parentId)}`;
+    },
+    activityLookups(object: "account" | "contact" | "user", query = ""): string {
+        const searchParams = new URLSearchParams({ object });
+        if (query.trim()) {
+            searchParams.set("q", query.trim());
+        }
+
+        return `/api/activity-lookups?${searchParams.toString()}`;
     },
     activityTasks: "/api/activities/tasks",
     session: "/api/session",

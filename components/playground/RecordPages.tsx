@@ -3,7 +3,7 @@
 import { type ReactNode, useId, useState } from "react";
 import type { Account, Contact } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
-import { ActivityCard } from "./ActivityCard";
+import { ActivityCard, type ActivityLookupOption } from "./ActivityCard";
 import { RecordFieldGrid } from "./RecordFieldGrid";
 import { DetailBlock, RecordPageHeader } from "./RecordPageHeader";
 import { RecordMainTabs } from "./RecordMainTabs";
@@ -17,6 +17,9 @@ type RecordPageFrameProps<Record extends { Id: string }> = {
     objectLabel: string;
     title: string;
     activityRelatedName?: string;
+    activityNameLookupOptions?: ActivityLookupOption[];
+    activityRelatedLookupOptions?: ActivityLookupOption[];
+    assignedUserName?: string;
     loading: boolean;
     headerDetails: ReactNode;
     relatedContent?: ReactNode;
@@ -33,6 +36,9 @@ function RecordPageFrame<Record extends { Id: string }>({
     objectLabel,
     title,
     activityRelatedName,
+    activityNameLookupOptions,
+    activityRelatedLookupOptions,
+    assignedUserName,
     loading,
     headerDetails,
     relatedContent,
@@ -74,7 +80,10 @@ function RecordPageFrame<Record extends { Id: string }>({
                         parentId={record.Id}
                         parentName={title}
                         parentType={tab === "accounts" ? "account" : "contact"}
+                        assignedUserName={assignedUserName}
+                        nameLookupOptions={activityNameLookupOptions}
                         relatedContent={relatedContent}
+                        relatedLookupOptions={activityRelatedLookupOptions}
                         relatedName={activityRelatedName}
                     />
                 </div>
@@ -115,6 +124,7 @@ function RecordDetailSection({ title, children }: { title: string; children: Rea
 
 export function AccountRecordPage({
     account,
+    assignedUserName,
     contacts,
     loading,
     onDelete,
@@ -123,6 +133,7 @@ export function AccountRecordPage({
     onRefresh
 }: {
     account: Account;
+    assignedUserName?: string;
     contacts: Contact[];
     loading: boolean;
     onDelete: (record: Account) => void;
@@ -130,6 +141,18 @@ export function AccountRecordPage({
     onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
 }) {
+    const accountLookupOption = {
+        id: account.Id,
+        label: account.Name,
+        objectLabel: "取引先"
+    } as const satisfies ActivityLookupOption;
+    const contactLookupOptions = contacts.map((contact) => ({
+        id: contact.Id,
+        label: getContactName(contact),
+        meta: account.Name,
+        objectLabel: "取引先責任者"
+    } as const satisfies ActivityLookupOption));
+
     return (
         <RecordPageFrame
             record={account}
@@ -137,6 +160,9 @@ export function AccountRecordPage({
             objectLabel="取引先"
             title={account.Name}
             activityRelatedName={account.Name}
+            activityNameLookupOptions={contactLookupOptions}
+            activityRelatedLookupOptions={[accountLookupOption]}
+            assignedUserName={assignedUserName}
             loading={loading}
             onDelete={onDelete}
             onEdit={onEdit}
@@ -171,6 +197,7 @@ export function AccountRecordPage({
 }
 
 export function ContactRecordPage({
+    assignedUserName,
     contact,
     loading,
     onDelete,
@@ -178,6 +205,7 @@ export function ContactRecordPage({
     onOpenAccount,
     onRefresh
 }: {
+    assignedUserName?: string;
     contact: Contact;
     loading: boolean;
     onDelete: (record: Contact) => void;
@@ -186,6 +214,18 @@ export function ContactRecordPage({
     onRefresh: () => void;
 }) {
     const accountId = contact.AccountId;
+    const contactName = getContactName(contact);
+    const contactLookupOption = {
+        id: contact.Id,
+        label: contactName,
+        meta: contact.Account?.Name,
+        objectLabel: "取引先責任者"
+    } as const satisfies ActivityLookupOption;
+    const relatedLookupOption = contact.Account?.Name ? {
+        id: accountId || contact.Account.Name,
+        label: contact.Account.Name,
+        objectLabel: "取引先"
+    } as const satisfies ActivityLookupOption : undefined;
     const accountLink = accountId ? (
         <button
             className="slds-button_reset slds-text-link"
@@ -201,8 +241,11 @@ export function ContactRecordPage({
             record={contact}
             tab="contacts"
             objectLabel="取引先責任者"
-            title={getContactName(contact)}
+            title={contactName}
             activityRelatedName={contact.Account?.Name}
+            activityNameLookupOptions={[contactLookupOption]}
+            activityRelatedLookupOptions={relatedLookupOption ? [relatedLookupOption] : []}
+            assignedUserName={assignedUserName}
             loading={loading}
             onDelete={onDelete}
             onEdit={onEdit}

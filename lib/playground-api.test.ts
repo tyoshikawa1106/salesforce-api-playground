@@ -33,6 +33,9 @@ describe("playgroundApiPaths", () => {
         expect(playgroundApiPaths.record("contacts", "003xx000004TmiQ/../../x?<script>")).toBe(
             "/api/contacts/003xx000004TmiQ%2F..%2F..%2Fx%3F%3Cscript%3E"
         );
+        expect(playgroundApiPaths.activityLookups("contact", "Gonzalez & Edge")).toBe(
+            "/api/activity-lookups?object=contact&q=Gonzalez+%26+Edge"
+        );
     });
 });
 

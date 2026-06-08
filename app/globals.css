@@ -264,9 +264,10 @@ body {
 }
 
 .playground-activity-composer-action {
+    justify-content: center;
     min-width: auto;
-    padding-left: var(--slds-g-spacing-2, 0.5rem);
-    padding-right: var(--slds-g-spacing-2, 0.5rem);
+    padding-left: var(--slds-g-spacing-3, 0.75rem);
+    padding-right: var(--slds-g-spacing-3, 0.75rem);
 }
 
 .playground-activity-composer-action__icon {
@@ -275,6 +276,14 @@ body {
     height: var(--slds-g-sizing-7, 1.5rem);
     justify-content: center;
     width: var(--slds-g-sizing-7, 1.5rem);
+}
+
+.playground-activity-composer-action__icon-boundary {
+    display: inline-flex;
+}
+
+.playground-activity-composer-action__label.hidden {
+    display: none;
 }
 
 .playground-activity-composer-action__menu {
@@ -343,18 +352,74 @@ body {
     position: fixed;
     right: var(--slds-g-spacing-4, 1rem);
     top: auto;
-    width: min(20rem, calc(100vw - 2rem));
+    width: min(24rem, calc(100vw - 2rem));
     z-index: 7000;
 }
 
 .playground-task-composer {
     height: 34rem;
     max-height: calc(100vh - 8rem);
-    width: min(20rem, calc(100vw - 2rem));
+    overflow: hidden;
+    transition: height 0.12s ease-out, box-shadow 0.12s ease-out;
+    width: min(24rem, calc(100vw - 2rem));
 }
 
 .playground-task-composer__body {
     background: var(--slds-g-color-neutral-base-100, #fff);
+}
+
+.playground-task-error-summary {
+    border-bottom: 1px solid var(--slds-g-color-border-base-1, #c9c9c9);
+    margin-bottom: var(--slds-g-spacing-5, 1.5rem);
+    padding-bottom: var(--slds-g-spacing-4, 1rem);
+}
+
+.playground-task-error-alert {
+    background-image: none;
+    border-radius: var(--slds-g-radius-border-2, 0.25rem);
+    justify-content: flex-start;
+    padding-left: var(--slds-g-spacing-4, 1rem);
+    text-align: left;
+}
+
+.playground-task-datepicker {
+    z-index: 7100;
+}
+
+.playground-task-datepicker__year {
+    min-width: 6rem;
+}
+
+.playground-task-composer-backdrop {
+    z-index: 6990;
+}
+
+.playground-task-composer-modal {
+    display: flex;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--slds-g-spacing-12, 6rem);
+    width: min(56rem, calc(100vw - 3rem));
+    z-index: 7000;
+}
+
+.playground-task-composer-modal .playground-task-composer {
+    width: inherit;
+}
+
+.playground-task-composer_expanded {
+    height: min(38rem, calc(100vh - 8rem));
+    max-height: calc(100vh - 8rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .playground-task-composer {
+        transition: none;
+    }
 }
 
 @media (max-width: 767px) {

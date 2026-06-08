@@ -19,6 +19,7 @@ type PlaygroundWorkspaceProps = {
     session: {
         connected: boolean;
         instanceUrl?: string;
+        userName?: string;
     };
     recordSelection: {
         accounts: Account[];
@@ -60,7 +61,7 @@ export function PlaygroundWorkspace({
     recycleBinActions
 }: PlaygroundWorkspaceProps) {
     const { activeTab, loading } = view;
-    const { connected, instanceUrl } = session;
+    const { connected, instanceUrl, userName } = session;
     const { accounts, contacts, selectedAccount, selectedContact } = recordSelection;
     const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
 
@@ -91,6 +92,7 @@ export function PlaygroundWorkspace({
                 {activeTab === "accounts" && connected && selectedAccount ? (
                     <AccountDetailWorkspace
                         account={selectedAccount}
+                        assignedUserName={userName}
                         contacts={contacts}
                         loading={loading}
                         onDeleteRecord={recordActions.onDeleteRecord}
@@ -117,6 +119,7 @@ export function PlaygroundWorkspace({
 
                 {activeTab === "contacts" && connected && selectedContact ? (
                     <ContactDetailWorkspace
+                        assignedUserName={userName}
                         contact={selectedContact}
                         loading={loading}
                         onDeleteRecord={recordActions.onDeleteRecord}
