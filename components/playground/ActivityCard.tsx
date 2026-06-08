@@ -241,17 +241,22 @@ function ActivityPanel({
 
 function ActivityComposerBar({ onOpenTask }: { onOpenTask: () => void }) {
     return (
-        <div className="slds-button-group playground-activity-composer-bar" role="group" aria-label="活動作成">
-            <button className="slds-button slds-button_neutral playground-activity-composer-button" type="button" onClick={onOpenTask}>
-                <span className="slds-icon_container slds-icon-standard-task playground-activity-composer-button__icon" title="新規ToDo">
-                    <UtilityIcon className="slds-icon slds-icon_small" name="table" />
-                    <span className="slds-assistive-text">新規ToDo</span>
-                </span>
-                <span className="slds-button__icon slds-button__icon_x-small playground-activity-composer-button__chevron" aria-hidden="true">
-                    <UtilityIcon className="slds-icon slds-icon_xx-small" name="down" />
-                </span>
-            </button>
-        </div>
+        <ul className="slds-button-group-row playground-activity-composer-bar" aria-label="活動作成">
+            <li className="slds-button-group-item">
+                <div className="slds-button-group" role="group" aria-label="新規ToDo">
+                    <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" title="新規ToDo" onClick={onOpenTask}>
+                        <span className="slds-icon_container slds-icon-standard-task playground-activity-composer-action__icon" title="新規ToDo">
+                            <StandardIcon className="slds-icon slds-icon_x-small" name="task" />
+                            <span className="slds-assistive-text">新規ToDo</span>
+                        </span>
+                    </button>
+                    <button className="slds-button slds-button_icon slds-button_icon-border-filled playground-activity-composer-action__menu" type="button" title="新規ToDoのその他の操作" onClick={onOpenTask}>
+                        <UtilityIcon className="slds-button__icon" name="down" />
+                        <span className="slds-assistive-text">新規ToDoのその他の操作</span>
+                    </button>
+                </div>
+            </li>
+        </ul>
     );
 }
 
@@ -300,13 +305,13 @@ function ActivityTimeline({
     return (
         <section className="playground-activity-timeline">
             <h3 className="slds-section__title playground-activity-section-title">
-                <span className="slds-button slds-section__title-action playground-activity-section-title__content">
-                    <UtilityIcon className="slds-section__title-action-icon slds-button__icon slds-button__icon_left" name="down" />
+                <button className="slds-button slds-section__title-action playground-activity-section-title__content" type="button" aria-expanded="true">
+                    <UtilityIcon className="slds-section__title-action-icon slds-button__icon slds-button__icon_left" name="switch" />
                     <span className="slds-truncate" title="今後 & 期限切れ">今後 &amp; 期限切れ</span>
-                </span>
+                </button>
             </h3>
             {activities.length === 0 ? (
-                <ActivityTimelineEmpty context={context} />
+                <ActivityTimelineEmpty />
             ) : (
                 <ul className="slds-timeline playground-activity-timeline__list">
                     {activities.map((activity) => (
@@ -324,19 +329,11 @@ function ActivityTimeline({
     );
 }
 
-function ActivityTimelineEmpty({ context }: { context: ActivityRecordContext }) {
+function ActivityTimelineEmpty() {
     return (
-        <ul className="slds-timeline playground-activity-timeline__list">
-            <ActivityTimelineEntry
-                activity={{
-                    type: "task",
-                    id: "empty-task-preview",
-                    subject: context.parentType === "contact" ? `${context.parentName} さんとの今後の ToDo があります` : `${context.parentName} に関する今後の ToDo があります`
-                }}
-                context={context}
-                preview
-            />
-        </ul>
+        <div className="slds-p-vertical_small slds-text-align_center slds-text-color_weak playground-activity-empty">
+            表示できる活動はまだありません。
+        </div>
     );
 }
 
@@ -361,11 +358,11 @@ function ActivityTimelineEntry({
                 <div className="slds-media">
                     <div className="slds-media__figure">
                         <button className="slds-button slds-button_icon" type="button" aria-expanded="false" title={`${title} の詳細を表示`}>
-                            <UtilityIcon className="slds-button__icon slds-timeline__details-action-icon playground-activity-row-switch" name="down" />
+                            <UtilityIcon className="slds-button__icon slds-timeline__details-action-icon" name="switch" />
                             <span className="slds-assistive-text">{title} の詳細を表示</span>
                         </button>
                         <span className={`slds-icon_container ${isTask ? "slds-icon-standard-task" : "slds-icon-standard-event"} slds-timeline__icon`} title={isTask ? "ToDo" : "行動"}>
-                            <UtilityIcon className="slds-icon slds-icon_small" name={isTask ? "table" : "event"} />
+                            <StandardIcon className="slds-icon slds-icon_small" name={isTask ? "task" : "event"} />
                             <span className="slds-assistive-text">{isTask ? "ToDo" : "行動"}</span>
                         </span>
                     </div>
@@ -461,7 +458,7 @@ function TaskDockedComposer({
                     <div className="slds-media slds-media_center slds-no-space">
                         <div className="slds-media__figure slds-m-right_x-small">
                             <span className="slds-icon_container slds-icon-standard-task" title="ToDo">
-                                <UtilityIcon className="slds-icon slds-icon_small" name="table" />
+                                <StandardIcon className="slds-icon slds-icon_small" name="task" />
                                 <span className="slds-assistive-text">ToDo</span>
                             </span>
                         </div>
@@ -471,11 +468,11 @@ function TaskDockedComposer({
                     </div>
                     <div className="slds-col_bump-left slds-shrink-none">
                         <button className="slds-button slds-button_icon" type="button" title="最小化">
-                            <UtilityIcon className="slds-button__icon" name="dash" />
+                            <UtilityIcon className="slds-button__icon" name="minimize_window" />
                             <span className="slds-assistive-text">最小化</span>
                         </button>
                         <button className="slds-button slds-button_icon" type="button" title="拡大">
-                            <UtilityIcon className="slds-button__icon" name="expand" />
+                            <UtilityIcon className="slds-button__icon" name="expand_alt" />
                             <span className="slds-assistive-text">拡大</span>
                         </button>
                         <button className="slds-button slds-button_icon" type="button" title="閉じる" onClick={onCancel}>
@@ -485,34 +482,55 @@ function TaskDockedComposer({
                     </div>
                 </header>
                 <form className="slds-grid slds-grid_vertical slds-grow" onSubmit={onSubmit}>
-                    <div className="slds-docked-composer__body slds-docked-composer__body_form playground-task-composer__body" id="new-task-composer-body">
-                        <QuickActionInput
-                            icon="search"
-                            label="件名"
-                            required
-                            value={form.Subject}
-                            onChange={(Subject) => onChange({ ...form, Subject })}
-                        />
-                        <QuickActionInput
-                            icon="event"
-                            label="期日"
-                            type="date"
-                            value={form.ActivityDate}
-                            onChange={(ActivityDate) => onChange({ ...form, ActivityDate })}
-                        />
-                        <LookupPreview label="名前" objectLabel="取引先責任者" placeholder="リードを検索..." value={context.parentType === "contact" ? context.parentName : ""} />
-                        <LookupPreview label="関連先" objectLabel="取引先" placeholder="取引先を検索..." value={context.parentType === "account" ? context.parentName : context.relatedName || ""} />
-                        <QuickActionInput label="割り当て先" required value="現在のユーザー" readOnly onChange={() => undefined} />
-                        <div className="slds-grid slds-gutters_small">
-                            <div className="slds-col slds-size_1-of-2">
-                                <QuickActionInput label="状況" value={form.Status} onChange={(Status) => onChange({ ...form, Status })} />
-                            </div>
-                            <div className="slds-col slds-size_1-of-2">
-                                <QuickActionInput label="優先度" value={form.Priority} onChange={(Priority) => onChange({ ...form, Priority })} />
+                    <fieldset className="slds-docked-composer__body slds-docked-composer__body_form slds-form_compound playground-task-composer__body" id="new-task-composer-body">
+                        <legend className="slds-assistive-text">新規ToDo</legend>
+                        <div className="slds-form-element__control">
+                            <div className="slds-form-element__group">
+                                <div className="slds-form-element__row">
+                                    <div className="slds-form-element slds-size_1-of-1">
+                                        <QuickActionInput
+                                            icon="search"
+                                            label="件名"
+                                            required
+                                            value={form.Subject}
+                                            onChange={(Subject) => onChange({ ...form, Subject })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="slds-form-element__row">
+                                    <div className="slds-form-element slds-size_1-of-2">
+                                        <QuickActionInput
+                                            icon="event"
+                                            label="期日"
+                                            type="date"
+                                            value={form.ActivityDate}
+                                            onChange={(ActivityDate) => onChange({ ...form, ActivityDate })}
+                                        />
+                                    </div>
+                                    <div className="slds-form-element slds-size_1-of-2">
+                                        <QuickActionInput label="割り当て先" required value="現在のユーザー" readOnly onChange={() => undefined} />
+                                    </div>
+                                </div>
+                                <div className="slds-form-element__row">
+                                    <LookupPreview label="名前" objectLabel="取引先責任者" placeholder="取引先責任者を検索..." value={context.parentType === "contact" ? context.parentName : ""} />
+                                    <LookupPreview label="関連先" objectLabel="取引先" placeholder="取引先を検索..." value={context.parentType === "account" ? context.parentName : context.relatedName || ""} />
+                                </div>
+                                <div className="slds-form-element__row">
+                                    <div className="slds-form-element slds-size_1-of-2">
+                                        <QuickActionInput label="状況" value={form.Status} onChange={(Status) => onChange({ ...form, Status })} />
+                                    </div>
+                                    <div className="slds-form-element slds-size_1-of-2">
+                                        <QuickActionInput label="優先度" value={form.Priority} onChange={(Priority) => onChange({ ...form, Priority })} />
+                                    </div>
+                                </div>
+                                <div className="slds-form-element__row">
+                                    <div className="slds-form-element slds-size_1-of-1">
+                                        <QuickActionTextArea label="コメント" value={form.Description} onChange={(Description) => onChange({ ...form, Description })} />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <QuickActionTextArea label="コメント" value={form.Description} onChange={(Description) => onChange({ ...form, Description })} />
-                    </div>
+                    </fieldset>
                     <footer className="slds-docked-composer__footer slds-shrink-none">
                         <button className="slds-button slds-button_neutral" type="button" onClick={onCancel} disabled={saving}>
                             キャンセル
@@ -545,7 +563,7 @@ function QuickActionInput({
     value: string;
 }) {
     return (
-        <label className="slds-form-element slds-m-bottom_medium">
+        <>
             <span className="slds-form-element__label">{required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}</span>
             <span className="slds-form-element__control">
                 <span className={icon ? "slds-input-has-icon slds-input-has-icon_right" : undefined}>
@@ -553,7 +571,7 @@ function QuickActionInput({
                     {icon ? <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default" name={icon} /> : null}
                 </span>
             </span>
-        </label>
+        </>
     );
 }
 
@@ -567,12 +585,12 @@ function QuickActionTextArea({
     value: string;
 }) {
     return (
-        <label className="slds-form-element slds-m-bottom_medium">
+        <>
             <span className="slds-form-element__label">{label}</span>
             <span className="slds-form-element__control">
                 <textarea className="slds-textarea" value={value} onChange={(event) => onChange(event.target.value)} />
             </span>
-        </label>
+        </>
     );
 }
 
@@ -587,29 +605,33 @@ function LookupPreview({
     placeholder: string;
     value: string;
 }) {
+    const listboxId = objectLabel === "取引先" ? "task-related-account-listbox" : "task-name-contact-listbox";
+
     return (
-        <div className="slds-form-element slds-m-bottom_medium">
+        <div className="slds-form-element slds-size_1-of-2">
             <label className="slds-form-element__label">{label}</label>
             <div className="slds-form-element__control">
                 {value ? (
-                    <div className="slds-pill_container playground-task-composer__pill-container">
-                        <span className="slds-pill slds-pill_link playground-task-composer__pill">
-                            <span className={`slds-icon_container ${objectLabel === "取引先" ? "slds-icon-standard-account" : "slds-icon-standard-contact"} slds-pill__icon_container`}>
-                                <StandardIcon className="slds-icon slds-icon_x-small" name={objectLabel === "取引先" ? "account" : "contact"} />
-                                <span className="slds-assistive-text">{objectLabel}</span>
-                            </span>
-                            <span className="slds-pill__label" title={value}>{value}</span>
-                            <button className="slds-button slds-button_icon slds-pill__remove" type="button" title={`${value} を削除`}>
-                                <UtilityIcon className="slds-button__icon" name="close" />
-                                <span className="slds-assistive-text">{value} を削除</span>
-                            </button>
-                        </span>
+                    <div className="slds-combobox_container slds-has-selection">
+                        <div className="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aria-controls={listboxId} aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                            <div className="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_left-right" role="none">
+                                <span className={`slds-icon_container ${objectLabel === "取引先" ? "slds-icon-standard-account" : "slds-icon-standard-contact"} slds-combobox__input-entity-icon`} title={objectLabel}>
+                                    <StandardIcon className="slds-icon slds-icon_small" name={objectLabel === "取引先" ? "account" : "contact"} />
+                                    <span className="slds-assistive-text">{objectLabel}</span>
+                                </span>
+                                <input className="slds-input slds-combobox__input slds-combobox__input-value" type="text" role="textbox" readOnly value={value} />
+                                <button className="slds-button slds-button_icon slds-input__icon slds-input__icon_right" type="button" title={`${value} を削除`}>
+                                    <UtilityIcon className="slds-button__icon" name="close" />
+                                    <span className="slds-assistive-text">{value} を削除</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <div className="slds-combobox_container">
-                        <div className="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click">
+                        <div className="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aria-controls={listboxId} aria-expanded="false" aria-haspopup="listbox" role="combobox">
                             <div className="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
-                                <input className="slds-input slds-combobox__input" type="text" placeholder={placeholder} readOnly />
+                                <input className="slds-input slds-combobox__input" type="text" role="textbox" placeholder={placeholder} readOnly />
                                 <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default" name="search" />
                             </div>
                         </div>

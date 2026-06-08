@@ -260,32 +260,23 @@ body {
 }
 
 .playground-activity-composer-bar {
-    margin-bottom: 1.25rem;
+    margin-bottom: var(--slds-g-spacing-5, 1.5rem);
 }
 
-.playground-activity-composer-button {
-    align-items: stretch;
-    display: inline-flex;
-    min-height: calc(var(--slds-g-sizing-12, 5rem) / 2);
+.playground-activity-composer-action {
     min-width: var(--slds-g-sizing-12, 5rem);
-    padding: 0;
 }
 
-.playground-activity-composer-button__icon,
-.playground-activity-composer-button__chevron {
+.playground-activity-composer-action__icon {
     align-items: center;
     display: inline-flex;
+    height: var(--slds-g-sizing-7, 1.5rem);
     justify-content: center;
+    width: var(--slds-g-sizing-7, 1.5rem);
 }
 
-.playground-activity-composer-button__icon {
-    min-width: calc(var(--slds-g-spacing-7, 3rem) + var(--slds-g-spacing-2, 0.5rem));
-}
-
-.playground-activity-composer-button__chevron {
-    border-left: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
-    color: var(--slds-g-color-neutral-base-50);
-    min-width: var(--slds-g-sizing-9, 2rem);
+.playground-activity-composer-action__menu {
+    height: auto;
 }
 
 .playground-activity-toolbar {
@@ -329,12 +320,13 @@ body {
     padding-bottom: var(--slds-g-spacing-4, 1rem);
 }
 
-.playground-activity-row-switch {
-    transform: rotate(-90deg);
-}
-
 .playground-activity-checkbox {
     display: inline-flex;
+}
+
+.playground-activity-empty {
+    border-left: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
+    margin-left: var(--slds-g-spacing-4, 1rem);
 }
 
 .playground-activity-search-hint {
@@ -342,13 +334,13 @@ body {
 }
 
 .playground-activity-docked-container {
-    bottom: auto;
+    bottom: 0;
     height: auto;
     justify-content: flex-end;
     padding: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
+    position: fixed;
+    right: var(--slds-g-spacing-4, 1rem);
+    top: auto;
     width: min(56rem, calc(100vw - 2rem));
     z-index: 7000;
 }
@@ -361,14 +353,6 @@ body {
 
 .playground-task-composer__body {
     background: var(--slds-g-color-neutral-base-100, #fff);
-}
-
-.playground-task-composer__pill-container {
-    min-height: var(--slds-g-sizing-9, 2rem);
-}
-
-.playground-task-composer__pill {
-    width: 100%;
 }
 
 @media (max-width: 767px) {
