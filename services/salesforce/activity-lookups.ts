@@ -37,14 +37,14 @@ const lookupObjectToSalesforceObject = {
 
 const maxQueryLength = 80;
 
-function escapeSoqlStringLiteral(value: string): string {
-    return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-}
-
 function escapeSoqlLikeValue(value: string): string {
-    return escapeSoqlStringLiteral(value)
-        .replace(/%/g, "\\%")
-        .replace(/_/g, "\\_");
+    return Array.from(value, (character) => {
+        if (character === "\\" || character === "'" || character === "%" || character === "_") {
+            return `\\${character}`;
+        }
+
+        return character;
+    }).join("");
 }
 
 function readLookupObject(value: string): ActivityLookupObject {

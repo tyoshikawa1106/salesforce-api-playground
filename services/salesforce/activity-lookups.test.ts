@@ -116,11 +116,11 @@ describe("Salesforce activity lookup services", () => {
 
         await listActivityLookupOptions({
             object: "account",
-            query: "O'Hara_100%"
+            query: "O'Hara\\_100%"
         });
 
         expect(query).toHaveBeenCalledWith(
-            "SELECT Id, Name FROM Account WHERE Name LIKE '%O\\'Hara\\_100\\%%' ESCAPE '\\\\' ORDER BY Name ASC LIMIT 5"
+            "SELECT Id, Name FROM Account WHERE Name LIKE '%O\\'Hara\\\\\\_100\\%%' ESCAPE '\\\\' ORDER BY Name ASC LIMIT 5"
         );
     });
 
