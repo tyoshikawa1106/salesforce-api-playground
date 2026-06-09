@@ -5,11 +5,12 @@ import { IntegrationPanel } from "./IntegrationPanel";
 import {
     AccountDetailWorkspace,
     AccountListWorkspace,
+    ActivityDetailWorkspace,
     ContactDetailWorkspace,
     ContactListWorkspace
 } from "./RecordWorkspacePanels";
 import { RecycleBinPanel } from "./RecycleBinPanel";
-import type { Account, ActiveTab, Contact, DeleteState, RecycleBinItem } from "./types";
+import type { Account, ActiveTab, Activity, Contact, DeleteState, RecycleBinItem } from "./types";
 
 type PlaygroundWorkspaceProps = {
     view: {
@@ -26,14 +27,17 @@ type PlaygroundWorkspaceProps = {
         accounts: Account[];
         contacts: Contact[];
         selectedAccount: Account | null;
+        selectedActivity: Activity | null;
         selectedContact: Contact | null;
     };
     recordActions: {
         onCreateAccount: () => void;
         onCreateContact: () => void;
         onDeleteRecord: (deleteState: DeleteState) => void;
+        onEditActivity: (record: Activity) => void;
         onEditAccount: (record: Account) => void;
         onEditContact: (record: Contact) => void;
+        onOpenActivity: (record: Activity) => void;
         onOpenAccount: (record: Account) => void;
         onOpenAccountById: (accountId: string) => void;
         onOpenContact: (record: Contact) => void;
@@ -63,7 +67,7 @@ export function PlaygroundWorkspace({
 }: PlaygroundWorkspaceProps) {
     const { activeTab, loading } = view;
     const { connected, instanceUrl, userId, userName } = session;
-    const { accounts, contacts, selectedAccount, selectedContact } = recordSelection;
+    const { accounts, contacts, selectedAccount, selectedActivity, selectedContact } = recordSelection;
     const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
 
     return (
@@ -99,6 +103,7 @@ export function PlaygroundWorkspace({
                         loading={loading}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditAccount}
+                        onOpenActivity={recordActions.onOpenActivity}
                         onOpenContact={recordActions.onOpenContact}
                         onRefresh={recordActions.onRefresh}
                     />
@@ -128,6 +133,17 @@ export function PlaygroundWorkspace({
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditContact}
                         onOpenAccount={recordActions.onOpenAccountById}
+                        onOpenActivity={recordActions.onOpenActivity}
+                        onRefresh={recordActions.onRefresh}
+                    />
+                ) : null}
+
+                {activeTab === "activities" && connected && selectedActivity ? (
+                    <ActivityDetailWorkspace
+                        activity={selectedActivity}
+                        loading={loading}
+                        onDeleteRecord={recordActions.onDeleteRecord}
+                        onEdit={recordActions.onEditActivity}
                         onRefresh={recordActions.onRefresh}
                     />
                 ) : null}

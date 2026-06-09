@@ -1,5 +1,5 @@
 import {
-    readTaskActivityUpdatePayload
+    readEventActivityUpdatePayload
 } from "@/lib/salesforce/activity-payloads";
 import {
     handleSalesforceDeleteRoute,
@@ -8,13 +8,13 @@ import {
     type SalesforceRouteParams
 } from "@/lib/salesforce/route-handler";
 import { assertSalesforceRecordId } from "@/lib/salesforce/request-security";
-import { deleteTaskActivity, getTaskActivity, updateTaskActivity } from "@/services/salesforce/activities";
+import { deleteEventActivity, getEventActivity, updateEventActivity } from "@/services/salesforce/activities";
 
 export function GET(_request: Request, { params }: SalesforceRouteParams) {
     return handleSalesforceRoute(async () => {
         const { id } = await params;
-        assertSalesforceRecordId(id, "Task");
-        return getTaskActivity(id);
+        assertSalesforceRecordId(id, "Event");
+        return getEventActivity(id);
     });
 }
 
@@ -22,12 +22,12 @@ export function PATCH(request: Request, params: SalesforceRouteParams) {
     return handleSalesforceUpdateRoute(
         request,
         params,
-        "Task",
-        readTaskActivityUpdatePayload,
-        updateTaskActivity
+        "Event",
+        readEventActivityUpdatePayload,
+        updateEventActivity
     );
 }
 
 export function DELETE(request: Request, params: SalesforceRouteParams) {
-    return handleSalesforceDeleteRoute(request, params, "Task", deleteTaskActivity);
+    return handleSalesforceDeleteRoute(request, params, "Event", deleteEventActivity);
 }

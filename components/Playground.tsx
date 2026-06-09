@@ -20,18 +20,27 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         accounts,
         activeTab,
         changeTab,
+        closeActivity,
         contacts,
         loading,
         loadAll,
         openSearchResult,
+        openActivity,
         openAccount,
         openContact,
+        refreshActivity,
         recycleBinItems,
         selectedAccount,
+        selectedActivity,
         selectedContact,
         session,
     } = usePlaygroundData({ showNotice });
-    const recordMutations = useRecordMutations({ loadAll, showNotice });
+    const recordMutations = useRecordMutations({
+        loadAll,
+        onActivityDeleted: closeActivity,
+        onActivitySaved: refreshActivity,
+        showNotice
+    });
 
     if (session === null) {
         return (
@@ -68,19 +77,22 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             accounts,
             contacts,
             selectedAccount,
+            selectedActivity,
             selectedContact
         },
         recordActions: {
             onCreateAccount: () => recordMutations.openAccountModal(),
             onCreateContact: () => recordMutations.openContactModal(),
             onDeleteRecord: recordMutations.setDeleteState,
+            onEditActivity: recordMutations.openActivityModal,
             onEditAccount: recordMutations.openAccountModal,
             onEditContact: recordMutations.openContactModal,
+            onOpenActivity: openActivity,
             onOpenAccount: (record) => openAccount(record.Id),
             onOpenAccountById: openAccount,
             onOpenContact: (record) => openContact(record.Id),
             onBulkDeleteEmpty: () => showNotice({ tone: "info", message: "削除対象がチェックされていません。" }),
-            onRefresh: loadAll
+            onRefresh: selectedActivity ? () => void refreshActivity(selectedActivity) : loadAll
         },
         integrationForm: {
             accountForm: recordMutations.integrationAccountForm,
@@ -99,9 +111,15 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         forms: {
             accountForm: recordMutations.accountForm,
             accountOptions,
+            activityLookups: recordMutations.activityLookups,
             contactForm: recordMutations.contactForm,
+            eventForm: recordMutations.eventForm,
+            taskForm: recordMutations.taskForm,
             onAccountFormChange: recordMutations.setAccountForm,
-            onContactFormChange: recordMutations.setContactForm
+            onActivityLookupsChange: recordMutations.setActivityLookups,
+            onContactFormChange: recordMutations.setContactForm,
+            onEventFormChange: recordMutations.setEventForm,
+            onTaskFormChange: recordMutations.setTaskForm
         },
         state: {
             deleteState: recordMutations.deleteState,
@@ -116,6 +134,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             onConfirmDelete: recordMutations.confirmDelete,
             onConfirmRestore: recordMutations.confirmRestore,
             onSaveAccount: recordMutations.saveAccount,
+            onSaveActivity: recordMutations.saveActivity,
             onSaveContact: recordMutations.saveContact
         }
     } satisfies ComponentProps<typeof RecordModals>;

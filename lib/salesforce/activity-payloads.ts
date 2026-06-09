@@ -3,6 +3,7 @@ import type {
     ActivityParent,
     ActivityParentType,
     EventActivityInput,
+    EventActivityUpdateInput,
     TaskActivityInput,
     TaskActivityUpdateInput
 } from "./activities";
@@ -36,6 +37,24 @@ function readOptionalString(body: Record<string, unknown>, key: string): string 
     }
 
     return value.trim() || undefined;
+}
+
+function readOptionalNullableString(body: Record<string, unknown>, key: string): string | null | undefined {
+    const value = body[key];
+
+    if (value === undefined) {
+        return undefined;
+    }
+
+    if (value === null) {
+        return null;
+    }
+
+    if (typeof value !== "string") {
+        throw badPayload(`${key} must be a string.`);
+    }
+
+    return value.trim() || null;
 }
 
 function readRequiredString(body: Record<string, unknown>, key: string): string {
@@ -104,6 +123,36 @@ function readActivityLookupIds(body: Record<string, unknown>) {
     };
 }
 
+function readActivityLookupUpdateIds(body: Record<string, unknown>) {
+    const OwnerId = readOptionalNullableString(body, "OwnerId");
+    const WhoId = readOptionalNullableString(body, "WhoId");
+    const WhatId = readOptionalNullableString(body, "WhatId");
+
+    if (OwnerId) {
+        assertSalesforceRecordId(OwnerId, "User");
+    }
+
+    if (WhoId) {
+        assertSalesforceRecordIdForAnyObject(WhoId, ["Contact", "Lead"], "Who");
+    }
+
+    if (WhatId) {
+        assertSalesforceRecordIdFormat(WhatId, "What");
+    }
+
+    return {
+        ...(OwnerId !== undefined ? { OwnerId } : {}),
+        ...(WhoId !== undefined ? { WhoId } : {}),
+        ...(WhatId !== undefined ? { WhatId } : {})
+    };
+}
+
+function compactUpdatePayload<T extends Record<string, string | null | undefined>>(payload: T): Partial<T> {
+    return Object.fromEntries(
+        Object.entries(payload).filter(([, value]) => value !== undefined)
+    ) as Partial<T>;
+}
+
 export async function readTaskActivityCreatePayload(request: JsonRequest): Promise<TaskActivityInput> {
     const body = await readActivityBody(request);
     const lookupIds = readActivityLookupIds(body);
@@ -121,10 +170,16 @@ export async function readTaskActivityCreatePayload(request: JsonRequest): Promi
 
 export async function readTaskActivityUpdatePayload(request: JsonRequest): Promise<TaskActivityUpdateInput> {
     const body = await readActivityBody(request);
+    const lookupIds = readActivityLookupUpdateIds(body);
 
-    return {
-        Status: readOptionalString(body, "Status")
-    };
+    return compactUpdatePayload({
+        Subject: readOptionalString(body, "Subject"),
+        ActivityDate: readOptionalNullableString(body, "ActivityDate"),
+        ...lookupIds,
+        Status: readOptionalString(body, "Status"),
+        Priority: readOptionalNullableString(body, "Priority"),
+        Description: readOptionalNullableString(body, "Description")
+    });
 }
 
 export async function readEventActivityCreatePayload(request: JsonRequest): Promise<EventActivityInput> {
@@ -140,6 +195,20 @@ export async function readEventActivityCreatePayload(request: JsonRequest): Prom
         Location: readOptionalString(body, "Location"),
         Description: readOptionalString(body, "Description")
     };
+}
+
+export async function readEventActivityUpdatePayload(request: JsonRequest): Promise<EventActivityUpdateInput> {
+    const body = await readActivityBody(request);
+    const lookupIds = readActivityLookupUpdateIds(body);
+
+    return compactUpdatePayload({
+        Subject: readOptionalString(body, "Subject"),
+        StartDateTime: readOptionalString(body, "StartDateTime"),
+        EndDateTime: readOptionalString(body, "EndDateTime"),
+        ...lookupIds,
+        Location: readOptionalNullableString(body, "Location"),
+        Description: readOptionalNullableString(body, "Description")
+    });
 }
 
 export function readActivityParentFromUrl(request: Pick<Request, "url">): ActivityParent {

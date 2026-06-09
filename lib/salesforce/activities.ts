@@ -17,7 +17,14 @@ export type TaskActivityInput = ActivityParent & {
 };
 
 export type TaskActivityUpdateInput = {
-    Status?: string;
+    ActivityDate?: string | null;
+    Description?: string | null;
+    OwnerId?: string | null;
+    Priority?: string | null;
+    Status?: string | null;
+    Subject?: string | null;
+    WhatId?: string | null;
+    WhoId?: string | null;
 };
 
 export type EventActivityInput = ActivityParent & {
@@ -31,6 +38,17 @@ export type EventActivityInput = ActivityParent & {
     Description?: string;
 };
 
+export type EventActivityUpdateInput = {
+    Description?: string | null;
+    EndDateTime?: string | null;
+    Location?: string | null;
+    OwnerId?: string | null;
+    StartDateTime?: string | null;
+    Subject?: string | null;
+    WhatId?: string | null;
+    WhoId?: string | null;
+};
+
 export type TaskActivityRecord = {
     Id: string;
     Subject?: string;
@@ -39,6 +57,10 @@ export type TaskActivityRecord = {
         Name?: string;
     };
     WhoId?: string;
+    Owner?: {
+        Name?: string;
+    };
+    OwnerId?: string;
     What?: {
         Name?: string;
     };
@@ -55,6 +77,18 @@ export type EventActivityRecord = {
     Subject?: string;
     StartDateTime?: string;
     EndDateTime?: string;
+    Who?: {
+        Name?: string;
+    };
+    WhoId?: string;
+    Owner?: {
+        Name?: string;
+    };
+    OwnerId?: string;
+    What?: {
+        Name?: string;
+    };
+    WhatId?: string;
     Location?: string;
     Description?: string;
     CreatedDate?: string;
@@ -69,6 +103,8 @@ export type ActivityTimelineItem =
         date?: string;
         whoId?: string;
         whoName?: string;
+        ownerId?: string;
+        ownerName?: string;
         whatId?: string;
         whatName?: string;
         status?: string;
@@ -83,6 +119,12 @@ export type ActivityTimelineItem =
         subject: string;
         startDateTime?: string;
         endDateTime?: string;
+        whoId?: string;
+        whoName?: string;
+        ownerId?: string;
+        ownerName?: string;
+        whatId?: string;
+        whatName?: string;
         location?: string;
         description?: string;
         createdDate?: string;

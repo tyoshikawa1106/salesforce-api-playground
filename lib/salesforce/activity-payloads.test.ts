@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
     readActivityParentFromUrl,
     readEventActivityCreatePayload,
+    readEventActivityUpdatePayload,
     readTaskActivityCreatePayload,
     readTaskActivityUpdatePayload
 } from "./activity-payloads";
@@ -129,8 +130,52 @@ describe("Salesforce activity payload readers", () => {
             readTaskActivityUpdatePayload(jsonRequest({
                 Status: " "
             }))
+        ).resolves.toEqual({});
+    });
+
+    it("normalizes task detail update payloads with nullable optional fields", async () => {
+        await expect(
+            readTaskActivityUpdatePayload(jsonRequest({
+                Subject: " Call ",
+                ActivityDate: "",
+                OwnerId: "005xx0000012345",
+                WhoId: null,
+                WhatId: "001xx000003DGbY",
+                Status: "In Progress",
+                Description: " "
+            }))
         ).resolves.toEqual({
-            Status: undefined
+            Subject: "Call",
+            ActivityDate: null,
+            OwnerId: "005xx0000012345",
+            WhoId: null,
+            WhatId: "001xx000003DGbY",
+            Status: "In Progress",
+            Description: null
+        });
+    });
+
+    it("normalizes event detail update payloads", async () => {
+        await expect(
+            readEventActivityUpdatePayload(jsonRequest({
+                Subject: " Meeting ",
+                StartDateTime: "2026-06-08T10:00:00.000Z",
+                EndDateTime: "2026-06-08T11:00:00.000Z",
+                OwnerId: "005xx0000012345",
+                WhoId: "003xx000004TmiQ",
+                WhatId: null,
+                Location: "",
+                Description: " Discuss "
+            }))
+        ).resolves.toEqual({
+            Subject: "Meeting",
+            StartDateTime: "2026-06-08T10:00:00.000Z",
+            EndDateTime: "2026-06-08T11:00:00.000Z",
+            OwnerId: "005xx0000012345",
+            WhoId: "003xx000004TmiQ",
+            WhatId: null,
+            Location: null,
+            Description: "Discuss"
         });
     });
 

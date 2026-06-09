@@ -21,6 +21,9 @@ describe("playgroundApiPaths", () => {
         expect(playgroundApiPaths.accounts).toBe("/api/accounts");
         expect(playgroundApiPaths.contacts).toBe("/api/contacts");
         expect(playgroundApiPaths.activityEvents).toBe("/api/activities/events");
+        expect(playgroundApiPaths.activityEvent("00Uxx0000012345/../../x?<script>")).toBe(
+            "/api/activities/events/00Uxx0000012345%2F..%2F..%2Fx%3F%3Cscript%3E"
+        );
         expect(playgroundApiPaths.activityTasks).toBe("/api/activities/tasks");
         expect(playgroundApiPaths.integrationAccounts).toBe("/api/integration/ui/accounts");
         expect(playgroundApiPaths.record("accounts", "001xx000003DGbY")).toBe(

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as activitiesRoute from "./activities/route";
 import * as activityEventsRoute from "./activities/events/route";
+import * as activityEventRoute from "./activities/events/[id]/route";
 import * as activityTasksRoute from "./activities/tasks/route";
 import * as activityTaskRoute from "./activities/tasks/[id]/route";
 import {
@@ -10,13 +11,19 @@ import {
 import {
     readActivityParentFromUrl,
     readEventActivityCreatePayload,
+    readEventActivityUpdatePayload,
     readTaskActivityCreatePayload,
     readTaskActivityUpdatePayload
 } from "@/lib/salesforce/activity-payloads";
 import {
     createEventActivity,
     createTaskActivity,
+    deleteEventActivity,
+    deleteTaskActivity,
+    getEventActivity,
+    getTaskActivity,
     listActivities,
+    updateEventActivity,
     updateTaskActivity
 } from "@/services/salesforce/activities";
 import { apiRequest, dummySalesforceSession, expectJson, jsonRequest, routeParams } from "./test-helpers";
@@ -48,6 +55,7 @@ vi.mock("@/lib/salesforce/client", () => ({
 vi.mock("@/lib/salesforce/activity-payloads", () => ({
     readActivityParentFromUrl: vi.fn(),
     readEventActivityCreatePayload: vi.fn(),
+    readEventActivityUpdatePayload: vi.fn(),
     readTaskActivityCreatePayload: vi.fn(),
     readTaskActivityUpdatePayload: vi.fn()
 }));
@@ -55,7 +63,12 @@ vi.mock("@/lib/salesforce/activity-payloads", () => ({
 vi.mock("@/services/salesforce/activities", () => ({
     createEventActivity: vi.fn(),
     createTaskActivity: vi.fn(),
+    deleteEventActivity: vi.fn(),
+    deleteTaskActivity: vi.fn(),
+    getEventActivity: vi.fn(),
+    getTaskActivity: vi.fn(),
     listActivities: vi.fn(),
+    updateEventActivity: vi.fn(),
     updateTaskActivity: vi.fn()
 }));
 
@@ -63,10 +76,16 @@ const jsonWithSessionMock = vi.mocked(jsonWithSession);
 const salesforceErrorResponseMock = vi.mocked(salesforceErrorResponse);
 const readActivityParentFromUrlMock = vi.mocked(readActivityParentFromUrl);
 const readEventActivityCreatePayloadMock = vi.mocked(readEventActivityCreatePayload);
+const readEventActivityUpdatePayloadMock = vi.mocked(readEventActivityUpdatePayload);
 const readTaskActivityCreatePayloadMock = vi.mocked(readTaskActivityCreatePayload);
 const readTaskActivityUpdatePayloadMock = vi.mocked(readTaskActivityUpdatePayload);
 const createEventActivityMock = vi.mocked(createEventActivity);
 const createTaskActivityMock = vi.mocked(createTaskActivity);
+const deleteEventActivityMock = vi.mocked(deleteEventActivity);
+const deleteTaskActivityMock = vi.mocked(deleteTaskActivity);
+const getEventActivityMock = vi.mocked(getEventActivity);
+const getTaskActivityMock = vi.mocked(getTaskActivity);
+const updateEventActivityMock = vi.mocked(updateEventActivity);
 const updateTaskActivityMock = vi.mocked(updateTaskActivity);
 const listActivitiesMock = vi.mocked(listActivities);
 const session = dummySalesforceSession;
@@ -167,6 +186,84 @@ describe("Activity API routes", () => {
         expect(updateTaskActivityMock).toHaveBeenCalledWith("00Txx0000012345", payload);
         expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session);
         await expectJson(response, data);
+    });
+
+    it("gets a task activity by id", async () => {
+        const data = {
+            activity: {
+                type: "task" as const,
+                id: "00Txx0000012345",
+                subject: "Call"
+            }
+        };
+        getTaskActivityMock.mockResolvedValue({ data, session });
+
+        const response = await activityTaskRoute.GET(
+            apiRequest("/api/activities/tasks/00Txx0000012345"),
+            routeParams("00Txx0000012345")
+        );
+
+        expect(getTaskActivityMock).toHaveBeenCalledWith("00Txx0000012345");
+        expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session);
+        await expectJson(response, data);
+    });
+
+    it("updates events from the request payload", async () => {
+        const request = apiRequest("/api/activities/events/00Uxx0000012345", {
+            method: "PATCH",
+            body: { Subject: "Meeting" }
+        });
+        const payload = { Subject: "Meeting" };
+        const data = {};
+        readEventActivityUpdatePayloadMock.mockResolvedValue(payload);
+        updateEventActivityMock.mockResolvedValue({ data, session });
+
+        const response = await activityEventRoute.PATCH(request, routeParams("00Uxx0000012345"));
+
+        expect(readEventActivityUpdatePayloadMock).toHaveBeenCalledWith(request);
+        expect(updateEventActivityMock).toHaveBeenCalledWith("00Uxx0000012345", payload);
+        expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session);
+        await expectJson(response, data);
+    });
+
+    it("gets an event activity by id", async () => {
+        const data = {
+            activity: {
+                type: "event" as const,
+                id: "00Uxx0000012345",
+                subject: "Meeting"
+            }
+        };
+        getEventActivityMock.mockResolvedValue({ data, session });
+
+        const response = await activityEventRoute.GET(
+            apiRequest("/api/activities/events/00Uxx0000012345"),
+            routeParams("00Uxx0000012345")
+        );
+
+        expect(getEventActivityMock).toHaveBeenCalledWith("00Uxx0000012345");
+        expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session);
+        await expectJson(response, data);
+    });
+
+    it("deletes task and event activities", async () => {
+        const data = {};
+        deleteTaskActivityMock.mockResolvedValue({ data, session });
+        deleteEventActivityMock.mockResolvedValue({ data, session });
+
+        const taskResponse = await activityTaskRoute.DELETE(
+            apiRequest("/api/activities/tasks/00Txx0000012345", { method: "DELETE" }),
+            routeParams("00Txx0000012345")
+        );
+        const eventResponse = await activityEventRoute.DELETE(
+            apiRequest("/api/activities/events/00Uxx0000012345", { method: "DELETE" }),
+            routeParams("00Uxx0000012345")
+        );
+
+        expect(deleteTaskActivityMock).toHaveBeenCalledWith("00Txx0000012345");
+        expect(deleteEventActivityMock).toHaveBeenCalledWith("00Uxx0000012345");
+        await expectJson(taskResponse, data);
+        await expectJson(eventResponse, data);
     });
 
     it("rejects activity mutations from another origin before reading payload", async () => {

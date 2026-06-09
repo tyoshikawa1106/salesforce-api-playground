@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, useId, useState } from "react";
-import type { Account, Contact } from "./types";
+import type { Account, ActiveTab, Activity, Contact } from "./types";
 import { getAccountBilling, getContactName, formatDate } from "./formatting";
 import { ActivityCard, type ActivityLookupOption } from "./ActivityCard";
 import { RecordFieldGrid } from "./RecordFieldGrid";
@@ -11,16 +11,19 @@ import { RelatedContactsCard } from "./RecordRelatedCards";
 import { renderEmailLink, renderPhoneLink, renderWebsiteLink } from "./RecordValueLinks";
 import { UtilityIcon } from "./SldsIcon";
 
-type RecordPageFrameProps<Record extends { Id: string }> = {
+type RecordPageFrameProps<Record extends object> = {
     record: Record;
-    tab: "accounts" | "contacts";
+    recordId?: string;
+    tab: ActiveTab;
     objectLabel: string;
     title: string;
     activityRelatedName?: string;
     activityNameLookupOptions?: ActivityLookupOption[];
+    onOpenActivity?: (activity: Activity) => void;
     activityRelatedLookupOptions?: ActivityLookupOption[];
     assignedUserId?: string;
     assignedUserName?: string;
+    includeActivityCard?: boolean;
     loading: boolean;
     headerDetails: ReactNode;
     relatedContent?: ReactNode;
@@ -31,16 +34,19 @@ type RecordPageFrameProps<Record extends { Id: string }> = {
     onRefresh: () => void;
 };
 
-function RecordPageFrame<Record extends { Id: string }>({
+function RecordPageFrame<Record extends object>({
     record,
+    recordId,
     tab,
     objectLabel,
     title,
     activityRelatedName,
     activityNameLookupOptions,
+    onOpenActivity,
     activityRelatedLookupOptions,
     assignedUserId,
     assignedUserName,
+    includeActivityCard = true,
     loading,
     headerDetails,
     relatedContent,
@@ -50,6 +56,8 @@ function RecordPageFrame<Record extends { Id: string }>({
     onEdit,
     onRefresh
 }: RecordPageFrameProps<Record>) {
+    const activityParentId = recordId ?? ("Id" in record && typeof record.Id === "string" ? record.Id : "");
+
     return (
         <div>
             <RecordPageHeader
@@ -64,7 +72,7 @@ function RecordPageFrame<Record extends { Id: string }>({
                 {headerDetails}
             </RecordPageHeader>
 
-            <div className="slds-m-top_small playground-record-body">
+            <div className={`slds-m-top_small playground-record-body ${includeActivityCard ? "" : "playground-record-body_single"}`}>
                 <div>
                     <RecordMainTabs
                         detailContent={
@@ -77,19 +85,22 @@ function RecordPageFrame<Record extends { Id: string }>({
                         }
                     />
                 </div>
-                <div>
-                    <ActivityCard
-                        parentId={record.Id}
-                        parentName={title}
-                        parentType={tab === "accounts" ? "account" : "contact"}
-                        assignedUserId={assignedUserId}
-                        assignedUserName={assignedUserName}
-                        nameLookupOptions={activityNameLookupOptions}
-                        relatedContent={relatedContent}
-                        relatedLookupOptions={activityRelatedLookupOptions}
-                        relatedName={activityRelatedName}
-                    />
-                </div>
+                {includeActivityCard ? (
+                    <div>
+                        <ActivityCard
+                            parentId={activityParentId}
+                            parentName={title}
+                            parentType={tab === "accounts" ? "account" : "contact"}
+                            assignedUserId={assignedUserId}
+                            assignedUserName={assignedUserName}
+                            nameLookupOptions={activityNameLookupOptions}
+                            onOpenActivity={onOpenActivity}
+                            relatedContent={relatedContent}
+                            relatedLookupOptions={activityRelatedLookupOptions}
+                            relatedName={activityRelatedName}
+                        />
+                    </div>
+                ) : null}
             </div>
         </div>
     );
@@ -133,6 +144,7 @@ export function AccountRecordPage({
     loading,
     onDelete,
     onEdit,
+    onOpenActivity,
     onOpenContact,
     onRefresh
 }: {
@@ -143,6 +155,7 @@ export function AccountRecordPage({
     loading: boolean;
     onDelete: (record: Account) => void;
     onEdit: (record: Account) => void;
+    onOpenActivity?: (activity: Activity) => void;
     onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
 }) {
@@ -172,6 +185,7 @@ export function AccountRecordPage({
             loading={loading}
             onDelete={onDelete}
             onEdit={onEdit}
+            onOpenActivity={onOpenActivity}
             onRefresh={onRefresh}
             headerDetails={
                 <>
@@ -210,6 +224,7 @@ export function ContactRecordPage({
     onDelete,
     onEdit,
     onOpenAccount,
+    onOpenActivity,
     onRefresh
 }: {
     assignedUserId?: string;
@@ -219,6 +234,7 @@ export function ContactRecordPage({
     onDelete: (record: Contact) => void;
     onEdit: (record: Contact) => void;
     onOpenAccount: (accountId: string) => void;
+    onOpenActivity?: (activity: Activity) => void;
     onRefresh: () => void;
 }) {
     const accountId = contact.AccountId;
@@ -258,6 +274,7 @@ export function ContactRecordPage({
             loading={loading}
             onDelete={onDelete}
             onEdit={onEdit}
+            onOpenActivity={onOpenActivity}
             onRefresh={onRefresh}
             headerDetails={
                 <>
@@ -279,6 +296,85 @@ export function ContactRecordPage({
             systemFields={[
                 ["作成日", formatDate(contact.CreatedDate)],
                 ["最終更新日", formatDate(contact.LastModifiedDate)]
+            ]}
+        />
+    );
+}
+
+export function ActivityRecordPage({
+    activity,
+    loading,
+    onDelete,
+    onEdit,
+    onRefresh
+}: {
+    activity: Activity;
+    loading: boolean;
+    onDelete: (record: Activity) => void;
+    onEdit: (record: Activity) => void;
+    onRefresh: () => void;
+}) {
+    const isTask = activity.type === "task";
+    const objectLabel = isTask ? "ToDo" : "行動";
+    const title = activity.subject || objectLabel;
+    const commonFields: Array<[string, ReactNode]> = [
+        ["件名", title],
+        ["名前", activity.whoName],
+        ["関連先", activity.whatName],
+        ["割り当て先", activity.ownerName],
+    ];
+    const detailFields = isTask
+        ? [
+            commonFields[0],
+            ["期日", formatDate(activity.date)] as [string, ReactNode],
+            ...commonFields.slice(1),
+            ["状況", activity.status] as [string, ReactNode],
+            ["説明", activity.description] as [string, ReactNode]
+        ]
+        : [
+            commonFields[0],
+            ["開始", formatDate(activity.startDateTime)] as [string, ReactNode],
+            ["終了", formatDate(activity.endDateTime)] as [string, ReactNode],
+            ...commonFields.slice(1),
+            ["場所", activity.location] as [string, ReactNode],
+            ["説明", activity.description] as [string, ReactNode]
+        ];
+
+    return (
+        <RecordPageFrame
+            record={activity}
+            recordId={activity.id}
+            tab="activities"
+            objectLabel={objectLabel}
+            title={title}
+            includeActivityCard={false}
+            loading={loading}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            onRefresh={onRefresh}
+            headerDetails={
+                isTask ? (
+                    <>
+                        <DetailBlock label="期日" value={formatDate(activity.date) || "-"} />
+                        <DetailBlock label="名前" value={activity.whoName || "-"} />
+                        <DetailBlock label="関連先" value={activity.whatName || "-"} />
+                        <DetailBlock label="割り当て先" value={activity.ownerName || "-"} />
+                        <DetailBlock label="状況" value={activity.status || "-"} />
+                    </>
+                ) : (
+                    <>
+                        <DetailBlock label="開始" value={formatDate(activity.startDateTime) || "-"} />
+                        <DetailBlock label="終了" value={formatDate(activity.endDateTime) || "-"} />
+                        <DetailBlock label="名前" value={activity.whoName || "-"} />
+                        <DetailBlock label="関連先" value={activity.whatName || "-"} />
+                        <DetailBlock label="割り当て先" value={activity.ownerName || "-"} />
+                    </>
+                )
+            }
+            detailFields={detailFields}
+            systemFields={[
+                ["作成日", formatDate(activity.createdDate)],
+                ["最終更新日", formatDate(activity.lastModifiedDate)]
             ]}
         />
     );

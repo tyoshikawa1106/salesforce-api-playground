@@ -4,7 +4,7 @@ import type { SessionInfo } from "@/lib/playground-api";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest, PlaygroundApiError } from "./api";
 import { getSearchResultStatePatch } from "./playground-data-state";
-import type { Account, ActiveTab, Contact, Notice, RecycleBinItem } from "./types";
+import type { Account, ActiveTab, Activity, Contact, Notice, RecycleBinItem } from "./types";
 import { usePlaygroundSelection } from "./usePlaygroundSelection";
 
 type UsePlaygroundDataOptions = {
@@ -53,13 +53,17 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         accountOptions,
         activeTab,
         changeTab: selectTab,
+        closeActivity,
         keepSelectionForData,
         openAccount,
+        openActivity,
         openContact,
         resetConnectedSelection,
         selectedAccount,
+        selectedActivity,
         selectedContact,
         setSelectedAccountId,
+        setSelectedActivity,
         setSelectedContactId
     } = usePlaygroundSelection({ accounts, contacts });
     const resetConnectedState = useCallback(() => {
@@ -119,6 +123,17 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         openContact(patch.selectedContactId);
     }, [accounts, contacts, openAccount, openContact]);
 
+    const refreshActivity = useCallback(async (activity: Activity) => {
+        const path = activity.type === "task"
+            ? playgroundApiPaths.activityTask(activity.id)
+            : playgroundApiPaths.activityEvent(activity.id);
+        const data = await apiRequest<{ activity: Activity | null }>(
+            buildPlaygroundApiRequest(path)
+        );
+
+        setSelectedActivity(data.activity);
+    }, [setSelectedActivity]);
+
     useEffect(() => {
         void loadAll();
     }, [loadAll]);
@@ -128,15 +143,19 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         accounts,
         activeTab,
         changeTab,
+        closeActivity,
         contacts,
         loading,
         loadAll,
         openAccount,
+        openActivity,
         openContact,
         openSearchResult,
         recycleBinItems,
         selectedAccount,
+        selectedActivity,
         selectedContact,
+        refreshActivity,
         session,
         setSelectedAccountId,
         setSelectedContactId

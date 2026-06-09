@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { keepSelectedRecordId } from "./playground-data-state";
-import type { Account, ActiveTab, Contact } from "./types";
+import type { Account, ActiveTab, Activity, Contact } from "./types";
 
 type UsePlaygroundSelectionOptions = {
     accounts: Account[];
@@ -13,6 +13,7 @@ export function usePlaygroundSelection({
 }: UsePlaygroundSelectionOptions) {
     const [activeTab, setActiveTab] = useState<ActiveTab>("home");
     const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+    const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
 
     const accountOptions = useMemo(
@@ -30,6 +31,7 @@ export function usePlaygroundSelection({
 
     const clearSelectedRecords = useCallback(() => {
         setSelectedAccountId(null);
+        setSelectedActivity(null);
         setSelectedContactId(null);
     }, []);
 
@@ -49,27 +51,45 @@ export function usePlaygroundSelection({
     }, []);
 
     const openAccount = useCallback((accountId: string) => {
+        setSelectedActivity(null);
         setSelectedContactId(null);
         setSelectedAccountId(accountId);
         setActiveTab("accounts");
     }, []);
 
     const openContact = useCallback((contactId: string) => {
+        setSelectedActivity(null);
         setSelectedAccountId(null);
         setSelectedContactId(contactId);
         setActiveTab("contacts");
+    }, []);
+
+    const openActivity = useCallback((activity: Activity) => {
+        setSelectedAccountId(null);
+        setSelectedContactId(null);
+        setSelectedActivity(activity);
+        setActiveTab("activities");
+    }, []);
+
+    const closeActivity = useCallback(() => {
+        setSelectedActivity(null);
+        setActiveTab("accounts");
     }, []);
 
     return {
         accountOptions,
         activeTab,
         changeTab,
+        closeActivity,
         keepSelectionForData,
         openAccount,
+        openActivity,
         openContact,
         resetConnectedSelection,
         selectedAccount,
+        selectedActivity,
         selectedContact,
+        setSelectedActivity,
         setSelectedAccountId,
         setSelectedContactId
     };
