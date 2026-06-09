@@ -1,7 +1,7 @@
 ## 設計
 
 - [API Route](api-route-structure.md)
-- [Playground UI 操作フロー](playground-ui-flows.md)
+- [Playground UI 仕様](ui/)
 - [Salesforce レコードモデル](salesforce-record-model.md)
 - [システム全体](system-overview.md)
 - [ディレクトリ](directory-structure.md)
