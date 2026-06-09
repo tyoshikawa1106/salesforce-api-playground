@@ -51,6 +51,7 @@
 - エージェントは、ユーザーの明示的な依頼なしに Issue / PR を新規作成したり、既存 Issue / PR の対応関係を増やしたりしない。親 Issue の一部だけを実装する場合も、個別 Issue を作るか、親 Issue に `Closes` を付けるか、`Issue なし` とするかをユーザーに確認してから行う。
 - 通常開発では、開発完了時点でコミットせずに作業を止め、変更内容、未コミット差分、実行した確認、未実行の確認理由をユーザーへ報告する。
 - ユーザーが内容確認後に開発 OK またはコミット / PR 作成を明示した場合のみ、コミット、必要な確認コマンド、push、draft PR 作成、CI checks 確認、ready for review 化へ進む。
+- ユーザーが PR 作成を明示した時点で対応する Issue がない場合は、原則として PR 作成前に Issue を作成し、PR body に `Closes #<Issue番号>` を記載する。Issue を作らない例外が必要な場合は、PR 作成前にユーザーへ確認する。
 - Draft PR を作成した通常開発作業では、PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
