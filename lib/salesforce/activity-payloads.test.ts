@@ -69,6 +69,21 @@ describe("Salesforce activity payload readers", () => {
         });
     });
 
+    it("accepts activity polymorphic lookup ids", async () => {
+        await expect(
+            readTaskActivityCreatePayload(jsonRequest({
+                parentType: "account",
+                parentId: "001xx000003DGbY",
+                Subject: "Call lead",
+                WhoId: "00Qxx000004TmiQ",
+                WhatId: "006xx000003DGbY"
+            }))
+        ).resolves.toMatchObject({
+            WhoId: "00Qxx000004TmiQ",
+            WhatId: "006xx000003DGbY"
+        });
+    });
+
     it("rejects invalid activity lookup ids", async () => {
         await expect(
             readEventActivityCreatePayload(jsonRequest({
@@ -81,6 +96,20 @@ describe("Salesforce activity payload readers", () => {
             }))
         ).rejects.toMatchObject({
             message: "Invalid User id.",
+            status: 400
+        });
+    });
+
+    it("rejects WhoId values outside Lead and Contact", async () => {
+        await expect(
+            readTaskActivityCreatePayload(jsonRequest({
+                parentType: "account",
+                parentId: "001xx000003DGbY",
+                Subject: "Call",
+                WhoId: "001xx000003DGbY"
+            }))
+        ).rejects.toMatchObject({
+            message: "Invalid Who id.",
             status: 400
         });
     });

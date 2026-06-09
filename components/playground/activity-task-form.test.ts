@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
     buildCalendarWeeks,
+    buildActivityLookupPayload,
     buildDateValue,
     buildDateTimeValue,
     buildDateTimeInputValue,
@@ -154,6 +155,18 @@ describe("activity task form helpers", () => {
             assigned,
             name: contact,
             related: account
+        });
+    });
+
+    it("builds activity lookup payloads for task and event creation", () => {
+        expect(buildActivityLookupPayload({
+            assigned: { id: "005A", label: "Yoshikawa Taiki", objectLabel: "ユーザー" },
+            name: { id: "00QA", label: "Pyramid Construction", objectLabel: "リード" },
+            related: { id: "006A", label: "Edge Renewal", objectLabel: "商談" }
+        })).toEqual({
+            OwnerId: "005A",
+            WhoId: "00QA",
+            WhatId: "006A"
         });
     });
 

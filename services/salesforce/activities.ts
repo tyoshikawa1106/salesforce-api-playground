@@ -42,6 +42,23 @@ function activityRelationField(parentType: ActivityParent["parentType"]) {
     return parentType === "account" ? "WhatId" : "WhoId";
 }
 
+function buildActivityRelationFields({
+    parentId,
+    parentType,
+    WhatId,
+    WhoId
+}: ActivityParent & {
+    WhatId?: string;
+    WhoId?: string;
+}) {
+    const relationField = activityRelationField(parentType);
+
+    return {
+        ...(relationField === "WhoId" ? { WhoId: parentId } : WhoId ? { WhoId } : {}),
+        ...(relationField === "WhatId" ? { WhatId: parentId } : WhatId ? { WhatId } : {})
+    };
+}
+
 function compareActivityItems(a: ActivityTimelineItem, b: ActivityTimelineItem) {
     const aDate = a.type === "event" ? a.startDateTime : a.date;
     const bDate = b.type === "event" ? b.startDateTime : b.date;
@@ -116,15 +133,10 @@ export async function listActivities(parent: ActivityParent) {
 
 export async function createTaskActivity(input: TaskActivityInput) {
     const { parentId, parentType, WhatId, WhoId, ...fields } = input;
-    const relationField = activityRelationField(parentType);
-    const relationFields = {
-        ...(relationField === "WhoId" ? { WhoId: parentId } : WhoId ? { WhoId } : {}),
-        ...(relationField === "WhatId" ? { WhatId: parentId } : WhatId ? { WhatId } : {})
-    };
 
     return createStandardObject("Task", {
         ...fields,
-        ...relationFields
+        ...buildActivityRelationFields({ parentId, parentType, WhatId, WhoId })
     });
 }
 
@@ -134,15 +146,10 @@ export async function updateTaskActivity(id: string, input: TaskActivityUpdateIn
 
 export async function createEventActivity(input: EventActivityInput) {
     const { parentId, parentType, WhatId, WhoId, ...fields } = input;
-    const relationField = activityRelationField(parentType);
-    const relationFields = {
-        ...(relationField === "WhoId" ? { WhoId: parentId } : WhoId ? { WhoId } : {}),
-        ...(relationField === "WhatId" ? { WhatId: parentId } : WhatId ? { WhatId } : {})
-    };
 
     return createStandardObject("Event", {
         ...fields,
-        ...relationFields
+        ...buildActivityRelationFields({ parentId, parentType, WhatId, WhoId })
     });
 }
 
