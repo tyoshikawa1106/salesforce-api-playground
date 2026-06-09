@@ -6,7 +6,11 @@ import type {
     TaskActivityInput,
     TaskActivityUpdateInput
 } from "./activities";
-import { assertSalesforceRecordId } from "./request-security";
+import {
+    assertSalesforceRecordId,
+    assertSalesforceRecordIdForAnyObject,
+    assertSalesforceRecordIdFormat
+} from "./request-security";
 
 type JsonRequest = Pick<Request, "json">;
 
@@ -76,8 +80,7 @@ async function readActivityBody(request: JsonRequest): Promise<Record<string, un
     return body;
 }
 
-export async function readTaskActivityCreatePayload(request: JsonRequest): Promise<TaskActivityInput> {
-    const body = await readActivityBody(request);
+function readActivityLookupIds(body: Record<string, unknown>) {
     const OwnerId = readOptionalString(body, "OwnerId");
     const WhoId = readOptionalString(body, "WhoId");
     const WhatId = readOptionalString(body, "WhatId");
@@ -87,20 +90,29 @@ export async function readTaskActivityCreatePayload(request: JsonRequest): Promi
     }
 
     if (WhoId) {
-        assertSalesforceRecordId(WhoId, "Contact");
+        assertSalesforceRecordIdForAnyObject(WhoId, ["Contact", "Lead"], "Who");
     }
 
     if (WhatId) {
-        assertSalesforceRecordId(WhatId, "Account");
+        assertSalesforceRecordIdFormat(WhatId, "What");
     }
+
+    return {
+        ...(OwnerId ? { OwnerId } : {}),
+        ...(WhoId ? { WhoId } : {}),
+        ...(WhatId ? { WhatId } : {})
+    };
+}
+
+export async function readTaskActivityCreatePayload(request: JsonRequest): Promise<TaskActivityInput> {
+    const body = await readActivityBody(request);
+    const lookupIds = readActivityLookupIds(body);
 
     return {
         ...readParent(body),
         Subject: readRequiredString(body, "Subject"),
         ActivityDate: readOptionalString(body, "ActivityDate"),
-        ...(OwnerId ? { OwnerId } : {}),
-        ...(WhoId ? { WhoId } : {}),
-        ...(WhatId ? { WhatId } : {}),
+        ...lookupIds,
         Status: readOptionalString(body, "Status"),
         Priority: readOptionalString(body, "Priority"),
         Description: readOptionalString(body, "Description")
@@ -117,30 +129,14 @@ export async function readTaskActivityUpdatePayload(request: JsonRequest): Promi
 
 export async function readEventActivityCreatePayload(request: JsonRequest): Promise<EventActivityInput> {
     const body = await readActivityBody(request);
-    const OwnerId = readOptionalString(body, "OwnerId");
-    const WhoId = readOptionalString(body, "WhoId");
-    const WhatId = readOptionalString(body, "WhatId");
-
-    if (OwnerId) {
-        assertSalesforceRecordId(OwnerId, "User");
-    }
-
-    if (WhoId) {
-        assertSalesforceRecordId(WhoId, "Contact");
-    }
-
-    if (WhatId) {
-        assertSalesforceRecordId(WhatId, "Account");
-    }
+    const lookupIds = readActivityLookupIds(body);
 
     return {
         ...readParent(body),
         Subject: readRequiredString(body, "Subject"),
         StartDateTime: readRequiredString(body, "StartDateTime"),
         EndDateTime: readRequiredString(body, "EndDateTime"),
-        ...(OwnerId ? { OwnerId } : {}),
-        ...(WhoId ? { WhoId } : {}),
-        ...(WhatId ? { WhatId } : {}),
+        ...lookupIds,
         Location: readOptionalString(body, "Location"),
         Description: readOptionalString(body, "Description")
     };

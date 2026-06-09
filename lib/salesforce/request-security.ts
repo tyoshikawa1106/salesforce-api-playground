@@ -1,12 +1,13 @@
 import { SalesforceApiError } from "./client";
 import { getConfiguredAppOrigin } from "./urls";
 
-export type SalesforceObjectLabel = "Account" | "Contact" | "Task" | "User";
+export type SalesforceObjectLabel = "Account" | "Contact" | "Lead" | "Task" | "User";
 
 const salesforceRecordIdPattern = /^[a-zA-Z0-9]{15}([a-zA-Z0-9]{3})?$/;
 const recordIdPrefixes: Record<SalesforceObjectLabel, string> = {
     Account: "001",
     Contact: "003",
+    Lead: "00Q",
     Task: "00T",
     User: "005"
 };
@@ -54,5 +55,24 @@ export function assertSameOriginRequest(request: Pick<Request, "headers" | "url"
 export function assertSalesforceRecordId(id: string, objectLabel: SalesforceObjectLabel): void {
     if (!salesforceRecordIdPattern.test(id) || !id.startsWith(recordIdPrefixes[objectLabel])) {
         throw new SalesforceApiError(`Invalid ${objectLabel} id.`, 400);
+    }
+}
+
+export function assertSalesforceRecordIdFormat(id: string, fieldLabel = "Salesforce record"): void {
+    if (!salesforceRecordIdPattern.test(id)) {
+        throw new SalesforceApiError(`Invalid ${fieldLabel} id.`, 400);
+    }
+}
+
+export function assertSalesforceRecordIdForAnyObject(
+    id: string,
+    objectLabels: SalesforceObjectLabel[],
+    fieldLabel: string
+): void {
+    if (
+        !salesforceRecordIdPattern.test(id)
+        || !objectLabels.some((objectLabel) => id.startsWith(recordIdPrefixes[objectLabel]))
+    ) {
+        throw new SalesforceApiError(`Invalid ${fieldLabel} id.`, 400);
     }
 }

@@ -6,6 +6,7 @@ import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import { apiRequest } from "./api";
 import {
     buildCalendarWeeks,
+    buildActivityLookupPayload,
     buildDateValue,
     buildDefaultTaskLookups,
     compactActivityPayload,
@@ -28,13 +29,14 @@ import {
     timeOptions,
     type ActivityLookupApiResponse,
     type ActivityLookupOption,
+    type ActivityLookupState,
     type ActivityRecordContext,
     type EventForm,
     type EventFormErrors,
     type LookupObjectLabel,
+    type RemoteLookupObjectLabel,
     type TaskForm,
     type TaskFormErrors,
-    type TaskLookupState,
     validateEventForm,
     validateTaskForm,
     weekDayLabels
@@ -129,7 +131,7 @@ export function ActivityCard({
             }),
         [context, taskAssignedOptions, taskNameOptions, taskRelatedOptions]
     );
-    const [taskLookups, setTaskLookups] = useState<TaskLookupState>(() => defaultTaskLookups);
+    const [activityLookups, setActivityLookups] = useState<ActivityLookupState>(() => defaultTaskLookups);
 
     const loadActivities = useCallback(async () => {
         setLoadingActivities(true);
@@ -161,7 +163,7 @@ export function ActivityCard({
 
     async function saveTask(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const validationErrors = validateTaskForm(taskForm, taskLookups.assigned?.label);
+        const validationErrors = validateTaskForm(taskForm, activityLookups.assigned?.label);
 
         setTaskFormErrors(validationErrors);
         if (Object.keys(validationErrors).length > 0) {
@@ -177,14 +179,12 @@ export function ActivityCard({
                     body: {
                         ...parentPayload,
                         ...compactActivityPayload(taskForm),
-                        OwnerId: taskLookups.assigned?.id,
-                        WhoId: taskLookups.name?.objectLabel === "取引先責任者" ? taskLookups.name.id : undefined,
-                        WhatId: taskLookups.related?.objectLabel === "取引先" ? taskLookups.related.id : undefined
+                        ...buildActivityLookupPayload(activityLookups)
                     }
                 })
             );
             setTaskForm(getDefaultTaskForm());
-            setTaskLookups(defaultTaskLookups);
+            setActivityLookups(defaultTaskLookups);
             setTaskFormErrors({});
             setActiveComposer(null);
             setComposerExpanded(false);
@@ -235,7 +235,7 @@ export function ActivityCard({
 
     async function saveEvent(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const validationErrors = validateEventForm(eventForm, taskLookups.assigned?.label);
+        const validationErrors = validateEventForm(eventForm, activityLookups.assigned?.label);
 
         setEventFormErrors(validationErrors);
         if (Object.keys(validationErrors).length > 0) {
@@ -251,14 +251,12 @@ export function ActivityCard({
                     body: {
                         ...parentPayload,
                         ...compactEventActivityPayload(eventForm),
-                        OwnerId: taskLookups.assigned?.id,
-                        WhoId: taskLookups.name?.objectLabel === "取引先責任者" ? taskLookups.name.id : undefined,
-                        WhatId: taskLookups.related?.objectLabel === "取引先" ? taskLookups.related.id : undefined
+                        ...buildActivityLookupPayload(activityLookups)
                     }
                 })
             );
             setEventForm(getDefaultEventForm());
-            setTaskLookups(defaultTaskLookups);
+            setActivityLookups(defaultTaskLookups);
             setEventFormErrors({});
             setActiveComposer(null);
             setComposerExpanded(false);
@@ -334,17 +332,17 @@ export function ActivityCard({
                                 setActiveComposer(null);
                                 setComposerExpanded(false);
                                 setComposerMinimized(false);
-                                setTaskLookups(defaultTaskLookups);
+                                setActivityLookups(defaultTaskLookups);
                                 setEventFormErrors({});
                                 setTaskFormErrors({});
                             }}
                             onOpenEventComposer={() => {
-                                setTaskLookups(defaultTaskLookups);
+                                setActivityLookups(defaultTaskLookups);
                                 setActiveComposer("event");
                                 setComposerMinimized(false);
                             }}
                             onOpenTaskComposer={() => {
-                                setTaskLookups(defaultTaskLookups);
+                                setActivityLookups(defaultTaskLookups);
                                 setActiveComposer("task");
                                 setComposerMinimized(false);
                             }}
@@ -365,9 +363,9 @@ export function ActivityCard({
                                 name: taskNameOptions,
                                 related: taskRelatedOptions
                             }}
-                            lookups={taskLookups}
+                            lookups={activityLookups}
                             onLookupChange={(value) => {
-                                setTaskLookups(value);
+                                setActivityLookups(value);
                                 setEventFormErrors({});
                                 setTaskFormErrors({});
                             }}
@@ -428,7 +426,7 @@ function ActivityPanel({
         name: ActivityLookupOption[];
         related: ActivityLookupOption[];
     };
-    lookups: TaskLookupState;
+    lookups: ActivityLookupState;
     loading: boolean;
     message: string;
     saving: boolean;
@@ -437,7 +435,7 @@ function ActivityPanel({
     taskFormErrors: TaskFormErrors;
     onCloseComposer: () => void;
     onEventFormChange: (value: EventForm) => void;
-    onLookupChange: (value: TaskLookupState) => void;
+    onLookupChange: (value: ActivityLookupState) => void;
     onOpenEventComposer: () => void;
     onOpenTaskComposer: () => void;
     onRefresh: () => void;
@@ -964,12 +962,12 @@ function EventDockedComposer({
         name: ActivityLookupOption[];
         related: ActivityLookupOption[];
     };
-    lookups: TaskLookupState;
+    lookups: ActivityLookupState;
     minimized: boolean;
     saving: boolean;
     onCancel: () => void;
     onChange: (value: EventForm) => void;
-    onLookupChange: (value: TaskLookupState) => void;
+    onLookupChange: (value: ActivityLookupState) => void;
     onSubmit: (event: FormEvent<HTMLFormElement>) => void;
     onToggleExpanded: () => void;
     onToggleMinimized: () => void;
@@ -1140,12 +1138,12 @@ function TaskDockedComposer({
         name: ActivityLookupOption[];
         related: ActivityLookupOption[];
     };
-    lookups: TaskLookupState;
+    lookups: ActivityLookupState;
     minimized: boolean;
     saving: boolean;
     onCancel: () => void;
     onChange: (value: TaskForm) => void;
-    onLookupChange: (value: TaskLookupState) => void;
+    onLookupChange: (value: ActivityLookupState) => void;
     onSubmit: (event: FormEvent<HTMLFormElement>) => void;
     onToggleExpanded: () => void;
     onToggleMinimized: () => void;
@@ -1855,7 +1853,7 @@ function QuickActionLookup({
 }: {
     error?: string;
     label: string;
-    objectLabel: LookupObjectLabel;
+    objectLabel: RemoteLookupObjectLabel;
     onChange: (value: ActivityLookupOption | undefined) => void;
     options: ActivityLookupOption[];
     placeholder: string;
@@ -2106,11 +2104,27 @@ function getLookupIconMeta(objectLabel: LookupObjectLabel) {
         return { iconClassName: "slds-icon-standard-account", iconName: "account" as const };
     }
 
+    if (objectLabel === "ケース") {
+        return { iconClassName: "slds-icon-standard-case", iconName: "account" as const };
+    }
+
+    if (objectLabel === "商談") {
+        return { iconClassName: "slds-icon-standard-opportunity", iconName: "account" as const };
+    }
+
+    if (objectLabel === "リード") {
+        return { iconClassName: "slds-icon-standard-lead", iconName: "contact" as const };
+    }
+
     if (objectLabel === "取引先責任者") {
         return { iconClassName: "slds-icon-standard-contact", iconName: "contact" as const };
     }
 
-    return { iconClassName: "slds-icon-standard-user", iconName: "user" as const };
+    if (objectLabel === "ユーザー") {
+        return { iconClassName: "slds-icon-standard-user", iconName: "user" as const };
+    }
+
+    return { iconClassName: "slds-icon-standard-record", iconName: "account" as const };
 }
 
 function FieldError({ message }: { message?: string }) {

@@ -21,7 +21,11 @@ export type TaskFormErrors = Partial<Record<TaskFormErrorKey, string>>;
 export type EventFormErrorKey = "assignedUserName" | "EndDateTime" | "StartDateTime" | "Subject";
 export type EventFormErrors = Partial<Record<EventFormErrorKey, string>>;
 
-export type LookupObjectLabel = "ユーザー" | "取引先" | "取引先責任者";
+export type ActivityOwnerObjectLabel = "ユーザー";
+export type ActivityWhoObjectLabel = "リード" | "取引先責任者";
+export type ActivityWhatObjectLabel = "ケース" | "商談" | "その他" | "取引先";
+export type LookupObjectLabel = ActivityOwnerObjectLabel | ActivityWhoObjectLabel | ActivityWhatObjectLabel;
+export type RemoteLookupObjectLabel = "ユーザー" | "取引先" | "取引先責任者";
 export type ActivityLookupOption = {
     id: string;
     label: string;
@@ -40,10 +44,16 @@ export type ActivityLookupApiResponse = {
     options: ActivityLookupApiOption[];
 };
 
-export type TaskLookupState = {
+export type ActivityLookupState = {
     assigned?: ActivityLookupOption;
     name?: ActivityLookupOption;
     related?: ActivityLookupOption;
+};
+
+export type ActivityLookupPayload = {
+    OwnerId?: string;
+    WhoId?: string;
+    WhatId?: string;
 };
 
 export type ActivityRecordContext = {
@@ -306,7 +316,7 @@ export function buildDefaultTaskLookups({
     context: ActivityRecordContext;
     nameOptions: ActivityLookupOption[];
     relatedOptions: ActivityLookupOption[];
-}): TaskLookupState {
+}): ActivityLookupState {
     return {
         assigned: assignedOptions[0],
         name: context.parentType === "contact" ? nameOptions[0] : undefined,
@@ -314,7 +324,26 @@ export function buildDefaultTaskLookups({
     };
 }
 
-export function getLookupApiObject(objectLabel: LookupObjectLabel): ActivityLookupApiObject {
+function isActivityWhoLookup(option?: ActivityLookupOption): boolean {
+    return option?.objectLabel === "リード" || option?.objectLabel === "取引先責任者";
+}
+
+function isActivityWhatLookup(option?: ActivityLookupOption): boolean {
+    return option?.objectLabel === "ケース"
+        || option?.objectLabel === "商談"
+        || option?.objectLabel === "その他"
+        || option?.objectLabel === "取引先";
+}
+
+export function buildActivityLookupPayload(lookups: ActivityLookupState): ActivityLookupPayload {
+    return {
+        OwnerId: lookups.assigned?.id,
+        WhoId: isActivityWhoLookup(lookups.name) ? lookups.name?.id : undefined,
+        WhatId: isActivityWhatLookup(lookups.related) ? lookups.related?.id : undefined
+    };
+}
+
+export function getLookupApiObject(objectLabel: RemoteLookupObjectLabel): ActivityLookupApiObject {
     if (objectLabel === "取引先") {
         return "account";
     }
