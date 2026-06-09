@@ -41,8 +41,14 @@ Pull Request の title では `feat:`、`fix:`、`docs:` のような Convention
 
 ## 基本フロー
 
+GitHub Flow では、作業ブランチを `main` から作り、確認が終わったら `main` に戻します。
+
 ```text
-main -> 作業ブランチ -> main
+main から作業ブランチを作成
+-> 作業ブランチで変更
+-> 作業ブランチから main へ Pull Request
+-> CI / レビューを確認
+-> main へ merge
 ```
 
 リリース用の長期ブランチを分けず、変更は Pull Request と CI を通して `main` に集約します。
