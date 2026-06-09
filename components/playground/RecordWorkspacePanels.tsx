@@ -87,6 +87,7 @@ export function AccountDetailWorkspace({
     loading,
     onDeleteRecord,
     onEdit,
+    onEditActivity,
     onOpenActivity,
     onOpenContact,
     onRefresh
@@ -98,6 +99,7 @@ export function AccountDetailWorkspace({
     loading: boolean;
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Account) => void;
+    onEditActivity: (record: Activity) => void;
     onOpenActivity: (activity: Activity) => void;
     onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
@@ -109,7 +111,9 @@ export function AccountDetailWorkspace({
             assignedUserName={assignedUserName}
             contacts={contacts.filter((contact) => contact.AccountId === account.Id)}
             onDelete={(record) => onDeleteRecord(accountDeleteState([record], record.Name))}
+            onDeleteActivity={(record) => onDeleteRecord(activityDeleteState(record))}
             onEdit={onEdit}
+            onEditActivity={onEditActivity}
             onOpenActivity={onOpenActivity}
             onOpenContact={onOpenContact}
             onRefresh={onRefresh}
@@ -170,6 +174,7 @@ export function ContactDetailWorkspace({
     loading,
     onDeleteRecord,
     onEdit,
+    onEditActivity,
     onOpenAccount,
     onOpenActivity,
     onRefresh
@@ -180,6 +185,7 @@ export function ContactDetailWorkspace({
     loading: boolean;
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Contact) => void;
+    onEditActivity: (record: Activity) => void;
     onOpenAccount: (accountId: string) => void;
     onOpenActivity: (activity: Activity) => void;
     onRefresh: () => void;
@@ -190,7 +196,9 @@ export function ContactDetailWorkspace({
             assignedUserName={assignedUserName}
             contact={contact}
             onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
+            onDeleteActivity={(record) => onDeleteRecord(activityDeleteState(record))}
             onEdit={onEdit}
+            onEditActivity={onEditActivity}
             onOpenAccount={onOpenAccount}
             onOpenActivity={onOpenActivity}
             onRefresh={onRefresh}
@@ -212,20 +220,24 @@ export function ActivityDetailWorkspace({
     onEdit: (record: Activity) => void;
     onRefresh: () => void;
 }) {
-    const objectLabel = activity.type === "task" ? "ToDo" : "行動";
-
     return (
         <ActivityRecordPage
             activity={activity}
             loading={loading}
-            onDelete={(record) => onDeleteRecord({
-                type: "activity",
-                activityType: record.type,
-                ids: [record.id],
-                label: `${objectLabel} ${record.subject || record.id}`
-            })}
+            onDelete={(record) => onDeleteRecord(activityDeleteState(record))}
             onEdit={onEdit}
             onRefresh={onRefresh}
         />
     );
+}
+
+function activityDeleteState(activity: Activity): DeleteState {
+    const objectLabel = activity.type === "task" ? "ToDo" : "行動";
+
+    return {
+        type: "activity",
+        activityType: activity.type,
+        ids: [activity.id],
+        label: `${objectLabel} ${activity.subject || activity.id}`
+    };
 }

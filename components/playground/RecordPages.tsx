@@ -29,6 +29,8 @@ type RecordPageFrameProps<Record extends object> = {
     relatedContent?: ReactNode;
     detailFields: Array<[string, ReactNode]>;
     systemFields: Array<[string, ReactNode]>;
+    onDeleteActivity?: (activity: Activity) => void;
+    onEditActivity?: (activity: Activity) => void;
     onDelete: (record: Record) => void;
     onEdit: (record: Record) => void;
     onRefresh: () => void;
@@ -52,6 +54,8 @@ function RecordPageFrame<Record extends object>({
     relatedContent,
     detailFields,
     systemFields,
+    onDeleteActivity,
+    onEditActivity,
     onDelete,
     onEdit,
     onRefresh
@@ -94,6 +98,8 @@ function RecordPageFrame<Record extends object>({
                             assignedUserId={assignedUserId}
                             assignedUserName={assignedUserName}
                             nameLookupOptions={activityNameLookupOptions}
+                            onDeleteActivity={onDeleteActivity}
+                            onEditActivity={onEditActivity}
                             onOpenActivity={onOpenActivity}
                             relatedContent={relatedContent}
                             relatedLookupOptions={activityRelatedLookupOptions}
@@ -144,6 +150,8 @@ export function AccountRecordPage({
     loading,
     onDelete,
     onEdit,
+    onDeleteActivity,
+    onEditActivity,
     onOpenActivity,
     onOpenContact,
     onRefresh
@@ -155,6 +163,8 @@ export function AccountRecordPage({
     loading: boolean;
     onDelete: (record: Account) => void;
     onEdit: (record: Account) => void;
+    onDeleteActivity?: (activity: Activity) => void;
+    onEditActivity?: (activity: Activity) => void;
     onOpenActivity?: (activity: Activity) => void;
     onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
@@ -184,7 +194,9 @@ export function AccountRecordPage({
             assignedUserName={assignedUserName}
             loading={loading}
             onDelete={onDelete}
+            onDeleteActivity={onDeleteActivity}
             onEdit={onEdit}
+            onEditActivity={onEditActivity}
             onOpenActivity={onOpenActivity}
             onRefresh={onRefresh}
             headerDetails={
@@ -223,6 +235,8 @@ export function ContactRecordPage({
     loading,
     onDelete,
     onEdit,
+    onDeleteActivity,
+    onEditActivity,
     onOpenAccount,
     onOpenActivity,
     onRefresh
@@ -233,6 +247,8 @@ export function ContactRecordPage({
     loading: boolean;
     onDelete: (record: Contact) => void;
     onEdit: (record: Contact) => void;
+    onDeleteActivity?: (activity: Activity) => void;
+    onEditActivity?: (activity: Activity) => void;
     onOpenAccount: (accountId: string) => void;
     onOpenActivity?: (activity: Activity) => void;
     onRefresh: () => void;
@@ -273,7 +289,9 @@ export function ContactRecordPage({
             assignedUserName={assignedUserName}
             loading={loading}
             onDelete={onDelete}
+            onDeleteActivity={onDeleteActivity}
             onEdit={onEdit}
+            onEditActivity={onEditActivity}
             onOpenActivity={onOpenActivity}
             onRefresh={onRefresh}
             headerDetails={
