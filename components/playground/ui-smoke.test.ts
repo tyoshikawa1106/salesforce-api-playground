@@ -340,6 +340,7 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).not.toContain("slds-button_destructive");
         expect(contactMarkup).toContain("取引先");
         expect(contactMarkup).toContain("slds-button_reset slds-text-link");
+        expect(contactMarkup).toContain("電話を記録");
         expect(contactMarkup).toContain("新規ToDo");
         expect(contactMarkup).toContain("新規行動");
         expect(contactMarkup).toContain("今後 &amp; 期限切れ");

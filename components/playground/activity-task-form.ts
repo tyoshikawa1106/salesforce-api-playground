@@ -5,6 +5,7 @@ export type TaskForm = {
     ActivityDate: string;
     Status: string;
     Priority: string;
+    TaskSubtype?: string;
     Description: string;
 };
 
@@ -86,10 +87,10 @@ export const timeOptions = Array.from({ length: 48 }, (_, index) => {
     return `${hours}:${minutes}`;
 });
 
-export function compactActivityPayload<T extends Record<string, string>>(form: T) {
+export function compactActivityPayload<T extends Record<string, string | undefined>>(form: T) {
     return Object.fromEntries(
         Object.entries(form).map(([key, value]) => {
-            const trimmed = value.trim();
+            const trimmed = value?.trim();
             return [key, trimmed || undefined];
         })
     );
@@ -168,6 +169,18 @@ export function getDefaultTaskForm(): TaskForm {
         ActivityDate: buildDateValue(new Date()),
         Status: "Not Started",
         Priority: "Normal",
+        TaskSubtype: undefined,
+        Description: ""
+    };
+}
+
+export function getDefaultLoggedCallTaskForm(): TaskForm {
+    return {
+        Subject: "Call",
+        ActivityDate: buildDateValue(new Date()),
+        Status: "Completed",
+        Priority: "Normal",
+        TaskSubtype: "Call",
         Description: ""
     };
 }

@@ -13,6 +13,7 @@ export type TaskActivityInput = ActivityParent & {
     WhatId?: string;
     Status?: string;
     Priority?: string;
+    TaskSubtype?: string;
     Description?: string;
 };
 
@@ -67,6 +68,7 @@ export type TaskActivityRecord = {
     WhatId?: string;
     Status?: string;
     Priority?: string;
+    TaskSubtype?: string;
     Description?: string;
     CreatedDate?: string;
     LastModifiedDate?: string;
@@ -109,6 +111,7 @@ export type ActivityTimelineItem =
         whatName?: string;
         status?: string;
         priority?: string;
+        taskSubtype?: string;
         description?: string;
         createdDate?: string;
         lastModifiedDate?: string;

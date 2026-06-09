@@ -13,6 +13,7 @@ import {
     getDateTimeDateValue,
     getDateTimeTimeValue,
     getEventFormErrorLabels,
+    getDefaultLoggedCallTaskForm,
     getLookupApiObject,
     getLookupObjectLabel,
     getTaskFormErrorLabels,
@@ -73,6 +74,17 @@ describe("activity task form helpers", () => {
         expect(formatDateInputValue("2026-06-08")).toBe("2026/06/08");
         expect(normalizeDateInputValue("2026/6/8")).toBe("2026-06-08");
         expect(normalizeDateInputValue("2026/02/30")).toBe("");
+    });
+
+    it("builds default values for logged call tasks", () => {
+        expect(getDefaultLoggedCallTaskForm()).toMatchObject({
+            Subject: "Call",
+            Status: "Completed",
+            Priority: "Normal",
+            TaskSubtype: "Call",
+            Description: ""
+        });
+        expect(getDefaultLoggedCallTaskForm().ActivityDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
 
     it("splits and combines date time input values", () => {

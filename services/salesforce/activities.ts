@@ -25,6 +25,7 @@ const taskFields = [
     "What.Name",
     "Status",
     "Priority",
+    "TaskSubtype",
     "Description",
     "CreatedDate",
     "LastModifiedDate"
@@ -89,6 +90,7 @@ function toTaskItem(record: TaskActivityRecord): ActivityTimelineItem {
         whatName: record.What?.Name,
         status: record.Status,
         priority: record.Priority,
+        taskSubtype: record.TaskSubtype,
         description: record.Description,
         createdDate: record.CreatedDate,
         lastModifiedDate: record.LastModifiedDate
