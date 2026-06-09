@@ -26,6 +26,7 @@ describe("Salesforce activity payload readers", () => {
                 WhatId: "001xx000003DGbY",
                 Status: " Not Started ",
                 Priority: "",
+                TaskSubtype: "Call",
                 Description: " Follow up "
             }))
         ).resolves.toEqual({
@@ -38,6 +39,7 @@ describe("Salesforce activity payload readers", () => {
             WhatId: "001xx000003DGbY",
             Status: "Not Started",
             Priority: undefined,
+            TaskSubtype: "Call",
             Description: "Follow up"
         });
     });
@@ -111,6 +113,20 @@ describe("Salesforce activity payload readers", () => {
             }))
         ).rejects.toMatchObject({
             message: "Invalid Who id.",
+            status: 400
+        });
+    });
+
+    it("rejects unsupported task subtype values", async () => {
+        await expect(
+            readTaskActivityCreatePayload(jsonRequest({
+                parentType: "account",
+                parentId: "001xx000003DGbY",
+                Subject: "Call",
+                TaskSubtype: "Phone"
+            }))
+        ).rejects.toMatchObject({
+            message: "TaskSubtype is invalid.",
             status: 400
         });
     });

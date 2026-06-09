@@ -16,6 +16,7 @@ import {
 type JsonRequest = Pick<Request, "json">;
 
 const activityParentTypes = new Set<ActivityParentType>(["account", "contact"]);
+const taskSubtypeValues = new Set(["Task", "Email", "LinkedIn", "ListEmail", "Cadence", "Call"]);
 
 function badPayload(message: string): SalesforceApiError {
     return new SalesforceApiError(message, 400);
@@ -62,6 +63,16 @@ function readRequiredString(body: Record<string, unknown>, key: string): string 
 
     if (!value) {
         throw badPayload(`${key} is required.`);
+    }
+
+    return value;
+}
+
+function readOptionalPicklistValue(body: Record<string, unknown>, key: string, values: Set<string>): string | undefined {
+    const value = readOptionalString(body, key);
+
+    if (value && !values.has(value)) {
+        throw badPayload(`${key} is invalid.`);
     }
 
     return value;
@@ -164,6 +175,7 @@ export async function readTaskActivityCreatePayload(request: JsonRequest): Promi
         ...lookupIds,
         Status: readOptionalString(body, "Status"),
         Priority: readOptionalString(body, "Priority"),
+        TaskSubtype: readOptionalPicklistValue(body, "TaskSubtype", taskSubtypeValues),
         Description: readOptionalString(body, "Description")
     };
 }

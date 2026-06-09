@@ -63,6 +63,7 @@ function activityToTaskForm(activity?: Activity): TaskForm {
         ActivityDate: activity.date ?? "",
         Status: activity.status ?? "Not Started",
         Priority: activity.priority ?? "Normal",
+        TaskSubtype: activity.taskSubtype,
         Description: activity.description ?? ""
     };
 }

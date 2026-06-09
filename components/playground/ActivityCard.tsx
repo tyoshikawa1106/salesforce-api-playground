@@ -18,6 +18,7 @@ import {
     getDateTimeTimeValue,
     getCalendarBaseDate,
     getDefaultEventForm,
+    getDefaultLoggedCallTaskForm,
     getDefaultTaskForm,
     getEventFormErrorLabels,
     getLookupApiObject,
@@ -81,7 +82,7 @@ export function ActivityCard({
     const [eventFormErrors, setEventFormErrors] = useState<EventFormErrors>({});
     const [taskForm, setTaskForm] = useState<TaskForm>(() => getDefaultTaskForm());
     const [taskFormErrors, setTaskFormErrors] = useState<TaskFormErrors>({});
-    const [activeComposer, setActiveComposer] = useState<"event" | "task" | null>(null);
+    const [activeComposer, setActiveComposer] = useState<"call" | "event" | "task" | null>(null);
     const [composerExpanded, setComposerExpanded] = useState(false);
     const [composerMinimized, setComposerMinimized] = useState(false);
     const [taskStatusOverrides, setTaskStatusOverrides] = useState<Record<string, TaskStatusOverride>>({});
@@ -196,7 +197,7 @@ export function ActivityCard({
             setActiveComposer(null);
             setComposerExpanded(false);
             setComposerMinimized(false);
-            setActivityMessage("ToDo を作成しました。");
+            setActivityMessage(activeComposer === "call" ? "電話を記録しました。" : "ToDo を作成しました。");
             await loadActivities();
         } catch (error) {
             setActivityMessage(error instanceof Error ? error.message : "ToDo の作成に失敗しました。");
@@ -345,12 +346,20 @@ export function ActivityCard({
                             }}
                             onOpenEventComposer={() => {
                                 setActivityLookups(defaultTaskLookups);
+                                setEventForm(getDefaultEventForm());
                                 setActiveComposer("event");
                                 setComposerMinimized(false);
                             }}
                             onOpenTaskComposer={() => {
                                 setActivityLookups(defaultTaskLookups);
+                                setTaskForm(getDefaultTaskForm());
                                 setActiveComposer("task");
+                                setComposerMinimized(false);
+                            }}
+                            onOpenCallComposer={() => {
+                                setActivityLookups(defaultTaskLookups);
+                                setTaskForm(getDefaultLoggedCallTaskForm());
+                                setActiveComposer("call");
                                 setComposerMinimized(false);
                             }}
                             onRefresh={loadActivities}
@@ -415,6 +424,7 @@ function ActivityPanel({
     onEventFormChange,
     onLookupChange,
     onOpenEventComposer,
+    onOpenCallComposer,
     onOpenTaskComposer,
     onRefresh,
     onSaveEvent,
@@ -427,7 +437,7 @@ function ActivityPanel({
     onToggleComposerExpanded,
     onToggleComposerMinimized
 }: {
-    activeComposer: "event" | "task" | null;
+    activeComposer: "call" | "event" | "task" | null;
     activities: ActivityTimelineItem[];
     composerExpanded: boolean;
     composerMinimized: boolean;
@@ -450,6 +460,7 @@ function ActivityPanel({
     onEventFormChange: (value: EventForm) => void;
     onLookupChange: (value: ActivityLookupState) => void;
     onOpenEventComposer: () => void;
+    onOpenCallComposer: () => void;
     onOpenTaskComposer: () => void;
     onRefresh: () => void;
     onSaveEvent: (event: FormEvent<HTMLFormElement>) => void;
@@ -489,7 +500,7 @@ function ActivityPanel({
 
     return (
         <div className="playground-activity-panel">
-            <ActivityComposerBar onOpenEvent={onOpenEventComposer} onOpenTask={onOpenTaskComposer} />
+            <ActivityComposerBar onOpenCall={onOpenCallComposer} onOpenEvent={onOpenEventComposer} onOpenTask={onOpenTaskComposer} />
             <ActivityTimelineToolbar
                 allSectionsExpanded={allSectionsExpanded}
                 loading={loading}
@@ -535,6 +546,24 @@ function ActivityPanel({
                     onToggleExpanded={onToggleComposerExpanded}
                 />
             ) : null}
+            {activeComposer === "call" ? (
+                <TaskDockedComposer
+                    errors={taskFormErrors}
+                    expanded={composerExpanded}
+                    form={taskForm}
+                    lookupOptions={lookupOptions}
+                    lookups={lookups}
+                    minimized={composerMinimized}
+                    saving={saving}
+                    variant="call"
+                    onCancel={onCloseComposer}
+                    onChange={onTaskFormChange}
+                    onLookupChange={onLookupChange}
+                    onToggleMinimized={onToggleComposerMinimized}
+                    onSubmit={onSaveTask}
+                    onToggleExpanded={onToggleComposerExpanded}
+                />
+            ) : null}
             {activeComposer === "event" ? (
                 <EventDockedComposer
                     errors={eventFormErrors}
@@ -557,9 +586,11 @@ function ActivityPanel({
 }
 
 function ActivityComposerBar({
+    onOpenCall,
     onOpenEvent,
     onOpenTask
 }: {
+    onOpenCall: () => void;
     onOpenEvent: () => void;
     onOpenTask: () => void;
 }) {
@@ -569,9 +600,36 @@ function ActivityComposerBar({
     const eventIconStyle = {
         "--sds-c-icon-color-background": "var(--slds-c-icon-color-background, rgb(235, 112, 146))"
     } as CSSProperties;
+    const callIconStyle = {
+        "--sds-c-icon-color-background": "var(--slds-c-icon-color-background, rgb(84, 105, 141))"
+    } as CSSProperties;
 
     return (
         <ul className="slds-button-group-row playground-activity-composer-bar" aria-label="活動作成">
+            <li className="slds-button-group-item">
+                <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label="電話を記録" part="button-group">
+                    <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label="電話を記録" title="電話を記録" value="LogCall" onClick={onOpenCall}>
+                        <span className="slds-icon-standard-task slds-icon_container playground-activity-composer-action__icon" title="電話を記録">
+                            <span className="playground-activity-composer-action__icon-boundary" style={callIconStyle}>
+                                <StandardIcon className="slds-icon slds-icon_small" name="task" />
+                            </span>
+                            <span className="slds-assistive-text">電話を記録</span>
+                        </span>
+                        <span className="hidden playground-activity-composer-action__label" aria-hidden="true">電話を記録</span>
+                    </button>
+                    <button
+                        className="slds-button slds-button_icon-border-filled fix-slds-button_icon-border-filled slds-button_last playground-activity-composer-action__menu"
+                        type="button"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        title="追加の 電話を記録 アクションはありません"
+                        disabled
+                    >
+                        <UtilityIcon className="slds-button__icon" name="down" />
+                        <span className="slds-assistive-text">追加の 電話を記録 アクションはありません</span>
+                    </button>
+                </div>
+            </li>
             <li className="slds-button-group-item">
                 <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label="新規ToDo" part="button-group">
                     <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label="新規ToDo" title="新規ToDo" value="NewTask" onClick={onOpenTask}>
@@ -1210,6 +1268,7 @@ function TaskDockedComposer({
     lookups,
     minimized,
     saving,
+    variant = "task",
     onCancel,
     onChange,
     onLookupChange,
@@ -1228,6 +1287,7 @@ function TaskDockedComposer({
     lookups: ActivityLookupState;
     minimized: boolean;
     saving: boolean;
+    variant?: "call" | "task";
     onCancel: () => void;
     onChange: (value: TaskForm) => void;
     onLookupChange: (value: ActivityLookupState) => void;
@@ -1238,6 +1298,8 @@ function TaskDockedComposer({
     const composerStateClass = minimized ? "slds-is-closed" : "slds-is-open";
     const minimizeTitle = minimized ? "復元" : "最小化";
     const expandTitle = expanded ? "復元" : "最大化";
+    const isCallLog = variant === "call";
+    const composerTitle = isCallLog ? "電話を記録" : "新規ToDo";
     const composer = (
         <form
             className={`slds-docked-composer slds-grid slds-grid_vertical ${composerStateClass} playground-task-composer ${
@@ -1252,13 +1314,13 @@ function TaskDockedComposer({
             <header className="slds-docked-composer__header slds-grid slds-shrink-none" aria-live="assertive">
                 <div className="slds-media slds-media_center slds-has-flexi-truncate">
                     <div className="slds-media__figure slds-m-right_x-small">
-                        <span className="slds-icon_container" title="ToDo">
+                        <span className="slds-icon_container" title={composerTitle}>
                             <StandardIcon className="slds-icon slds-icon_small slds-icon-text-default" name="task" />
-                            <span className="slds-assistive-text">ToDo</span>
+                            <span className="slds-assistive-text">{composerTitle}</span>
                         </span>
                     </div>
                     <div className="slds-media__body">
-                        <h2 className="slds-truncate" id="new-task-composer-title" title="新規ToDo">新規ToDo</h2>
+                        <h2 className="slds-truncate" id="new-task-composer-title" title={composerTitle}>{composerTitle}</h2>
                     </div>
                 </div>
                 <div className="slds-col_bump-left slds-shrink-none">
@@ -1277,7 +1339,7 @@ function TaskDockedComposer({
                 </div>
             </header>
             <fieldset className="slds-docked-composer__body slds-docked-composer__body_form slds-form_compound slds-grow slds-shrink slds-scrollable_y playground-task-composer__body" id="new-task-composer-body">
-                <legend className="slds-assistive-text">新規ToDo</legend>
+                <legend className="slds-assistive-text">{composerTitle}</legend>
                 <TaskFormErrorSummary errors={errors} />
                 <div className="slds-form-element__control">
                     <div className="slds-form-element__group">
@@ -1290,56 +1352,64 @@ function TaskDockedComposer({
                                 onChange={(Subject) => onChange({ ...form, Subject })}
                             />
                         </div>
-                        <div className="slds-form-element__row">
-                            <div className="slds-form-element slds-size_1-of-1">
-                                <QuickActionDatepicker
-                                    label="期日"
-                                    value={form.ActivityDate}
-                                    onChange={(ActivityDate) => onChange({ ...form, ActivityDate })}
+                        {isCallLog ? null : (
+                            <>
+                                <div className="slds-form-element__row">
+                                    <div className="slds-form-element slds-size_1-of-1">
+                                        <QuickActionDatepicker
+                                            label="期日"
+                                            value={form.ActivityDate}
+                                            onChange={(ActivityDate) => onChange({ ...form, ActivityDate })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="slds-form-element__row">
+                                    <QuickActionLookup
+                                        label="名前"
+                                        objectLabel="取引先責任者"
+                                        options={lookupOptions.name}
+                                        placeholder="取引先責任者を検索..."
+                                        value={lookups.name}
+                                        onChange={(name) => onLookupChange({ ...lookups, name })}
+                                    />
+                                </div>
+                                <div className="slds-form-element__row">
+                                    <QuickActionLookup
+                                        label="関連先"
+                                        objectLabel="取引先"
+                                        options={lookupOptions.related}
+                                        placeholder="取引先を検索..."
+                                        value={lookups.related}
+                                        onChange={(related) => onLookupChange({ ...lookups, related })}
+                                    />
+                                </div>
+                            </>
+                        )}
+                        {isCallLog && lookups.assigned ? null : (
+                            <div className="slds-form-element__row">
+                                <QuickActionLookup
+                                    error={errors.assignedUserName}
+                                    label="割り当て先"
+                                    objectLabel="ユーザー"
+                                    options={lookupOptions.assigned}
+                                    placeholder="ユーザーを検索..."
+                                    required
+                                    value={lookups.assigned}
+                                    onChange={(assigned) => onLookupChange({ ...lookups, assigned })}
                                 />
                             </div>
-                        </div>
-                        <div className="slds-form-element__row">
-                            <QuickActionLookup
-                                label="名前"
-                                objectLabel="取引先責任者"
-                                options={lookupOptions.name}
-                                placeholder="取引先責任者を検索..."
-                                value={lookups.name}
-                                onChange={(name) => onLookupChange({ ...lookups, name })}
-                            />
-                        </div>
-                        <div className="slds-form-element__row">
-                            <QuickActionLookup
-                                label="関連先"
-                                objectLabel="取引先"
-                                options={lookupOptions.related}
-                                placeholder="取引先を検索..."
-                                value={lookups.related}
-                                onChange={(related) => onLookupChange({ ...lookups, related })}
-                            />
-                        </div>
-                        <div className="slds-form-element__row">
-                            <QuickActionLookup
-                                error={errors.assignedUserName}
-                                label="割り当て先"
-                                objectLabel="ユーザー"
-                                options={lookupOptions.assigned}
-                                placeholder="ユーザーを検索..."
-                                required
-                                value={lookups.assigned}
-                                onChange={(assigned) => onLookupChange({ ...lookups, assigned })}
-                            />
-                        </div>
-                        <div className="slds-form-element__row">
-                            <QuickActionSelect
-                                error={errors.Status}
-                                label="状況"
-                                required
-                                value={form.Status}
-                                onChange={(Status) => onChange({ ...form, Status })}
-                            />
-                        </div>
+                        )}
+                        {isCallLog ? null : (
+                            <div className="slds-form-element__row">
+                                <QuickActionSelect
+                                    error={errors.Status}
+                                    label="状況"
+                                    required
+                                    value={form.Status}
+                                    onChange={(Status) => onChange({ ...form, Status })}
+                                />
+                            </div>
+                        )}
                         <div className="slds-form-element__row">
                             <QuickActionLongTextInput
                                 label="説明"
