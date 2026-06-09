@@ -346,6 +346,10 @@ body {
     text-decoration: line-through;
 }
 
+.playground-activity-timeline-item__description {
+    white-space: pre-wrap;
+}
+
 .playground-activity-checkbox {
     display: inline-flex;
 }
