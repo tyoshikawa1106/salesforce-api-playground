@@ -42,6 +42,7 @@ import {
     weekDayLabels
 } from "./activity-task-form";
 import { formatDate } from "./formatting";
+import { RecordTableActions } from "./RecordListTableParts";
 import { StandardIcon, UtilityIcon } from "./SldsIcon";
 
 export type { ActivityLookupOption } from "./activity-task-form";
@@ -62,9 +63,13 @@ export function ActivityCard({
     relatedContent,
     relatedLookupOptions = [],
     relatedName,
+    onDeleteActivity,
+    onEditActivity,
     onOpenActivity
 }: ActivityRecordContext & {
     nameLookupOptions?: ActivityLookupOption[];
+    onDeleteActivity?: (activity: ActivityTimelineItem) => void;
+    onEditActivity?: (activity: ActivityTimelineItem) => void;
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
     relatedContent?: ReactNode;
     relatedLookupOptions?: ActivityLookupOption[];
@@ -352,6 +357,8 @@ export function ActivityCard({
                             onSaveEvent={saveEvent}
                             onSaveTask={saveTask}
                             onToggleTaskCompleted={toggleTaskCompleted}
+                            onDeleteActivity={onDeleteActivity}
+                            onEditActivity={onEditActivity}
                             onOpenActivity={onOpenActivity}
                             onEventFormChange={(value) => {
                                 setEventForm(value);
@@ -414,6 +421,8 @@ function ActivityPanel({
     onSaveTask,
     onTaskFormChange,
     onToggleTaskCompleted,
+    onDeleteActivity,
+    onEditActivity,
     onOpenActivity,
     onToggleComposerExpanded,
     onToggleComposerMinimized
@@ -447,12 +456,15 @@ function ActivityPanel({
     onSaveTask: (event: FormEvent<HTMLFormElement>) => void;
     onTaskFormChange: (value: TaskForm) => void;
     onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
+    onDeleteActivity?: (activity: ActivityTimelineItem) => void;
+    onEditActivity?: (activity: ActivityTimelineItem) => void;
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
     onToggleComposerExpanded: () => void;
     onToggleComposerMinimized: () => void;
 }) {
     const timelineSections = groupActivityTimelineSections(activities, taskStatusOverrides);
     const [expandedSectionKeys, setExpandedSectionKeys] = useState<Set<string>>(() => new Set());
+    const [openActionActivityId, setOpenActionActivityId] = useState<string | null>(null);
     const allSectionsExpanded = timelineSections.length > 0
         && timelineSections.every((section) => expandedSectionKeys.has(section.key));
 
@@ -494,9 +506,16 @@ function ActivityPanel({
                     expandedSectionKeys={expandedSectionKeys}
                     sections={timelineSections}
                     taskStatusOverrides={taskStatusOverrides}
+                    openActionActivityId={openActionActivityId}
+                    onCloseActionMenu={() => setOpenActionActivityId(null)}
+                    onDeleteActivity={onDeleteActivity}
+                    onEditActivity={onEditActivity}
                     onToggleSection={toggleTimelineSection}
                     onToggleTaskCompleted={onToggleTaskCompleted}
                     onOpenActivity={onOpenActivity}
+                    onToggleActionMenu={(activityId) =>
+                        setOpenActionActivityId((currentActivityId) => (currentActivityId === activityId ? null : activityId))
+                    }
                 />
             )}
             {activeComposer === "task" ? (
@@ -638,22 +657,32 @@ function ActivityTimelineToolbar({
     );
 }
 
-function ActivityTimeline({
+export function ActivityTimeline({
     context,
     expandedSectionKeys,
+    openActionActivityId,
     sections,
     taskStatusOverrides,
+    onCloseActionMenu,
+    onDeleteActivity,
+    onEditActivity,
     onToggleSection,
     onToggleTaskCompleted,
-    onOpenActivity
+    onOpenActivity,
+    onToggleActionMenu
 }: {
     context: ActivityRecordContext;
     expandedSectionKeys: Set<string>;
+    openActionActivityId: string | null;
     sections: ActivityTimelineSection[];
     taskStatusOverrides: Record<string, TaskStatusOverride>;
+    onCloseActionMenu: () => void;
+    onDeleteActivity?: (activity: ActivityTimelineItem) => void;
+    onEditActivity?: (activity: ActivityTimelineItem) => void;
     onToggleSection: (key: string) => void;
     onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
+    onToggleActionMenu: (activityId: string) => void;
 }) {
     return (
         <section className="playground-activity-timeline">
@@ -678,13 +707,18 @@ function ActivityTimeline({
                             <ul className="slds-timeline playground-activity-timeline__list">
                                 {section.activities.map((activity) => (
                                     <ActivityTimelineEntry
+                                        actionMenuOpen={openActionActivityId === activity.id}
                                         activity={activity}
                                         context={context}
                                         history={section.history}
                                         key={`${activity.type}-${activity.id}`}
                                         statusOverride={activity.type === "task" ? taskStatusOverrides[activity.id] : undefined}
+                                        onCloseActionMenu={onCloseActionMenu}
+                                        onDeleteActivity={onDeleteActivity}
+                                        onEditActivity={onEditActivity}
                                         onToggleTaskCompleted={onToggleTaskCompleted}
                                         onOpenActivity={onOpenActivity}
+                                        onToggleActionMenu={() => onToggleActionMenu(activity.id)}
                                     />
                                 ))}
                             </ul>
@@ -811,20 +845,30 @@ function ActivityTimelineEmpty() {
 }
 
 function ActivityTimelineEntry({
+    actionMenuOpen,
     activity,
     context,
     history = false,
     statusOverride,
+    onCloseActionMenu,
+    onDeleteActivity,
+    onEditActivity,
     onToggleTaskCompleted,
     onOpenActivity,
+    onToggleActionMenu,
     preview = false
 }: {
+    actionMenuOpen: boolean;
     activity: ActivityTimelineItem;
     context: ActivityRecordContext;
     history?: boolean;
     statusOverride?: TaskStatusOverride;
+    onCloseActionMenu: () => void;
+    onDeleteActivity?: (activity: ActivityTimelineItem) => void;
+    onEditActivity?: (activity: ActivityTimelineItem) => void;
     onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
+    onToggleActionMenu: () => void;
     preview?: boolean;
 }) {
     const [expanded, setExpanded] = useState(false);
@@ -838,6 +882,8 @@ function ActivityTimelineEntry({
     const expandedClassName = expanded ? "slds-is-open" : "";
     const titleClassName = isCompletedTask && !history ? "playground-activity-timeline-item__title_completed" : undefined;
     const taskSummary = isTask ? getTaskSummary(activity, context, isCompletedTask) : "";
+    const objectLabel = isTask ? "ToDo" : "行動";
+    const actionRecordLabel = `${objectLabel} ${title}`;
 
     return (
         <li>
@@ -895,10 +941,15 @@ function ActivityTimelineEntry({
                             </div>
                             <div className="slds-timeline__actions slds-timeline__actions_inline">
                                 <p className={date === "昨日" && !history ? "slds-timeline__date slds-text-color_error" : "slds-timeline__date"}>{date}</p>
-                                <button className="slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small" type="button" title="その他の操作">
-                                    <UtilityIcon className="slds-button__icon" name="down" />
-                                    <span className="slds-assistive-text">その他の操作</span>
-                                </button>
+                                <RecordTableActions
+                                    record={activity}
+                                    recordLabel={actionRecordLabel}
+                                    open={actionMenuOpen}
+                                    onToggle={onToggleActionMenu}
+                                    onClose={onCloseActionMenu}
+                                    onEdit={(record) => onEditActivity?.(record)}
+                                    onDelete={(record) => onDeleteActivity?.(record)}
+                                />
                             </div>
                         </div>
                         <p className="slds-m-horizontal_xx-small slds-text-body_small">
