@@ -3,11 +3,16 @@ import type { SalesforceSession } from "@/lib/salesforce/session";
 import {
     createEventActivity,
     createTaskActivity,
+    deleteEventActivity,
+    deleteTaskActivity,
+    getEventActivity,
+    getTaskActivity,
     listActivities,
+    updateEventActivity,
     updateTaskActivity
 } from "./activities";
 import { withStandardObjectConnection } from "./client";
-import { createStandardObject, updateStandardObject } from "./object-mutations";
+import { createStandardObject, deleteStandardObject, updateStandardObject } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
 vi.mock("./client", () => ({
@@ -16,6 +21,7 @@ vi.mock("./client", () => ({
 
 vi.mock("./object-mutations", () => ({
     createStandardObject: vi.fn(),
+    deleteStandardObject: vi.fn(),
     updateStandardObject: vi.fn()
 }));
 
@@ -25,6 +31,7 @@ vi.mock("./object-permissions", () => ({
 
 const withStandardObjectConnectionMock = vi.mocked(withStandardObjectConnection);
 const createStandardObjectMock = vi.mocked(createStandardObject);
+const deleteStandardObjectMock = vi.mocked(deleteStandardObject);
 const updateStandardObjectMock = vi.mocked(updateStandardObject);
 const assertObjectPermissionMock = vi.mocked(assertObjectPermission);
 
@@ -51,6 +58,8 @@ describe("Salesforce activity services", () => {
                         ActivityDate: "2026-06-07",
                         WhoId: "003xx000004TmiQ",
                         Who: { Name: "Gonzalez Rose" },
+                        OwnerId: "005xx0000012345",
+                        Owner: { Name: "Taro Admin" },
                         WhatId: "001xx000003DGbY",
                         What: { Name: "Edge Communications" },
                         Status: "Not Started",
@@ -68,6 +77,12 @@ describe("Salesforce activity services", () => {
                         Subject: "Meeting",
                         StartDateTime: "2026-06-08T10:00:00.000Z",
                         EndDateTime: "2026-06-08T11:00:00.000Z",
+                        WhoId: "003xx000004TmiQ",
+                        Who: { Name: "Gonzalez Rose" },
+                        OwnerId: "005xx0000012345",
+                        Owner: { Name: "Taro Admin" },
+                        WhatId: "001xx000003DGbY",
+                        What: { Name: "Edge Communications" },
                         Location: "Online",
                         Description: "Discuss plan",
                         CreatedDate: "2026-06-06T00:00:00.000Z",
@@ -92,12 +107,15 @@ describe("Salesforce activity services", () => {
                         type: "event",
                         id: "00Uxx0000012345",
                         subject: "Meeting",
+                        ownerName: "Taro Admin",
+                        whatName: "Edge Communications",
                         location: "Online"
                     },
                     {
                         type: "task",
                         id: "00Txx0000012345",
                         subject: "Call",
+                        ownerName: "Taro Admin",
                         whoName: "Gonzalez Rose",
                         whatName: "Edge Communications",
                         status: "Not Started"
@@ -199,6 +217,50 @@ describe("Salesforce activity services", () => {
         });
     });
 
+    it("gets a task activity by id", async () => {
+        const query = vi.fn().mockResolvedValueOnce({
+            records: [{
+                Id: "00Txx0000012345",
+                Subject: "Call",
+                OwnerId: "005xx0000012345",
+                Owner: { Name: "Taro Admin" }
+            }]
+        });
+        const connection = { query };
+        withStandardObjectConnectionMock.mockImplementation(async (operation) => ({
+            data: await operation(connection as never, session),
+            session
+        }));
+
+        await expect(getTaskActivity("00Txx0000012345")).resolves.toMatchObject({
+            data: {
+                activity: {
+                    type: "task",
+                    id: "00Txx0000012345",
+                    ownerName: "Taro Admin"
+                }
+            },
+            session
+        });
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "Task", "queryable");
+        expect(query).toHaveBeenCalledWith(expect.stringContaining("WHERE Id = '00Txx0000012345'"));
+    });
+
+    it("updates and deletes event activities", async () => {
+        updateStandardObjectMock.mockResolvedValue({ data: {}, session });
+        deleteStandardObjectMock.mockResolvedValue({ data: {}, session });
+
+        await updateEventActivity("00Uxx0000012345", { Location: "Online" });
+        await deleteEventActivity("00Uxx0000012345");
+        await deleteTaskActivity("00Txx0000012345");
+
+        expect(updateStandardObjectMock).toHaveBeenCalledWith("Event", "00Uxx0000012345", {
+            Location: "Online"
+        });
+        expect(deleteStandardObjectMock).toHaveBeenCalledWith("Event", "00Uxx0000012345");
+        expect(deleteStandardObjectMock).toHaveBeenCalledWith("Task", "00Txx0000012345");
+    });
+
     it("creates contact events with WhoId", async () => {
         createStandardObjectMock.mockResolvedValue({
             data: { id: "00Uxx0000012345", success: true },
@@ -225,6 +287,34 @@ describe("Salesforce activity services", () => {
             WhoId: "003xx000004TmiQ",
             WhatId: "001xx000003DGbY"
         });
+    });
+
+    it("gets an event activity by id", async () => {
+        const query = vi.fn().mockResolvedValueOnce({
+            records: [{
+                Id: "00Uxx0000012345",
+                Subject: "Meeting",
+                OwnerId: "005xx0000012345",
+                Owner: { Name: "Taro Admin" }
+            }]
+        });
+        const connection = { query };
+        withStandardObjectConnectionMock.mockImplementation(async (operation) => ({
+            data: await operation(connection as never, session),
+            session
+        }));
+
+        await expect(getEventActivity("00Uxx0000012345")).resolves.toMatchObject({
+            data: {
+                activity: {
+                    type: "event",
+                    id: "00Uxx0000012345",
+                    ownerName: "Taro Admin"
+                }
+            },
+            session
+        });
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "Event", "queryable");
     });
 
 });

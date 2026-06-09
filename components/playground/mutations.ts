@@ -10,10 +10,14 @@ import {
 } from "@/lib/playground-api";
 import type { PlaygroundApiResource } from "@/lib/playground-api";
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
+import type { ActivityLookupState, EventForm, TaskForm } from "./activity-task-form";
+import { buildActivityLookupPayload } from "./activity-task-form";
 import { apiRequest } from "./api";
 import type { DeleteState, ModalState, RecycleBinItem } from "./types";
 
-type RecordMutationConfig<TType extends ModalState["type"], TForm extends AccountForm | ContactForm> = {
+type RecordModalType = Extract<ModalState["type"], "account" | "contact">;
+
+type RecordMutationConfig<TType extends RecordModalType, TForm extends AccountForm | ContactForm> = {
     type: TType;
     resource: PlaygroundApiResource;
     createMessage: string;
@@ -40,7 +44,7 @@ const contactMutationConfig = {
     buildUpdatePayload: (form: ContactForm) => buildUpdateRecordPayload("contacts", form)
 } as const satisfies RecordMutationConfig<"contact", ContactForm>;
 
-async function saveRecordMutation<TType extends ModalState["type"], TForm extends AccountForm | ContactForm>(
+async function saveRecordMutation<TType extends RecordModalType, TForm extends AccountForm | ContactForm>(
     modal: ModalState | null,
     form: TForm,
     config: RecordMutationConfig<TType, TForm>
@@ -64,6 +68,74 @@ export async function saveContactMutation(modal: ModalState | null, contactForm:
     return saveRecordMutation(modal, contactForm, contactMutationConfig);
 }
 
+function buildActivityLookupUpdatePayload(lookups: ActivityLookupState) {
+    const payload = buildActivityLookupPayload(lookups);
+
+    return {
+        OwnerId: payload.OwnerId ?? null,
+        WhoId: payload.WhoId ?? null,
+        WhatId: payload.WhatId ?? null
+    };
+}
+
+function buildActivityUpdatePayload<T extends Record<string, string>>(form: T) {
+    return Object.fromEntries(
+        Object.entries(form).map(([key, value]) => {
+            const trimmed = value.trim();
+            return [key, trimmed || null];
+        })
+    );
+}
+
+function buildEventActivityUpdatePayload(form: EventForm) {
+    return {
+        ...buildActivityUpdatePayload({
+            Subject: form.Subject,
+            Location: form.Location,
+            Description: form.Description
+        }),
+        StartDateTime: form.StartDateTime.trim() ? new Date(form.StartDateTime).toISOString() : null,
+        EndDateTime: form.EndDateTime.trim() ? new Date(form.EndDateTime).toISOString() : null
+    };
+}
+
+export async function saveActivityMutation(
+    modal: ModalState | null,
+    form: TaskForm | EventForm,
+    lookups: ActivityLookupState
+): Promise<string> {
+    if (modal?.type !== "activity") {
+        throw new Error("活動の編集対象が選択されていません。");
+    }
+
+    const path = modal.record.type === "task"
+        ? playgroundApiPaths.activityTask(modal.record.id)
+        : playgroundApiPaths.activityEvent(modal.record.id);
+    const body = modal.record.type === "task"
+        ? {
+            ...buildActivityUpdatePayload({
+                Subject: (form as TaskForm).Subject,
+                ActivityDate: (form as TaskForm).ActivityDate,
+                Status: (form as TaskForm).Status,
+                Description: (form as TaskForm).Description
+            }),
+            ...buildActivityLookupUpdatePayload(lookups)
+        }
+        : {
+            ...buildEventActivityUpdatePayload(form as EventForm),
+            ...buildActivityLookupUpdatePayload(lookups)
+        };
+
+    await apiRequest(
+        buildPlaygroundApiRequest(path, {
+            method: "PATCH",
+            body
+        })
+    );
+
+    return `${modal.record.type === "task" ? "ToDo" : "行動"}を更新しました。`;
+}
+
 export async function createIntegrationAccountMutation(accountForm: AccountForm): Promise<string> {
     const payload = buildCreateRecordPayload("accounts", accountForm);
     await apiRequest(
@@ -76,6 +148,15 @@ export async function createIntegrationAccountMutation(accountForm: AccountForm)
 }
 
 export async function deleteRecordMutation(deleteState: DeleteState): Promise<string> {
+    if (deleteState.type === "activity") {
+        const path = deleteState.activityType === "task"
+            ? playgroundApiPaths.activityTask(deleteState.ids[0])
+            : playgroundApiPaths.activityEvent(deleteState.ids[0]);
+        await apiRequest(buildPlaygroundApiRequest(path, { method: "DELETE" }));
+
+        return `${deleteState.label} を削除しました。`;
+    }
+
     const resource = deleteState.type === "account" ? "accounts" : "contacts";
 
     if (deleteState.ids.length === 1) {

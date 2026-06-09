@@ -7,11 +7,11 @@ import { HomePanel } from "./HomePanel";
 import { IntegrationPanel } from "./IntegrationPanel";
 import { ObjectHomeHeader } from "./ObjectHome";
 import { AccountPanel, ContactPanel, filterAccounts, filterContacts, getSelectedVisibleRecords, getSelectionState } from "./RecordLists";
-import { AccountRecordPage, ContactRecordPage } from "./RecordPages";
+import { AccountRecordPage, ActivityRecordPage, ContactRecordPage } from "./RecordPages";
 import { RecycleBinPanel } from "./RecycleBinPanel";
 import { GlobalHeader } from "./GlobalHeader";
 import { AppNavigation } from "./Navigation";
-import type { Account, Contact, RecycleBinItem } from "./types";
+import type { Account, Activity, Contact, RecycleBinItem } from "./types";
 
 const account: Account = {
     Id: "001xx000003DGbY",
@@ -46,6 +46,23 @@ const contact: Contact = {
     LastModifiedBy: {
         Name: "Sales User"
     }
+};
+
+const activity: Activity = {
+    type: "task",
+    id: "00Txx0000012345",
+    subject: "Call",
+    date: "2026-06-08",
+    whoId: contact.Id,
+    whoName: "Taro Yamada",
+    ownerId: "005xx0000012345",
+    ownerName: "Admin User",
+    whatId: account.Id,
+    whatName: account.Name,
+    status: "Not Started",
+    description: "Follow up",
+    createdDate: "2026-04-01T10:00:00.000Z",
+    lastModifiedDate: "2026-05-01T10:00:00.000Z"
 };
 
 const noop = () => {};
@@ -290,6 +307,15 @@ describe("playground UI smoke rendering", () => {
                 onRefresh: noop
             })
         );
+        const activityMarkup = renderToStaticMarkup(
+            createElement(ActivityRecordPage, {
+                activity,
+                loading: false,
+                onDelete: noop,
+                onEdit: noop,
+                onRefresh: noop
+            })
+        );
 
         expect(accountMarkup).toContain("詳細");
         expect(accountMarkup).toContain("関連");
@@ -321,6 +347,13 @@ describe("playground UI smoke rendering", () => {
         expect(contactMarkup).not.toContain("この取引先責任者に関連する活動はまだありません。");
         expect(contactMarkup).toContain("slds-m-top_small playground-record-body");
         expect(contactMarkup).not.toContain("新規ケース");
+        expect(activityMarkup).toContain("ToDo");
+        expect(activityMarkup).toContain("システム情報");
+        expect(activityMarkup).toContain("作成日");
+        expect(activityMarkup).toContain("最終更新日");
+        expect(activityMarkup).toContain("playground-record-body_single");
+        expect(activityMarkup).not.toContain("新規ToDo");
+        expect(activityMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
     });
 
     it("renders the Integration tab account create form", () => {

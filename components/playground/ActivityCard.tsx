@@ -61,9 +61,11 @@ export function ActivityCard({
     relatedId,
     relatedContent,
     relatedLookupOptions = [],
-    relatedName
+    relatedName,
+    onOpenActivity
 }: ActivityRecordContext & {
     nameLookupOptions?: ActivityLookupOption[];
+    onOpenActivity?: (activity: ActivityTimelineItem) => void;
     relatedContent?: ReactNode;
     relatedLookupOptions?: ActivityLookupOption[];
 }) {
@@ -350,6 +352,7 @@ export function ActivityCard({
                             onSaveEvent={saveEvent}
                             onSaveTask={saveTask}
                             onToggleTaskCompleted={toggleTaskCompleted}
+                            onOpenActivity={onOpenActivity}
                             onEventFormChange={(value) => {
                                 setEventForm(value);
                                 setEventFormErrors({});
@@ -411,6 +414,7 @@ function ActivityPanel({
     onSaveTask,
     onTaskFormChange,
     onToggleTaskCompleted,
+    onOpenActivity,
     onToggleComposerExpanded,
     onToggleComposerMinimized
 }: {
@@ -443,6 +447,7 @@ function ActivityPanel({
     onSaveTask: (event: FormEvent<HTMLFormElement>) => void;
     onTaskFormChange: (value: TaskForm) => void;
     onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
+    onOpenActivity?: (activity: ActivityTimelineItem) => void;
     onToggleComposerExpanded: () => void;
     onToggleComposerMinimized: () => void;
 }) {
@@ -491,6 +496,7 @@ function ActivityPanel({
                     taskStatusOverrides={taskStatusOverrides}
                     onToggleSection={toggleTimelineSection}
                     onToggleTaskCompleted={onToggleTaskCompleted}
+                    onOpenActivity={onOpenActivity}
                 />
             )}
             {activeComposer === "task" ? (
@@ -638,7 +644,8 @@ function ActivityTimeline({
     sections,
     taskStatusOverrides,
     onToggleSection,
-    onToggleTaskCompleted
+    onToggleTaskCompleted,
+    onOpenActivity
 }: {
     context: ActivityRecordContext;
     expandedSectionKeys: Set<string>;
@@ -646,6 +653,7 @@ function ActivityTimeline({
     taskStatusOverrides: Record<string, TaskStatusOverride>;
     onToggleSection: (key: string) => void;
     onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
+    onOpenActivity?: (activity: ActivityTimelineItem) => void;
 }) {
     return (
         <section className="playground-activity-timeline">
@@ -676,6 +684,7 @@ function ActivityTimeline({
                                         key={`${activity.type}-${activity.id}`}
                                         statusOverride={activity.type === "task" ? taskStatusOverrides[activity.id] : undefined}
                                         onToggleTaskCompleted={onToggleTaskCompleted}
+                                        onOpenActivity={onOpenActivity}
                                     />
                                 ))}
                             </ul>
@@ -807,6 +816,7 @@ function ActivityTimelineEntry({
     history = false,
     statusOverride,
     onToggleTaskCompleted,
+    onOpenActivity,
     preview = false
 }: {
     activity: ActivityTimelineItem;
@@ -814,6 +824,7 @@ function ActivityTimelineEntry({
     history?: boolean;
     statusOverride?: TaskStatusOverride;
     onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
+    onOpenActivity?: (activity: ActivityTimelineItem) => void;
     preview?: boolean;
 }) {
     const [expanded, setExpanded] = useState(false);
@@ -870,7 +881,14 @@ function ActivityTimelineEntry({
                                     </span>
                                 ) : null}
                                 <h4 className="slds-truncate" title={title}>
-                                    <a className={titleClassName} href="#" onClick={(event) => event.preventDefault()}>
+                                    <a
+                                        className={titleClassName}
+                                        href={`#activity-${activity.type}-${encodeURIComponent(activity.id)}`}
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            onOpenActivity?.(activity);
+                                        }}
+                                    >
                                         <strong>{title}</strong>
                                     </a>
                                 </h4>
@@ -1307,7 +1325,7 @@ function TaskDockedComposer({
     );
 }
 
-function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
+export function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
     const errorLabels = getTaskFormErrorLabels(errors);
 
     if (errorLabels.length === 0) {
@@ -1327,7 +1345,7 @@ function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
     );
 }
 
-function EventFormErrorSummary({ errors }: { errors: EventFormErrors }) {
+export function EventFormErrorSummary({ errors }: { errors: EventFormErrors }) {
     const errorLabels = getEventFormErrorLabels(errors);
 
     if (errorLabels.length === 0) {
@@ -1347,7 +1365,7 @@ function EventFormErrorSummary({ errors }: { errors: EventFormErrors }) {
     );
 }
 
-function QuickActionTextInput({
+export function QuickActionTextInput({
     error,
     label,
     onChange,
@@ -1382,7 +1400,7 @@ function QuickActionTextInput({
     );
 }
 
-function QuickActionLongTextInput({
+export function QuickActionLongTextInput({
     label,
     onChange,
     value
@@ -1410,7 +1428,7 @@ function QuickActionLongTextInput({
     );
 }
 
-function QuickActionDateTimePicker({
+export function QuickActionDateTimePicker({
     error,
     idPrefix,
     label,
@@ -1578,7 +1596,7 @@ function QuickActionTimepicker({
     );
 }
 
-function QuickActionSubjectCombobox({
+export function QuickActionSubjectCombobox({
     error,
     label,
     onChange,
@@ -1710,7 +1728,7 @@ function QuickActionSubjectCombobox({
     );
 }
 
-function QuickActionDatepicker({
+export function QuickActionDatepicker({
     hideLabel = false,
     idPrefix = "task-activity-date",
     label,
@@ -1861,7 +1879,7 @@ function QuickActionDatepicker({
     );
 }
 
-function QuickActionSelect({
+export function QuickActionSelect({
     error,
     label,
     onChange,
@@ -1894,7 +1912,7 @@ function QuickActionSelect({
     );
 }
 
-function QuickActionLookup({
+export function QuickActionLookup({
     error,
     label,
     objectLabel,

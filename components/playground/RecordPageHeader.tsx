@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { StandardPageHeaderIcon, UtilityButtonIcon } from "./Navigation";
+import type { ActiveTab } from "./types";
 
 export function DetailBlock({ label, value }: { label: string; value: ReactNode }) {
     const title = typeof value === "string" ? value : undefined;
@@ -26,7 +27,7 @@ export function RecordPageHeader({
     onRefresh,
     children
 }: {
-    tab: "accounts" | "contacts";
+    tab: ActiveTab;
     objectLabel: string;
     title: string;
     loading: boolean;

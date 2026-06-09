@@ -81,9 +81,11 @@ export function StandardPageHeaderIcon({ tab, label }: { tab: ActiveTab; label: 
                 ? "slds-icon-standard-account"
                 : tab === "contacts"
                     ? "slds-icon-standard-contact"
-                    : tab === "recycleBin"
-                        ? "slds-icon-standard-empty"
-                        : "slds-icon-standard-connected-apps";
+                    : tab === "activities"
+                        ? "slds-icon-standard-task"
+                        : tab === "recycleBin"
+                            ? "slds-icon-standard-empty"
+                            : "slds-icon-standard-connected-apps";
 
     return (
         <span className={`slds-icon_container playground-page-header-icon ${iconClass}`} title={label}>

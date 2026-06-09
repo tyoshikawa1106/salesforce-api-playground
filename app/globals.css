@@ -223,6 +223,10 @@ body {
     row-gap: 0.75rem;
 }
 
+.playground-record-body_single {
+    grid-template-columns: 1fr;
+}
+
 .playground-record-tabs {
     --slds-c-tabs-panel-spacing-block: 0.5rem;
 }

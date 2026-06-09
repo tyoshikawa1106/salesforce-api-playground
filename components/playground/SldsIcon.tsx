@@ -70,6 +70,7 @@ const activeTabToStandardIcon = {
     home: "home",
     accounts: "account",
     contacts: "contact",
+    activities: "task",
     integration: "connectedApps",
     recycleBin: "recycleBin"
 } as const satisfies Record<ActiveTab, StandardIconName>;

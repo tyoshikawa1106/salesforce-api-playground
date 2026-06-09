@@ -55,6 +55,9 @@ export const playgroundApiPaths = {
         return `/api/activity-lookups?${searchParams.toString()}`;
     },
     activityEvents: "/api/activities/events",
+    activityEvent(id: string): string {
+        return `/api/activities/events/${encodeURIComponent(id)}`;
+    },
     activityTasks: "/api/activities/tasks",
     activityTask(id: string): string {
         return `/api/activities/tasks/${encodeURIComponent(id)}`;
