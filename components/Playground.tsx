@@ -61,6 +61,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         session: {
             connected: session.connected,
             instanceUrl: session.instanceUrl,
+            userId: session.userId,
             userName: session.userName
         },
         recordSelection: {

@@ -2,16 +2,25 @@ import { describe, expect, it } from "vitest";
 import {
     buildCalendarWeeks,
     buildDateValue,
+    buildDateTimeValue,
+    buildDateTimeInputValue,
     buildDefaultTaskLookups,
     compactActivityPayload,
+    compactEventActivityPayload,
     compactLookupOptions,
     formatDateInputValue,
+    getDateTimeDateValue,
+    getDateTimeTimeValue,
+    getEventFormErrorLabels,
     getLookupApiObject,
     getLookupObjectLabel,
     getTaskFormErrorLabels,
     normalizeDateInputValue,
+    normalizeTimeInputValue,
+    validateEventForm,
     validateTaskForm,
     type ActivityLookupOption,
+    type EventForm,
     type ActivityRecordContext,
     type TaskForm
 } from "./activity-task-form";
@@ -21,6 +30,13 @@ const validTaskForm: TaskForm = {
     ActivityDate: "2026-06-08",
     Status: "Not Started",
     Priority: "Normal",
+    Description: ""
+};
+const validEventForm: EventForm = {
+    Subject: "Meeting",
+    StartDateTime: "2026-06-08T10:00",
+    EndDateTime: "2026-06-08T11:00",
+    Location: "",
     Description: ""
 };
 
@@ -35,11 +51,35 @@ describe("activity task form helpers", () => {
         });
     });
 
+    it("converts event datetime fields before sending them to the API", () => {
+        expect(compactEventActivityPayload({
+            ...validEventForm,
+            Subject: " Meeting ",
+            StartDateTime: "2026-06-08T10:00",
+            EndDateTime: "2026-06-08T11:00"
+        })).toEqual({
+            Subject: "Meeting",
+            StartDateTime: new Date("2026-06-08T10:00").toISOString(),
+            EndDateTime: new Date("2026-06-08T11:00").toISOString(),
+            Location: undefined,
+            Description: undefined
+        });
+    });
+
     it("normalizes and formats date values", () => {
         expect(buildDateValue(new Date(2026, 5, 8))).toBe("2026-06-08");
+        expect(buildDateTimeValue(new Date(2026, 5, 8, 10, 5))).toBe("2026-06-08T10:05");
         expect(formatDateInputValue("2026-06-08")).toBe("2026/06/08");
         expect(normalizeDateInputValue("2026/6/8")).toBe("2026-06-08");
         expect(normalizeDateInputValue("2026/02/30")).toBe("");
+    });
+
+    it("splits and combines date time input values", () => {
+        expect(getDateTimeDateValue("2026-06-08T10:30")).toBe("2026-06-08");
+        expect(getDateTimeTimeValue("2026-06-08T10:30")).toBe("10:30");
+        expect(normalizeTimeInputValue("9:05")).toBe("09:05");
+        expect(normalizeTimeInputValue("24:00")).toBe("");
+        expect(buildDateTimeInputValue("2026/6/8", "9:05")).toBe("2026-06-08T09:05");
     });
 
     it("builds a six-week calendar grid from the visible month", () => {
@@ -64,6 +104,21 @@ describe("activity task form helpers", () => {
             Status: "状況を選択してください。"
         });
         expect(getTaskFormErrorLabels(errors)).toEqual(["件名", "割り当て先", "状況"]);
+    });
+
+    it("validates required event fields and time order", () => {
+        const errors = validateEventForm({
+            ...validEventForm,
+            Subject: "",
+            EndDateTime: "2026-06-08T09:00"
+        }, "");
+
+        expect(errors).toEqual({
+            Subject: "件名を入力してください。",
+            EndDateTime: "終了日時は開始日時より後にしてください。",
+            assignedUserName: "割り当て先を選択してください。"
+        });
+        expect(getEventFormErrorLabels(errors)).toEqual(["件名", "終了", "割り当て先"]);
     });
 
     it("deduplicates lookup options while keeping object boundaries", () => {

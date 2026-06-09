@@ -20,6 +20,8 @@ describe("playgroundApiPaths", () => {
         expect(playgroundApiPaths.session).toBe("/api/session");
         expect(playgroundApiPaths.accounts).toBe("/api/accounts");
         expect(playgroundApiPaths.contacts).toBe("/api/contacts");
+        expect(playgroundApiPaths.activityEvents).toBe("/api/activities/events");
+        expect(playgroundApiPaths.activityTasks).toBe("/api/activities/tasks");
         expect(playgroundApiPaths.integrationAccounts).toBe("/api/integration/ui/accounts");
         expect(playgroundApiPaths.record("accounts", "001xx000003DGbY")).toBe(
             "/api/accounts/001xx000003DGbY"
@@ -35,6 +37,9 @@ describe("playgroundApiPaths", () => {
         );
         expect(playgroundApiPaths.activityLookups("contact", "Gonzalez & Edge")).toBe(
             "/api/activity-lookups?object=contact&q=Gonzalez+%26+Edge"
+        );
+        expect(playgroundApiPaths.activityTask("00Txx0000012345/../../x?<script>")).toBe(
+            "/api/activities/tasks/00Txx0000012345%2F..%2F..%2Fx%3F%3Cscript%3E"
         );
     });
 });

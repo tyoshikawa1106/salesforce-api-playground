@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SalesforceSession } from "@/lib/salesforce/session";
 import {
+    createEventActivity,
     createTaskActivity,
-    listActivities
+    listActivities,
+    updateTaskActivity
 } from "./activities";
 import { withStandardObjectConnection } from "./client";
-import { createStandardObject } from "./object-mutations";
+import { createStandardObject, updateStandardObject } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
 vi.mock("./client", () => ({
@@ -13,7 +15,8 @@ vi.mock("./client", () => ({
 }));
 
 vi.mock("./object-mutations", () => ({
-    createStandardObject: vi.fn()
+    createStandardObject: vi.fn(),
+    updateStandardObject: vi.fn()
 }));
 
 vi.mock("./object-permissions", () => ({
@@ -22,6 +25,7 @@ vi.mock("./object-permissions", () => ({
 
 const withStandardObjectConnectionMock = vi.mocked(withStandardObjectConnection);
 const createStandardObjectMock = vi.mocked(createStandardObject);
+const updateStandardObjectMock = vi.mocked(updateStandardObject);
 const assertObjectPermissionMock = vi.mocked(assertObjectPermission);
 
 const session: SalesforceSession = {
@@ -45,6 +49,10 @@ describe("Salesforce activity services", () => {
                         Id: "00Txx0000012345",
                         Subject: "Call",
                         ActivityDate: "2026-06-07",
+                        WhoId: "003xx000004TmiQ",
+                        Who: { Name: "Gonzalez Rose" },
+                        WhatId: "001xx000003DGbY",
+                        What: { Name: "Edge Communications" },
                         Status: "Not Started",
                         Priority: "Normal",
                         Description: "Follow up",
@@ -90,6 +98,8 @@ describe("Salesforce activity services", () => {
                         type: "task",
                         id: "00Txx0000012345",
                         subject: "Call",
+                        whoName: "Gonzalez Rose",
+                        whatName: "Edge Communications",
                         status: "Not Started"
                     }
                 ]
@@ -144,6 +154,75 @@ describe("Salesforce activity services", () => {
         expect(createStandardObjectMock).toHaveBeenCalledWith("Task", {
             Subject: "Call",
             Status: "Not Started",
+            WhatId: "001xx000003DGbY"
+        });
+    });
+
+    it("creates contact tasks with selected task lookups", async () => {
+        createStandardObjectMock.mockResolvedValue({
+            data: { id: "00Txx0000012345", success: true },
+            session
+        });
+
+        await createTaskActivity({
+            parentType: "contact",
+            parentId: "003xx000004TmiQ",
+            Subject: "Call",
+            ActivityDate: "2026-06-08",
+            OwnerId: "005xx0000012345",
+            WhatId: "001xx000003DGbY",
+            Status: "Not Started"
+        });
+
+        expect(createStandardObjectMock).toHaveBeenCalledWith("Task", {
+            Subject: "Call",
+            ActivityDate: "2026-06-08",
+            OwnerId: "005xx0000012345",
+            Status: "Not Started",
+            WhoId: "003xx000004TmiQ",
+            WhatId: "001xx000003DGbY"
+        });
+    });
+
+    it("updates task status", async () => {
+        updateStandardObjectMock.mockResolvedValue({
+            data: {},
+            session
+        });
+
+        await updateTaskActivity("00Txx0000012345", {
+            Status: "Completed"
+        });
+
+        expect(updateStandardObjectMock).toHaveBeenCalledWith("Task", "00Txx0000012345", {
+            Status: "Completed"
+        });
+    });
+
+    it("creates contact events with WhoId", async () => {
+        createStandardObjectMock.mockResolvedValue({
+            data: { id: "00Uxx0000012345", success: true },
+            session
+        });
+
+        await createEventActivity({
+            parentType: "contact",
+            parentId: "003xx000004TmiQ",
+            Subject: "Meeting",
+            StartDateTime: "2026-06-08T10:00:00.000Z",
+            EndDateTime: "2026-06-08T11:00:00.000Z",
+            OwnerId: "005xx0000012345",
+            WhatId: "001xx000003DGbY",
+            Location: "Online"
+        });
+
+        expect(createStandardObjectMock).toHaveBeenCalledWith("Event", {
+            Subject: "Meeting",
+            StartDateTime: "2026-06-08T10:00:00.000Z",
+            EndDateTime: "2026-06-08T11:00:00.000Z",
+            OwnerId: "005xx0000012345",
+            Location: "Online",
+            WhoId: "003xx000004TmiQ",
             WhatId: "001xx000003DGbY"
         });
     });

@@ -19,6 +19,7 @@ type RecordPageFrameProps<Record extends { Id: string }> = {
     activityRelatedName?: string;
     activityNameLookupOptions?: ActivityLookupOption[];
     activityRelatedLookupOptions?: ActivityLookupOption[];
+    assignedUserId?: string;
     assignedUserName?: string;
     loading: boolean;
     headerDetails: ReactNode;
@@ -38,6 +39,7 @@ function RecordPageFrame<Record extends { Id: string }>({
     activityRelatedName,
     activityNameLookupOptions,
     activityRelatedLookupOptions,
+    assignedUserId,
     assignedUserName,
     loading,
     headerDetails,
@@ -80,6 +82,7 @@ function RecordPageFrame<Record extends { Id: string }>({
                         parentId={record.Id}
                         parentName={title}
                         parentType={tab === "accounts" ? "account" : "contact"}
+                        assignedUserId={assignedUserId}
                         assignedUserName={assignedUserName}
                         nameLookupOptions={activityNameLookupOptions}
                         relatedContent={relatedContent}
@@ -124,6 +127,7 @@ function RecordDetailSection({ title, children }: { title: string; children: Rea
 
 export function AccountRecordPage({
     account,
+    assignedUserId,
     assignedUserName,
     contacts,
     loading,
@@ -133,6 +137,7 @@ export function AccountRecordPage({
     onRefresh
 }: {
     account: Account;
+    assignedUserId?: string;
     assignedUserName?: string;
     contacts: Contact[];
     loading: boolean;
@@ -162,6 +167,7 @@ export function AccountRecordPage({
             activityRelatedName={account.Name}
             activityNameLookupOptions={contactLookupOptions}
             activityRelatedLookupOptions={[accountLookupOption]}
+            assignedUserId={assignedUserId}
             assignedUserName={assignedUserName}
             loading={loading}
             onDelete={onDelete}
@@ -197,6 +203,7 @@ export function AccountRecordPage({
 }
 
 export function ContactRecordPage({
+    assignedUserId,
     assignedUserName,
     contact,
     loading,
@@ -205,6 +212,7 @@ export function ContactRecordPage({
     onOpenAccount,
     onRefresh
 }: {
+    assignedUserId?: string;
     assignedUserName?: string;
     contact: Contact;
     loading: boolean;
@@ -245,6 +253,7 @@ export function ContactRecordPage({
             activityRelatedName={contact.Account?.Name}
             activityNameLookupOptions={[contactLookupOption]}
             activityRelatedLookupOptions={relatedLookupOption ? [relatedLookupOption] : []}
+            assignedUserId={assignedUserId}
             assignedUserName={assignedUserName}
             loading={loading}
             onDelete={onDelete}

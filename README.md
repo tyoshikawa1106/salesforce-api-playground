@@ -39,6 +39,7 @@ Salesforce OAuth と REST API を試すための Next.js アプリです。
 - Account の一覧、作成、編集、削除
 - Contact の一覧、作成、編集、削除
 - Contact と Account の紐づけ
+- Account / Contact の活動タイムライン表示、ToDo / 行動の作成
 - Client Credentials Flow による連携用ユーザーでの Account 作成、更新 API
 - Salesforce Lightning Design System (SLDS) ベースの UI
 - ローディング、エラー、成功メッセージ

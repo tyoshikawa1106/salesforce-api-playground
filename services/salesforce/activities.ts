@@ -2,18 +2,24 @@ import type { SaveResult } from "jsforce";
 import type {
     ActivityParent,
     ActivityTimelineItem,
+    EventActivityInput,
     EventActivityRecord,
     TaskActivityInput,
+    TaskActivityUpdateInput,
     TaskActivityRecord
 } from "@/lib/salesforce/activities";
 import { withStandardObjectConnection } from "./client";
-import { createStandardObject } from "./object-mutations";
+import { createStandardObject, updateStandardObject } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
 const taskFields = [
     "Id",
     "Subject",
     "ActivityDate",
+    "WhoId",
+    "Who.Name",
+    "WhatId",
+    "What.Name",
     "Status",
     "Priority",
     "Description",
@@ -49,6 +55,10 @@ function toTaskItem(record: TaskActivityRecord): ActivityTimelineItem {
         id: record.Id,
         subject: record.Subject || "ToDo",
         date: record.ActivityDate,
+        whoId: record.WhoId,
+        whoName: record.Who?.Name,
+        whatId: record.WhatId,
+        whatName: record.What?.Name,
         status: record.Status,
         priority: record.Priority,
         description: record.Description,
@@ -105,11 +115,34 @@ export async function listActivities(parent: ActivityParent) {
 }
 
 export async function createTaskActivity(input: TaskActivityInput) {
-    const { parentId, parentType, ...fields } = input;
+    const { parentId, parentType, WhatId, WhoId, ...fields } = input;
+    const relationField = activityRelationField(parentType);
+    const relationFields = {
+        ...(relationField === "WhoId" ? { WhoId: parentId } : WhoId ? { WhoId } : {}),
+        ...(relationField === "WhatId" ? { WhatId: parentId } : WhatId ? { WhatId } : {})
+    };
 
     return createStandardObject("Task", {
         ...fields,
-        [activityRelationField(parentType)]: parentId
+        ...relationFields
+    });
+}
+
+export async function updateTaskActivity(id: string, input: TaskActivityUpdateInput) {
+    return updateStandardObject("Task", id, input);
+}
+
+export async function createEventActivity(input: EventActivityInput) {
+    const { parentId, parentType, WhatId, WhoId, ...fields } = input;
+    const relationField = activityRelationField(parentType);
+    const relationFields = {
+        ...(relationField === "WhoId" ? { WhoId: parentId } : WhoId ? { WhoId } : {}),
+        ...(relationField === "WhatId" ? { WhatId: parentId } : WhatId ? { WhatId } : {})
+    };
+
+    return createStandardObject("Event", {
+        ...fields,
+        ...relationFields
     });
 }
 

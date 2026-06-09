@@ -294,9 +294,11 @@ describe("playground UI smoke rendering", () => {
         expect(accountMarkup).toContain("詳細");
         expect(accountMarkup).toContain("関連");
         expect(accountMarkup).toContain("今後 &amp; 期限切れ");
-        expect(accountMarkup).toContain("条件: 常時・すべての活動・すべての種別");
-        expect(accountMarkup).toContain("すべての活動を表示");
-        expect(accountMarkup).toContain("表示する内容を変更するには、検索条件を変更してください。");
+        expect(accountMarkup).not.toContain("条件: 常時・すべての活動・すべての種別");
+        expect(accountMarkup).not.toContain("活動設定");
+        expect(accountMarkup).not.toContain("すべて表示");
+        expect(accountMarkup).not.toContain("すべての活動を表示");
+        expect(accountMarkup).not.toContain("表示する内容を変更するには、検索条件を変更してください。");
         expect(accountMarkup).toContain("slds-m-top_small playground-record-body");
         expect(accountMarkup).toContain("slds-tabs_default slds-tabs_card playground-record-tabs");
         expect(accountMarkup).toContain("slds-tabs_default__content slds-show slds-p-around_x-small");
@@ -312,6 +314,7 @@ describe("playground UI smoke rendering", () => {
         expect(contactMarkup).toContain("取引先");
         expect(contactMarkup).toContain("slds-button_reset slds-text-link");
         expect(contactMarkup).toContain("新規ToDo");
+        expect(contactMarkup).toContain("新規行動");
         expect(contactMarkup).toContain("今後 &amp; 期限切れ");
         expect(contactMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
         expect(contactMarkup).not.toContain("Chatter");
