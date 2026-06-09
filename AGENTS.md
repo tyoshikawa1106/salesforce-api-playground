@@ -51,6 +51,7 @@
 - エージェントは、ユーザーの明示的な依頼なしに Issue / PR を新規作成したり、既存 Issue / PR の対応関係を増やしたりしない。親 Issue の一部だけを実装する場合も、個別 Issue を作るか、親 Issue に `Closes` を付けるか、`Issue なし` とするかをユーザーに確認してから行う。
 - 通常開発では、開発完了時点でコミットせずに作業を止め、変更内容、未コミット差分、実行した確認、未実行の確認理由をユーザーへ報告する。
 - ユーザーが内容確認後に開発 OK またはコミット / PR 作成を明示した場合のみ、コミット、必要な確認コマンド、push、draft PR 作成、CI checks 確認、ready for review 化へ進む。
+- ユーザーが PR 作成を明示した時点で対応する Issue がない場合は、原則として PR 作成前に Issue を作成し、PR body に `Closes #<Issue番号>` を記載する。Issue を作らない例外が必要な場合は、PR 作成前にユーザーへ確認する。
 - Draft PR を作成した通常開発作業では、PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
 - 実装途中の共有や方針確認が目的の場合も draft PR を使う。
@@ -84,6 +85,7 @@
 - Release 作成後は、`Full Changelog` が `<前回tag>...<今回tag>` になっていることを確認する。比較元がずれている場合は Release notes 本文を修正し、公開済み tag は誤った commit を指している場合を除き動かさない。
 - PR 作成、更新、状態確認など GitHub 上の操作は GitHub Connector を優先する。CI / check の watch など不足する操作のみ `gh` を利用する。
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
+- branch 削除、`git update-ref`、`git pack-refs` など Git refs / index / lock を更新する操作は、対象と安全性を事前確認したうえで、sandbox の権限不足で失敗する可能性が高い場合は最初から権限昇格して実行する。sandbox で一度失敗させてから同じ操作を再実行する流れは避ける。
 - Codex の sandbox 内で `gh` が `error connecting to api.github.com` などのネットワーク制限由来のエラーになった場合は、同じコマンドを必要最小限の `prefix_rule` 付きで権限昇格して再実行する。権限昇格できない場合は、実行できなかった GitHub 操作と必要な手動操作を最終報告に明記する。
 - Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
 
