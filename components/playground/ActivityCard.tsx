@@ -893,7 +893,18 @@ function ActivityTimelineEntry({
                                 </>
                             )}
                         </p>
-                        {activity.description ? <p className="slds-m-horizontal_xx-small slds-m-top_xx-small">{activity.description}</p> : null}
+                        {expanded ? (
+                            <article className="slds-box slds-timeline__item_details slds-theme_shade slds-m-top_x-small slds-m-horizontal_xx-small">
+                                {!isTask ? (
+                                    <>
+                                        <p className="slds-text-title slds-m-bottom_xx-small">場所</p>
+                                        <p className="slds-text-body_regular slds-m-bottom_small">{activity.location}</p>
+                                    </>
+                                ) : null}
+                                <p className="slds-text-title slds-m-bottom_xx-small">説明</p>
+                                <p className="slds-text-body_regular playground-activity-timeline-item__description">{activity.description}</p>
+                            </article>
+                        ) : null}
                     </div>
                 </div>
             </div>
@@ -1086,6 +1097,13 @@ function EventDockedComposer({
                                 onChange={(Location) => onChange({ ...form, Location })}
                             />
                         </div>
+                        <div className="slds-form-element__row">
+                            <QuickActionLongTextInput
+                                label="説明"
+                                value={form.Description}
+                                onChange={(Description) => onChange({ ...form, Description })}
+                            />
+                        </div>
                     </div>
                 </div>
             </fieldset>
@@ -1253,6 +1271,13 @@ function TaskDockedComposer({
                                 onChange={(Status) => onChange({ ...form, Status })}
                             />
                         </div>
+                        <div className="slds-form-element__row">
+                            <QuickActionLongTextInput
+                                label="説明"
+                                value={form.Description}
+                                onChange={(Description) => onChange({ ...form, Description })}
+                            />
+                        </div>
                     </div>
                 </div>
             </fieldset>
@@ -1352,6 +1377,34 @@ function QuickActionTextInput({
                     onChange={(event) => onChange(event.target.value)}
                 />
                 <FieldError message={error} />
+            </div>
+        </div>
+    );
+}
+
+function QuickActionLongTextInput({
+    label,
+    onChange,
+    value
+}: {
+    label: string;
+    onChange: (value: string) => void;
+    value: string;
+}) {
+    const inputId = `activity-long-text-${label}`;
+
+    return (
+        <div className="slds-form-element slds-size_1-of-1">
+            <label className="slds-form-element__label" htmlFor={inputId}>{label}</label>
+            <div className="slds-form-element__control">
+                <textarea
+                    className="slds-textarea playground-task-composer__textarea"
+                    id={inputId}
+                    maxLength={32000}
+                    rows={4}
+                    value={value}
+                    onChange={(event) => onChange(event.target.value)}
+                />
             </div>
         </div>
     );
