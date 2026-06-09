@@ -52,6 +52,14 @@ type TaskStatusOverride = {
     previousStatus: string;
     status: string;
 };
+type ActivityComposerKind = "call" | "event" | "task";
+type ActivityComposerAction = {
+    icon: "event" | "task";
+    iconStyle: CSSProperties;
+    label: string;
+    onClick: () => void;
+    value: string;
+};
 
 export function ActivityCard({
     assignedUserName,
@@ -82,7 +90,7 @@ export function ActivityCard({
     const [eventFormErrors, setEventFormErrors] = useState<EventFormErrors>({});
     const [taskForm, setTaskForm] = useState<TaskForm>(() => getDefaultTaskForm());
     const [taskFormErrors, setTaskFormErrors] = useState<TaskFormErrors>({});
-    const [activeComposer, setActiveComposer] = useState<"call" | "event" | "task" | null>(null);
+    const [activeComposer, setActiveComposer] = useState<ActivityComposerKind | null>(null);
     const [composerExpanded, setComposerExpanded] = useState(false);
     const [composerMinimized, setComposerMinimized] = useState(false);
     const [taskStatusOverrides, setTaskStatusOverrides] = useState<Record<string, TaskStatusOverride>>({});
@@ -169,6 +177,31 @@ export function ActivityCard({
         }
     }, [activeTab, loadActivities]);
 
+    function closeComposer() {
+        setActiveComposer(null);
+        setComposerExpanded(false);
+        setComposerMinimized(false);
+        setActivityLookups(defaultTaskLookups);
+        setEventFormErrors({});
+        setTaskFormErrors({});
+    }
+
+    function openComposer(composer: ActivityComposerKind) {
+        setActivityLookups(defaultTaskLookups);
+        setComposerMinimized(false);
+        if (composer === "event") {
+            setEventForm(getDefaultEventForm());
+        } else {
+            setTaskForm(composer === "call" ? getDefaultLoggedCallTaskForm() : getDefaultTaskForm());
+        }
+        setActiveComposer(composer);
+    }
+
+    function completeComposerSave(message: string) {
+        closeComposer();
+        setActivityMessage(message);
+    }
+
     async function saveTask(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const validationErrors = validateTaskForm(taskForm, activityLookups.assigned?.label);
@@ -192,12 +225,7 @@ export function ActivityCard({
                 })
             );
             setTaskForm(getDefaultTaskForm());
-            setActivityLookups(defaultTaskLookups);
-            setTaskFormErrors({});
-            setActiveComposer(null);
-            setComposerExpanded(false);
-            setComposerMinimized(false);
-            setActivityMessage(activeComposer === "call" ? "電話を記録しました。" : "ToDo を作成しました。");
+            completeComposerSave(activeComposer === "call" ? "電話を記録しました。" : "ToDo を作成しました。");
             await loadActivities();
         } catch (error) {
             setActivityMessage(error instanceof Error ? error.message : "ToDo の作成に失敗しました。");
@@ -264,12 +292,7 @@ export function ActivityCard({
                 })
             );
             setEventForm(getDefaultEventForm());
-            setActivityLookups(defaultTaskLookups);
-            setEventFormErrors({});
-            setActiveComposer(null);
-            setComposerExpanded(false);
-            setComposerMinimized(false);
-            setActivityMessage("行動を作成しました。");
+            completeComposerSave("行動を作成しました。");
             await loadActivities();
         } catch (error) {
             setActivityMessage(error instanceof Error ? error.message : "行動の作成に失敗しました。");
@@ -336,32 +359,10 @@ export function ActivityCard({
                             composerMinimized={composerMinimized}
                             taskFormErrors={taskFormErrors}
                             saving={savingActivity}
-                            onCloseComposer={() => {
-                                setActiveComposer(null);
-                                setComposerExpanded(false);
-                                setComposerMinimized(false);
-                                setActivityLookups(defaultTaskLookups);
-                                setEventFormErrors({});
-                                setTaskFormErrors({});
-                            }}
-                            onOpenEventComposer={() => {
-                                setActivityLookups(defaultTaskLookups);
-                                setEventForm(getDefaultEventForm());
-                                setActiveComposer("event");
-                                setComposerMinimized(false);
-                            }}
-                            onOpenTaskComposer={() => {
-                                setActivityLookups(defaultTaskLookups);
-                                setTaskForm(getDefaultTaskForm());
-                                setActiveComposer("task");
-                                setComposerMinimized(false);
-                            }}
-                            onOpenCallComposer={() => {
-                                setActivityLookups(defaultTaskLookups);
-                                setTaskForm(getDefaultLoggedCallTaskForm());
-                                setActiveComposer("call");
-                                setComposerMinimized(false);
-                            }}
+                            onCloseComposer={closeComposer}
+                            onOpenEventComposer={() => openComposer("event")}
+                            onOpenTaskComposer={() => openComposer("task")}
+                            onOpenCallComposer={() => openComposer("call")}
                             onRefresh={loadActivities}
                             onSaveEvent={saveEvent}
                             onSaveTask={saveTask}
@@ -437,7 +438,7 @@ function ActivityPanel({
     onToggleComposerExpanded,
     onToggleComposerMinimized
 }: {
-    activeComposer: "call" | "event" | "task" | null;
+    activeComposer: ActivityComposerKind | null;
     activities: ActivityTimelineItem[];
     composerExpanded: boolean;
     composerMinimized: boolean;
@@ -604,80 +605,40 @@ function ActivityComposerBar({
         "--sds-c-icon-color-background": "var(--slds-c-icon-color-background, rgb(84, 105, 141))"
     } as CSSProperties;
 
+    const actions: ActivityComposerAction[] = [
+        { icon: "task", iconStyle: callIconStyle, label: "電話を記録", onClick: onOpenCall, value: "LogCall" },
+        { icon: "task", iconStyle: taskIconStyle, label: "新規ToDo", onClick: onOpenTask, value: "NewTask" },
+        { icon: "event", iconStyle: eventIconStyle, label: "新規行動", onClick: onOpenEvent, value: "NewEvent" }
+    ];
+
     return (
         <ul className="slds-button-group-row playground-activity-composer-bar" aria-label="活動作成">
-            <li className="slds-button-group-item">
-                <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label="電話を記録" part="button-group">
-                    <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label="電話を記録" title="電話を記録" value="LogCall" onClick={onOpenCall}>
-                        <span className="slds-icon-standard-task slds-icon_container playground-activity-composer-action__icon" title="電話を記録">
-                            <span className="playground-activity-composer-action__icon-boundary" style={callIconStyle}>
-                                <StandardIcon className="slds-icon slds-icon_small" name="task" />
+            {actions.map((action) => (
+                <li className="slds-button-group-item" key={action.value}>
+                    <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label={action.label} part="button-group">
+                        <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label={action.label} title={action.label} value={action.value} onClick={action.onClick}>
+                            <span className={`slds-icon-standard-${action.icon} slds-icon_container playground-activity-composer-action__icon`} title={action.label}>
+                                <span className="playground-activity-composer-action__icon-boundary" style={action.iconStyle}>
+                                    <StandardIcon className="slds-icon slds-icon_small" name={action.icon} />
+                                </span>
+                                <span className="slds-assistive-text">{action.label}</span>
                             </span>
-                            <span className="slds-assistive-text">電話を記録</span>
-                        </span>
-                        <span className="hidden playground-activity-composer-action__label" aria-hidden="true">電話を記録</span>
-                    </button>
-                    <button
-                        className="slds-button slds-button_icon-border-filled fix-slds-button_icon-border-filled slds-button_last playground-activity-composer-action__menu"
-                        type="button"
-                        aria-expanded="false"
-                        aria-haspopup="true"
-                        title="追加の 電話を記録 アクションはありません"
-                        disabled
-                    >
-                        <UtilityIcon className="slds-button__icon" name="down" />
-                        <span className="slds-assistive-text">追加の 電話を記録 アクションはありません</span>
-                    </button>
-                </div>
-            </li>
-            <li className="slds-button-group-item">
-                <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label="新規ToDo" part="button-group">
-                    <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label="新規ToDo" title="新規ToDo" value="NewTask" onClick={onOpenTask}>
-                        <span className="slds-icon-standard-task slds-icon_container playground-activity-composer-action__icon" title="新規ToDo">
-                            <span className="playground-activity-composer-action__icon-boundary" style={taskIconStyle}>
-                                <StandardIcon className="slds-icon slds-icon_small" name="task" />
-                            </span>
-                            <span className="slds-assistive-text">新規ToDo</span>
-                        </span>
-                        <span className="hidden playground-activity-composer-action__label" aria-hidden="true">新規ToDo</span>
-                    </button>
-                    <button
-                        className="slds-button slds-button_icon-border-filled fix-slds-button_icon-border-filled slds-button_last playground-activity-composer-action__menu"
-                        type="button"
-                        aria-expanded="false"
-                        aria-haspopup="true"
-                        title="追加の 新規ToDo アクションはありません"
-                        disabled
-                    >
-                        <UtilityIcon className="slds-button__icon" name="down" />
-                        <span className="slds-assistive-text">追加の 新規ToDo アクションはありません</span>
-                    </button>
-                </div>
-            </li>
-            <li className="slds-button-group-item">
-                <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label="新規行動" part="button-group">
-                    <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label="新規行動" title="新規行動" value="NewEvent" onClick={onOpenEvent}>
-                        <span className="slds-icon-standard-event slds-icon_container playground-activity-composer-action__icon" title="新規行動">
-                            <span className="playground-activity-composer-action__icon-boundary" style={eventIconStyle}>
-                                <StandardIcon className="slds-icon slds-icon_small" name="event" />
-                            </span>
-                            <span className="slds-assistive-text">新規行動</span>
-                        </span>
-                        <span className="hidden playground-activity-composer-action__label" aria-hidden="true">新規行動</span>
-                    </button>
-                    <button
-                        className="slds-button slds-button_icon-border-filled fix-slds-button_icon-border-filled slds-button_last playground-activity-composer-action__menu"
-                        type="button"
-                        aria-expanded="false"
-                        aria-haspopup="true"
-                        title="追加の 新規行動 アクションはありません"
-                        disabled
-                    >
-                        <UtilityIcon className="slds-button__icon" name="down" />
-                        <span className="slds-assistive-text">追加の 新規行動 アクションはありません</span>
-                    </button>
-                </div>
-            </li>
+                            <span className="hidden playground-activity-composer-action__label" aria-hidden="true">{action.label}</span>
+                        </button>
+                        <button
+                            className="slds-button slds-button_icon-border-filled fix-slds-button_icon-border-filled slds-button_last playground-activity-composer-action__menu"
+                            type="button"
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                            title={`追加の ${action.label} アクションはありません`}
+                            disabled
+                        >
+                            <UtilityIcon className="slds-button__icon" name="down" />
+                            <span className="slds-assistive-text">追加の {action.label} アクションはありません</span>
+                        </button>
+                    </div>
+                </li>
+            ))}
         </ul>
     );
 }
