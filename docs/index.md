@@ -11,9 +11,6 @@
 ### 開発
 
 - [セットアップ](setup/)
-
-### 運用
-
 - [運用](operations/)
 - [デプロイ](deployment/)
 
