@@ -71,7 +71,8 @@
 - ユーザーが「目標を設定します」と明示した連続作業では、作業開始時に Codex の目標機能を開始し、完了時に目標を complete にして token 使用量と経過時間を報告する。目標機能を利用できない場合は、その理由を最終報告に記載する。
 - 複数 Issue を連続対応する場合、Issue / PR は内容やリスクが近いものを可能な範囲でまとめ、PR 数を増やしすぎない。ユーザーが順番実装や個別 PR を明示した場合はその指示を優先する。
 - 複数 Issue / PR を連続対応する場合、GitHub API / CLI の取得項目は必要最小限に絞る。`gh pr view` は原則 `state,isDraft,mergeStateStatus,url,headRefName,baseRefName` などに限定し、Issue / PR / checks の本文や check 一覧を繰り返し全文取得しない。
-- Project 追加状況を確認する場合は、対象 Issue / PR の番号または URL に絞って取得する。`gh project item-list` を使う場合も `--jq` などで対象 item だけを抽出し、Project 全件の本文、label、linked PR などをまとめて出力しない。
+- Project 追加状況を確認する場合は、対象 Issue / PR の番号、URL、node ID から対象 item だけを直接確認する。出力だけでなく取得範囲も対象に限定し、Project 全件またはそれに近い件数を取得してから `--jq` で絞り込む確認は行わない。
+- `gh project item-list` は Project 全体の一覧取得になりやすいため、Project 追加確認には原則使わない。対象 item を直接確認できない場合は、`gh project item-add 1 --owner @me --url <URL>` の成功結果を記録し、最終報告または PR 本文に「Project 追加コマンドは成功、一覧での厳密確認は未実施」と明記する。
 - `gh pr checks --watch` で pass を確認した後は、同じ PR の checks を何度も再取得しない。最終確認は required checks の pass、draft 解除、merge 済み状態など、判断に必要な項目だけ確認する。
 - Project へ手動追加する場合は、user Project では `gh project item-add 1 --owner @me --url <URL>` を優先し、owner 指定の試行錯誤を避ける。
 - Issue / PR 本文は具体性を保ちつつ簡潔に書く。対象、現状、リスク、対応内容、確認結果は残すが、同じ背景やチェック説明を複数箇所で長く重複させない。
