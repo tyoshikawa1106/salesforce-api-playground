@@ -110,11 +110,15 @@ async function readActivityBody(request: JsonRequest): Promise<Record<string, un
     return body;
 }
 
-function readActivityLookupIds(body: Record<string, unknown>) {
-    const OwnerId = readOptionalString(body, "OwnerId");
-    const WhoId = readOptionalString(body, "WhoId");
-    const WhatId = readOptionalString(body, "WhatId");
-
+function assertActivityLookupIds({
+    OwnerId,
+    WhoId,
+    WhatId
+}: {
+    OwnerId?: string | null;
+    WhoId?: string | null;
+    WhatId?: string | null;
+}) {
     if (OwnerId) {
         assertSalesforceRecordId(OwnerId, "User");
     }
@@ -126,6 +130,14 @@ function readActivityLookupIds(body: Record<string, unknown>) {
     if (WhatId) {
         assertSalesforceRecordIdFormat(WhatId, "What");
     }
+}
+
+function readActivityLookupIds(body: Record<string, unknown>) {
+    const OwnerId = readOptionalString(body, "OwnerId");
+    const WhoId = readOptionalString(body, "WhoId");
+    const WhatId = readOptionalString(body, "WhatId");
+
+    assertActivityLookupIds({ OwnerId, WhoId, WhatId });
 
     return {
         ...(OwnerId ? { OwnerId } : {}),
@@ -139,17 +151,7 @@ function readActivityLookupUpdateIds(body: Record<string, unknown>) {
     const WhoId = readOptionalNullableString(body, "WhoId");
     const WhatId = readOptionalNullableString(body, "WhatId");
 
-    if (OwnerId) {
-        assertSalesforceRecordId(OwnerId, "User");
-    }
-
-    if (WhoId) {
-        assertSalesforceRecordIdForAnyObject(WhoId, ["Contact", "Lead"], "Who");
-    }
-
-    if (WhatId) {
-        assertSalesforceRecordIdFormat(WhatId, "What");
-    }
+    assertActivityLookupIds({ OwnerId, WhoId, WhatId });
 
     return {
         ...(OwnerId !== undefined ? { OwnerId } : {}),
