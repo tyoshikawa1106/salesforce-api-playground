@@ -1,18 +1,13 @@
 "use client";
 
-import { type KeyboardEvent, useEffect, useRef, useState } from "react";
-import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-api";
-import { apiRequest } from "./api";
-import {
-    getLookupApiObject,
-    getLookupObjectLabel,
-    type ActivityLookupApiResponse,
-    type ActivityLookupOption,
-    type LookupObjectLabel,
-    type RemoteLookupObjectLabel
+import type {
+    ActivityLookupOption,
+    RemoteLookupObjectLabel
 } from "./activity-task-form";
 import { FieldError } from "./ActivityFieldErrorsAndInputs";
+import { getLookupIconMeta } from "./activity-lookup-icons";
 import { StandardIcon, UtilityIcon } from "./SldsIcon";
+import { useQuickActionLookupState } from "./useQuickActionLookupState";
 
 export function QuickActionLookup({
     error,
@@ -33,115 +28,24 @@ export function QuickActionLookup({
     required?: boolean;
     value?: ActivityLookupOption;
 }) {
-    const [open, setOpen] = useState(false);
-    const [query, setQuery] = useState("");
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [remoteMessage, setRemoteMessage] = useState("");
-    const [remoteOptions, setRemoteOptions] = useState<ActivityLookupOption[] | null>(null);
-    const [loadingOptions, setLoadingOptions] = useState(false);
-    const requestIdRef = useRef(0);
-    const lookupObject = getLookupApiObject(objectLabel);
+    const {
+        activeIndex,
+        changeQuery,
+        clearValue,
+        filteredOptions,
+        handleKeyDown,
+        loadingOptions,
+        open,
+        query,
+        remoteMessage,
+        selectOption,
+        setActiveIndex,
+        setOpen
+    } = useQuickActionLookupState({ objectLabel, onChange, options, value });
     const { iconClassName, iconName } = getLookupIconMeta(objectLabel);
-    const availableOptions = remoteOptions ?? options;
-    const filteredOptions = availableOptions.filter((option) => {
-        const normalizedQuery = query.trim().toLowerCase();
-        if (!normalizedQuery) {
-            return true;
-        }
-
-        return [option.label, option.meta].some((text) => text?.toLowerCase().includes(normalizedQuery));
-    });
     const listboxId = objectLabel === "取引先" ? "task-related-account-listbox" : objectLabel === "取引先責任者" ? "task-name-contact-listbox" : "task-assigned-user-listbox";
     const inputId = `${listboxId}-input`;
     const activeOptionId = filteredOptions[activeIndex] ? `${listboxId}-option-${filteredOptions[activeIndex].id}` : undefined;
-
-    useEffect(() => {
-        if (!open || value) {
-            return;
-        }
-
-        const requestId = requestIdRef.current + 1;
-        requestIdRef.current = requestId;
-        setLoadingOptions(true);
-        setRemoteMessage("");
-
-        const timeoutId = window.setTimeout(() => {
-            apiRequest<ActivityLookupApiResponse>(
-                buildPlaygroundApiRequest(playgroundApiPaths.activityLookups(lookupObject, query))
-            )
-                .then((data) => {
-                    if (requestIdRef.current !== requestId) {
-                        return;
-                    }
-
-                    setRemoteOptions(data.options.map((option) => ({
-                        id: option.id,
-                        label: option.label,
-                        meta: option.meta,
-                        objectLabel: getLookupObjectLabel(option.object)
-                    })));
-                })
-                .catch((error) => {
-                    if (requestIdRef.current !== requestId) {
-                        return;
-                    }
-
-                    setRemoteOptions([]);
-                    setRemoteMessage(error instanceof Error ? error.message : "候補を取得できませんでした。");
-                })
-                .finally(() => {
-                    if (requestIdRef.current === requestId) {
-                        setLoadingOptions(false);
-                    }
-                });
-        }, query.trim() ? 250 : 0);
-
-        return () => window.clearTimeout(timeoutId);
-    }, [lookupObject, open, query, value]);
-
-    useEffect(() => {
-        setActiveIndex((current) => Math.min(current, Math.max(filteredOptions.length - 1, 0)));
-    }, [filteredOptions.length]);
-
-    function selectOption(option: ActivityLookupOption) {
-        onChange(option);
-        setQuery("");
-        setOpen(false);
-    }
-
-    function clearValue() {
-        onChange(undefined);
-        setQuery("");
-        setActiveIndex(0);
-        setRemoteOptions(null);
-        setOpen(false);
-    }
-
-    function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-        if (event.key === "ArrowDown") {
-            event.preventDefault();
-            setOpen(true);
-            setActiveIndex((current) => Math.min(current + 1, Math.max(filteredOptions.length - 1, 0)));
-            return;
-        }
-
-        if (event.key === "ArrowUp") {
-            event.preventDefault();
-            setOpen(true);
-            setActiveIndex((current) => Math.max(current - 1, 0));
-            return;
-        }
-
-        if (event.key === "Enter" && open && filteredOptions[activeIndex]) {
-            event.preventDefault();
-            selectOption(filteredOptions[activeIndex]);
-            return;
-        }
-
-        if (event.key === "Escape") {
-            setOpen(false);
-        }
-    }
 
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
@@ -196,11 +100,7 @@ export function QuickActionLookup({
                                     autoComplete="off"
                                     aria-invalid={Boolean(error)}
                                     value={query}
-                                    onChange={(event) => {
-                                        setQuery(event.target.value);
-                                        setActiveIndex(0);
-                                        setOpen(true);
-                                    }}
+                                    onChange={(event) => changeQuery(event.target.value)}
                                     onClick={() => setOpen(true)}
                                     onFocus={() => setOpen(true)}
                                     onKeyDown={handleKeyDown}
@@ -270,32 +170,4 @@ export function QuickActionLookup({
             </div>
         </div>
     );
-}
-
-function getLookupIconMeta(objectLabel: LookupObjectLabel) {
-    if (objectLabel === "取引先") {
-        return { iconClassName: "slds-icon-standard-account", iconName: "account" as const };
-    }
-
-    if (objectLabel === "ケース") {
-        return { iconClassName: "slds-icon-standard-case", iconName: "account" as const };
-    }
-
-    if (objectLabel === "商談") {
-        return { iconClassName: "slds-icon-standard-opportunity", iconName: "account" as const };
-    }
-
-    if (objectLabel === "リード") {
-        return { iconClassName: "slds-icon-standard-lead", iconName: "contact" as const };
-    }
-
-    if (objectLabel === "取引先責任者") {
-        return { iconClassName: "slds-icon-standard-contact", iconName: "contact" as const };
-    }
-
-    if (objectLabel === "ユーザー") {
-        return { iconClassName: "slds-icon-standard-user", iconName: "user" as const };
-    }
-
-    return { iconClassName: "slds-icon-standard-record", iconName: "account" as const };
 }
