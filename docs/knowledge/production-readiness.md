@@ -15,7 +15,7 @@
 | 開発フロー | GitHub Flow、Issue / PR、Draft PR、CI pass 後の ready for review |
 | 品質ゲート | lint、SLDS lint、typecheck、Vitest coverage、build、workflow YAML check |
 | デプロイ運用 | GitHub `main` merge 後の Staging 自動デプロイ、Production promote を前提にした Heroku Pipeline 運用 |
-| ドキュメント | README を入口にし、設計、セットアップ、セキュリティ、運用、個人ナレッジを `docs` に整理する構成 |
+| ドキュメント | README を入口にし、設計、セットアップ、セキュリティ、運用、開発ナレッジを `docs` に整理する構成 |
 
 ## 業務本番化するときの検討観点
 
