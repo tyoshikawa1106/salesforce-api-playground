@@ -1,6 +1,6 @@
 # Salesforce API Playground
 
-## メニュー
+## ドキュメント
 
 ### 仕様書
 
