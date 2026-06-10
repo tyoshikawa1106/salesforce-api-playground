@@ -20,7 +20,7 @@
 4. 検証用データを作成 / 削除できる Salesforce 組織を使う。本番組織の実データでは確認しない。
 5. `npm run dev` でローカルアプリを起動し、`http://localhost:3000` を開く。
 
-設定の詳細は [ローカル開発](local-development.md)、[OAuth フロー](../security/oauth-flow.md)、[Integration ユーザー設定](salesforce-integration-client-credentials.md) を参照してください。
+設定の詳細は [ローカル開発](local-development.md)、[接続と認証](../api/auth.md)、[Integration ユーザー設定](salesforce-integration-client-credentials.md) を参照してください。
 
 ## OAuth login / logout チェックリスト
 
@@ -125,4 +125,4 @@ curl 例は [Integration ユーザー設定](salesforce-integration-client-crede
 ## 確認後の扱い
 
 - 確認で作成した Account / Contact は、確認後に削除する。
-- 実行結果やトラブルの記録方針は [困ったとき](../operations/troubleshooting.md) を参照する。
+- 実行結果や追加確認が必要な内容は PR 本文または Issue コメントに記録する。
