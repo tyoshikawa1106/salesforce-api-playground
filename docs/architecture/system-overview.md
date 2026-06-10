@@ -155,7 +155,7 @@ Salesforce API version は環境変数ではなく、`lib/salesforce/api-version
 
 ## 補足
 
-- Salesforce 組織ごとの validation rule、権限、参照整合性、必須項目追加による挙動は、組織設定に依存します。API エラー表示方針と rate limit 方針は [API](../api/api-overview.md) と [困ったとき](../operations/troubleshooting.md) を参照。
+- Salesforce 組織ごとの validation rule、権限、参照整合性、必須項目追加による挙動は、組織設定に依存します。API の共通事項は [共通事項](../api/common.md) と [困ったとき](../operations/troubleshooting.md) を参照。
 - `organizationId` は OAuth token response の `id` URL から session に保存します。レスポンスや API 呼び出しには使用していません。
 - 環境ラベルの表示判定は [環境ラベル](environment-label.md) を参照。
 - Heroku Pipeline、release と GitHub merge commit の対応、dyno 起動状態、ロールバック手順の確認観点は [Heroku デプロイ](../deployment/heroku.md) を参照。
