@@ -11,7 +11,7 @@ import {
     QuickActionSubjectCombobox,
     QuickActionTextInput,
     TaskFormErrorSummary
-} from "./ActivityCard";
+} from "./ActivityQuickActionFields";
 import { validateEventForm, validateTaskForm } from "./activity-task-form";
 import {
     AccountFormFields,
