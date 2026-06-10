@@ -32,7 +32,7 @@ curl -X PATCH http://localhost:3000/api/integration/accounts/001000000000001 \
     -d '{"Phone":"03-1234-5678"}'
 ```
 
-連携タブから取引先を作成する:
+連携から取引先を作成する:
 
 ```bash
 curl -X POST http://localhost:3000/api/integration/ui/accounts \
