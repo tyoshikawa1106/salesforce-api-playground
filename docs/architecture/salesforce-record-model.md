@@ -130,4 +130,4 @@ Account / Contact の許可フィールド、入力正規化、SOQL / SOSL、ID 
 | SOQL / SOSL 取得項目 | `services/salesforce/records.ts`, `services/salesforce/records.test.ts`, API response 型 |
 | ID 検証 | `lib/salesforce/request-security.ts`, `lib/salesforce/request-security.test.ts`, Route テスト |
 | Integration API | `app/api/integration-routes.test.ts`, [Integration ユーザー設定](../setup/salesforce-integration-client-credentials.md) |
-| UI 表示 | [Playground UI 操作フロー](playground-ui-flows.md), [Salesforce での確認](../setup/salesforce-manual-verification.md) |
+| UI 表示 | [画面](../ui/), [Salesforce での確認](../setup/salesforce-manual-verification.md) |

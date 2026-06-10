@@ -1,3 +1,3 @@
 ## API
 
-- [API](api-overview.md)
+- [API 一覧](api-overview.md)
