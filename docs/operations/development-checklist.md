@@ -30,11 +30,11 @@ git switch -c codex/<作業内容>
 
 | 変更種別 | 主に確認する実装 | あわせて確認する docs |
 | --- | --- | --- |
-| OAuth / session / Cookie | `app/api/auth/*`, `lib/salesforce/session.ts`, `lib/salesforce/client.ts` | [OAuth フロー](../security/oauth-flow.md), [秘密情報](../security/secret-handling.md), [API](../api/api-overview.md) |
-| URL / XSS 境界 | `lib/playground-api.ts`, `lib/salesforce/url-security.ts`, URL を生成する UI / API 実装 | [OAuth フロー](../security/oauth-flow.md), [秘密情報](../security/secret-handling.md), [API](../api/api-overview.md) |
-| Account / Contact API | `app/api/accounts`, `app/api/contacts`, `services/salesforce/records.ts` | [API](../api/api-overview.md), [API Route](../architecture/api-route-structure.md), [Salesforce レコードモデル](../architecture/salesforce-record-model.md) |
+| OAuth / session / Cookie | `app/api/auth/*`, `lib/salesforce/session.ts`, `lib/salesforce/client.ts` | [OAuth フロー](../security/oauth-flow.md), [秘密情報](../security/secret-handling.md), [接続と認証](../api/auth.md) |
+| URL / XSS 境界 | `lib/playground-api.ts`, `lib/salesforce/url-security.ts`, URL を生成する UI / API 実装 | [OAuth フロー](../security/oauth-flow.md), [秘密情報](../security/secret-handling.md), [共通事項](../api/common.md) |
+| Account / Contact API | `app/api/accounts`, `app/api/contacts`, `services/salesforce/records.ts` | [取引先](../api/accounts.md), [取引先責任者](../api/contacts.md), [API Route](../architecture/api-route-structure.md), [Salesforce レコードモデル](../architecture/salesforce-record-model.md) |
 | 入力検証 / 許可フィールド | `lib/salesforce/request-payloads.ts`, `lib/salesforce/record-fields.ts` | [Salesforce レコードモデル](../architecture/salesforce-record-model.md), [Salesforce での確認](../setup/salesforce-manual-verification.md) |
-| Integration API | `app/api/integration`, `lib/salesforce/integration-security.ts`, `lib/salesforce/client.ts` | [Integration ユーザー設定](../setup/salesforce-integration-client-credentials.md), [API](../api/api-overview.md) |
+| Integration API | `app/api/integration`, `lib/salesforce/integration-security.ts`, `lib/salesforce/client.ts` | [Integration ユーザー設定](../setup/salesforce-integration-client-credentials.md), [連携](../api/integration.md) |
 | UI / SLDS | `components/Playground.tsx`, `components/playground`, `app/globals.css` | [画面](../ui/), [Salesforce での確認](../setup/salesforce-manual-verification.md) |
 | Salesforce 手動確認 | 実 Salesforce 接続後の OAuth / Account / Contact / Integration 操作 | [Salesforce での確認](../setup/salesforce-manual-verification.md), [困ったとき](troubleshooting.md) |
 | 環境ラベル | `lib/environment-label.ts`, UI 表示箇所 | [環境ラベル](../architecture/environment-label.md), [ローカル開発](../setup/local-development.md), [Heroku デプロイ](../deployment/heroku.md) |
