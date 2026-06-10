@@ -3,7 +3,9 @@ import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { ActivityLookupState, EventForm, TaskForm } from "./activity-task-form";
 import {
     validateEventForm,
-    validateTaskForm
+    validateTaskForm,
+    type EventFormErrors,
+    type TaskFormErrors
 } from "./activity-task-form";
 import {
     accountTextFields,
@@ -51,8 +53,41 @@ type SaveRecordFormOptions = {
     fallbackErrorMessage: string;
 };
 
+type ActivitySaveRequest = {
+    form: EventForm | TaskForm;
+    modal: Extract<ModalState, { type: "activity" }>;
+    validationErrors: EventFormErrors | TaskFormErrors;
+};
+
 const accountNameRequiredMessage = getRequiredFieldMessage(accountTextFields, "Name");
 const contactLastNameRequiredMessage = getRequiredFieldMessage(contactTextFields, "LastName");
+
+export function getActivitySaveRequest({
+    activityLookups,
+    eventForm,
+    modal,
+    taskForm
+}: {
+    activityLookups: ActivityLookupState;
+    eventForm: EventForm;
+    modal: ModalState | null;
+    taskForm: TaskForm;
+}): ActivitySaveRequest | null {
+    if (modal?.type !== "activity") {
+        return null;
+    }
+
+    const isTask = modal.record.type === "task";
+    const validationErrors = isTask
+        ? validateTaskForm(taskForm, activityLookups.assigned?.label)
+        : validateEventForm(eventForm, activityLookups.assigned?.label);
+
+    return {
+        form: isTask ? taskForm : eventForm,
+        modal,
+        validationErrors
+    };
+}
 
 export function useRecordMutationActions({
     accountForm,
@@ -121,29 +156,31 @@ export function useRecordMutationActions({
 
     async function saveActivity(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (modal?.type !== "activity") {
+
+        const activitySave = getActivitySaveRequest({
+            activityLookups,
+            eventForm,
+            modal,
+            taskForm
+        });
+        if (!activitySave) {
             return;
         }
 
-        const isTask = modal.record.type === "task";
-        const validationErrors = isTask
-            ? validateTaskForm(taskForm, activityLookups.assigned?.label)
-            : validateEventForm(eventForm, activityLookups.assigned?.label);
-
-        if (Object.keys(validationErrors).length > 0) {
+        if (Object.keys(activitySave.validationErrors).length > 0) {
             showNotice({ tone: "error", message: "活動の必須項目を入力してください。" });
             return;
         }
 
         await runMutationWithNotice({
-            runMutation: () => saveActivityMutation(modal, isTask ? taskForm : eventForm, activityLookups),
+            runMutation: () => saveActivityMutation(activitySave.modal, activitySave.form, activityLookups),
             fallbackErrorMessage: "活動の保存に失敗しました。",
             setSaving,
             showNotice,
             onSuccess: async () => {
                 setModal(null);
                 if (onActivitySaved) {
-                    await onActivitySaved(modal.record);
+                    await onActivitySaved(activitySave.modal.record);
                 } else {
                     await loadAll();
                 }
