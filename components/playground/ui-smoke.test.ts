@@ -433,8 +433,8 @@ describe("playground UI smoke rendering", () => {
             })
         );
 
-        expect(markup).toContain("title=\"リストビュー\"");
-        expect(markup).toContain("リストビュー");
+        expect(markup).toContain("title=\"一覧\"");
+        expect(markup).toContain("一覧");
         expect(markup).toContain("slds-button slds-button_neutral");
         expect(markup).toContain(">新規</button>");
         expect(markup).not.toContain("新規取引先");

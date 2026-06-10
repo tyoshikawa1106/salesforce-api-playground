@@ -8,7 +8,7 @@
 
 | API | 用途 |
 | --- | --- |
-| `GET /api/contacts` | 取引先責任者リストビューを表示する |
+| `GET /api/contacts` | 取引先責任者一覧を表示する |
 | `POST /api/contacts` | 取引先責任者を作成する |
 | `PATCH /api/contacts/[id]` | 取引先責任者を更新する |
 | `DELETE /api/contacts/[id]` | 取引先責任者を1件削除する |

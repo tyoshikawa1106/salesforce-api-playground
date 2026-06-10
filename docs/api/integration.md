@@ -10,7 +10,7 @@
 | --- | --- |
 | `POST /api/integration/accounts` | サーバー間連携で取引先を作成する |
 | `PATCH /api/integration/accounts/[id]` | サーバー間連携で取引先を更新する |
-| `POST /api/integration/ui/accounts` | 連携タブの画面から取引先を作成する |
+| `POST /api/integration/ui/accounts` | 連携から取引先を作成する |
 
 ## 実行例
 

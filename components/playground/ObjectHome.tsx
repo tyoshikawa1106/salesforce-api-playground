@@ -17,7 +17,7 @@ export function ObjectHomeHeader({
         <PageHeader
             tab={activeTab}
             eyebrow={objectLabel}
-            title="リストビュー"
+            title="一覧"
             className="slds-page-header_object-home slds-page-header_joined"
             actions={
                 <>

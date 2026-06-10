@@ -8,7 +8,7 @@
 
 | API | 用途 |
 | --- | --- |
-| `GET /api/accounts` | 取引先リストビューを表示する |
+| `GET /api/accounts` | 取引先一覧を表示する |
 | `POST /api/accounts` | 取引先を作成する |
 | `PATCH /api/accounts/[id]` | 取引先を更新する |
 | `DELETE /api/accounts/[id]` | 取引先を1件削除する |
