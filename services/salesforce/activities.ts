@@ -13,6 +13,9 @@ import { withStandardObjectConnection } from "./client";
 import { createStandardObject, deleteStandardObject, updateStandardObject } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
+type ActivityObjectName = "Task" | "Event";
+type ActivityCreateInput = TaskActivityInput | EventActivityInput;
+
 const taskFields = [
     "Id",
     "Subject",
@@ -66,6 +69,31 @@ function buildActivityRelationFields({
     return {
         ...(relationField === "WhoId" ? { WhoId: parentId } : WhoId ? { WhoId } : {}),
         ...(relationField === "WhatId" ? { WhatId: parentId } : WhatId ? { WhatId } : {})
+    };
+}
+
+function buildActivityCreateFields<TInput extends ActivityCreateInput>(input: TInput) {
+    const { parentId, parentType, WhatId, WhoId, ...fields } = input;
+
+    return {
+        ...fields,
+        ...buildActivityRelationFields({ parentId, parentType, WhatId, WhoId })
+    };
+}
+
+function createActivityOperations<TCreateInput extends ActivityCreateInput, TUpdateInput extends object>(
+    objectName: ActivityObjectName
+) {
+    return {
+        create(input: TCreateInput) {
+            return createStandardObject(objectName, buildActivityCreateFields(input));
+        },
+        update(id: string, input: TUpdateInput) {
+            return updateStandardObject(objectName, id, input);
+        },
+        deleteOne(id: string) {
+            return deleteStandardObject(objectName, id);
+        }
     };
 }
 
@@ -141,6 +169,9 @@ function getActivityById<TRecord extends TaskActivityRecord | EventActivityRecor
     });
 }
 
+const taskActivities = createActivityOperations<TaskActivityInput, TaskActivityUpdateInput>("Task");
+const eventActivities = createActivityOperations<EventActivityInput, EventActivityUpdateInput>("Event");
+
 export async function listActivities(parent: ActivityParent) {
     return withStandardObjectConnection(async (connection) => {
         const relationField = activityRelationField(parent.parentType);
@@ -175,16 +206,11 @@ export async function listActivities(parent: ActivityParent) {
 }
 
 export async function createTaskActivity(input: TaskActivityInput) {
-    const { parentId, parentType, WhatId, WhoId, ...fields } = input;
-
-    return createStandardObject("Task", {
-        ...fields,
-        ...buildActivityRelationFields({ parentId, parentType, WhatId, WhoId })
-    });
+    return taskActivities.create(input);
 }
 
 export async function updateTaskActivity(id: string, input: TaskActivityUpdateInput) {
-    return updateStandardObject("Task", id, input);
+    return taskActivities.update(id, input);
 }
 
 export async function getTaskActivity(id: string) {
@@ -192,16 +218,11 @@ export async function getTaskActivity(id: string) {
 }
 
 export async function deleteTaskActivity(id: string) {
-    return deleteStandardObject("Task", id);
+    return taskActivities.deleteOne(id);
 }
 
 export async function createEventActivity(input: EventActivityInput) {
-    const { parentId, parentType, WhatId, WhoId, ...fields } = input;
-
-    return createStandardObject("Event", {
-        ...fields,
-        ...buildActivityRelationFields({ parentId, parentType, WhatId, WhoId })
-    });
+    return eventActivities.create(input);
 }
 
 export async function getEventActivity(id: string) {
@@ -209,11 +230,11 @@ export async function getEventActivity(id: string) {
 }
 
 export async function updateEventActivity(id: string, input: EventActivityUpdateInput) {
-    return updateStandardObject("Event", id, input);
+    return eventActivities.update(id, input);
 }
 
 export async function deleteEventActivity(id: string) {
-    return deleteStandardObject("Event", id);
+    return eventActivities.deleteOne(id);
 }
 
 export type { SaveResult };
