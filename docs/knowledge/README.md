@@ -2,7 +2,7 @@
 
 このディレクトリは、開発手法、概念理解、比較、学習内容などを開発時に参照するナレッジとして整理する領域です。
 
-作業手順は `AGENTS.md` と `docs/operations` を参照します。
+作業手順は `AGENTS.md` と `docs/workflow` を参照します。
 
 ## GitHub
 
