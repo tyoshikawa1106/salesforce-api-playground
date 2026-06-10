@@ -5,6 +5,8 @@ import {
 } from "@/lib/salesforce/recycle-bin";
 import { withStandardObjectConnection } from "./client";
 import {
+    assertRecycleBinQueryPermission,
+    assertRecycleBinRestorePermission,
     assertRecycleBinResultsSucceeded,
     groupUndeleteItems,
     queryDeletedRecords,
@@ -22,8 +24,14 @@ type UndeleteResult = {
 export async function listRecycleBinItems() {
     return withStandardObjectConnection(async (connection, session) => {
         const deletedByUserId = requireSessionUserId(session);
+        const objectApiNames = getRecycleBinObjectApiNames();
+
+        for (const objectApiName of objectApiNames) {
+            await assertRecycleBinQueryPermission(connection, objectApiName);
+        }
+
         const itemGroups = await Promise.all(
-            getRecycleBinObjectApiNames().map((objectApiName) => queryDeletedRecords(connection, objectApiName, deletedByUserId))
+            objectApiNames.map((objectApiName) => queryDeletedRecords(connection, objectApiName, deletedByUserId))
         );
 
         return {
@@ -38,6 +46,7 @@ export async function undeleteRecycleBinItems(items: RecycleBinUndeleteItem[]) {
         const restoreResults: UndeleteResult[] = [];
 
         for (const [objectApiName, ids] of groups) {
+            await assertRecycleBinRestorePermission(connection, objectApiName);
             const result = await (connection as UndeleteConnection).soap.undelete(ids);
             assertRecycleBinResultsSucceeded(result);
             restoreResults.push({

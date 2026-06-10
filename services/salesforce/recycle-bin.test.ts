@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SalesforceSession } from "@/lib/salesforce/session";
 import {
     listRecycleBinItems,
@@ -7,7 +7,9 @@ import {
 import { withStandardObjectConnection } from "./client";
 
 const connectionMocks = vi.hoisted(() => ({
+    describe: vi.fn(),
     query: vi.fn(),
+    sobject: vi.fn(),
     undelete: vi.fn()
 }));
 
@@ -23,6 +25,7 @@ vi.mock("./client", () => ({
         return {
             data: await operation({
                 query: connectionMocks.query,
+                sobject: connectionMocks.sobject,
                 soap: {
                     undelete: connectionMocks.undelete
                 }
@@ -37,6 +40,16 @@ afterEach(() => {
 });
 
 describe("Salesforce recycle bin services", () => {
+    beforeEach(() => {
+        connectionMocks.describe.mockResolvedValue({
+            queryable: true,
+            undeletable: true
+        });
+        connectionMocks.sobject.mockReturnValue({
+            describe: connectionMocks.describe
+        });
+    });
+
     it("lists deleted records across configured objects with scanAll query", async () => {
         connectionMocks.query
             .mockResolvedValueOnce({
@@ -91,6 +104,21 @@ describe("Salesforce recycle bin services", () => {
         expect(connectionMocks.query).toHaveBeenCalledWith(expect.stringContaining("FROM Contact"), { scanAll: true });
         expect(connectionMocks.query).toHaveBeenCalledWith(expect.stringContaining("LastModifiedById = '005xx0000012345'"), { scanAll: true });
         expect(connectionMocks.query).not.toHaveBeenCalledWith(expect.stringContaining("ALL ROWS"), expect.anything());
+        expect(connectionMocks.sobject).toHaveBeenCalledWith("Account");
+        expect(connectionMocks.sobject).toHaveBeenCalledWith("Contact");
+        expect(connectionMocks.describe).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not query deleted records when object query permission is unavailable", async () => {
+        connectionMocks.describe.mockResolvedValueOnce({
+            queryable: false
+        });
+
+        await expect(listRecycleBinItems()).rejects.toMatchObject({
+            message: "Account の参照権限がありません。",
+            status: 403
+        });
+        expect(connectionMocks.query).not.toHaveBeenCalled();
     });
 
     it("groups selected recycle bin items by object before SOAP undelete", async () => {
@@ -113,7 +141,24 @@ describe("Salesforce recycle bin services", () => {
         });
         expect(connectionMocks.undelete).toHaveBeenNthCalledWith(1, ["001xx000003DGbY"]);
         expect(connectionMocks.undelete).toHaveBeenNthCalledWith(2, ["003xx000004TmiQ"]);
+        expect(connectionMocks.sobject).toHaveBeenNthCalledWith(1, "Account");
+        expect(connectionMocks.sobject).toHaveBeenNthCalledWith(2, "Contact");
         expect(withStandardObjectConnection).toHaveBeenCalledWith(expect.any(Function));
     });
 
+    it("does not call SOAP undelete when restore permission is unavailable", async () => {
+        connectionMocks.describe.mockResolvedValueOnce({
+            undeletable: false
+        });
+
+        await expect(
+            undeleteRecycleBinItems([
+                { objectApiName: "Account", id: "001xx000003DGbY" }
+            ])
+        ).rejects.toMatchObject({
+            message: "Account の復元権限がありません。",
+            status: 403
+        });
+        expect(connectionMocks.undelete).not.toHaveBeenCalled();
+    });
 });

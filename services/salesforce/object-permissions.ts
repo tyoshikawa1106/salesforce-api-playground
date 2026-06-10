@@ -1,16 +1,17 @@
 import type { Connection, DescribeSObjectResult } from "jsforce";
 import { SalesforceApiError } from "@/lib/salesforce/client";
 
-export type ObjectPermission = "queryable" | "searchable" | "createable" | "updateable" | "deletable";
+export type ObjectPermission = "queryable" | "searchable" | "createable" | "updateable" | "deletable" | "undeletable";
 
-type ObjectPermissionActionLabel = "参照" | "検索" | "作成" | "更新" | "削除";
+type ObjectPermissionActionLabel = "参照" | "検索" | "作成" | "更新" | "削除" | "復元";
 
 const objectPermissionActionLabels: Record<ObjectPermission, ObjectPermissionActionLabel> = {
     queryable: "参照",
     searchable: "検索",
     createable: "作成",
     updateable: "更新",
-    deletable: "削除"
+    deletable: "削除",
+    undeletable: "復元"
 };
 
 export async function assertObjectPermission(
