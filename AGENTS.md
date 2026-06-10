@@ -89,7 +89,7 @@
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - branch 削除、`git update-ref`、`git pack-refs` など Git refs / index / lock を更新する操作は、対象と安全性を事前確認したうえで、sandbox の権限不足で失敗する可能性が高い場合は最初から権限昇格して実行する。sandbox で一度失敗させてから同じ操作を再実行する流れは避ける。
 - Codex の sandbox 内で `gh` が `error connecting to api.github.com` などのネットワーク制限由来のエラーになった場合は、同じコマンドを必要最小限の `prefix_rule` 付きで権限昇格して再実行する。権限昇格できない場合は、実行できなかった GitHub 操作と必要な手動操作を最終報告に明記する。
-- Issue、PR、label、milestone の詳細な運用方針は [GitHub 運用](docs/operations/github.md) を参照する。
+- Issue、PR、label、milestone の詳細な運用方針は [GitHub](docs/operations/github.md) を参照する。
 
 ## アプリケーション設計
 
@@ -100,7 +100,7 @@
 - Salesforce のデータ操作は `services/salesforce` 配下に集約する。OAuth、session、config、型定義などの共通処理は `lib/salesforce` 配下に置く。
 - Salesforce の CRUD / SOQL / SOSL を追加または変更する場合は、処理前にログインユーザーまたは連携用ユーザーの対象オブジェクト権限を `describe()` などで確認し、権限がない場合は処理を実行せずエラーを返す。
 - Salesforce 由来またはユーザー入力由来の文字列は HTML として挿入しない。`dangerouslySetInnerHTML`、`innerHTML`、`insertAdjacentHTML` などが必要な場合は、sanitize 方針とテストを先に明確にする。
-- URL の query / path に外部入力や Salesforce record id を入れる場合は、`URLSearchParams` または `encodeURIComponent` でエンコードする。OAuth / Salesforce endpoint URL は検証済みの HTTPS origin を使い、詳細は [OAuth フロー](docs/security/oauth-flow.md) と [開発チェックリスト](docs/operations/development-checklist.md) を参照する。
+- URL の query / path に外部入力や Salesforce record id を入れる場合は、`URLSearchParams` または `encodeURIComponent` でエンコードする。OAuth / Salesforce endpoint URL は検証済みの HTTPS origin を使い、詳細は [OAuth フロー](docs/security/oauth-flow.md) と [共通事項](docs/api/common.md) を参照する。
 - README は開発手順、利用方法、CI / 運用に影響する変更がある場合に更新する。
 - 実装変更時は、必要に応じて `README.md` / `docs` 配下を更新する。リリースノートは GitHub Releases で管理し、`CHANGELOG.md` は作成しない。
 

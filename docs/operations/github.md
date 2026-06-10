@@ -1,4 +1,4 @@
-# GitHub 運用
+# GitHub
 
 ## 役割
 
