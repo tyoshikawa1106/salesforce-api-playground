@@ -1,12 +1,17 @@
 import { type FormEvent, useState } from "react";
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
-import type { ActivityLookupOption, ActivityLookupState, EventForm, TaskForm } from "./activity-task-form";
+import type { ActivityLookupState, EventForm, TaskForm } from "./activity-task-form";
 import {
     getDefaultEventForm,
     getDefaultTaskForm,
     validateEventForm,
     validateTaskForm
 } from "./activity-task-form";
+import {
+    activityToEventForm,
+    activityToLookupState,
+    activityToTaskForm
+} from "./activity-form-mappers";
 import {
     accountTextFields,
     accountRecordToForm,
@@ -44,51 +49,6 @@ type SaveRecordFormOptions = {
 
 const accountNameRequiredMessage = getRequiredFieldMessage(accountTextFields, "Name");
 const contactLastNameRequiredMessage = getRequiredFieldMessage(contactTextFields, "LastName");
-
-function activityLookupOption(
-    id: string | undefined,
-    label: string | undefined,
-    objectLabel: ActivityLookupOption["objectLabel"]
-): ActivityLookupOption | undefined {
-    return id && label ? { id, label, objectLabel } : undefined;
-}
-
-function activityToTaskForm(activity?: Activity): TaskForm {
-    if (!activity || activity.type !== "task") {
-        return getDefaultTaskForm();
-    }
-
-    return {
-        Subject: activity.subject,
-        ActivityDate: activity.date ?? "",
-        Status: activity.status ?? "Not Started",
-        Priority: activity.priority ?? "Normal",
-        TaskSubtype: activity.taskSubtype,
-        Description: activity.description ?? ""
-    };
-}
-
-function activityToEventForm(activity?: Activity): EventForm {
-    if (!activity || activity.type !== "event") {
-        return getDefaultEventForm();
-    }
-
-    return {
-        Subject: activity.subject,
-        StartDateTime: activity.startDateTime?.slice(0, 16) ?? "",
-        EndDateTime: activity.endDateTime?.slice(0, 16) ?? "",
-        Location: activity.location ?? "",
-        Description: activity.description ?? ""
-    };
-}
-
-function activityToLookupState(activity?: Activity): ActivityLookupState {
-    return {
-        assigned: activityLookupOption(activity?.ownerId, activity?.ownerName, "ユーザー"),
-        name: activityLookupOption(activity?.whoId, activity?.whoName, "取引先責任者"),
-        related: activityLookupOption(activity?.whatId, activity?.whatName, "取引先")
-    };
-}
 
 export function useRecordMutations({
     loadAll,
