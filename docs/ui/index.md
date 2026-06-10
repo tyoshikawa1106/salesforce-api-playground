@@ -1,4 +1,4 @@
-# Playground UI 仕様
+# 画面仕様
 
 このディレクトリは、現在実装されている Salesforce API Playground の画面仕様を管理する。
 画面追加や UI 変更を行う場合は、実装差分と同じ Pull Request で該当ページを更新する。

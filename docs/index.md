@@ -5,12 +5,13 @@
 ### 仕様書
 
 - [API](api/)
-- [設計](architecture/)
+- [画面](ui/)
 - [セキュリティ](security/)
 
 ### 開発
 
 - [セットアップ](setup/)
+- [設計](architecture/)
 - [運用](operations/)
 - [デプロイ](deployment/)
 
