@@ -11,6 +11,7 @@ import {
     type RecycleBinItem,
     type RecycleBinObjectApiName
 } from "@/lib/salesforce/recycle-bin";
+import { assertObjectPermission } from "./object-permissions";
 
 type QueryAllConnection = Connection & {
     query<T>(soql: string, options: { scanAll: true }): Promise<SalesforceQueryResponse<T>>;
@@ -92,6 +93,20 @@ export function groupUndeleteItems(items: RecycleBinUndeleteItem[]) {
         groups.set(objectApiName, currentIds);
         return groups;
     }, new Map<RecycleBinObjectApiName, string[]>());
+}
+
+export async function assertRecycleBinQueryPermission(
+    connection: Connection,
+    objectApiName: RecycleBinObjectApiName
+) {
+    await assertObjectPermission(connection, objectApiName, "queryable");
+}
+
+export async function assertRecycleBinRestorePermission(
+    connection: Connection,
+    objectApiName: RecycleBinObjectApiName
+) {
+    await assertObjectPermission(connection, objectApiName, "undeletable");
 }
 
 export function assertRecycleBinResultsSucceeded(results: UndeleteResultItem[]) {

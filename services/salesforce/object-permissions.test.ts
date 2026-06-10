@@ -47,4 +47,21 @@ describe("Salesforce object permission checks", () => {
         });
         await expect(promise).rejects.toBeInstanceOf(SalesforceApiError);
     });
+
+    it("supports recycle bin restore permission errors", async () => {
+        const { connection } = createConnectionWithDescribe({
+            undeletable: false
+        });
+
+        const promise = assertObjectPermission(
+            connection as unknown as Connection,
+            "Account",
+            "undeletable"
+        );
+
+        await expect(promise).rejects.toMatchObject({
+            message: "Account の復元権限がありません。",
+            status: 403
+        });
+    });
 });
