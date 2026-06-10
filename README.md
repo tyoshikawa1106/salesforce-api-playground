@@ -85,7 +85,7 @@ npm run start
 
 必要な環境変数は [.env.example](.env.example) にまとめています。各値の意味、必須条件、Sandbox / My Domain URL の使い分けは [ローカル開発](docs/setup/local-development.md) で確認できます。
 
-Authorization Code Flow の OAuth 要件は [OAuth フロー](docs/security/oauth-flow.md)、Client Credentials Flow の設定手順は [Salesforce Integration ユーザー連携設定](docs/setup/salesforce-integration-client-credentials.md) に整理しています。
+Authorization Code Flow の接続 API は [接続と認証](docs/api/auth.md)、Client Credentials Flow の設定手順は [Salesforce Integration ユーザー連携設定](docs/setup/salesforce-integration-client-credentials.md) に整理しています。
 
 ```bash
 openssl rand -base64 48
