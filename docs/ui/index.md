@@ -1,4 +1,4 @@
-# 画面
+## 画面
 
 - [ホーム](home.md)
 - [取引先一覧](account-list.md)
