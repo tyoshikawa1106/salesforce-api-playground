@@ -45,24 +45,21 @@ export function ActivityTimeline({
 }) {
     return (
         <section className="playground-activity-timeline">
-            {sections.length === 0 ? (
-                <>
-                    <ActivityTimelineSectionTitle title="今後 & 期限切れ" />
-                    <ActivityTimelineEmpty />
-                </>
-            ) : (
-                sections.map((section) => {
-                    const expanded = expandedSectionKeys.has(section.key);
+            {sections.map((section) => {
+                const expanded = expandedSectionKeys.has(section.key);
 
-                    return (
-                        <div className="playground-activity-timeline__section" key={section.key}>
-                            <ActivityTimelineSectionTitle
-                                aside={section.aside}
-                                expanded={expanded}
-                                title={section.title}
-                                onToggle={() => onToggleSection(section.key)}
-                            />
-                            {expanded ? (
+                return (
+                    <div className="playground-activity-timeline__section" key={section.key}>
+                        <ActivityTimelineSectionTitle
+                            aside={section.aside}
+                            expanded={expanded}
+                            title={section.title}
+                            onToggle={() => onToggleSection(section.key)}
+                        />
+                        {expanded ? (
+                            section.activities.length === 0 ? (
+                                <ActivityTimelineEmpty />
+                            ) : (
                                 <ul className="slds-timeline playground-activity-timeline__list">
                                     {section.activities.map((activity) => (
                                         <ActivityTimelineEntry
@@ -81,11 +78,11 @@ export function ActivityTimeline({
                                         />
                                     ))}
                                 </ul>
-                            ) : null}
-                        </div>
-                    );
-                })
-            )}
+                            )
+                        ) : null}
+                    </div>
+                );
+            })}
         </section>
     );
 }
@@ -110,7 +107,7 @@ function ActivityTimelineSectionTitle({
                 onClick={onToggle}
             >
                 <UtilityIcon
-                    className="slds-section__title-action-icon slds-button__icon slds-button__icon_left playground-activity-section-icon"
+                    className="slds-button__icon slds-button__icon_left playground-activity-section-icon"
                     name={expanded ? "down" : "right"}
                 />
                 <span className="slds-truncate" title={title}>{title}</span>
