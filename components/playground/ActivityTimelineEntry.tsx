@@ -41,6 +41,7 @@ export function ActivityTimelineEntry({
 }) {
     const [expanded, setExpanded] = useState(false);
     const isTask = activity.type === "task";
+    const isCallTask = isTask && activity.taskSubtype === "Call";
     const effectiveTaskStatus = isTask ? statusOverride?.status ?? activity.status ?? "" : "";
     const isCompletedTask = effectiveTaskStatus === "Completed";
     const showTaskCheckbox = isTask && !history;
@@ -52,11 +53,14 @@ export function ActivityTimelineEntry({
     const taskSummary = isTask ? getTaskSummary(activity, context, isCompletedTask) : "";
     const objectLabel = isTask ? "ToDo" : "行動";
     const actionRecordLabel = `${objectLabel} ${title}`;
+    const iconLabel = isCallTask ? "電話" : objectLabel;
+    const iconClassName = isCallTask ? "slds-icon-action-call" : isTask ? "slds-icon-standard-task" : "slds-icon-standard-event";
+    const iconName = isCallTask ? "call" : isTask ? "task" : "event";
 
     return (
         <li>
             <div className={`slds-timeline__item_expandable ${itemClassName} ${expandedClassName} playground-activity-timeline-item`}>
-                <span className="slds-assistive-text">{isTask ? "ToDo" : "行動"}</span>
+                <span className="slds-assistive-text">{iconLabel}</span>
                 <div className="slds-media">
                     <div className="slds-media__figure">
                         <button
@@ -71,9 +75,9 @@ export function ActivityTimelineEntry({
                             }`} name="switch" />
                             <span className="slds-assistive-text">{expanded ? `${title} の詳細を閉じる` : `${title} の詳細を表示`}</span>
                         </button>
-                        <span className={`slds-icon_container ${isTask ? "slds-icon-standard-task" : "slds-icon-standard-event"} slds-timeline__icon`} title={isTask ? "ToDo" : "行動"}>
-                            <StandardIcon className="slds-icon slds-icon_small" name={isTask ? "task" : "event"} />
-                            <span className="slds-assistive-text">{isTask ? "ToDo" : "行動"}</span>
+                        <span className={`slds-icon_container ${iconClassName} slds-timeline__icon`} title={iconLabel}>
+                            <StandardIcon className="slds-icon slds-icon_small" name={iconName} />
+                            <span className="slds-assistive-text">{iconLabel}</span>
                         </span>
                     </div>
                     <div className="slds-media__body">
