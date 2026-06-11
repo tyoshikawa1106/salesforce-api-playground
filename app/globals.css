@@ -328,10 +328,6 @@ body {
     transition: transform 0.1s ease-in-out;
 }
 
-.playground-activity-section-icon_collapsed {
-    transform: rotate(-90deg);
-}
-
 .playground-activity-timeline__list {
     margin-left: 0;
 }

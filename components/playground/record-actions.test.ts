@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
     accountBulkDeleteLabel,
     accountDeleteState,
+    activityDeleteState,
     contactBulkDeleteLabel,
     contactDeleteLabel,
     contactDeleteState
 } from "./record-actions";
-import { accountFixture, contactFixture } from "./test-fixtures";
+import { accountFixture, activityFixture, contactFixture } from "./test-fixtures";
 
 describe("record actions", () => {
     it("builds account delete state and bulk labels", () => {
@@ -25,6 +26,15 @@ describe("record actions", () => {
             type: "contact",
             ids: [contactFixture.Id],
             label: "Taro Yamada"
+        });
+    });
+
+    it("builds activity delete state without an object label prefix", () => {
+        expect(activityDeleteState(activityFixture)).toEqual({
+            type: "activity",
+            activityType: "task",
+            ids: [activityFixture.id],
+            label: "Call"
         });
     });
 });
