@@ -13,6 +13,7 @@ import type {
 } from "./activity-task-form";
 import {
     ActivityTimeline,
+    getActivityTimelineEntryKey,
     groupActivityTimelineSections,
     type TaskStatusOverride
 } from "./ActivityTimeline";
@@ -101,7 +102,11 @@ export function ActivityPanel({
             title: "今後 & 期限切れ"
         }];
     const [collapsedSectionKeys, setCollapsedSectionKeys] = useState<Set<string>>(() => new Set());
+    const [expandedActivityKeys, setExpandedActivityKeys] = useState<Set<string>>(() => new Set());
     const [openActionActivityId, setOpenActionActivityId] = useState<string | null>(null);
+    const activityKeys = displayedTimelineSections.flatMap((section) =>
+        section.activities.map(getActivityTimelineEntryKey)
+    );
     const expandedSectionKeys = new Set(
         displayedTimelineSections
             .map((section) => section.key)
@@ -109,11 +114,17 @@ export function ActivityPanel({
     );
     const allSectionsExpanded = displayedTimelineSections
         .every((section) => !collapsedSectionKeys.has(section.key));
+    const allActivitiesExpanded = activityKeys.length === 0
+        || activityKeys.every((key) => expandedActivityKeys.has(key));
+    const allTimelineExpanded = allSectionsExpanded && allActivitiesExpanded;
 
     function toggleAllTimelineSections() {
-        setCollapsedSectionKeys(allSectionsExpanded
+        setCollapsedSectionKeys(allTimelineExpanded
             ? new Set(displayedTimelineSections.map((section) => section.key))
             : new Set());
+        setExpandedActivityKeys(allTimelineExpanded
+            ? new Set()
+            : new Set(activityKeys));
     }
 
     function toggleTimelineSection(key: string) {
@@ -129,11 +140,24 @@ export function ActivityPanel({
         });
     }
 
+    function toggleActivity(key: string) {
+        setExpandedActivityKeys((current) => {
+            const next = new Set(current);
+            if (next.has(key)) {
+                next.delete(key);
+            } else {
+                next.add(key);
+            }
+
+            return next;
+        });
+    }
+
     return (
         <div className="playground-activity-panel">
             <ActivityComposerBar onOpenCall={onOpenCallComposer} onOpenEvent={onOpenEventComposer} onOpenTask={onOpenTaskComposer} />
             <ActivityTimelineToolbar
-                allSectionsExpanded={allSectionsExpanded}
+                allSectionsExpanded={allTimelineExpanded}
                 loading={loading}
                 sectionCount={displayedTimelineSections.length}
                 onRefresh={onRefresh}
@@ -145,6 +169,7 @@ export function ActivityPanel({
             ) : (
                 <ActivityTimeline
                     context={context}
+                    expandedActivityKeys={expandedActivityKeys}
                     expandedSectionKeys={expandedSectionKeys}
                     sections={displayedTimelineSections}
                     taskStatusOverrides={taskStatusOverrides}
@@ -152,6 +177,7 @@ export function ActivityPanel({
                     onCloseActionMenu={() => setOpenActionActivityId(null)}
                     onDeleteActivity={onDeleteActivity}
                     onEditActivity={onEditActivity}
+                    onToggleActivity={toggleActivity}
                     onToggleSection={toggleTimelineSection}
                     onToggleTaskCompleted={onToggleTaskCompleted}
                     onOpenActivity={onOpenActivity}

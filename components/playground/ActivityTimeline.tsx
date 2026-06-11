@@ -18,6 +18,7 @@ export { groupActivityTimelineSections } from "./activity-timeline-helpers";
 
 export function ActivityTimeline({
     context,
+    expandedActivityKeys,
     expandedSectionKeys,
     openActionActivityId,
     sections,
@@ -25,12 +26,14 @@ export function ActivityTimeline({
     onCloseActionMenu,
     onDeleteActivity,
     onEditActivity,
+    onToggleActivity,
     onToggleSection,
     onToggleTaskCompleted,
     onOpenActivity,
     onToggleActionMenu
 }: {
     context: ActivityRecordContext;
+    expandedActivityKeys: Set<string>;
     expandedSectionKeys: Set<string>;
     openActionActivityId: string | null;
     sections: ActivityTimelineSection[];
@@ -38,6 +41,7 @@ export function ActivityTimeline({
     onCloseActionMenu: () => void;
     onDeleteActivity?: (activity: ActivityTimelineItem) => void;
     onEditActivity?: (activity: ActivityTimelineItem) => void;
+    onToggleActivity: (key: string) => void;
     onToggleSection: (key: string) => void;
     onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
@@ -61,22 +65,28 @@ export function ActivityTimeline({
                                 <ActivityTimelineEmpty />
                             ) : (
                                 <ul className="slds-timeline playground-activity-timeline__list">
-                                    {section.activities.map((activity) => (
-                                        <ActivityTimelineEntry
-                                            actionMenuOpen={openActionActivityId === activity.id}
-                                            activity={activity}
-                                            context={context}
-                                            history={section.history}
-                                            key={`${activity.type}-${activity.id}`}
-                                            statusOverride={activity.type === "task" ? taskStatusOverrides[activity.id] : undefined}
-                                            onCloseActionMenu={onCloseActionMenu}
-                                            onDeleteActivity={onDeleteActivity}
-                                            onEditActivity={onEditActivity}
-                                            onToggleTaskCompleted={onToggleTaskCompleted}
-                                            onOpenActivity={onOpenActivity}
-                                            onToggleActionMenu={() => onToggleActionMenu(activity.id)}
-                                        />
-                                    ))}
+                                    {section.activities.map((activity) => {
+                                        const activityKey = getActivityTimelineEntryKey(activity);
+
+                                        return (
+                                            <ActivityTimelineEntry
+                                                actionMenuOpen={openActionActivityId === activity.id}
+                                                activity={activity}
+                                                context={context}
+                                                expanded={expandedActivityKeys.has(activityKey)}
+                                                history={section.history}
+                                                key={activityKey}
+                                                statusOverride={activity.type === "task" ? taskStatusOverrides[activity.id] : undefined}
+                                                onCloseActionMenu={onCloseActionMenu}
+                                                onDeleteActivity={onDeleteActivity}
+                                                onEditActivity={onEditActivity}
+                                                onToggleTaskCompleted={onToggleTaskCompleted}
+                                                onToggleExpanded={() => onToggleActivity(activityKey)}
+                                                onOpenActivity={onOpenActivity}
+                                                onToggleActionMenu={() => onToggleActionMenu(activity.id)}
+                                            />
+                                        );
+                                    })}
                                 </ul>
                             )
                         ) : null}
@@ -85,6 +95,10 @@ export function ActivityTimeline({
             })}
         </section>
     );
+}
+
+export function getActivityTimelineEntryKey(activity: ActivityTimelineItem) {
+    return `${activity.type}-${activity.id}`;
 }
 
 function ActivityTimelineSectionTitle({
