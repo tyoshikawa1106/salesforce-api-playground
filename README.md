@@ -32,18 +32,6 @@ Salesforce OAuth と REST API を試すための Next.js アプリです。
 | `ci` | CI 設定の変更 |
 | `chore` | その他の保守作業 |
 
-## 主な機能
-
-- Salesforce OAuth 接続と切断
-- OAuth state 検証
-- Account の一覧、作成、編集、削除
-- Contact の一覧、作成、編集、削除
-- Contact と Account の紐づけ
-- Account / Contact の活動タイムライン表示、ToDo / 行動の作成
-- Client Credentials Flow による連携用ユーザーでの Account 作成、更新 API
-- Salesforce Lightning Design System (SLDS) ベースの UI
-- ローディング、エラー、成功メッセージ
-
 ## 技術スタック
 
 - Next.js 16
@@ -55,16 +43,35 @@ Salesforce OAuth と REST API を試すための Next.js アプリです。
 - SLDS Linter
 - Vitest
 
+## 動作環境
+
+ローカルで動かすには、以下が必要です。
+
+- Git
+- Node.js 24
+- npm 10 以上
+- Salesforce 外部クライアントアプリケーションの設定値
+
 ## セットアップ手順
 
-Node.js 24、npm 10 以上を使います。
+最初は、リポジトリを clone して依存関係を入れ、環境変数ファイルを用意します。
 
 ```bash
-npm install
-cp .env.example .env.local
+# リポジトリを取得して作業ディレクトリへ移動する
+git clone https://github.com/tyoshikawa1106/salesforce-api-playground.git
+cd salesforce-api-playground
+
+# package-lock.json に固定された依存関係をインストールする
+npm ci
+
+# ローカル用の環境変数ファイルを作成する
+cp -n .env.example .env.local
+
+# SESSION_SECRET に設定するランダム文字列を生成する
+openssl rand -base64 48
 ```
 
-`.env.local` に Salesforce 外部クライアントアプリケーションの値を設定します。`.env` や `.env.*` はコミットしません。
+最後のコマンドで生成した値を `SESSION_SECRET` に設定し、Salesforce 外部クライアントアプリケーションの値も `.env.local` に設定します。`.env` や `.env.*` はコミットしません。
 
 ## 起動方法
 
@@ -86,10 +93,6 @@ npm run start
 必要な環境変数は [.env.example](.env.example) にまとめています。各値の意味、必須条件、Sandbox / My Domain URL の使い分けは [ローカル開発](docs/setup/local-development.md) で確認できます。
 
 Authorization Code Flow の接続 API は [接続と認証](docs/api/auth.md)、Client Credentials Flow の設定手順は [Salesforce Integration ユーザー連携設定](docs/setup/salesforce-integration-client-credentials.md) に整理しています。
-
-```bash
-openssl rand -base64 48
-```
 
 `SESSION_SECRET` は Cookie 暗号化用のランダム文字列です。Salesforce の値ではありません。
 
