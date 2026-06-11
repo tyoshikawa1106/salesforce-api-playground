@@ -103,6 +103,7 @@ describe("Salesforce recycle bin services", () => {
         expect(connectionMocks.query).toHaveBeenCalledWith(expect.stringContaining("FROM Account"), { scanAll: true });
         expect(connectionMocks.query).toHaveBeenCalledWith(expect.stringContaining("FROM Contact"), { scanAll: true });
         expect(connectionMocks.query).toHaveBeenCalledWith(expect.stringContaining("LastModifiedById = '005xx0000012345'"), { scanAll: true });
+        expect(connectionMocks.query).toHaveBeenCalledWith(expect.stringContaining("LIMIT 200"), { scanAll: true });
         expect(connectionMocks.query).not.toHaveBeenCalledWith(expect.stringContaining("ALL ROWS"), expect.anything());
         expect(connectionMocks.sobject).toHaveBeenCalledWith("Account");
         expect(connectionMocks.sobject).toHaveBeenCalledWith("Contact");

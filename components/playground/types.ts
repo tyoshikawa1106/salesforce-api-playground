@@ -17,7 +17,13 @@ export type ModalState =
 export type DeleteState =
     | { type: "account"; ids: string[]; label: string }
     | { type: "contact"; ids: string[]; label: string }
-    | { type: "activity"; activityType: Activity["type"]; ids: string[]; label: string };
+    | {
+        type: "activity";
+        activityType: Activity["type"];
+        ids: string[];
+        label: string;
+        afterDelete?: () => Promise<void>;
+    };
 
 export type RestoreState = {
     items: RecycleBinItem[];

@@ -111,7 +111,7 @@ export function AccountDetailWorkspace({
             assignedUserName={assignedUserName}
             contacts={contacts.filter((contact) => contact.AccountId === account.Id)}
             onDelete={(record) => onDeleteRecord(accountDeleteState([record], record.Name))}
-            onDeleteActivity={(record) => onDeleteRecord(activityDeleteState(record))}
+            onDeleteActivity={(record, afterDelete) => onDeleteRecord(activityDeleteState(record, afterDelete))}
             onEdit={onEdit}
             onEditActivity={onEditActivity}
             onOpenActivity={onOpenActivity}
@@ -196,7 +196,7 @@ export function ContactDetailWorkspace({
             assignedUserName={assignedUserName}
             contact={contact}
             onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
-            onDeleteActivity={(record) => onDeleteRecord(activityDeleteState(record))}
+            onDeleteActivity={(record, afterDelete) => onDeleteRecord(activityDeleteState(record, afterDelete))}
             onEdit={onEdit}
             onEditActivity={onEditActivity}
             onOpenAccount={onOpenAccount}
@@ -231,13 +231,14 @@ export function ActivityDetailWorkspace({
     );
 }
 
-function activityDeleteState(activity: Activity): DeleteState {
+function activityDeleteState(activity: Activity, afterDelete?: () => Promise<void>): DeleteState {
     const objectLabel = activity.type === "task" ? "ToDo" : "行動";
 
     return {
         type: "activity",
         activityType: activity.type,
         ids: [activity.id],
-        label: `${objectLabel} ${activity.subject || activity.id}`
+        label: `${objectLabel} ${activity.subject || activity.id}`,
+        ...(afterDelete ? { afterDelete } : {})
     };
 }

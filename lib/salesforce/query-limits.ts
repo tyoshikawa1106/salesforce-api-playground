@@ -1,0 +1,1 @@
+export const DEFAULT_SALESFORCE_QUERY_LIMIT = 200;

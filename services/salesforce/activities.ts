@@ -9,6 +9,7 @@ import type {
     TaskActivityUpdateInput,
     TaskActivityRecord
 } from "@/lib/salesforce/activities";
+import { DEFAULT_SALESFORCE_QUERY_LIMIT } from "@/lib/salesforce/query-limits";
 import { withStandardObjectConnection } from "./client";
 import { createStandardObject, deleteStandardObject, updateStandardObject } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
@@ -185,14 +186,14 @@ export async function listActivities(parent: ActivityParent) {
                 "FROM Task",
                 `WHERE ${relationField} = '${parent.parentId}'`,
                 "ORDER BY LastModifiedDate DESC",
-                "LIMIT 20"
+                `LIMIT ${DEFAULT_SALESFORCE_QUERY_LIMIT}`
             ].join(" ")),
             connection.query<EventActivityRecord>([
                 `SELECT ${eventFields.join(", ")}`,
                 "FROM Event",
                 `WHERE ${relationField} = '${parent.parentId}'`,
                 "ORDER BY StartDateTime DESC",
-                "LIMIT 20"
+                `LIMIT ${DEFAULT_SALESFORCE_QUERY_LIMIT}`
             ].join(" "))
         ]);
 

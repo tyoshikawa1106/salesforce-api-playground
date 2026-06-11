@@ -221,6 +221,7 @@ export function useRecordMutationActions({
                 setDeleteState(null);
                 if (deleteState.type === "activity") {
                     onActivityDeleted?.();
+                    await deleteState.afterDelete?.();
                 }
                 await loadAll();
             },

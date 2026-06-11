@@ -128,7 +128,9 @@ describe("Salesforce activity services", () => {
         expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "Task", "queryable");
         expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "Event", "queryable");
         expect(query).toHaveBeenNthCalledWith(1, expect.stringContaining("WHERE WhatId = '001xx000003DGbY'"));
+        expect(query).toHaveBeenNthCalledWith(1, expect.stringContaining("LIMIT 200"));
         expect(query).toHaveBeenNthCalledWith(2, expect.stringContaining("WHERE WhatId = '001xx000003DGbY'"));
+        expect(query).toHaveBeenNthCalledWith(2, expect.stringContaining("LIMIT 200"));
     });
 
     it("lists contact activities through WhoId", async () => {

@@ -92,19 +92,24 @@ export function ActivityPanel({
     onToggleComposerMinimized: () => void;
 }) {
     const timelineSections = groupActivityTimelineSections(activities, taskStatusOverrides);
-    const [expandedSectionKeys, setExpandedSectionKeys] = useState<Set<string>>(() => new Set());
+    const [collapsedSectionKeys, setCollapsedSectionKeys] = useState<Set<string>>(() => new Set());
     const [openActionActivityId, setOpenActionActivityId] = useState<string | null>(null);
+    const expandedSectionKeys = new Set(
+        timelineSections
+            .map((section) => section.key)
+            .filter((key) => !collapsedSectionKeys.has(key))
+    );
     const allSectionsExpanded = timelineSections.length > 0
-        && timelineSections.every((section) => expandedSectionKeys.has(section.key));
+        && timelineSections.every((section) => !collapsedSectionKeys.has(section.key));
 
     function toggleAllTimelineSections() {
-        setExpandedSectionKeys(allSectionsExpanded
-            ? new Set()
-            : new Set(timelineSections.map((section) => section.key)));
+        setCollapsedSectionKeys(allSectionsExpanded
+            ? new Set(timelineSections.map((section) => section.key))
+            : new Set());
     }
 
     function toggleTimelineSection(key: string) {
-        setExpandedSectionKeys((current) => {
+        setCollapsedSectionKeys((current) => {
             const next = new Set(current);
             if (next.has(key)) {
                 next.delete(key);
