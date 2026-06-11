@@ -444,6 +444,13 @@ body {
 }
 
 @media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+        /* iOS Safari zooms focused form controls below 16px, which can shift scroll position. */
+        font-size: var(--slds-g-font-scale-2, 1rem);
+    }
+
     .playground-login-page {
         padding-left: var(--slds-g-spacing-3, 0.75rem);
         padding-right: var(--slds-g-spacing-3, 0.75rem);

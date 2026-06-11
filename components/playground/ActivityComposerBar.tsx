@@ -1,10 +1,11 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { StandardIcon, UtilityIcon } from "./SldsIcon";
+import { StandardIcon, type StandardIconName, UtilityIcon } from "./SldsIcon";
 
 type ActivityComposerAction = {
-    icon: "event" | "task";
+    iconClassName: string;
+    iconName: StandardIconName;
     iconStyle: CSSProperties;
     label: string;
     onClick: () => void;
@@ -31,9 +32,9 @@ export function ActivityComposerBar({
     } as CSSProperties;
 
     const actions: ActivityComposerAction[] = [
-        { icon: "task", iconStyle: callIconStyle, label: "電話を記録", onClick: onOpenCall, value: "LogCall" },
-        { icon: "task", iconStyle: taskIconStyle, label: "新規ToDo", onClick: onOpenTask, value: "NewTask" },
-        { icon: "event", iconStyle: eventIconStyle, label: "新規行動", onClick: onOpenEvent, value: "NewEvent" }
+        { iconClassName: "slds-icon-action-call", iconName: "call", iconStyle: callIconStyle, label: "電話を記録", onClick: onOpenCall, value: "LogCall" },
+        { iconClassName: "slds-icon-standard-task", iconName: "task", iconStyle: taskIconStyle, label: "新規ToDo", onClick: onOpenTask, value: "NewTask" },
+        { iconClassName: "slds-icon-standard-event", iconName: "event", iconStyle: eventIconStyle, label: "新規行動", onClick: onOpenEvent, value: "NewEvent" }
     ];
 
     return (
@@ -42,9 +43,9 @@ export function ActivityComposerBar({
                 <li className="slds-button-group-item" key={action.value}>
                     <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label={action.label} part="button-group">
                         <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label={action.label} title={action.label} value={action.value} onClick={action.onClick}>
-                            <span className={`slds-icon-standard-${action.icon} slds-icon_container playground-activity-composer-action__icon`} title={action.label}>
+                            <span className={`${action.iconClassName} slds-icon_container playground-activity-composer-action__icon`} title={action.label}>
                                 <span className="playground-activity-composer-action__icon-boundary" style={action.iconStyle}>
-                                    <StandardIcon className="slds-icon slds-icon_small" name={action.icon} />
+                                    <StandardIcon className="slds-icon slds-icon_small" name={action.iconName} />
                                 </span>
                                 <span className="slds-assistive-text">{action.label}</span>
                             </span>

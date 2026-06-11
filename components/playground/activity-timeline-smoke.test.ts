@@ -7,9 +7,12 @@ import {
     activityFixture as activity,
     noop
 } from "./test-fixtures";
+import type { Activity } from "./types";
 
 describe("activity timeline smoke rendering", () => {
     it("renders activity timeline entries with record action menus", () => {
+        const callActivity = { ...activity, taskSubtype: "Call" } as Extract<Activity, { type: "task" }>;
+
         const markup = renderToStaticMarkup(
             createElement(ActivityTimeline, {
                 context: {
@@ -20,7 +23,7 @@ describe("activity timeline smoke rendering", () => {
                 expandedSectionKeys: new Set(["future"]),
                 openActionActivityId: activity.id,
                 sections: [{
-                    activities: [activity],
+                    activities: [callActivity],
                     history: false,
                     key: "future",
                     title: "今後 & 期限切れ"
@@ -37,6 +40,7 @@ describe("activity timeline smoke rendering", () => {
         );
 
         expect(markup).toContain("ToDo Call の操作");
+        expect(markup).toContain("slds-icon-action-call");
         expect(markup).toContain("slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open");
         expect(markup).toContain("aria-expanded=\"true\"");
         expect(markup).toContain("role=\"menu\"");
