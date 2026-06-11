@@ -60,6 +60,13 @@ export function Modal({
 
         document.body.style.overflow = "hidden";
 
+        return () => {
+            document.body.style.overflow = previousBodyOverflow;
+            focusWithoutScrolling(activeElement);
+        };
+    }, []);
+
+    useEffect(() => {
         function handleDocumentKeyDown(event: globalThis.KeyboardEvent) {
             if (event.key === "Escape") {
                 event.preventDefault();
@@ -71,8 +78,6 @@ export function Modal({
 
         return () => {
             document.removeEventListener("keydown", handleDocumentKeyDown);
-            document.body.style.overflow = previousBodyOverflow;
-            focusWithoutScrolling(activeElement);
         };
     }, [onClose]);
 
