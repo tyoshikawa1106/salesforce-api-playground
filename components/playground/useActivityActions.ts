@@ -1,13 +1,17 @@
 "use client";
 
 import { type Dispatch, type FormEvent, type SetStateAction, useCallback } from "react";
-import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-api";
+import { buildPlaygroundApiRequest, playgroundApiPaths, type PlaygroundApiRequest } from "@/lib/playground-api";
 import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import { apiRequest } from "./api";
 import {
-    buildActivityLookupPayload,
-    compactActivityPayload,
-    compactEventActivityPayload,
+    buildEventActivityCreateRequest,
+    buildTaskActivityCreateRequest,
+    getTaskCreateSuccessMessage,
+    mergeCreatedActivity,
+    type ActivityCreateResponse
+} from "./activity-create-helpers";
+import {
     getDefaultEventForm,
     getDefaultTaskForm,
     type ActivityLookupState,
@@ -41,27 +45,6 @@ type UseActivityActionsOptions = {
     setTaskFormErrors: Dispatch<SetStateAction<TaskFormErrors>>;
     setTaskStatusOverrides: Dispatch<SetStateAction<Record<string, TaskStatusOverride>>>;
 };
-
-type ActivityCreateResponse = {
-    activity?: ActivityTimelineItem | null;
-};
-
-export function mergeCreatedActivity(
-    activities: ActivityTimelineItem[],
-    createdActivity: ActivityTimelineItem
-): ActivityTimelineItem[] {
-    return [
-        createdActivity,
-        ...activities.filter((activity) => activity.id !== createdActivity.id || activity.type !== createdActivity.type)
-    ].sort(compareActivityTimelineItems);
-}
-
-function compareActivityTimelineItems(a: ActivityTimelineItem, b: ActivityTimelineItem) {
-    const aDate = a.type === "event" ? a.startDateTime : a.date;
-    const bDate = b.type === "event" ? b.startDateTime : b.date;
-
-    return (bDate ?? b.lastModifiedDate ?? "").localeCompare(aDate ?? a.lastModifiedDate ?? "");
-}
 
 export function useActivityActions({
     activeComposer,
@@ -131,11 +114,21 @@ export function useActivityActions({
         return true;
     }
 
-    async function saveTask(event: FormEvent<HTMLFormElement>) {
+    async function saveCreatedActivity<TErrors extends Partial<Record<string, string>>>(
+        event: FormEvent<HTMLFormElement>,
+        options: {
+            buildRequest: () => PlaygroundApiRequest;
+            failureMessage: string;
+            resetForm: () => void;
+            setFormErrors: Dispatch<SetStateAction<TErrors>>;
+            successMessage: string;
+            validate: () => TErrors;
+        }
+    ) {
         event.preventDefault();
-        const validationErrors = validateTaskForm(taskForm, activityLookups.assigned?.label);
+        const validationErrors = options.validate();
 
-        setTaskFormErrors(validationErrors);
+        options.setFormErrors(validationErrors);
         if (Object.keys(validationErrors).length > 0) {
             setActivityMessage("");
             return;
@@ -143,26 +136,32 @@ export function useActivityActions({
 
         setSavingActivity(true);
         try {
-            const data = await apiRequest<ActivityCreateResponse>(
-                buildPlaygroundApiRequest(playgroundApiPaths.activityTasks, {
-                    method: "POST",
-                    body: {
-                        ...parentPayload,
-                        ...compactActivityPayload(taskForm),
-                        ...buildActivityLookupPayload(activityLookups)
-                    }
-                })
-            );
-            setTaskForm(getDefaultTaskForm());
-            completeComposerSave(activeComposer === "call" ? "電話を記録しました。" : "ToDo を作成しました。");
+            const data = await apiRequest<ActivityCreateResponse>(options.buildRequest());
+            options.resetForm();
+            completeComposerSave(options.successMessage);
             if (!addCreatedActivity(data.activity)) {
                 await loadActivities();
             }
         } catch (error) {
-            setActivityMessage(error instanceof Error ? error.message : "ToDo の作成に失敗しました。");
+            setActivityMessage(error instanceof Error ? error.message : options.failureMessage);
         } finally {
             setSavingActivity(false);
         }
+    }
+
+    async function saveTask(event: FormEvent<HTMLFormElement>) {
+        await saveCreatedActivity(event, {
+            buildRequest: () => buildTaskActivityCreateRequest({
+                activityLookups,
+                form: taskForm,
+                parentPayload
+            }),
+            failureMessage: "ToDo の作成に失敗しました。",
+            resetForm: () => setTaskForm(getDefaultTaskForm()),
+            setFormErrors: setTaskFormErrors,
+            successMessage: getTaskCreateSuccessMessage(activeComposer),
+            validate: () => validateTaskForm(taskForm, activityLookups.assigned?.label)
+        });
     }
 
     async function toggleTaskCompleted(activity: Extract<ActivityTimelineItem, { type: "task" }>) {
@@ -201,37 +200,18 @@ export function useActivityActions({
     }
 
     async function saveEvent(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        const validationErrors = validateEventForm(eventForm, activityLookups.assigned?.label);
-
-        setEventFormErrors(validationErrors);
-        if (Object.keys(validationErrors).length > 0) {
-            setActivityMessage("");
-            return;
-        }
-
-        setSavingActivity(true);
-        try {
-            const data = await apiRequest<ActivityCreateResponse>(
-                buildPlaygroundApiRequest(playgroundApiPaths.activityEvents, {
-                    method: "POST",
-                    body: {
-                        ...parentPayload,
-                        ...compactEventActivityPayload(eventForm),
-                        ...buildActivityLookupPayload(activityLookups)
-                    }
-                })
-            );
-            setEventForm(getDefaultEventForm());
-            completeComposerSave("行動を作成しました。");
-            if (!addCreatedActivity(data.activity)) {
-                await loadActivities();
-            }
-        } catch (error) {
-            setActivityMessage(error instanceof Error ? error.message : "行動の作成に失敗しました。");
-        } finally {
-            setSavingActivity(false);
-        }
+        await saveCreatedActivity(event, {
+            buildRequest: () => buildEventActivityCreateRequest({
+                activityLookups,
+                form: eventForm,
+                parentPayload
+            }),
+            failureMessage: "行動の作成に失敗しました。",
+            resetForm: () => setEventForm(getDefaultEventForm()),
+            setFormErrors: setEventFormErrors,
+            successMessage: "行動を作成しました。",
+            validate: () => validateEventForm(eventForm, activityLookups.assigned?.label)
+        });
     }
 
     return {

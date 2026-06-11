@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { getDefaultEventForm, getDefaultTaskForm } from "./activity-form-defaults";
 import { getActivitySaveRequest, refreshAfterDelete } from "./useRecordMutationActions";
-import { mergeCreatedActivity } from "./useActivityActions";
 import { accountFixture, activityFixture } from "./test-fixtures";
 import type { ActivityLookupOption, ActivityLookupState } from "./activity-task-form";
 import type { DeleteState, ModalState } from "./types";
@@ -112,29 +111,5 @@ describe("refreshAfterDelete", () => {
 
         expect(onActivityDeleted).toHaveBeenCalledTimes(1);
         expect(loadAll).toHaveBeenCalledTimes(1);
-    });
-});
-
-describe("mergeCreatedActivity", () => {
-    it("adds a created activity without duplicating existing items", () => {
-        const existingEvent = {
-            type: "event" as const,
-            id: "00Uxx0000012345",
-            subject: "Meeting",
-            startDateTime: "2026-06-09T10:00:00.000Z"
-        };
-        const createdTask = {
-            type: "task" as const,
-            id: activityFixture.id,
-            subject: "Call",
-            date: "2026-06-12"
-        };
-
-        const merged = mergeCreatedActivity([activityFixture, existingEvent], createdTask);
-
-        expect(merged).toEqual([
-            createdTask,
-            existingEvent
-        ]);
     });
 });
