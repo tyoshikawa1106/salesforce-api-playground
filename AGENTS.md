@@ -89,7 +89,7 @@
 - commit / push / pull / branch 削除などローカルリポジトリ操作は `git` を利用する。
 - branch 削除、`git update-ref`、`git pack-refs` など Git refs / index / lock を更新する操作は、対象と安全性を事前確認したうえで、sandbox の権限不足で失敗する可能性が高い場合は最初から権限昇格して実行する。sandbox で一度失敗させてから同じ操作を再実行する流れは避ける。
 - Codex の sandbox 内で `gh` が `error connecting to api.github.com` などのネットワーク制限由来のエラーになった場合は、同じコマンドを必要最小限の `prefix_rule` 付きで権限昇格して再実行する。権限昇格できない場合は、実行できなかった GitHub 操作と必要な手動操作を最終報告に明記する。
-- Issue、PR、label、milestone の詳細な運用方針は [GitHub](docs/workflow/github.md) を参照する。
+- Issue、PR、label、milestone の詳細な運用方針は [GitHub](docs/setup/github.md) を参照する。
 
 ## アプリケーション設計
 
@@ -117,7 +117,7 @@
 - `docs` 配下を開発者向け一次情報として扱う。
 - `README.md` は入口として簡潔に保ち、詳細は `docs` 配下へリンクする。
 - `docs/knowledge` 配下は、開発手法、概念理解、比較、学習内容などを開発ナレッジとして整理する領域として扱う。
-- 作業手順、ブランチ作成、CI は `AGENTS.md`、`docs/workflow` を優先し、デプロイ判断は `docs/deployment` を優先して確認する。
+- 作業手順、ブランチ作成、CI は `AGENTS.md` と `docs/setup` を優先し、デプロイ判断は `docs/deployment` を優先して確認する。
 - ドキュメントは日本語で記載する。
 - 推測で仕様を書かない。実装から確認できない内容を docs に状態管理として残さない。
 - Mermaid の利用を許可する。

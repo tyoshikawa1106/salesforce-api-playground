@@ -86,7 +86,7 @@ CLAUDE.md は Claude Code 向けの短い入口にする
 - UI は Salesforce Lightning Design System を優先する。
 - Salesforce 接続や秘密情報を含む値をコミットしない。
 - 変更に応じて README / docs を更新する。
-- テストや確認コマンドは AGENTS.md と docs/workflow/ci.md の方針に従う。
+- テストや確認コマンドは AGENTS.md と docs/setup/ci.md の方針に従う。
 ```
 
 重要なのは、ファイル名を揃えることではなく、各ツールが実際に読む場所に必要な情報を置くことです。

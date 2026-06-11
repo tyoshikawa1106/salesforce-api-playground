@@ -7,5 +7,4 @@
 - [画面](ui/)
 - [セットアップ](setup/)
 - [デプロイ](deployment/)
-- [GitHub / CI](workflow/)
 - [開発ナレッジ](knowledge/)
