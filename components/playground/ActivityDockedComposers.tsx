@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type ReactNode } from "react";
+import { type FormEvent } from "react";
 import type {
     ActivityLookupOption,
     ActivityLookupState,
@@ -14,6 +14,8 @@ import {
     EventFormErrorSummary,
     QuickActionDatepicker,
     QuickActionDateTimePicker,
+    QuickActionFormRow,
+    QuickActionFormRows,
     QuickActionLongTextInput,
     QuickActionLookup,
     QuickActionSelect,
@@ -52,24 +54,6 @@ const lookupFieldLabels: Record<ActivityLookupKey, {
         placeholder: "取引先を検索..."
     }
 };
-
-function QuickActionFormRows({ children }: { children: ReactNode }) {
-    return (
-        <div className="slds-form-element__control">
-            <div className="slds-form-element__group">
-                {children}
-            </div>
-        </div>
-    );
-}
-
-function QuickActionFormRow({ children }: { children: ReactNode }) {
-    return (
-        <div className="slds-form-element__row">
-            {children}
-        </div>
-    );
-}
 
 function ActivityLookupRow({
     error,

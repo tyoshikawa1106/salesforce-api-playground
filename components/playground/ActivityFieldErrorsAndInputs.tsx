@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
     getEventFormErrorLabels,
     getTaskFormErrorLabels,
@@ -8,8 +9,14 @@ import {
 } from "./activity-task-form";
 
 export function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
-    const errorLabels = getTaskFormErrorLabels(errors);
+    return <ActivityFormErrorSummary errorLabels={getTaskFormErrorLabels(errors)} />;
+}
 
+export function EventFormErrorSummary({ errors }: { errors: EventFormErrors }) {
+    return <ActivityFormErrorSummary errorLabels={getEventFormErrorLabels(errors)} />;
+}
+
+function ActivityFormErrorSummary({ errorLabels }: { errorLabels: string[] }) {
     if (errorLabels.length === 0) {
         return null;
     }
@@ -27,22 +34,28 @@ export function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
     );
 }
 
-export function EventFormErrorSummary({ errors }: { errors: EventFormErrors }) {
-    const errorLabels = getEventFormErrorLabels(errors);
-
-    if (errorLabels.length === 0) {
-        return null;
-    }
-
+export function QuickActionFormRows({ children }: { children: ReactNode }) {
     return (
-        <div className="playground-task-error-summary">
-            <div className="slds-notify slds-notify_alert slds-alert_error playground-task-error-alert" role="alert">
-                <span className="slds-assistive-text">エラー</span>
-                <h2>このページのエラーを確認してください。</h2>
-            </div>
-            <p className="slds-text-color_error slds-m-top_small">
-                次の必須項目を入力する必要があります: {errorLabels.join("、")}
-            </p>
+        <div className="slds-form-element__control">
+            <QuickActionFormGroup>
+                {children}
+            </QuickActionFormGroup>
+        </div>
+    );
+}
+
+export function QuickActionFormGroup({ children }: { children: ReactNode }) {
+    return (
+        <div className="slds-form-element__group">
+            {children}
+        </div>
+    );
+}
+
+export function QuickActionFormRow({ children }: { children: ReactNode }) {
+    return (
+        <div className="slds-form-element__row">
+            {children}
         </div>
     );
 }
@@ -64,7 +77,10 @@ export function QuickActionTextInput({
 
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}</label>
+            <label className="slds-form-element__label" htmlFor={inputId}>
+                <RequiredFieldMarker required={required} />
+                {label}
+            </label>
             <div className="slds-form-element__control">
                 <input
                     className="slds-input"
@@ -125,7 +141,10 @@ export function QuickActionSelect({
 }) {
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <span className="slds-form-element__label">{required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}</span>
+            <span className="slds-form-element__label">
+                <RequiredFieldMarker required={required} />
+                {label}
+            </span>
             <span className="slds-form-element__control">
                 <span className="slds-select_container">
                     <select className="slds-select" required={required} aria-invalid={Boolean(error)} value={value} onChange={(event) => onChange(event.target.value)}>
@@ -145,4 +164,8 @@ export function QuickActionSelect({
 
 export function FieldError({ message }: { message?: string }) {
     return message ? <div className="slds-form-element__help">{message}</div> : null;
+}
+
+function RequiredFieldMarker({ required }: { required: boolean }) {
+    return required ? <abbr className="slds-required" title="必須">*</abbr> : null;
 }
