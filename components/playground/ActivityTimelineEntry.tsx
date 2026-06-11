@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import type { ActivityRecordContext } from "./activity-task-form";
 import { formatDate } from "./formatting";
@@ -16,12 +13,14 @@ export function ActivityTimelineEntry({
     actionMenuOpen,
     activity,
     context,
+    expanded,
     history = false,
     statusOverride,
     onCloseActionMenu,
     onDeleteActivity,
     onEditActivity,
     onToggleTaskCompleted,
+    onToggleExpanded,
     onOpenActivity,
     onToggleActionMenu,
     preview = false
@@ -29,17 +28,18 @@ export function ActivityTimelineEntry({
     actionMenuOpen: boolean;
     activity: ActivityTimelineItem;
     context: ActivityRecordContext;
+    expanded: boolean;
     history?: boolean;
     statusOverride?: TaskStatusOverride;
     onCloseActionMenu: () => void;
     onDeleteActivity?: (activity: ActivityTimelineItem) => void;
     onEditActivity?: (activity: ActivityTimelineItem) => void;
     onToggleTaskCompleted: (activity: Extract<ActivityTimelineItem, { type: "task" }>) => void;
+    onToggleExpanded: () => void;
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
     onToggleActionMenu: () => void;
     preview?: boolean;
 }) {
-    const [expanded, setExpanded] = useState(false);
     const isTask = activity.type === "task";
     const isCallTask = isTask && activity.taskSubtype === "Call";
     const effectiveTaskStatus = isTask ? statusOverride?.status ?? activity.status ?? "" : "";
@@ -68,7 +68,7 @@ export function ActivityTimelineEntry({
                             type="button"
                             aria-expanded={expanded}
                             title={expanded ? `${title} の詳細を閉じる` : `${title} の詳細を表示`}
-                            onClick={() => setExpanded((current) => !current)}
+                            onClick={onToggleExpanded}
                         >
                             <UtilityIcon className={`slds-button__icon slds-timeline__details-action-icon playground-activity-entry-icon ${
                                 expanded ? "" : "playground-activity-entry-icon_collapsed"

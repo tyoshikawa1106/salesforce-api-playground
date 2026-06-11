@@ -137,7 +137,15 @@ describe("Activity API routes", () => {
             parentId: "003xx000004TmiQ",
             Subject: "Call"
         };
-        const data = { id: "00Txx0000012345", success: true } as const;
+        const data = {
+            activity: {
+                type: "task" as const,
+                id: "00Txx0000012345",
+                subject: "Call"
+            },
+            id: "00Txx0000012345",
+            success: true
+        } as const;
         readTaskActivityCreatePayloadMock.mockResolvedValue(payload);
         createTaskActivityMock.mockResolvedValue({ data, session });
 
@@ -158,7 +166,15 @@ describe("Activity API routes", () => {
             StartDateTime: "2026-06-08T10:00:00.000Z",
             EndDateTime: "2026-06-08T11:00:00.000Z"
         };
-        const data = { id: "00Uxx0000012345", success: true } as const;
+        const data = {
+            activity: {
+                type: "event" as const,
+                id: "00Uxx0000012345",
+                subject: "Meeting"
+            },
+            id: "00Uxx0000012345",
+            success: true
+        } as const;
         readEventActivityCreatePayloadMock.mockResolvedValue(payload);
         createEventActivityMock.mockResolvedValue({ data, session });
 

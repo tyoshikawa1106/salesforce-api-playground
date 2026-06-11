@@ -58,8 +58,10 @@ describe("activity timeline smoke rendering", () => {
             })
         );
 
+        expect(markup).toContain("すべて展開");
         expect(markup).toContain("aria-expanded=\"true\"");
         expect(markup).toContain(activity.subject);
+        expect(markup).not.toContain("slds-timeline__item_details");
     });
 
     it("renders an interactive empty timeline section", () => {
@@ -120,6 +122,7 @@ describe("activity timeline smoke rendering", () => {
                     parentName: account.Name,
                     parentType: "account"
                 },
+                expandedActivityKeys: new Set<string>(),
                 expandedSectionKeys: new Set(["future"]),
                 openActionActivityId: activity.id,
                 sections: [{
@@ -132,6 +135,7 @@ describe("activity timeline smoke rendering", () => {
                 onCloseActionMenu: noop,
                 onDeleteActivity: noop,
                 onEditActivity: noop,
+                onToggleActivity: noop,
                 onOpenActivity: noop,
                 onToggleActionMenu: noop,
                 onToggleSection: noop,
@@ -162,12 +166,14 @@ describe("activity timeline smoke rendering", () => {
                 parentName: account.Name,
                 parentType: "account"
             },
+            expandedActivityKeys: new Set<string>(),
             openActionActivityId: null,
             sections,
             taskStatusOverrides: {},
             onCloseActionMenu: noop,
             onDeleteActivity: noop,
             onEditActivity: noop,
+            onToggleActivity: noop,
             onOpenActivity: noop,
             onToggleActionMenu: noop,
             onToggleSection: noop,
@@ -208,6 +214,7 @@ describe("activity timeline smoke rendering", () => {
                     parentName: account.Name,
                     parentType: "account"
                 },
+                expandedActivityKeys: new Set<string>(),
                 expandedSectionKeys: new Set<string>(),
                 openActionActivityId: null,
                 sections,
@@ -215,6 +222,7 @@ describe("activity timeline smoke rendering", () => {
                 onCloseActionMenu: noop,
                 onDeleteActivity: noop,
                 onEditActivity: noop,
+                onToggleActivity: noop,
                 onOpenActivity: noop,
                 onToggleActionMenu: noop,
                 onToggleSection: noop,
@@ -225,5 +233,39 @@ describe("activity timeline smoke rendering", () => {
         expect(markup).toContain("aria-expanded=\"false\"");
         expect(markup).toContain(rightIconPath);
         expect(markup).not.toContain("表示できる活動はまだありません。");
+    });
+
+    it("expands activity item details when entry keys are expanded", () => {
+        const sections: ActivityTimelineSection[] = [{
+            activities: [activity],
+            history: false,
+            key: "future",
+            title: "今後 & 期限切れ"
+        }];
+        const markup = renderToStaticMarkup(
+            createElement(ActivityTimeline, {
+                context: {
+                    parentId: account.Id,
+                    parentName: account.Name,
+                    parentType: "account"
+                },
+                expandedActivityKeys: new Set([`${activity.type}-${activity.id}`]),
+                expandedSectionKeys: new Set(["future"]),
+                openActionActivityId: null,
+                sections,
+                taskStatusOverrides: {},
+                onCloseActionMenu: noop,
+                onDeleteActivity: noop,
+                onEditActivity: noop,
+                onToggleActivity: noop,
+                onOpenActivity: noop,
+                onToggleActionMenu: noop,
+                onToggleSection: noop,
+                onToggleTaskCompleted: noop
+            })
+        );
+
+        expect(markup).toContain(`${activity.subject} の詳細を閉じる`);
+        expect(markup).toContain("slds-timeline__item_details");
     });
 });

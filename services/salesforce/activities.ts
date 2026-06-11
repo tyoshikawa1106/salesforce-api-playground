@@ -207,7 +207,18 @@ export async function listActivities(parent: ActivityParent) {
 }
 
 export async function createTaskActivity(input: TaskActivityInput) {
-    return taskActivities.create(input);
+    const created = await taskActivities.create(input);
+    const activity = created.data.id
+        ? await getTaskActivity(created.data.id)
+        : null;
+
+    return {
+        data: {
+            ...created.data,
+            activity: activity?.data.activity ?? null
+        },
+        session: activity?.session ?? created.session
+    };
 }
 
 export async function updateTaskActivity(id: string, input: TaskActivityUpdateInput) {
@@ -223,7 +234,18 @@ export async function deleteTaskActivity(id: string) {
 }
 
 export async function createEventActivity(input: EventActivityInput) {
-    return eventActivities.create(input);
+    const created = await eventActivities.create(input);
+    const activity = created.data.id
+        ? await getEventActivity(created.data.id)
+        : null;
+
+    return {
+        data: {
+            ...created.data,
+            activity: activity?.data.activity ?? null
+        },
+        session: activity?.session ?? created.session
+    };
 }
 
 export async function getEventActivity(id: string) {

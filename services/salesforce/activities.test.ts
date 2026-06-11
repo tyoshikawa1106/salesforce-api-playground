@@ -43,6 +43,36 @@ const session: SalesforceSession = {
     userId: "005xx0000012345"
 };
 
+function mockCreatedTaskLookup(record = {
+    Id: "00Txx0000012345",
+    Subject: "Call",
+    ActivityDate: "2026-06-08"
+}) {
+    const query = vi.fn().mockResolvedValueOnce({ records: [record] });
+    const connection = { query };
+    withStandardObjectConnectionMock.mockImplementationOnce(async (operation) => ({
+        data: await operation(connection as never, session),
+        session
+    }));
+
+    return query;
+}
+
+function mockCreatedEventLookup(record = {
+    Id: "00Uxx0000012345",
+    Subject: "Meeting",
+    StartDateTime: "2026-06-08T10:00:00.000Z"
+}) {
+    const query = vi.fn().mockResolvedValueOnce({ records: [record] });
+    const connection = { query };
+    withStandardObjectConnectionMock.mockImplementationOnce(async (operation) => ({
+        data: await operation(connection as never, session),
+        session
+    }));
+
+    return query;
+}
+
 afterEach(() => {
     vi.clearAllMocks();
 });
@@ -163,12 +193,23 @@ describe("Salesforce activity services", () => {
             data: { id: "00Txx0000012345", success: true },
             session
         });
+        const query = mockCreatedTaskLookup();
 
-        await createTaskActivity({
+        await expect(createTaskActivity({
             parentType: "account",
             parentId: "001xx000003DGbY",
             Subject: "Call",
             Status: "Not Started"
+        })).resolves.toMatchObject({
+            data: {
+                activity: {
+                    id: "00Txx0000012345",
+                    type: "task"
+                },
+                id: "00Txx0000012345",
+                success: true
+            },
+            session
         });
 
         expect(createStandardObjectMock).toHaveBeenCalledWith("Task", {
@@ -176,6 +217,7 @@ describe("Salesforce activity services", () => {
             Status: "Not Started",
             WhatId: "001xx000003DGbY"
         });
+        expect(query).toHaveBeenCalledWith(expect.stringContaining("WHERE Id = '00Txx0000012345'"));
     });
 
     it("creates contact tasks with selected task lookups", async () => {
@@ -183,6 +225,7 @@ describe("Salesforce activity services", () => {
             data: { id: "00Txx0000012345", success: true },
             session
         });
+        mockCreatedTaskLookup();
 
         await createTaskActivity({
             parentType: "contact",
@@ -268,6 +311,7 @@ describe("Salesforce activity services", () => {
             data: { id: "00Uxx0000012345", success: true },
             session
         });
+        mockCreatedEventLookup();
 
         await createEventActivity({
             parentType: "contact",

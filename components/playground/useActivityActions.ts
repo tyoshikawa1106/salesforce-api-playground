@@ -42,6 +42,27 @@ type UseActivityActionsOptions = {
     setTaskStatusOverrides: Dispatch<SetStateAction<Record<string, TaskStatusOverride>>>;
 };
 
+type ActivityCreateResponse = {
+    activity?: ActivityTimelineItem | null;
+};
+
+export function mergeCreatedActivity(
+    activities: ActivityTimelineItem[],
+    createdActivity: ActivityTimelineItem
+): ActivityTimelineItem[] {
+    return [
+        createdActivity,
+        ...activities.filter((activity) => activity.id !== createdActivity.id || activity.type !== createdActivity.type)
+    ].sort(compareActivityTimelineItems);
+}
+
+function compareActivityTimelineItems(a: ActivityTimelineItem, b: ActivityTimelineItem) {
+    const aDate = a.type === "event" ? a.startDateTime : a.date;
+    const bDate = b.type === "event" ? b.startDateTime : b.date;
+
+    return (bDate ?? b.lastModifiedDate ?? "").localeCompare(aDate ?? a.lastModifiedDate ?? "");
+}
+
 export function useActivityActions({
     activeComposer,
     activityLookups,
@@ -89,6 +110,27 @@ export function useActivityActions({
         setActivityMessage(message);
     }
 
+    function addCreatedActivity(activity: ActivityTimelineItem | null | undefined) {
+        if (!activity) {
+            return false;
+        }
+
+        setActivities((current) => mergeCreatedActivity(current, activity));
+        if (activity.type === "task") {
+            setTaskStatusOverrides((current) => {
+                if (!(activity.id in current)) {
+                    return current;
+                }
+
+                const next = { ...current };
+                delete next[activity.id];
+                return next;
+            });
+        }
+
+        return true;
+    }
+
     async function saveTask(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const validationErrors = validateTaskForm(taskForm, activityLookups.assigned?.label);
@@ -101,7 +143,7 @@ export function useActivityActions({
 
         setSavingActivity(true);
         try {
-            await apiRequest(
+            const data = await apiRequest<ActivityCreateResponse>(
                 buildPlaygroundApiRequest(playgroundApiPaths.activityTasks, {
                     method: "POST",
                     body: {
@@ -113,7 +155,9 @@ export function useActivityActions({
             );
             setTaskForm(getDefaultTaskForm());
             completeComposerSave(activeComposer === "call" ? "電話を記録しました。" : "ToDo を作成しました。");
-            await loadActivities();
+            if (!addCreatedActivity(data.activity)) {
+                await loadActivities();
+            }
         } catch (error) {
             setActivityMessage(error instanceof Error ? error.message : "ToDo の作成に失敗しました。");
         } finally {
@@ -168,7 +212,7 @@ export function useActivityActions({
 
         setSavingActivity(true);
         try {
-            await apiRequest(
+            const data = await apiRequest<ActivityCreateResponse>(
                 buildPlaygroundApiRequest(playgroundApiPaths.activityEvents, {
                     method: "POST",
                     body: {
@@ -180,7 +224,9 @@ export function useActivityActions({
             );
             setEventForm(getDefaultEventForm());
             completeComposerSave("行動を作成しました。");
-            await loadActivities();
+            if (!addCreatedActivity(data.activity)) {
+                await loadActivities();
+            }
         } catch (error) {
             setActivityMessage(error instanceof Error ? error.message : "行動の作成に失敗しました。");
         } finally {
