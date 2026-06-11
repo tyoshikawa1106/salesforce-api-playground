@@ -266,6 +266,8 @@ body {
 }
 
 .playground-activity-composer-bar {
+    display: flex;
+    justify-content: flex-end;
     margin-bottom: var(--slds-g-spacing-4, 1rem);
 }
 
