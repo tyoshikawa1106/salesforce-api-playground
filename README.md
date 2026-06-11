@@ -101,3 +101,16 @@ Authorization Code Flow の接続 API は [接続と認証](docs/api/auth.md)、
 Heroku は GitHub `main` への merge を起点に Staging へ反映し、確認後に Heroku Pipeline で Production へ promote する運用です。詳細は [Heroku デプロイ](docs/deployment/heroku.md) を参照します。
 
 README 先頭の Heroku Button は、通常開発のデプロイ導線ではなく、このリポジトリを自分の Heroku アカウントで試すための初回作成用です。
+
+## 参考サイト
+
+| 用途 | サイト |
+| --- | --- |
+| SLDS1 の入口 | [Salesforce Lightning Design System 1](https://v1.lightningdesignsystem.com/) |
+| コンポーネントの構造 | [Component Blueprints](https://v1.lightningdesignsystem.com/components/overview/) |
+| デザイン指針 | [Design Guidelines](https://v1.lightningdesignsystem.com/guidelines/overview/) |
+| Salesforce API 全般 | [API Library](https://developer.salesforce.com/docs/apis) |
+| Salesforce REST API | [REST API Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest) |
+| Salesforce CLI | [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) |
+| Heroku CLI | [Heroku CLI Commands](https://devcenter.heroku.com/articles/heroku-cli-commands) |
+| GitHub CLI | [GitHub CLI Manual](https://cli.github.com/manual/) |
