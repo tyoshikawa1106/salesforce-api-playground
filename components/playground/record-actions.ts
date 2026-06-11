@@ -1,5 +1,5 @@
 import { getContactName } from "./formatting";
-import type { Account, Contact, DeleteState } from "./types";
+import type { Account, Activity, Contact, DeleteState } from "./types";
 
 export function accountDeleteState(records: Account[], label: string): DeleteState {
     return {
@@ -14,6 +14,16 @@ export function contactDeleteState(records: Contact[], label: string): DeleteSta
         type: "contact",
         ids: records.map((record) => record.Id),
         label
+    };
+}
+
+export function activityDeleteState(activity: Activity, afterDelete?: () => Promise<void>): DeleteState {
+    return {
+        type: "activity",
+        activityType: activity.type,
+        ids: [activity.id],
+        label: activity.subject || activity.id,
+        ...(afterDelete ? { afterDelete } : {})
     };
 }
 

@@ -109,9 +109,10 @@ function ActivityTimelineSectionTitle({
                 aria-expanded={expanded}
                 onClick={onToggle}
             >
-                <UtilityIcon className={`slds-section__title-action-icon slds-button__icon slds-button__icon_left playground-activity-section-icon ${
-                    expanded ? "" : "playground-activity-section-icon_collapsed"
-                }`} name="switch" />
+                <UtilityIcon
+                    className="slds-section__title-action-icon slds-button__icon slds-button__icon_left playground-activity-section-icon"
+                    name={expanded ? "down" : "right"}
+                />
                 <span className="slds-truncate" title={title}>{title}</span>
                 {aside ? <span className="slds-text-body_regular playground-activity-section-title__aside">{aside}</span> : null}
             </button>

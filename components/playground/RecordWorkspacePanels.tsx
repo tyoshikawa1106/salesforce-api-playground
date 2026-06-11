@@ -3,6 +3,7 @@ import { ObjectHomeHeader } from "./ObjectHome";
 import {
     accountBulkDeleteLabel,
     accountDeleteState,
+    activityDeleteState,
     contactBulkDeleteLabel,
     contactDeleteLabel,
     contactDeleteState
@@ -229,16 +230,4 @@ export function ActivityDetailWorkspace({
             onRefresh={onRefresh}
         />
     );
-}
-
-function activityDeleteState(activity: Activity, afterDelete?: () => Promise<void>): DeleteState {
-    const objectLabel = activity.type === "task" ? "ToDo" : "行動";
-
-    return {
-        type: "activity",
-        activityType: activity.type,
-        ids: [activity.id],
-        label: `${objectLabel} ${activity.subject || activity.id}`,
-        ...(afterDelete ? { afterDelete } : {})
-    };
 }
