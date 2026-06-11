@@ -42,12 +42,10 @@ export function QuickActionSubjectCombobox({
             setOpen(false);
         }
 
-        document.addEventListener("mousedown", closeOnOutsidePointer);
-        document.addEventListener("touchstart", closeOnOutsidePointer);
+        document.addEventListener("pointerdown", closeOnOutsidePointer);
 
         return () => {
-            document.removeEventListener("mousedown", closeOnOutsidePointer);
-            document.removeEventListener("touchstart", closeOnOutsidePointer);
+            document.removeEventListener("pointerdown", closeOnOutsidePointer);
         };
     }, [open]);
 
@@ -149,7 +147,7 @@ export function QuickActionSubjectCombobox({
                                             role="option"
                                             aria-checked={selected}
                                             aria-selected={selected}
-                                            onMouseDown={(event) => {
+                                            onPointerDown={(event) => {
                                                 event.preventDefault();
                                                 selectSubject(option);
                                             }}

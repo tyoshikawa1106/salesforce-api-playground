@@ -31,6 +31,10 @@ function focusWithoutScrolling(element: HTMLElement | null): void {
     element?.focus({ preventScroll: true });
 }
 
+function shouldFocusInitialField(): boolean {
+    return !window.matchMedia("(max-width: 767px)").matches;
+}
+
 export function Modal({
     title,
     onClose,
@@ -51,7 +55,7 @@ export function Modal({
         const previousBodyOverflow = document.body.style.overflow;
 
         if (modalElement) {
-            focusWithoutScrolling(getInitialFocusElement(modalElement));
+            focusWithoutScrolling(shouldFocusInitialField() ? getInitialFocusElement(modalElement) : modalElement);
         }
 
         document.body.style.overflow = "hidden";

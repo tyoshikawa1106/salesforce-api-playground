@@ -256,7 +256,7 @@ export function TaskDockedComposer({
         <ActivityDockedComposerFrame
             bodyId="new-task-composer-body"
             expanded={expanded}
-            iconName={isCallLog ? "call" : "task"}
+            iconName={isCallLog ? "logACall" : "task"}
             minimized={minimized}
             saving={saving}
             title={composerTitle}

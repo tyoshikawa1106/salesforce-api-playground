@@ -54,8 +54,8 @@ export function ActivityTimelineEntry({
     const objectLabel = isTask ? "ToDo" : "行動";
     const actionRecordLabel = `${objectLabel} ${title}`;
     const iconLabel = isCallTask ? "電話" : objectLabel;
-    const iconClassName = isCallTask ? "slds-icon-action-call" : isTask ? "slds-icon-standard-task" : "slds-icon-standard-event";
-    const iconName = isCallTask ? "call" : isTask ? "task" : "event";
+    const iconClassName = isCallTask ? "slds-icon-standard-log-a-call" : isTask ? "slds-icon-standard-task" : "slds-icon-standard-event";
+    const iconName = isCallTask ? "logACall" : isTask ? "task" : "event";
 
     return (
         <li>
