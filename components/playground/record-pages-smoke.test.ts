@@ -68,6 +68,8 @@ describe("record page smoke rendering", () => {
         expect(contactMarkup).toContain("slds-icon-standard-log-a-call");
         expect(contactMarkup).toContain("新規ToDo");
         expect(contactMarkup).toContain("新規行動");
+        expect(contactMarkup.indexOf("新規ToDo")).toBeLessThan(contactMarkup.indexOf("電話を記録"));
+        expect(contactMarkup.indexOf("新規行動")).toBeLessThan(contactMarkup.indexOf("電話を記録"));
         expect(contactMarkup).toContain("今後 &amp; 期限切れ");
         expect(contactMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
         expect(contactMarkup).not.toContain("Chatter");
