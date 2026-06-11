@@ -10,6 +10,7 @@
 body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .salesforce-brand-logo {
@@ -193,6 +194,7 @@ body {
 
 .playground-workspace {
     min-height: calc(100vh - 6.25rem);
+    min-height: calc(100dvh - 6.25rem);
 }
 
 .playground-recycle-bin-toolbar-spacer {
@@ -377,7 +379,9 @@ body {
 
 .playground-task-composer {
     height: 80vh;
+    height: 80dvh;
     max-height: calc(100vh - 8rem);
+    max-height: calc(100dvh - 8rem);
     overflow: hidden;
     transition: height 0.12s ease-out, box-shadow 0.12s ease-out;
     width: min(24rem, calc(100vw - 2rem));
@@ -428,7 +432,9 @@ body {
 
 .playground-task-composer_expanded {
     height: min(38rem, calc(100vh - 8rem));
+    height: min(38rem, calc(100dvh - 8rem));
     max-height: calc(100vh - 8rem);
+    max-height: calc(100dvh - 8rem);
 }
 
 @media (prefers-reduced-motion: reduce) {

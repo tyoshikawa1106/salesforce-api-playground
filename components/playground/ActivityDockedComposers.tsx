@@ -152,6 +152,7 @@ export function EventDockedComposer({
                 <QuickActionFormRow>
                     <QuickActionSubjectCombobox
                         error={errors.Subject}
+                        idPrefix="new-event-subject-combobox"
                         label="件名"
                         required
                         value={form.Subject}
@@ -270,6 +271,7 @@ export function TaskDockedComposer({
                 <QuickActionFormRow>
                     <QuickActionSubjectCombobox
                         error={errors.Subject}
+                        idPrefix={isCallLog ? "new-call-subject-combobox" : "new-task-subject-combobox"}
                         label="件名"
                         required
                         value={form.Subject}

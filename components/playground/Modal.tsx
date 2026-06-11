@@ -27,6 +27,10 @@ function getInitialFocusElement(container: HTMLElement): HTMLElement {
     return preferredElement ?? getFocusableElements(container)[0] ?? container;
 }
 
+function focusWithoutScrolling(element: HTMLElement | null): void {
+    element?.focus({ preventScroll: true });
+}
+
 export function Modal({
     title,
     onClose,
@@ -44,10 +48,13 @@ export function Modal({
     useEffect(() => {
         const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         const modalElement = modalRef.current;
+        const previousBodyOverflow = document.body.style.overflow;
 
         if (modalElement) {
-            getInitialFocusElement(modalElement).focus();
+            focusWithoutScrolling(getInitialFocusElement(modalElement));
         }
+
+        document.body.style.overflow = "hidden";
 
         function handleDocumentKeyDown(event: globalThis.KeyboardEvent) {
             if (event.key === "Escape") {
@@ -60,7 +67,8 @@ export function Modal({
 
         return () => {
             document.removeEventListener("keydown", handleDocumentKeyDown);
-            activeElement?.focus();
+            document.body.style.overflow = previousBodyOverflow;
+            focusWithoutScrolling(activeElement);
         };
     }, [onClose]);
 
@@ -79,7 +87,7 @@ export function Modal({
 
         if (focusableElements.length === 0) {
             event.preventDefault();
-            modalElement.focus();
+            focusWithoutScrolling(modalElement);
             return;
         }
 
@@ -89,19 +97,19 @@ export function Modal({
 
         if (event.shiftKey && activeElement === firstElement) {
             event.preventDefault();
-            lastElement.focus();
+            focusWithoutScrolling(lastElement);
             return;
         }
 
         if (!event.shiftKey && activeElement === lastElement) {
             event.preventDefault();
-            firstElement.focus();
+            focusWithoutScrolling(firstElement);
             return;
         }
 
         if (!(activeElement instanceof Node) || !modalElement.contains(activeElement)) {
             event.preventDefault();
-            firstElement.focus();
+            focusWithoutScrolling(firstElement);
         }
     }
 
