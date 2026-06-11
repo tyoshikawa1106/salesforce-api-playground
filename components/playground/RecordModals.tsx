@@ -5,6 +5,8 @@ import {
     EventFormErrorSummary,
     QuickActionDatepicker,
     QuickActionDateTimePicker,
+    QuickActionFormGroup,
+    QuickActionFormRow,
     QuickActionLongTextInput,
     QuickActionLookup,
     QuickActionSelect,
@@ -110,61 +112,61 @@ export function RecordModals({
                             {modal.record.type === "task" ? (
                                 <div className="slds-form_compound">
                                     <TaskFormErrorSummary errors={taskErrors} />
-                                    <div className="slds-form-element__group">
-                                        <div className="slds-form-element__row">
+                                    <QuickActionFormGroup>
+                                        <QuickActionFormRow>
                                             <QuickActionSubjectCombobox error={taskErrors.Subject} idPrefix="activity-edit-task-subject-combobox" label="件名" required value={taskForm.Subject} onChange={(Subject) => onTaskFormChange({ ...taskForm, Subject })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <div className="slds-form-element slds-size_1-of-1">
                                                 <QuickActionDatepicker label="期日" value={taskForm.ActivityDate} onChange={(ActivityDate) => onTaskFormChange({ ...taskForm, ActivityDate })} />
                                             </div>
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionLookup label="名前" objectLabel="取引先責任者" options={activityLookupOptions.name} placeholder="取引先責任者を検索..." value={activityLookups.name} onChange={(name) => onActivityLookupsChange({ ...activityLookups, name })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionLookup label="関連先" objectLabel="取引先" options={activityLookupOptions.related} placeholder="取引先を検索..." value={activityLookups.related} onChange={(related) => onActivityLookupsChange({ ...activityLookups, related })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionLookup error={taskErrors.assignedUserName} label="割り当て先" objectLabel="ユーザー" options={activityLookupOptions.assigned} placeholder="ユーザーを検索..." required value={activityLookups.assigned} onChange={(assigned) => onActivityLookupsChange({ ...activityLookups, assigned })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionSelect error={taskErrors.Status} label="状況" required value={taskForm.Status} onChange={(Status) => onTaskFormChange({ ...taskForm, Status })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionLongTextInput label="説明" value={taskForm.Description} onChange={(Description) => onTaskFormChange({ ...taskForm, Description })} />
-                                        </div>
-                                    </div>
+                                        </QuickActionFormRow>
+                                    </QuickActionFormGroup>
                                 </div>
                             ) : (
                                 <div className="slds-form_compound">
                                     <EventFormErrorSummary errors={eventErrors} />
-                                    <div className="slds-form-element__group">
-                                        <div className="slds-form-element__row">
+                                    <QuickActionFormGroup>
+                                        <QuickActionFormRow>
                                             <QuickActionSubjectCombobox error={eventErrors.Subject} idPrefix="activity-edit-event-subject-combobox" label="件名" required value={eventForm.Subject} onChange={(Subject) => onEventFormChange({ ...eventForm, Subject })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionDateTimePicker error={eventErrors.StartDateTime} label="開始" required idPrefix="activity-edit-event-start" value={eventForm.StartDateTime} onChange={(StartDateTime) => onEventFormChange({ ...eventForm, StartDateTime })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionDateTimePicker error={eventErrors.EndDateTime} label="終了" required idPrefix="activity-edit-event-end" value={eventForm.EndDateTime} onChange={(EndDateTime) => onEventFormChange({ ...eventForm, EndDateTime })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionLookup label="名前" objectLabel="取引先責任者" options={activityLookupOptions.name} placeholder="取引先責任者を検索..." value={activityLookups.name} onChange={(name) => onActivityLookupsChange({ ...activityLookups, name })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionLookup label="関連先" objectLabel="取引先" options={activityLookupOptions.related} placeholder="取引先を検索..." value={activityLookups.related} onChange={(related) => onActivityLookupsChange({ ...activityLookups, related })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionLookup error={eventErrors.assignedUserName} label="割り当て先" objectLabel="ユーザー" options={activityLookupOptions.assigned} placeholder="ユーザーを検索..." required value={activityLookups.assigned} onChange={(assigned) => onActivityLookupsChange({ ...activityLookups, assigned })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionTextInput label="場所" value={eventForm.Location} onChange={(Location) => onEventFormChange({ ...eventForm, Location })} />
-                                        </div>
-                                        <div className="slds-form-element__row">
+                                        </QuickActionFormRow>
+                                        <QuickActionFormRow>
                                             <QuickActionLongTextInput label="説明" value={eventForm.Description} onChange={(Description) => onEventFormChange({ ...eventForm, Description })} />
-                                        </div>
-                                    </div>
+                                        </QuickActionFormRow>
+                                    </QuickActionFormGroup>
                                 </div>
                             )}
                         </div>

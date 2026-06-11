@@ -1,6 +1,9 @@
 export {
     EventFormErrorSummary,
     FieldError,
+    QuickActionFormGroup,
+    QuickActionFormRow,
+    QuickActionFormRows,
     QuickActionLongTextInput,
     QuickActionSelect,
     QuickActionTextInput,
