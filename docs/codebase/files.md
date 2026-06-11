@@ -92,23 +92,89 @@
 | `components/playground/AccountRecordPage.tsx` | Account 詳細ページの表示を定義する。 |
 | `components/playground/ActivityCard.tsx` | 活動タイムライン内の個別カードを表示する。 |
 | `components/playground/ActivityComposerBar.tsx` | 活動作成導線のバーを表示する。 |
+| `components/playground/ActivityDateTimeFields.tsx` | 活動フォームの日付、時刻入力を表示する。 |
+| `components/playground/ActivityDatepicker.tsx` | 活動フォームの日付選択 UI を表示する。 |
+| `components/playground/ActivityDockedComposerFrame.tsx` | ドッキングされた活動作成フォームの共通枠を表示する。 |
 | `components/playground/ActivityDockedComposers.tsx` | ToDo / 行動のドッキング作成フォームをまとめて表示する。 |
+| `components/playground/ActivityFieldErrorsAndInputs.tsx` | 活動フォームの入力項目とエラー表示を定義する。 |
+| `components/playground/ActivityLookupField.tsx` | 活動フォームの関連先 lookup 入力を表示する。 |
 | `components/playground/ActivityPanel.tsx` | レコード詳細内の活動エリアを表示する。 |
+| `components/playground/ActivityQuickActionFields.tsx` | 活動クイックアクション用の入力項目を表示する。 |
 | `components/playground/ActivityRecordPage.tsx` | 活動レコードの詳細ページを表示する。 |
+| `components/playground/ActivitySubjectCombobox.tsx` | 活動件名の候補入力 UI を表示する。 |
 | `components/playground/ActivityTimeline.tsx` | 活動タイムライン全体を表示する。 |
+| `components/playground/ActivityTimelineEntry.tsx` | 活動タイムラインの個別行を表示する。 |
+| `components/playground/ActivityTimelineToolbar.tsx` | 活動タイムラインの操作 toolbar を表示する。 |
+| `components/playground/ActivityTimepicker.tsx` | 活動フォームの時刻選択 UI を表示する。 |
 | `components/playground/ContactRecordPage.tsx` | Contact 詳細ページの表示を定義する。 |
+| `components/playground/EnvironmentLabelBanner.tsx` | 環境ラベルのバナーを表示する。 |
 | `components/playground/Forms.tsx` | Account / Contact の作成、編集フォームを表示する。 |
 | `components/playground/GlobalHeader.tsx` | 接続後のグローバルヘッダーを表示する。 |
+| `components/playground/GlobalHeaderActions.tsx` | グローバルヘッダー上のアクションを表示する。 |
 | `components/playground/GlobalSearch.tsx` | グローバル検索 UI を表示する。 |
 | `components/playground/HomePanel.tsx` | ホームタブの内容を表示する。 |
 | `components/playground/IntegrationPanel.tsx` | 外部連携 API を試す UI を表示する。 |
+| `components/playground/LoginPage.tsx` | Salesforce 未接続時のログイン導線を表示する。 |
+| `components/playground/Modal.tsx` | 作成、編集、削除確認などのモーダルを表示する。 |
 | `components/playground/Navigation.tsx` | Playground の主要タブナビゲーションを表示する。 |
+| `components/playground/NoticeBanner.tsx` | success / error / loading 通知を表示する。 |
+| `components/playground/ObjectHome.tsx` | オブジェクトホーム系パネルのヘッダーと枠を表示する。 |
+| `components/playground/PageHeader.tsx` | ページヘッダーの共通表示を定義する。 |
+| `components/playground/PlaygroundWorkspace.tsx` | Playground 接続後の作業領域を表示する。 |
+| `components/playground/RecordFieldGrid.tsx` | レコード項目をグリッド表示する。 |
+| `components/playground/RecordListEmptyStates.tsx` | レコード一覧の空状態表示を定義する。 |
+| `components/playground/RecordListPanel.tsx` | レコード一覧パネルを表示する。 |
+| `components/playground/RecordListTable.tsx` | レコード一覧テーブルを表示する。 |
+| `components/playground/RecordListTableParts.tsx` | レコード一覧テーブルの行やセルなどの部品を定義する。 |
 | `components/playground/RecordLists.tsx` | Account / Contact 一覧を切り替えて表示する。 |
+| `components/playground/RecordMainTabs.tsx` | レコード詳細内の主要タブを表示する。 |
+| `components/playground/RecordModals.tsx` | レコード作成、編集、削除系モーダルをまとめて表示する。 |
+| `components/playground/RecordPageFrame.tsx` | レコード詳細ページの共通枠を表示する。 |
+| `components/playground/RecordPageHeader.tsx` | レコード詳細ページのヘッダーを表示する。 |
 | `components/playground/RecordPages.tsx` | Account / Contact 詳細ページを切り替えて表示する。 |
+| `components/playground/RecordRelatedCards.tsx` | レコード詳細の関連情報カードを表示する。 |
+| `components/playground/RecordValueLinks.tsx` | レコード値から詳細ページなどへのリンクを表示する。 |
+| `components/playground/RecordWorkspacePanels.tsx` | レコード一覧と詳細の作業パネルを表示する。 |
 | `components/playground/RecycleBinPanel.tsx` | Recycle Bin タブのパネルを表示する。 |
+| `components/playground/RecycleBinTable.tsx` | Recycle Bin 内レコードのテーブルを表示する。 |
+| `components/playground/SldsIcon.tsx` | SLDS icon を表示する共通コンポーネントを定義する。 |
+| `components/playground/activity-date-utils.ts` | 活動の日付、時刻表示や変換 helper を定義する。 |
+| `components/playground/activity-form-defaults.ts` | 活動フォームの初期値を定義する。 |
+| `components/playground/activity-form-mappers.ts` | 活動フォーム state と API payload / 表示値の変換を定義する。 |
+| `components/playground/activity-form-payloads.ts` | 活動フォームから送信する payload 組み立てを定義する。 |
+| `components/playground/activity-form-validation.ts` | 活動フォームの入力検証を定義する。 |
+| `components/playground/activity-lookup-helpers.ts` | 活動 lookup 候補の整形 helper を定義する。 |
+| `components/playground/activity-lookup-icons.ts` | 活動 lookup 対象ごとの icon 定義を置く。 |
+| `components/playground/activity-panel-state.ts` | 活動パネルの表示状態 helper を定義する。 |
+| `components/playground/activity-task-form.ts` | ToDo フォームの state と payload helper を定義する。 |
+| `components/playground/activity-task-types.ts` | ToDo フォームや活動 UI で使う型を定義する。 |
+| `components/playground/activity-timeline-helpers.ts` | 活動タイムライン表示用の整形 helper を定義する。 |
 | `components/playground/api.ts` | UI から API を呼ぶ fetch helper と UI 向けエラー処理を定義する。 |
+| `components/playground/formatting.ts` | UI 表示用の文字列、日付、値の整形 helper を定義する。 |
+| `components/playground/icons.ts` | Playground UI で使う icon 定義を置く。 |
+| `components/playground/mutation-runner.ts` | UI mutation の実行と結果処理を共通化する。 |
 | `components/playground/mutations.ts` | 作成、更新、削除などの UI 操作用 request を定義する。 |
+| `components/playground/playground-data-state.ts` | 取得結果、選択状態、検索結果反映の純粋 helper を定義する。 |
+| `components/playground/record-actions.ts` | Account / Contact の操作 label や削除状態 helper を定義する。 |
+| `components/playground/record-forms.ts` | Account / Contact フォーム値の変換と初期値を定義する。 |
+| `components/playground/record-list-state.ts` | レコード一覧の選択、検索、表示状態 helper を定義する。 |
+| `components/playground/record-list-types.ts` | レコード一覧 UI で使う型を定義する。 |
+| `components/playground/test-fixtures.ts` | Playground UI テストで使う fixture を定義する。 |
 | `components/playground/types.ts` | Playground UI 全体で使う型を定義する。 |
+| `components/playground/useActivityActions.ts` | 活動作成、更新、削除操作の hook を定義する。 |
+| `components/playground/useActivityCardState.ts` | 活動カードの展開や操作状態を管理する hook を定義する。 |
+| `components/playground/useActivityComposerState.ts` | 活動作成フォームの表示状態を管理する hook を定義する。 |
+| `components/playground/useActivityLookupOptions.ts` | 活動 lookup 候補の取得状態を管理する hook を定義する。 |
+| `components/playground/useActivityTimelineDisclosure.ts` | 活動タイムラインの展開状態を管理する hook を定義する。 |
+| `components/playground/useGlobalHeaderMenus.ts` | グローバルヘッダー内メニューの状態を管理する hook を定義する。 |
+| `components/playground/useGlobalSearch.ts` | グローバル検索の入力、実行、結果反映を管理する hook を定義する。 |
+| `components/playground/useNotice.ts` | 通知 state と自動クローズを管理する hook を定義する。 |
+| `components/playground/usePlaygroundData.ts` | session、Account、Contact、検索結果などの取得状態を管理する hook を定義する。 |
+| `components/playground/usePlaygroundSelection.ts` | 現在選択中のタブやレコードを管理する hook を定義する。 |
+| `components/playground/useQuickActionLookupState.ts` | クイックアクション lookup の入力、候補、選択状態を管理する hook を定義する。 |
+| `components/playground/useRecordModalState.ts` | レコード関連モーダルの開閉と対象状態を管理する hook を定義する。 |
+| `components/playground/useRecordMutationActions.ts` | レコード作成、更新、削除操作の action hook を定義する。 |
+| `components/playground/useRecordMutations.ts` | レコード mutation の実行状態と API 呼び出しを管理する hook を定義する。 |
 
 ## `lib`
 
@@ -123,14 +189,23 @@
 | ファイル | 用途 |
 | --- | --- |
 | `lib/salesforce/api-version.ts` | Salesforce API version の唯一の定義元を置く。 |
+| `lib/salesforce/activities.ts` | 活動 API で使う型や共通定義を置く。 |
+| `lib/salesforce/activity-payloads.ts` | ToDo / 行動 request payload の検証と正規化を行う。 |
+| `lib/salesforce/client-core.ts` | OAuth URL、token request、Salesforce error payload 変換の純粋処理を定義する。 |
 | `lib/salesforce/client.ts` | token exchange、refresh、revoke、Client Credentials token 交換、API error response を扱う。 |
 | `lib/salesforce/config.ts` | Salesforce OAuth / Integration 用環境変数の読み取りと検証を行う。 |
 | `lib/salesforce/error-sanitizer.ts` | token / secret 系の値をログやエラー詳細からマスクする。 |
 | `lib/salesforce/integration-security.ts` | `x-integration-api-key` の検証を行う。 |
+| `lib/salesforce/json-payload.ts` | API request body の JSON 読み取り helper を定義する。 |
+| `lib/salesforce/query-limits.ts` | Salesforce query の取得件数上限を定義する。 |
+| `lib/salesforce/record-fields.ts` | Account / Contact で許可するフィールド定義を置く。 |
+| `lib/salesforce/records.ts` | Account / Contact / Search などの型定義を置く。 |
+| `lib/salesforce/recycle-bin.ts` | Recycle Bin API で使う型や共通定義を置く。 |
 | `lib/salesforce/request-payloads.ts` | Account / Contact request payload の検証と正規化を行う。 |
 | `lib/salesforce/request-security.ts` | Origin / Referer 検証と Salesforce record ID 検証を行う。 |
 | `lib/salesforce/route-handler.ts` | Salesforce API Route の共通レスポンス、エラーハンドリング、Route factory を定義する。 |
 | `lib/salesforce/session.ts` | OAuth state と暗号化 HttpOnly session Cookie を扱う。 |
+| `lib/salesforce/url-security.ts` | Salesforce URL や安全な URL 扱いの検証 helper を定義する。 |
 | `lib/salesforce/urls.ts` | 設定済みアプリ origin の取得を行う。 |
 
 ## `services/salesforce`
@@ -145,4 +220,18 @@
 | `services/salesforce/object-permissions.ts` | CRUD 実行前の Salesforce オブジェクト権限確認を行う。 |
 | `services/salesforce/record-queries.ts` | Account / Contact の SOQL query 組み立てを定義する。 |
 | `services/salesforce/records.ts` | Account / Contact の SOQL、create、update、delete、検索を行う。 |
+| `services/salesforce/recycle-bin-helpers.ts` | Recycle Bin レコードの整形や復元 helper を定義する。 |
 | `services/salesforce/recycle-bin.ts` | Recycle Bin 内レコード取得と復元を行う。 |
+
+## `docs`
+
+| ファイル | 用途 |
+| --- | --- |
+| `docs/index.md` | GitHub Pages ドキュメントサイトの入口を定義する。 |
+| `docs/repository-guide.md` | リポジトリ全体の入口と主要ディレクトリを示す。 |
+| `docs/codebase/directories.md` | ディレクトリ構成と責務を示す。 |
+| `docs/codebase/files.md` | 主要ファイル一覧を示す。 |
+| `docs/codebase/placement.md` | 新しい実装やドキュメントの配置判断を示す。 |
+| `docs/api/index.md` | API docs の入口を定義する。 |
+| `docs/setup/index.md` | 開発・運用 docs の入口を定義する。 |
+| `docs/setup/salesforce-integration-client-credentials.md` | Client Credentials Flow 用の Integration ユーザー設定を示す。 |
