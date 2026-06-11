@@ -40,7 +40,7 @@ describe("activity timeline smoke rendering", () => {
         );
 
         expect(markup).toContain("ToDo Call の操作");
-        expect(markup).toContain("slds-icon-action-call");
+        expect(markup).toContain("slds-icon-standard-log-a-call");
         expect(markup).toContain("slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open");
         expect(markup).toContain("aria-expanded=\"true\"");
         expect(markup).toContain("role=\"menu\"");

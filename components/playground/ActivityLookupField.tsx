@@ -131,7 +131,7 @@ export function QuickActionLookup({
                                                         id={`${listboxId}-option-${option.id}`}
                                                         role="option"
                                                         aria-selected={index === activeIndex}
-                                                        onMouseDown={(event) => {
+                                                        onPointerDown={(event) => {
                                                             event.preventDefault();
                                                             selectOption(option);
                                                         }}

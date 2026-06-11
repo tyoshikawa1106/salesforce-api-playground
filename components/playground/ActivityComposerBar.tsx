@@ -6,7 +6,7 @@ import { StandardIcon, type StandardIconName, UtilityIcon } from "./SldsIcon";
 type ActivityComposerAction = {
     iconClassName: string;
     iconName: StandardIconName;
-    iconStyle: CSSProperties;
+    iconStyle?: CSSProperties;
     label: string;
     onClick: () => void;
     value: string;
@@ -27,12 +27,8 @@ export function ActivityComposerBar({
     const eventIconStyle = {
         "--sds-c-icon-color-background": "var(--slds-c-icon-color-background, rgb(235, 112, 146))"
     } as CSSProperties;
-    const callIconStyle = {
-        "--sds-c-icon-color-background": "var(--slds-c-icon-color-background, rgb(84, 105, 141))"
-    } as CSSProperties;
-
     const actions: ActivityComposerAction[] = [
-        { iconClassName: "slds-icon-action-call", iconName: "call", iconStyle: callIconStyle, label: "電話を記録", onClick: onOpenCall, value: "LogCall" },
+        { iconClassName: "slds-icon-action-log-a-call", iconName: "logACall", label: "電話を記録", onClick: onOpenCall, value: "LogCall" },
         { iconClassName: "slds-icon-standard-task", iconName: "task", iconStyle: taskIconStyle, label: "新規ToDo", onClick: onOpenTask, value: "NewTask" },
         { iconClassName: "slds-icon-standard-event", iconName: "event", iconStyle: eventIconStyle, label: "新規行動", onClick: onOpenEvent, value: "NewEvent" }
     ];

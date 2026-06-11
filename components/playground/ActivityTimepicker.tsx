@@ -96,7 +96,7 @@ export function QuickActionTimepicker({
                                 key={option}
                                 role="option"
                                 aria-selected={value === option}
-                                onMouseDown={(event) => {
+                                onPointerDown={(event) => {
                                     event.preventDefault();
                                     selectTime(option);
                                 }}
