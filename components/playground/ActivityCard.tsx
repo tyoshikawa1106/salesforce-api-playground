@@ -39,7 +39,7 @@ export function ActivityCard({
     onOpenActivity
 }: ActivityRecordContext & {
     nameLookupOptions?: ActivityLookupOption[];
-    onDeleteActivity?: (activity: ActivityTimelineItem, afterDelete?: () => Promise<void>) => void;
+    onDeleteActivity?: (activity: ActivityTimelineItem, afterDelete?: () => Promise<void> | void) => void;
     onEditActivity?: (activity: ActivityTimelineItem) => void;
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
     relatedContent?: ReactNode;
@@ -64,7 +64,7 @@ export function ActivityCard({
         relatedName
     });
     const handleDeleteActivity = onDeleteActivity
-        ? (activity: ActivityTimelineItem) => onDeleteActivity(activity, activityState.loadActivities)
+        ? (activity: ActivityTimelineItem) => onDeleteActivity(activity, () => activityState.removeActivity(activity))
         : undefined;
 
     return (

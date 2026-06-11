@@ -213,12 +213,16 @@ export function ActivityDetailWorkspace({
     loading,
     onDeleteRecord,
     onEdit,
+    onOpenAccountById,
+    onOpenContactById,
     onRefresh
 }: {
     activity: Activity;
     loading: boolean;
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Activity) => void;
+    onOpenAccountById: (accountId: string) => void;
+    onOpenContactById: (contactId: string) => void;
     onRefresh: () => void;
 }) {
     return (
@@ -227,6 +231,8 @@ export function ActivityDetailWorkspace({
             loading={loading}
             onDelete={(record) => onDeleteRecord(activityDeleteState(record))}
             onEdit={onEdit}
+            onOpenAccountById={onOpenAccountById}
+            onOpenContactById={onOpenContactById}
             onRefresh={onRefresh}
         />
     );

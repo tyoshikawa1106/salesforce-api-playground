@@ -461,6 +461,10 @@ body {
         font-size: var(--slds-g-font-scale-base, 0.8125rem);
     }
 
+    .playground-home-status-grid {
+        row-gap: var(--slds-g-spacing-3, 0.75rem);
+    }
+
     .playground-list-toolbar {
         align-items: stretch;
         flex-direction: column;

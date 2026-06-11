@@ -91,6 +91,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             onOpenAccount: (record) => openAccount(record.Id),
             onOpenAccountById: openAccount,
             onOpenContact: (record) => openContact(record.Id),
+            onOpenContactById: openContact,
             onBulkDeleteEmpty: () => showNotice({ tone: "info", message: "削除対象がチェックされていません。" }),
             onRefresh: selectedActivity ? () => void refreshActivity(selectedActivity) : loadAll
         },

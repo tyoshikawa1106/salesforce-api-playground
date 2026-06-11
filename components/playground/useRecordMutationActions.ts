@@ -59,6 +59,27 @@ type ActivitySaveRequest = {
     validationErrors: EventFormErrors | TaskFormErrors;
 };
 
+export async function refreshAfterDelete({
+    deleteState,
+    loadAll,
+    onActivityDeleted
+}: {
+    deleteState: DeleteState;
+    loadAll: () => Promise<void>;
+    onActivityDeleted?: () => void;
+}) {
+    if (deleteState.type === "activity") {
+        onActivityDeleted?.();
+
+        if (deleteState.afterDelete) {
+            await deleteState.afterDelete();
+            return;
+        }
+    }
+
+    await loadAll();
+}
+
 const accountNameRequiredMessage = getRequiredFieldMessage(accountTextFields, "Name");
 const contactLastNameRequiredMessage = getRequiredFieldMessage(contactTextFields, "LastName");
 
@@ -219,11 +240,7 @@ export function useRecordMutationActions({
             showNotice,
             onSuccess: async () => {
                 setDeleteState(null);
-                if (deleteState.type === "activity") {
-                    onActivityDeleted?.();
-                    await deleteState.afterDelete?.();
-                }
-                await loadAll();
+                await refreshAfterDelete({ deleteState, loadAll, onActivityDeleted });
             },
             onError: loadAll
         });

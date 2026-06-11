@@ -128,6 +128,7 @@ describe("playground shell smoke rendering", () => {
 
         expect(markup).toContain("slds-text-title_caps\">ホーム");
         expect(markup).toContain("slds-page-header__meta-text");
+        expect(markup).toContain("playground-home-status-grid");
         expect(markup).toContain("Salesforce OAuth と REST API を試すための Next.js アプリ");
         expect(markup).not.toContain("取引先責任者");
         expect(markup).not.toContain("slds-button_icon-border-filled");

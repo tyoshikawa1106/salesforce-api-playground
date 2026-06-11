@@ -38,6 +38,8 @@ describe("record page smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
+                onOpenAccountById: noop,
+                onOpenContactById: noop,
                 onRefresh: noop
             })
         );
@@ -77,6 +79,9 @@ describe("record page smoke rendering", () => {
         expect(contactMarkup).toContain("slds-m-top_small playground-record-body");
         expect(contactMarkup).not.toContain("新規ケース");
         expect(activityMarkup).toContain("ToDo");
+        expect(activityMarkup).toContain("slds-button_reset slds-text-link");
+        expect(activityMarkup).toContain("Taro Yamada");
+        expect(activityMarkup).toContain("Acme");
         expect(activityMarkup).toContain("システム情報");
         expect(activityMarkup).toContain("作成日");
         expect(activityMarkup).toContain("最終更新日");
