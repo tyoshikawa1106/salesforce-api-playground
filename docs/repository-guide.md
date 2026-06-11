@@ -2,7 +2,7 @@
 
 リポジトリ全体の入口です。詳しい一覧は用途ごとに分けています。
 
-## Overview
+## 概要
 
 - [ディレクトリ構成](codebase/directories.md)
 - [主要ファイル一覧](codebase/files.md)

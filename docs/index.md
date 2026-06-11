@@ -1,20 +1,20 @@
 # Salesforce API Playground
 
-## Docs
+## ドキュメント
 
-### Overview
+### 概要
 
 - [リポジトリガイド](repository-guide.md)
 
-### App
+### アプリ
 
 - [API](api/)
 - [画面](ui/)
 
-### Development
+### 開発・運用
 
 - [開発・運用](setup/)
 
-### Knowledge
+### ナレッジ
 
 - [開発ナレッジ](knowledge/)
