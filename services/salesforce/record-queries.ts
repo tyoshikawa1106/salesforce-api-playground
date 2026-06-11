@@ -4,6 +4,7 @@ import type {
     SearchResultItem
 } from "@/lib/salesforce/records";
 import { accountFieldNames, contactFieldNames } from "@/lib/salesforce/record-fields";
+import { DEFAULT_SALESFORCE_QUERY_LIMIT } from "@/lib/salesforce/query-limits";
 
 const accountSearchFields = [
     "Id",
@@ -34,14 +35,14 @@ export const accountListQuery = [
     `SELECT ${accountListQueryFields.join(", ")}`,
     "FROM Account",
     "ORDER BY LastModifiedDate DESC",
-    "LIMIT 100"
+    `LIMIT ${DEFAULT_SALESFORCE_QUERY_LIMIT}`
 ].join(" ");
 
 export const contactListQuery = [
     `SELECT ${contactListQueryFields.join(", ")}`,
     "FROM Contact",
     "ORDER BY LastModifiedDate DESC",
-    "LIMIT 100"
+    `LIMIT ${DEFAULT_SALESFORCE_QUERY_LIMIT}`
 ].join(" ");
 
 const soslReservedCharacters = /[?&|!{}[\]()^~*:\\"'+-]/g;

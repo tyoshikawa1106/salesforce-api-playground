@@ -27,7 +27,7 @@ type RecordPageFrameProps<Record extends object> = {
     relatedContent?: ReactNode;
     detailFields: Array<[string, ReactNode]>;
     systemFields: Array<[string, ReactNode]>;
-    onDeleteActivity?: (activity: Activity) => void;
+    onDeleteActivity?: (activity: Activity, afterDelete?: () => Promise<void>) => void;
     onEditActivity?: (activity: Activity) => void;
     onDelete: (record: Record) => void;
     onEdit: (record: Record) => void;

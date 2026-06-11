@@ -1,4 +1,5 @@
 import type { AccountRecord, ContactRecord } from "./records";
+import { DEFAULT_SALESFORCE_QUERY_LIMIT } from "./query-limits";
 
 const salesforceUserIdPattern = /^[a-zA-Z0-9]{15}([a-zA-Z0-9]{3})?$/;
 
@@ -99,6 +100,6 @@ export function buildRecycleBinQuery(objectApiName: RecycleBinObjectApiName, del
         `FROM ${objectApiName}`,
         `WHERE IsDeleted = true AND LastModifiedById = '${deletedByUserId}'`,
         "ORDER BY LastModifiedDate DESC",
-        "LIMIT 100"
+        `LIMIT ${DEFAULT_SALESFORCE_QUERY_LIMIT}`
     ].join(" ");
 }

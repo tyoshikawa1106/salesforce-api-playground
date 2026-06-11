@@ -39,7 +39,7 @@ export function ActivityCard({
     onOpenActivity
 }: ActivityRecordContext & {
     nameLookupOptions?: ActivityLookupOption[];
-    onDeleteActivity?: (activity: ActivityTimelineItem) => void;
+    onDeleteActivity?: (activity: ActivityTimelineItem, afterDelete?: () => Promise<void>) => void;
     onEditActivity?: (activity: ActivityTimelineItem) => void;
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
     relatedContent?: ReactNode;
@@ -63,6 +63,9 @@ export function ActivityCard({
         relatedLookupOptions,
         relatedName
     });
+    const handleDeleteActivity = onDeleteActivity
+        ? (activity: ActivityTimelineItem) => onDeleteActivity(activity, activityState.loadActivities)
+        : undefined;
 
     return (
         <section className="slds-card slds-card_boundary playground-activity-card">
@@ -132,7 +135,7 @@ export function ActivityCard({
                             onSaveEvent={activityState.saveEvent}
                             onSaveTask={activityState.saveTask}
                             onToggleTaskCompleted={activityState.toggleTaskCompleted}
-                            onDeleteActivity={onDeleteActivity}
+                            onDeleteActivity={handleDeleteActivity}
                             onEditActivity={onEditActivity}
                             onOpenActivity={onOpenActivity}
                             onEventFormChange={activityState.updateEventForm}
