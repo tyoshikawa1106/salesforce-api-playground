@@ -100,6 +100,22 @@
 
 curl 例は [Integration ユーザー設定](salesforce-integration-client-credentials.md) を参照してください。
 
+### Salesforce 認証疎通確認方法
+
+Client ID、Client Secret、`SALESFORCE_INTEGRATION_LOGIN_URL` を変更した後は、本番の作成、更新 API を実行する前に、Client Credentials Flow で access token を取得できることを確認します。この確認では Salesforce の業務データを作成、更新しません。
+
+```zsh
+curl -sS --fail-with-body "$SALESFORCE_INTEGRATION_LOGIN_URL/services/oauth2/token" \
+    -d "grant_type=client_credentials" \
+    --data-urlencode "client_id=$SALESFORCE_INTEGRATION_CLIENT_ID" \
+    --data-urlencode "client_secret=$SALESFORCE_INTEGRATION_CLIENT_SECRET" \
+    | jq '{token_ok: (.access_token | type == "string"), instance_url, id}'
+```
+
+このコマンドは、新しく発行した認証情報、My Domain URL、Client Credentials Flow、Run As ユーザー、OAuth scope `api` の組み合わせで認証が通るかを確認します。
+
+`token_ok` が `true` になれば、token 取得は成功です。`request not supported on this domain` が返る場合は、`SALESFORCE_INTEGRATION_LOGIN_URL` が My Domain URL になっているか確認します。access token、client secret、実 Salesforce URL は Issue、PR、docs、チャット、screenshot に記録しないでください。
+
 確認時の注意:
 
 - `INTEGRATION_API_KEY` は Salesforce の値ではなく、このアプリのサーバー間共有鍵です。PR、Issue、docs に実値を記録しないでください。
