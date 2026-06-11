@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { getDefaultEventForm, getDefaultTaskForm } from "./activity-form-defaults";
-import { getActivitySaveRequest } from "./useRecordMutationActions";
+import { getActivitySaveRequest, refreshAfterDelete } from "./useRecordMutationActions";
 import { accountFixture, activityFixture } from "./test-fixtures";
 import type { ActivityLookupOption, ActivityLookupState } from "./activity-task-form";
-import type { ModalState } from "./types";
+import type { DeleteState, ModalState } from "./types";
 
 const assignedLookup = {
     id: "005xx0000012345",
@@ -74,5 +74,42 @@ describe("getActivitySaveRequest", () => {
             modal,
             validationErrors: {}
         });
+    });
+});
+
+describe("refreshAfterDelete", () => {
+    it("uses an activity-local refresh callback without reloading all data", async () => {
+        const afterDelete = vi.fn();
+        const loadAll = vi.fn();
+        const onActivityDeleted = vi.fn();
+        const deleteState: DeleteState = {
+            type: "activity",
+            activityType: "task",
+            ids: [activityFixture.id],
+            label: activityFixture.subject,
+            afterDelete
+        };
+
+        await refreshAfterDelete({ deleteState, loadAll, onActivityDeleted });
+
+        expect(onActivityDeleted).toHaveBeenCalledTimes(1);
+        expect(afterDelete).toHaveBeenCalledTimes(1);
+        expect(loadAll).not.toHaveBeenCalled();
+    });
+
+    it("reloads all data when an activity delete has no local callback", async () => {
+        const loadAll = vi.fn();
+        const onActivityDeleted = vi.fn();
+        const deleteState: DeleteState = {
+            type: "activity",
+            activityType: "task",
+            ids: [activityFixture.id],
+            label: activityFixture.subject
+        };
+
+        await refreshAfterDelete({ deleteState, loadAll, onActivityDeleted });
+
+        expect(onActivityDeleted).toHaveBeenCalledTimes(1);
+        expect(loadAll).toHaveBeenCalledTimes(1);
     });
 });

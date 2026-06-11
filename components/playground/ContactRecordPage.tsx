@@ -24,7 +24,7 @@ export function ContactRecordPage({
     loading: boolean;
     onDelete: (record: Contact) => void;
     onEdit: (record: Contact) => void;
-    onDeleteActivity?: (activity: Activity, afterDelete?: () => Promise<void>) => void;
+    onDeleteActivity?: (activity: Activity, afterDelete?: () => Promise<void> | void) => void;
     onEditActivity?: (activity: Activity) => void;
     onOpenAccount: (accountId: string) => void;
     onOpenActivity?: (activity: Activity) => void;

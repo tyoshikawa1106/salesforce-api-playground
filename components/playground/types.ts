@@ -22,7 +22,7 @@ export type DeleteState =
         activityType: Activity["type"];
         ids: string[];
         label: string;
-        afterDelete?: () => Promise<void>;
+        afterDelete?: () => Promise<void> | void;
     };
 
 export type RestoreState = {

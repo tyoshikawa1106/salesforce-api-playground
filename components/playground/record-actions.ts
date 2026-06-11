@@ -17,7 +17,7 @@ export function contactDeleteState(records: Contact[], label: string): DeleteSta
     };
 }
 
-export function activityDeleteState(activity: Activity, afterDelete?: () => Promise<void>): DeleteState {
+export function activityDeleteState(activity: Activity, afterDelete?: () => Promise<void> | void): DeleteState {
     return {
         type: "activity",
         activityType: activity.type,

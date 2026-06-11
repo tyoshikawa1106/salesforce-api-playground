@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import {
     type ActivityLookupOption,
@@ -79,6 +79,19 @@ export function useActivityCardState({
         taskStatusOverrides
     });
     const { loadActivities } = actions;
+    const removeActivity = useCallback((activity: ActivityTimelineItem) => {
+        setActivities((current) => current.filter((item) => item.id !== activity.id || item.type !== activity.type));
+        setTaskStatusOverrides((current) => {
+            if (activity.type !== "task" || !(activity.id in current)) {
+                return current;
+            }
+
+            const next = { ...current };
+            delete next[activity.id];
+            return next;
+        });
+        setActivityMessage("");
+    }, []);
 
     useEffect(() => {
         if (activeTab === "activity") {
@@ -94,6 +107,7 @@ export function useActivityCardState({
         context,
         loadingActivities,
         lookupOptions,
+        removeActivity,
         savingActivity,
         taskStatusOverrides
     };

@@ -17,7 +17,7 @@ export function HomePanel({
             />
 
             <div className="slds-p-around_medium">
-                <div className="slds-grid slds-wrap slds-gutters">
+                <div className="slds-grid slds-wrap slds-gutters playground-home-status-grid">
                     <StatusSummary
                         label="接続"
                         value={connected ? "接続済み" : "未接続"}
