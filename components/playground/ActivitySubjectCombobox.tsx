@@ -1,18 +1,20 @@
 "use client";
 
-import { type KeyboardEvent, useState } from "react";
+import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { taskSubjectOptions } from "./activity-task-form";
 import { FieldError } from "./ActivityFieldErrorsAndInputs";
 import { UtilityIcon } from "./SldsIcon";
 
 export function QuickActionSubjectCombobox({
     error,
+    idPrefix = "task-subject-combobox",
     label,
     onChange,
     required = false,
     value
 }: {
     error?: string;
+    idPrefix?: string;
     label: string;
     onChange: (value: string) => void;
     required?: boolean;
@@ -20,10 +22,34 @@ export function QuickActionSubjectCombobox({
 }) {
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(1);
-    const inputId = "task-subject-combobox-input";
-    const listboxId = "task-subject-combobox-listbox";
+    const comboboxRef = useRef<HTMLDivElement>(null);
+    const inputId = `${idPrefix}-input`;
+    const listboxId = `${idPrefix}-listbox`;
     const activeOptionId = `${inputId}-${activeIndex}`;
     const shouldShowOptions = (nextValue: string) => nextValue === "" || taskSubjectOptions.includes(nextValue as (typeof taskSubjectOptions)[number]);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+
+        function closeOnOutsidePointer(event: Event) {
+            const { current } = comboboxRef;
+            if (event.target instanceof Node && current?.contains(event.target)) {
+                return;
+            }
+
+            setOpen(false);
+        }
+
+        document.addEventListener("mousedown", closeOnOutsidePointer);
+        document.addEventListener("touchstart", closeOnOutsidePointer);
+
+        return () => {
+            document.removeEventListener("mousedown", closeOnOutsidePointer);
+            document.removeEventListener("touchstart", closeOnOutsidePointer);
+        };
+    }, [open]);
 
     function selectSubject(nextValue: string) {
         onChange(nextValue);
@@ -67,7 +93,15 @@ export function QuickActionSubjectCombobox({
             <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}</label>
             <div className="slds-form-element__control">
                 <div className="slds-combobox_container">
-                    <div className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}>
+                    <div
+                        ref={comboboxRef}
+                        className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
+                        onBlur={(event) => {
+                            if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
+                                setOpen(false);
+                            }
+                        }}
+                    >
                         <div className="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
                             <input
                                 className="slds-combobox__input slds-input"
@@ -85,7 +119,6 @@ export function QuickActionSubjectCombobox({
                                 maxLength={255}
                                 required={required}
                                 value={value}
-                                onBlur={() => setOpen(false)}
                                 onChange={(event) => {
                                     const nextValue = event.target.value;
                                     onChange(nextValue);
@@ -98,37 +131,39 @@ export function QuickActionSubjectCombobox({
                                 <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default slds-icon_x-small" name="search" />
                             </div>
                         </div>
-                        <div className="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-with-icon-7" id={listboxId} role="listbox" aria-label={label}>
-                            {taskSubjectOptions.map((option, index) => {
-                                const optionLabel = option || "--なし--";
-                                const selected = value === option;
-                                const active = activeIndex === index;
+                        {open ? (
+                            <div className="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-with-icon-7" id={listboxId} role="listbox" aria-label={label}>
+                                {taskSubjectOptions.map((option, index) => {
+                                    const optionLabel = option || "--なし--";
+                                    const selected = value === option;
+                                    const active = activeIndex === index;
 
-                                return (
-                                    <div
-                                        className={`slds-media slds-listbox__option slds-media_center slds-media_small slds-listbox__option_plain ${
-                                            active ? "slds-has-focus" : ""
-                                        }`}
-                                        data-value={option}
-                                        id={`${inputId}-${index}`}
-                                        key={optionLabel}
-                                        role="option"
-                                        aria-checked={selected}
-                                        aria-selected={selected}
-                                        onMouseDown={(event) => {
-                                            event.preventDefault();
-                                            selectSubject(option);
-                                        }}
-                                        onMouseEnter={() => setActiveIndex(index)}
-                                    >
-                                        <span className="slds-media__figure slds-listbox__option-icon" />
-                                        <span className="slds-media__body">
-                                            <span title={optionLabel}>{optionLabel}</span>
-                                        </span>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                    return (
+                                        <div
+                                            className={`slds-media slds-listbox__option slds-media_center slds-media_small slds-listbox__option_plain ${
+                                                active ? "slds-has-focus" : ""
+                                            }`}
+                                            data-value={option}
+                                            id={`${inputId}-${index}`}
+                                            key={optionLabel}
+                                            role="option"
+                                            aria-checked={selected}
+                                            aria-selected={selected}
+                                            onMouseDown={(event) => {
+                                                event.preventDefault();
+                                                selectSubject(option);
+                                            }}
+                                            onMouseEnter={() => setActiveIndex(index)}
+                                        >
+                                            <span className="slds-media__figure slds-listbox__option-icon" />
+                                            <span className="slds-media__body">
+                                                <span title={optionLabel}>{optionLabel}</span>
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : null}
                     </div>
                 </div>
                 <FieldError message={error} />

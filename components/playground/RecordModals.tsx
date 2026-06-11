@@ -112,7 +112,7 @@ export function RecordModals({
                                     <TaskFormErrorSummary errors={taskErrors} />
                                     <div className="slds-form-element__group">
                                         <div className="slds-form-element__row">
-                                            <QuickActionSubjectCombobox error={taskErrors.Subject} label="件名" required value={taskForm.Subject} onChange={(Subject) => onTaskFormChange({ ...taskForm, Subject })} />
+                                            <QuickActionSubjectCombobox error={taskErrors.Subject} idPrefix="activity-edit-task-subject-combobox" label="件名" required value={taskForm.Subject} onChange={(Subject) => onTaskFormChange({ ...taskForm, Subject })} />
                                         </div>
                                         <div className="slds-form-element__row">
                                             <div className="slds-form-element slds-size_1-of-1">
@@ -141,7 +141,7 @@ export function RecordModals({
                                     <EventFormErrorSummary errors={eventErrors} />
                                     <div className="slds-form-element__group">
                                         <div className="slds-form-element__row">
-                                            <QuickActionSubjectCombobox error={eventErrors.Subject} label="件名" required value={eventForm.Subject} onChange={(Subject) => onEventFormChange({ ...eventForm, Subject })} />
+                                            <QuickActionSubjectCombobox error={eventErrors.Subject} idPrefix="activity-edit-event-subject-combobox" label="件名" required value={eventForm.Subject} onChange={(Subject) => onEventFormChange({ ...eventForm, Subject })} />
                                         </div>
                                         <div className="slds-form-element__row">
                                             <QuickActionDateTimePicker error={eventErrors.StartDateTime} label="開始" required idPrefix="activity-edit-event-start" value={eventForm.StartDateTime} onChange={(StartDateTime) => onEventFormChange({ ...eventForm, StartDateTime })} />
