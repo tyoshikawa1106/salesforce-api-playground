@@ -65,7 +65,7 @@ describe("record page smoke rendering", () => {
         expect(contactMarkup).toContain("取引先");
         expect(contactMarkup).toContain("slds-button_reset slds-text-link");
         expect(contactMarkup).toContain("電話を記録");
-        expect(contactMarkup).toContain("slds-icon-action-log-a-call");
+        expect(contactMarkup).toContain("slds-icon-standard-log-a-call");
         expect(contactMarkup).toContain("新規ToDo");
         expect(contactMarkup).toContain("新規行動");
         expect(contactMarkup).toContain("今後 &amp; 期限切れ");
