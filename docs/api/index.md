@@ -1,5 +1,6 @@
 ## API
 
+- [共通事項](common.md)
 - [接続と認証](auth.md)
 - [取引先](accounts.md)
 - [取引先責任者](contacts.md)
@@ -7,4 +8,3 @@
 - [検索](search.md)
 - [連携](integration.md)
 - [ごみ箱](recycle-bin.md)
-- [共通事項](common.md)
