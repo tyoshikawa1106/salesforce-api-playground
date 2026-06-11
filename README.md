@@ -90,15 +90,14 @@ npm run start
 
 ## 環境変数
 
-必要な環境変数は [.env.example](.env.example) にまとめています。各値の意味、必須条件、Sandbox / My Domain URL の使い分けは [ローカル開発](docs/setup/local-development.md) で確認できます。
+必要な環境変数は [.env.example](.env.example) にまとめています。各値の意味、必須条件、Sandbox / My Domain URL の使い分けは [ローカル環境設定](docs/setup/local-development.md) で確認できます。
 
-Authorization Code Flow の接続 API は [接続と認証](docs/api/auth.md)、Client Credentials Flow の設定手順は [Salesforce Integration ユーザー連携設定](docs/setup/salesforce-integration-client-credentials.md) に整理しています。
+Authorization Code Flow の接続 API は [接続と認証](docs/api/auth.md)、Client Credentials Flow の設定手順は [Integration ユーザー設定](docs/setup/salesforce-integration-client-credentials.md) に整理しています。
 
 `SESSION_SECRET` は Cookie 暗号化用のランダム文字列です。Salesforce の値ではありません。
 
 ## デプロイ方法
 
-Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用です。通常の開発 PR は作業ブランチから `main` に向け、CI pass 後にユーザーが merge します。
+Heroku は GitHub `main` への merge を起点に Staging へ反映し、確認後に Heroku Pipeline で Production へ promote する運用です。詳細は [Heroku デプロイ](docs/deployment/heroku.md) を参照します。
 
-Heroku へデプロイする場合は、Heroku Config Vars と Salesforce 外部クライアントアプリケーションのコールバック URL を Staging / Production ごとに分けて設定します。
-README 先頭の Heroku Button は、通常開発のデプロイ導線ではなく、このリポジトリを自分の Heroku アカウントで試すための初回作成用です。Heroku Button から新規アプリを作成した場合は、作成後の Heroku app host に合わせて `SALESFORCE_REDIRECT_URI` と Salesforce 側 callback URL を同じ値に設定します。
+README 先頭の Heroku Button は、通常開発のデプロイ導線ではなく、このリポジトリを自分の Heroku アカウントで試すための初回作成用です。
