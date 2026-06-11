@@ -1,9 +1,8 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent } from "react";
 import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import type {
-    ActivityLookupOption,
     ActivityLookupState,
     ActivityRecordContext,
     EventForm,
@@ -11,15 +10,16 @@ import type {
     TaskForm,
     TaskFormErrors
 } from "./activity-task-form";
-import {
-    ActivityTimeline,
-    getActivityTimelineEntryKey,
-    groupActivityTimelineSections,
-    type TaskStatusOverride
-} from "./ActivityTimeline";
+import { ActivityTimeline, type TaskStatusOverride } from "./ActivityTimeline";
 import { ActivityComposerBar } from "./ActivityComposerBar";
-import { EventDockedComposer, TaskDockedComposer } from "./ActivityDockedComposers";
+import {
+    EventDockedComposer,
+    TaskDockedComposer,
+    type ActivityLookupOptions
+} from "./ActivityDockedComposers";
 import { ActivityTimelineToolbar } from "./ActivityTimelineToolbar";
+import { getDisplayedTimelineSections } from "./activity-panel-state";
+import { useActivityTimelineDisclosure } from "./useActivityTimelineDisclosure";
 
 export type ActivityComposerKind = "call" | "event" | "task";
 
@@ -63,11 +63,7 @@ export function ActivityPanel({
     context: ActivityRecordContext;
     eventForm: EventForm;
     eventFormErrors: EventFormErrors;
-    lookupOptions: {
-        assigned: ActivityLookupOption[];
-        name: ActivityLookupOption[];
-        related: ActivityLookupOption[];
-    };
+    lookupOptions: ActivityLookupOptions;
     lookups: ActivityLookupState;
     loading: boolean;
     message: string;
@@ -92,66 +88,18 @@ export function ActivityPanel({
     onToggleComposerExpanded: () => void;
     onToggleComposerMinimized: () => void;
 }) {
-    const timelineSections = groupActivityTimelineSections(activities, taskStatusOverrides);
-    const displayedTimelineSections = timelineSections.length > 0
-        ? timelineSections
-        : [{
-            activities: [],
-            history: false,
-            key: "future",
-            title: "今後 & 期限切れ"
-        }];
-    const [collapsedSectionKeys, setCollapsedSectionKeys] = useState<Set<string>>(() => new Set());
-    const [expandedActivityKeys, setExpandedActivityKeys] = useState<Set<string>>(() => new Set());
-    const [openActionActivityId, setOpenActionActivityId] = useState<string | null>(null);
-    const activityKeys = displayedTimelineSections.flatMap((section) =>
-        section.activities.map(getActivityTimelineEntryKey)
-    );
-    const expandedSectionKeys = new Set(
-        displayedTimelineSections
-            .map((section) => section.key)
-            .filter((key) => !collapsedSectionKeys.has(key))
-    );
-    const allSectionsExpanded = displayedTimelineSections
-        .every((section) => !collapsedSectionKeys.has(section.key));
-    const allActivitiesExpanded = activityKeys.length === 0
-        || activityKeys.every((key) => expandedActivityKeys.has(key));
-    const allTimelineExpanded = allSectionsExpanded && allActivitiesExpanded;
-
-    function toggleAllTimelineSections() {
-        setCollapsedSectionKeys(allTimelineExpanded
-            ? new Set(displayedTimelineSections.map((section) => section.key))
-            : new Set());
-        setExpandedActivityKeys(allTimelineExpanded
-            ? new Set()
-            : new Set(activityKeys));
-    }
-
-    function toggleTimelineSection(key: string) {
-        setCollapsedSectionKeys((current) => {
-            const next = new Set(current);
-            if (next.has(key)) {
-                next.delete(key);
-            } else {
-                next.add(key);
-            }
-
-            return next;
-        });
-    }
-
-    function toggleActivity(key: string) {
-        setExpandedActivityKeys((current) => {
-            const next = new Set(current);
-            if (next.has(key)) {
-                next.delete(key);
-            } else {
-                next.add(key);
-            }
-
-            return next;
-        });
-    }
+    const displayedTimelineSections = getDisplayedTimelineSections(activities, taskStatusOverrides);
+    const {
+        allTimelineExpanded,
+        closeActionMenu,
+        expandedActivityKeys,
+        expandedSectionKeys,
+        openActionActivityId,
+        toggleActionMenu,
+        toggleActivity,
+        toggleAllTimelineSections,
+        toggleTimelineSection
+    } = useActivityTimelineDisclosure(displayedTimelineSections);
 
     return (
         <div className="playground-activity-panel">
@@ -174,16 +122,14 @@ export function ActivityPanel({
                     sections={displayedTimelineSections}
                     taskStatusOverrides={taskStatusOverrides}
                     openActionActivityId={openActionActivityId}
-                    onCloseActionMenu={() => setOpenActionActivityId(null)}
+                    onCloseActionMenu={closeActionMenu}
                     onDeleteActivity={onDeleteActivity}
                     onEditActivity={onEditActivity}
                     onToggleActivity={toggleActivity}
                     onToggleSection={toggleTimelineSection}
                     onToggleTaskCompleted={onToggleTaskCompleted}
                     onOpenActivity={onOpenActivity}
-                    onToggleActionMenu={(activityId) =>
-                        setOpenActionActivityId((currentActivityId) => (currentActivityId === activityId ? null : activityId))
-                    }
+                    onToggleActionMenu={toggleActionMenu}
                 />
             )}
             {activeComposer === "task" ? (
