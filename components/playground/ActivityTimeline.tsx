@@ -4,6 +4,7 @@ import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import type { ActivityRecordContext } from "./activity-task-form";
 import { ActivityTimelineEntry } from "./ActivityTimelineEntry";
 import {
+    getActivityTimelineEntryKey,
     groupActivityTimelineSections,
     type ActivityTimelineSection,
     type TaskStatusOverride
@@ -14,7 +15,10 @@ export type {
     ActivityTimelineSection,
     TaskStatusOverride
 } from "./activity-timeline-helpers";
-export { groupActivityTimelineSections } from "./activity-timeline-helpers";
+export {
+    getActivityTimelineEntryKey,
+    groupActivityTimelineSections
+} from "./activity-timeline-helpers";
 
 export function ActivityTimeline({
     context,
@@ -95,10 +99,6 @@ export function ActivityTimeline({
             })}
         </section>
     );
-}
-
-export function getActivityTimelineEntryKey(activity: ActivityTimelineItem) {
-    return `${activity.type}-${activity.id}`;
 }
 
 function ActivityTimelineSectionTitle({

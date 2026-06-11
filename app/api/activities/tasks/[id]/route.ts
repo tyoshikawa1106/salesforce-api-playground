@@ -1,33 +1,15 @@
 import {
     readTaskActivityUpdatePayload
 } from "@/lib/salesforce/activity-payloads";
-import {
-    handleSalesforceDeleteRoute,
-    handleSalesforceRoute,
-    handleSalesforceUpdateRoute,
-    type SalesforceRouteParams
-} from "@/lib/salesforce/route-handler";
-import { assertSalesforceRecordId } from "@/lib/salesforce/request-security";
+import { createSalesforceReadableRecordRouteHandlers } from "@/lib/salesforce/route-handler";
 import { deleteTaskActivity, getTaskActivity, updateTaskActivity } from "@/services/salesforce/activities";
 
-export function GET(_request: Request, { params }: SalesforceRouteParams) {
-    return handleSalesforceRoute(async () => {
-        const { id } = await params;
-        assertSalesforceRecordId(id, "Task");
-        return getTaskActivity(id);
-    });
-}
+const taskActivityRoutes = createSalesforceReadableRecordRouteHandlers({
+    objectLabel: "Task",
+    readUpdatePayload: readTaskActivityUpdatePayload,
+    getRecord: getTaskActivity,
+    updateRecord: updateTaskActivity,
+    deleteRecord: deleteTaskActivity
+});
 
-export function PATCH(request: Request, params: SalesforceRouteParams) {
-    return handleSalesforceUpdateRoute(
-        request,
-        params,
-        "Task",
-        readTaskActivityUpdatePayload,
-        updateTaskActivity
-    );
-}
-
-export function DELETE(request: Request, params: SalesforceRouteParams) {
-    return handleSalesforceDeleteRoute(request, params, "Task", deleteTaskActivity);
-}
+export const { GET, PATCH, DELETE } = taskActivityRoutes;

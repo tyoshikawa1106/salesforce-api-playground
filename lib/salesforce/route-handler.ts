@@ -31,6 +31,7 @@ type ReadPayload<TInput> = (request: JsonRequest) => Promise<TInput>;
 type CreateRecord<TInput, TData> = (input: TInput) => Promise<SalesforceRouteResult<TData>>;
 type UpdateRecord<TInput, TData> = (id: string, input: TInput) => Promise<SalesforceRouteResult<TData>>;
 type DeleteRecord<TData> = (id: string) => Promise<SalesforceRouteResult<TData>>;
+type GetRecord<TData> = (id: string) => Promise<SalesforceRouteResult<TData>>;
 type BulkDeleteInput = {
     ids: string[];
 };
@@ -60,6 +61,11 @@ type SalesforceRecordRouteConfig<TUpdateInput, TUpdateData, TDeleteData> = {
     updateRecord: UpdateRecord<TUpdateInput, TUpdateData>;
     deleteRecord: DeleteRecord<TDeleteData>;
 };
+
+type SalesforceReadableRecordRouteConfig<TUpdateInput, TReadData, TUpdateData, TDeleteData> =
+    SalesforceRecordRouteConfig<TUpdateInput, TUpdateData, TDeleteData> & {
+        getRecord: GetRecord<TReadData>;
+    };
 
 export async function handleSalesforceRoute<T>(
     handler: () => Promise<SalesforceRouteResult<T>>,
@@ -117,6 +123,18 @@ export function handleSalesforceDeleteRoute<TData>(
     });
 }
 
+export function handleSalesforceGetRecordRoute<TData>(
+    { params }: SalesforceRouteParams,
+    objectLabel: SalesforceObjectLabel,
+    getRecord: GetRecord<TData>
+): Promise<NextResponse> {
+    return handleSalesforceRoute(async () => {
+        const { id } = await params;
+        assertSalesforceRecordId(id, objectLabel);
+        return getRecord(id);
+    });
+}
+
 export function handleSalesforceBulkDeleteRoute<TData>(
     request: MutatingRequest,
     objectLabel: SalesforceObjectLabel,
@@ -171,6 +189,26 @@ export function createSalesforceRecordRouteHandlers<TUpdateInput, TUpdateData, T
     updateRecord
 }: SalesforceRecordRouteConfig<TUpdateInput, TUpdateData, TDeleteData>) {
     return {
+        PATCH(request: Request, params: SalesforceRouteParams) {
+            return handleSalesforceUpdateRoute(request, params, objectLabel, readUpdatePayload, updateRecord);
+        },
+        DELETE(request: Request, params: SalesforceRouteParams) {
+            return handleSalesforceDeleteRoute(request, params, objectLabel, deleteRecord);
+        }
+    };
+}
+
+export function createSalesforceReadableRecordRouteHandlers<TUpdateInput, TReadData, TUpdateData, TDeleteData>({
+    deleteRecord,
+    getRecord,
+    objectLabel,
+    readUpdatePayload,
+    updateRecord
+}: SalesforceReadableRecordRouteConfig<TUpdateInput, TReadData, TUpdateData, TDeleteData>) {
+    return {
+        GET(_request: Request, params: SalesforceRouteParams) {
+            return handleSalesforceGetRecordRoute(params, objectLabel, getRecord);
+        },
         PATCH(request: Request, params: SalesforceRouteParams) {
             return handleSalesforceUpdateRoute(request, params, objectLabel, readUpdatePayload, updateRecord);
         },

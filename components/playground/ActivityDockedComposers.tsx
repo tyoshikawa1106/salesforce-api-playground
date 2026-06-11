@@ -25,7 +25,7 @@ import {
 } from "./ActivityQuickActionFields";
 import { ActivityDockedComposerFrame } from "./ActivityDockedComposerFrame";
 
-type ActivityLookupOptions = {
+export type ActivityLookupOptions = {
     assigned: ActivityLookupOption[];
     name: ActivityLookupOption[];
     related: ActivityLookupOption[];

@@ -16,6 +16,10 @@ export type ActivityTimelineSection = {
     title: string;
 };
 
+export function getActivityTimelineEntryKey(activity: ActivityTimelineItem) {
+    return `${activity.type}-${activity.id}`;
+}
+
 export function groupActivityTimelineSections(
     activities: ActivityTimelineItem[],
     taskStatusOverrides: Record<string, TaskStatusOverride>
