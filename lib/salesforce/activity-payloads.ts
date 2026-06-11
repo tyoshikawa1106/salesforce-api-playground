@@ -1,4 +1,3 @@
-import { SalesforceApiError } from "./client";
 import type {
     ActivityParent,
     ActivityParentType,
@@ -12,19 +11,14 @@ import {
     assertSalesforceRecordIdForAnyObject,
     assertSalesforceRecordIdFormat
 } from "./request-security";
-
-type JsonRequest = Pick<Request, "json">;
+import {
+    badPayload,
+    readJsonObjectBody,
+    type JsonRequest
+} from "./json-payload";
 
 const activityParentTypes = new Set<ActivityParentType>(["account", "contact"]);
 const taskSubtypeValues = new Set(["Task", "Email", "LinkedIn", "ListEmail", "Cadence", "Call"]);
-
-function badPayload(message: string): SalesforceApiError {
-    return new SalesforceApiError(message, 400);
-}
-
-function isJsonObject(body: unknown): body is Record<string, unknown> {
-    return typeof body === "object" && body !== null && !Array.isArray(body);
-}
 
 function readOptionalString(body: Record<string, unknown>, key: string): string | undefined {
     const value = body[key];
@@ -95,19 +89,7 @@ function readParent(body: Record<string, unknown>): ActivityParent {
 }
 
 async function readActivityBody(request: JsonRequest): Promise<Record<string, unknown>> {
-    let body: unknown;
-
-    try {
-        body = await request.json();
-    } catch {
-        throw badPayload("Request body must be valid JSON.");
-    }
-
-    if (!isJsonObject(body)) {
-        throw badPayload("Request body must be a JSON object.");
-    }
-
-    return body;
+    return readJsonObjectBody(request);
 }
 
 function assertActivityLookupIds({

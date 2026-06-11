@@ -12,9 +12,12 @@ import {
     accountFieldNames,
     contactFieldNames
 } from "./record-fields";
-import { SalesforceApiError } from "./client";
-
-type JsonRequest = Pick<Request, "json">;
+import {
+    badPayload,
+    isJsonObject,
+    readJsonObjectBody,
+    type JsonRequest
+} from "./json-payload";
 
 type SalesforcePayloadOptions = {
     allowNull: boolean;
@@ -32,22 +35,6 @@ type SalesforcePayloadReaderConfig = {
 type SalesforcePayloadValue = string | null;
 type SalesforcePayload = Record<string, SalesforcePayloadValue>;
 
-function isJsonObject(body: unknown): body is Record<string, unknown> {
-    return typeof body === "object" && body !== null && !Array.isArray(body);
-}
-
-function badPayload(message: string): SalesforceApiError {
-    return new SalesforceApiError(message, 400);
-}
-
-async function readJsonBody(request: JsonRequest): Promise<unknown> {
-    try {
-        return await request.json();
-    } catch {
-        throw badPayload("Request body must be valid JSON.");
-    }
-}
-
 function normalizeStringValue(value: string, allowNull: boolean): SalesforcePayloadValue | undefined {
     const trimmed = value.trim();
 
@@ -58,11 +45,7 @@ function normalizeStringValue(value: string, allowNull: boolean): SalesforcePayl
     return allowNull ? null : undefined;
 }
 
-function validateSalesforcePayload(body: unknown, options: SalesforcePayloadOptions): SalesforcePayload {
-    if (!isJsonObject(body)) {
-        throw badPayload("Request body must be a JSON object.");
-    }
-
+function validateSalesforcePayload(body: Record<string, unknown>, options: SalesforcePayloadOptions): SalesforcePayload {
     const allowedFields = new Set(options.fields);
     const payload: SalesforcePayload = {};
 
@@ -106,7 +89,7 @@ async function readSalesforcePayload<T>(
     request: JsonRequest,
     options: SalesforcePayloadOptions
 ): Promise<T> {
-    const body = await readJsonBody(request);
+    const body = await readJsonObjectBody(request);
 
     return validateSalesforcePayload(body, options) as T;
 }
@@ -137,11 +120,7 @@ function createSalesforcePayloadReaders<TCreate, TUpdate>({
 }
 
 export async function readBulkDeletePayload(request: JsonRequest): Promise<BulkDeleteInput> {
-    const body = await readJsonBody(request);
-
-    if (!isJsonObject(body)) {
-        throw badPayload("Request body must be a JSON object.");
-    }
+    const body = await readJsonObjectBody(request);
 
     if (!("ids" in body)) {
         throw badPayload("ids is required.");
@@ -167,11 +146,7 @@ export async function readBulkDeletePayload(request: JsonRequest): Promise<BulkD
 }
 
 export async function readRecycleBinUndeletePayload(request: JsonRequest): Promise<{ items: RecycleBinUndeleteItem[] }> {
-    const body = await readJsonBody(request);
-
-    if (!isJsonObject(body)) {
-        throw badPayload("Request body must be a JSON object.");
-    }
+    const body = await readJsonObjectBody(request);
 
     if (!("items" in body)) {
         throw badPayload("items is required.");

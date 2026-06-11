@@ -12,6 +12,7 @@ import {
 import type { SalesforceObjectLabel } from "./request-security";
 import type { SalesforceSession } from "./session";
 import { getSession } from "./session";
+import type { JsonRequest } from "./json-payload";
 
 export type SalesforceRouteResult<T> = {
     data: T;
@@ -24,7 +25,6 @@ export type SalesforceRouteParams = {
     }>;
 };
 
-type JsonRequest = Pick<Request, "json">;
 type MutatingRequest = Pick<Request, "headers" | "json" | "url">;
 
 type ReadPayload<TInput> = (request: JsonRequest) => Promise<TInput>;
