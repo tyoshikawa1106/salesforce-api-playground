@@ -92,19 +92,27 @@ export function ActivityPanel({
     onToggleComposerMinimized: () => void;
 }) {
     const timelineSections = groupActivityTimelineSections(activities, taskStatusOverrides);
+    const displayedTimelineSections = timelineSections.length > 0
+        ? timelineSections
+        : [{
+            activities: [],
+            history: false,
+            key: "future",
+            title: "今後 & 期限切れ"
+        }];
     const [collapsedSectionKeys, setCollapsedSectionKeys] = useState<Set<string>>(() => new Set());
     const [openActionActivityId, setOpenActionActivityId] = useState<string | null>(null);
     const expandedSectionKeys = new Set(
-        timelineSections
+        displayedTimelineSections
             .map((section) => section.key)
             .filter((key) => !collapsedSectionKeys.has(key))
     );
-    const allSectionsExpanded = timelineSections.length > 0
-        && timelineSections.every((section) => !collapsedSectionKeys.has(section.key));
+    const allSectionsExpanded = displayedTimelineSections
+        .every((section) => !collapsedSectionKeys.has(section.key));
 
     function toggleAllTimelineSections() {
         setCollapsedSectionKeys(allSectionsExpanded
-            ? new Set(timelineSections.map((section) => section.key))
+            ? new Set(displayedTimelineSections.map((section) => section.key))
             : new Set());
     }
 
@@ -127,7 +135,7 @@ export function ActivityPanel({
             <ActivityTimelineToolbar
                 allSectionsExpanded={allSectionsExpanded}
                 loading={loading}
-                sectionCount={timelineSections.length}
+                sectionCount={displayedTimelineSections.length}
                 onRefresh={onRefresh}
                 onToggleAllSections={toggleAllTimelineSections}
             />
@@ -138,7 +146,7 @@ export function ActivityPanel({
                 <ActivityTimeline
                     context={context}
                     expandedSectionKeys={expandedSectionKeys}
-                    sections={timelineSections}
+                    sections={displayedTimelineSections}
                     taskStatusOverrides={taskStatusOverrides}
                     openActionActivityId={openActionActivityId}
                     onCloseActionMenu={() => setOpenActionActivityId(null)}

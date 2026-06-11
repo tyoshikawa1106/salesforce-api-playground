@@ -62,6 +62,54 @@ describe("activity timeline smoke rendering", () => {
         expect(markup).toContain(activity.subject);
     });
 
+    it("renders an interactive empty timeline section", () => {
+        const markup = renderToStaticMarkup(
+            createElement(ActivityPanel, {
+                activeComposer: null,
+                activities: [],
+                composerExpanded: false,
+                composerMinimized: false,
+                context: {
+                    parentId: account.Id,
+                    parentName: account.Name,
+                    parentType: "account"
+                },
+                eventForm: getDefaultEventForm(),
+                eventFormErrors: {},
+                lookupOptions: {
+                    assigned: [],
+                    name: [],
+                    related: []
+                },
+                lookups: {},
+                loading: false,
+                message: "",
+                saving: false,
+                taskStatusOverrides: {},
+                taskForm: getDefaultTaskForm(),
+                taskFormErrors: {},
+                onCloseComposer: noop,
+                onEventFormChange: noop,
+                onLookupChange: noop,
+                onOpenCallComposer: noop,
+                onOpenEventComposer: noop,
+                onOpenTaskComposer: noop,
+                onRefresh: noop,
+                onSaveEvent: noop,
+                onSaveTask: noop,
+                onTaskFormChange: noop,
+                onToggleComposerExpanded: noop,
+                onToggleComposerMinimized: noop,
+                onToggleTaskCompleted: noop
+            })
+        );
+
+        expect(markup).toContain("すべて折りたたむ");
+        expect(markup).toContain("<button class=\"slds-button_reset slds-text-link\" type=\"button\">すべて折りたたむ</button>");
+        expect(markup).toContain("aria-expanded=\"true\"");
+        expect(markup).toContain("表示できる活動はまだありません。");
+    });
+
     it("renders activity timeline entries with record action menus", () => {
         const callActivity = { ...activity, taskSubtype: "Call" } as Extract<Activity, { type: "task" }>;
 
@@ -140,7 +188,42 @@ describe("activity timeline smoke rendering", () => {
 
         expect(expandedMarkup).toContain(downIconPath);
         expect(expandedMarkup).not.toContain(rightIconPath);
+        expect(expandedMarkup).not.toContain("slds-section__title-action-icon");
         expect(collapsedMarkup).toContain(rightIconPath);
         expect(collapsedMarkup).not.toContain(downIconPath);
+        expect(collapsedMarkup).not.toContain("slds-section__title-action-icon");
+    });
+
+    it("hides the empty timeline message when an empty section is collapsed", () => {
+        const sections: ActivityTimelineSection[] = [{
+            activities: [],
+            history: false,
+            key: "future",
+            title: "今後 & 期限切れ"
+        }];
+        const markup = renderToStaticMarkup(
+            createElement(ActivityTimeline, {
+                context: {
+                    parentId: account.Id,
+                    parentName: account.Name,
+                    parentType: "account"
+                },
+                expandedSectionKeys: new Set<string>(),
+                openActionActivityId: null,
+                sections,
+                taskStatusOverrides: {},
+                onCloseActionMenu: noop,
+                onDeleteActivity: noop,
+                onEditActivity: noop,
+                onOpenActivity: noop,
+                onToggleActionMenu: noop,
+                onToggleSection: noop,
+                onToggleTaskCompleted: noop
+            })
+        );
+
+        expect(markup).toContain("aria-expanded=\"false\"");
+        expect(markup).toContain(rightIconPath);
+        expect(markup).not.toContain("表示できる活動はまだありません。");
     });
 });
