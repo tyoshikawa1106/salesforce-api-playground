@@ -112,16 +112,6 @@ body {
     fill: currentColor;
 }
 
-.playground-page-header-icon {
-    align-items: center;
-    display: inline-flex;
-    justify-content: center;
-}
-
-.playground-page-header-icon__image {
-    display: block;
-}
-
 .playground-utility-button-icon {
     fill: currentColor;
 }
@@ -149,12 +139,6 @@ body {
 
 .playground-login-page {
     min-height: 100vh;
-}
-
-.playground-login-icon {
-    align-items: center;
-    display: inline-flex;
-    justify-content: center;
 }
 
 .playground-workspace {
@@ -211,28 +195,8 @@ body {
     width: var(--slds-g-sizing-7, 1.5rem);
 }
 
-.playground-activity-composer-action__icon-boundary {
-    display: inline-flex;
-}
-
-.playground-activity-composer-action__label.hidden {
-    display: none;
-}
-
-.playground-activity-composer-action__menu {
-    height: auto;
-}
-
 .playground-activity-section-icon {
     transition: transform 0.1s ease-in-out;
-}
-
-.playground-activity-timeline__list {
-    margin-left: 0;
-}
-
-.playground-activity-timeline-item {
-    padding-bottom: var(--slds-g-spacing-4, 1rem);
 }
 
 .playground-activity-entry-icon {
@@ -253,11 +217,6 @@ body {
 
 .playground-activity-checkbox {
     display: inline-flex;
-}
-
-.playground-activity-empty {
-    border-left: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
-    margin-left: var(--slds-g-spacing-4, 1rem);
 }
 
 .playground-activity-docked-container {

@@ -88,9 +88,9 @@ export function StandardPageHeaderIcon({ tab, label }: { tab: ActiveTab; label: 
                             : "slds-icon-standard-connected-apps";
 
     return (
-        <span className={`slds-icon_container playground-page-header-icon ${iconClass}`} title={label}>
+        <span className={`slds-icon_container ${iconClass}`} title={label}>
             <StandardIcon
-                className="slds-icon slds-page-header__icon playground-page-header-icon__image"
+                className="slds-icon slds-page-header__icon"
                 name={getStandardIconName(tab)}
             />
             <span className="slds-assistive-text">{label}</span>
