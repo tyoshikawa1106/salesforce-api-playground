@@ -69,7 +69,7 @@ export function ActivityCard({
 
     return (
         <section className="slds-card slds-card_boundary playground-activity-card">
-            <div className="slds-card__body slds-card__body_inner playground-activity-card__body">
+            <div className="slds-card__body slds-card__body_inner">
                 <div className="slds-tabs_default">
                     <ul className="slds-tabs_default__nav" role="tablist">
                         <li className={`slds-tabs_default__item ${activeTab === "activity" ? "slds-is-active" : ""}`} role="presentation">
@@ -103,7 +103,7 @@ export function ActivityCard({
                     </ul>
                 </div>
                 <div
-                    className="slds-tabs_default__content slds-show playground-activity-card__panel"
+                    className="slds-tabs_default__content slds-show slds-p-top_small"
                     role="tabpanel"
                     id={activeTab === "related" && hasRelatedContent ? relatedPanelId : activityPanelId}
                     aria-labelledby={activeTab === "related" && hasRelatedContent ? relatedTabId : activityTabId}

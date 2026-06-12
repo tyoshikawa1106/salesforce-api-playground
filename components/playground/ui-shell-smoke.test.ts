@@ -43,6 +43,8 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("Salesforce API Playground");
         expect(markup).toContain("Salesforce に接続");
         expect(markup).toContain("/api/auth/login");
+        expect(markup).toContain("slds-theme_shade playground-login-page");
+        expect(markup).toContain("slds-p-around_none");
     });
 
     it("renders session loading without the login action", () => {

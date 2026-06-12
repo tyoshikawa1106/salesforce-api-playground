@@ -74,8 +74,8 @@ export function RecordPageFrame<Record extends object>({
                 {headerDetails}
             </RecordPageHeader>
 
-            <div className={`slds-m-top_small playground-record-body ${includeActivityCard ? "" : "playground-record-body_single"}`}>
-                <div>
+            <div className={includeActivityCard ? "slds-grid slds-wrap slds-gutters_small slds-m-top_small" : "slds-m-top_small"}>
+                <div className={includeActivityCard ? "slds-col slds-size_1-of-1 slds-large-size_8-of-12" : undefined}>
                     <RecordMainTabs
                         detailContent={
                             <>
@@ -88,7 +88,7 @@ export function RecordPageFrame<Record extends object>({
                     />
                 </div>
                 {includeActivityCard ? (
-                    <div>
+                    <div className="slds-col slds-size_1-of-1 slds-large-size_4-of-12">
                         <ActivityCard
                             parentId={activityParentId}
                             parentName={title}

@@ -22,7 +22,7 @@ function ActivityFormErrorSummary({ errorLabels }: { errorLabels: string[] }) {
     }
 
     return (
-        <div className="playground-task-error-summary">
+        <div className="slds-border_bottom slds-p-bottom_medium slds-m-bottom_large">
             <div className="slds-notify slds-notify_alert slds-alert_error playground-task-error-alert" role="alert">
                 <span className="slds-assistive-text">エラー</span>
                 <h2>このページのエラーを確認してください。</h2>

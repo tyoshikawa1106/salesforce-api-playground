@@ -34,7 +34,7 @@ export function ActivityComposerBar({
     ];
 
     return (
-        <ul className="slds-button-group-row playground-activity-composer-bar" aria-label="活動作成">
+        <ul className="slds-button-group-row slds-m-bottom_medium" aria-label="活動作成">
             {actions.map((action) => (
                 <li className="slds-button-group-item" key={action.value}>
                     <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label={action.label} part="button-group">

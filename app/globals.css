@@ -148,42 +148,7 @@ body {
 }
 
 .playground-login-page {
-    background:
-        linear-gradient(180deg, rgba(1, 68, 134, 0.06), rgba(243, 243, 243, 0.94)),
-        var(--slds-g-color-neutral-base-95);
     min-height: 100vh;
-}
-
-.playground-login-panel {
-    padding: 0;
-}
-
-.playground-login-panel__content {
-    display: block;
-}
-
-.playground-login-brand,
-.playground-login-form {
-    padding: var(--slds-g-spacing-6, 2rem);
-}
-
-.playground-login-brand {
-    background: var(--slds-g-color-neutral-base-95);
-    border-bottom: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
-}
-
-.playground-login-badge {
-    min-height: var(--slds-g-sizing-8, 1.75rem);
-}
-
-.playground-login-badge_heroku {
-    background: var(--heroku-purple);
-    color: var(--slds-g-color-neutral-base-100, #fff);
-}
-
-.playground-login-action {
-    font-size: var(--slds-g-font-scale-1, 0.875rem);
-    min-height: var(--slds-g-sizing-10, 3rem);
 }
 
 .playground-login-icon {
@@ -201,32 +166,6 @@ body {
     display: block;
     min-height: var(--slds-g-sizing-9, 2rem);
     min-width: var(--slds-g-sizing-9, 2rem);
-}
-
-.playground-record-header-row {
-    gap: 0.75rem;
-}
-
-.playground-record-header-controls {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    row-gap: 0.5rem;
-}
-
-.playground-record-detail-row {
-    flex-wrap: wrap;
-    row-gap: 0.75rem;
-}
-
-.playground-record-body {
-    column-gap: 0.75rem;
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
-    row-gap: 0.75rem;
-}
-
-.playground-record-body_single {
-    grid-template-columns: 1fr;
 }
 
 .playground-record-tabs {
@@ -253,20 +192,8 @@ body {
     overflow: visible;
 }
 
-.playground-activity-card__body {
-    padding: 0 var(--slds-g-spacing-3, 0.75rem) var(--slds-g-spacing-3, 0.75rem);
-}
-
-.playground-activity-card__panel {
-    padding: var(--slds-g-spacing-2, 0.5rem) 0 0;
-}
-
 .playground-activity-panel {
     position: relative;
-}
-
-.playground-activity-composer-bar {
-    margin-bottom: var(--slds-g-spacing-4, 1rem);
 }
 
 .playground-activity-composer-action {
@@ -294,34 +221,6 @@ body {
 
 .playground-activity-composer-action__menu {
     height: auto;
-}
-
-.playground-activity-toolbar {
-    margin-bottom: var(--slds-g-spacing-3, 0.75rem);
-}
-
-.playground-activity-links {
-    align-items: center;
-    column-gap: var(--slds-g-spacing-3, 0.75rem);
-    display: flex;
-    justify-content: flex-end;
-}
-
-.playground-activity-section-title {
-    background: var(--slds-g-color-neutral-base-95, #f3f3f3);
-    border-radius: var(--slds-g-radius-border-2, 0.25rem);
-    margin-bottom: var(--slds-g-spacing-4, 1rem);
-}
-
-.playground-activity-section-title__content {
-    align-items: center;
-    background: transparent;
-    border: 0;
-    display: flex;
-}
-
-.playground-activity-section-title__aside {
-    margin-left: auto;
 }
 
 .playground-activity-section-icon {
@@ -387,12 +286,6 @@ body {
     background: var(--slds-g-color-neutral-base-100, #fff);
 }
 
-.playground-task-error-summary {
-    border-bottom: var(--slds-g-sizing-border-1, 1px) solid var(--slds-g-color-border-base-1, #c9c9c9);
-    margin-bottom: var(--slds-g-spacing-5, 1.5rem);
-    padding-bottom: var(--slds-g-spacing-4, 1rem);
-}
-
 .playground-task-error-alert {
     background-image: none;
     border-radius: var(--slds-g-radius-border-2, 0.25rem);
@@ -452,15 +345,6 @@ body {
         padding-right: var(--slds-g-spacing-3, 0.75rem);
     }
 
-    .playground-login-brand,
-    .playground-login-form {
-        padding: var(--slds-g-spacing-4, 1rem);
-    }
-
-    .playground-login-action {
-        font-size: var(--slds-g-font-scale-base, 0.8125rem);
-    }
-
     .playground-home-status-grid {
         row-gap: var(--slds-g-spacing-3, 0.75rem);
     }
@@ -471,26 +355,4 @@ body {
         gap: 0.75rem;
     }
 
-    .playground-record-header-row {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .playground-record-header-controls {
-        justify-content: flex-start;
-    }
-
-    .playground-record-header-action {
-        margin-bottom: 0;
-    }
-
-    .playground-record-header-action {
-        flex: 1 1 auto;
-    }
-}
-
-@media (max-width: 1023px) {
-    .playground-record-body {
-        grid-template-columns: 1fr;
-    }
 }

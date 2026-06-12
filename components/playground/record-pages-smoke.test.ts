@@ -52,7 +52,9 @@ describe("record page smoke rendering", () => {
         expect(accountMarkup).not.toContain("すべて表示");
         expect(accountMarkup).not.toContain("すべての活動を表示");
         expect(accountMarkup).not.toContain("表示する内容を変更するには、検索条件を変更してください。");
-        expect(accountMarkup).toContain("slds-m-top_small playground-record-body");
+        expect(accountMarkup).toContain("slds-grid slds-wrap slds-gutters_small slds-m-top_small");
+        expect(accountMarkup).toContain("slds-large-size_8-of-12");
+        expect(accountMarkup).toContain("slds-large-size_4-of-12");
         expect(accountMarkup).toContain("slds-tabs_default slds-tabs_card playground-record-tabs");
         expect(accountMarkup).toContain("slds-tabs_default__content slds-show slds-p-around_x-small");
         expect(accountMarkup).toContain("aria-controls=\"record-details-panel\"");
@@ -76,7 +78,7 @@ describe("record page smoke rendering", () => {
         expect(contactMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
         expect(contactMarkup).not.toContain("Chatter");
         expect(contactMarkup).not.toContain("この取引先責任者に関連する活動はまだありません。");
-        expect(contactMarkup).toContain("slds-m-top_small playground-record-body");
+        expect(contactMarkup).toContain("slds-grid slds-wrap slds-gutters_small slds-m-top_small");
         expect(contactMarkup).not.toContain("新規ケース");
         expect(activityMarkup).toContain("ToDo");
         expect(activityMarkup).toContain("slds-button_reset slds-text-link");
@@ -85,7 +87,8 @@ describe("record page smoke rendering", () => {
         expect(activityMarkup).toContain("システム情報");
         expect(activityMarkup).toContain("作成日");
         expect(activityMarkup).toContain("最終更新日");
-        expect(activityMarkup).toContain("playground-record-body_single");
+        expect(activityMarkup).toContain("slds-m-top_small");
+        expect(activityMarkup).not.toContain("slds-large-size_4-of-12");
         expect(activityMarkup).not.toContain("新規ToDo");
         expect(activityMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
     });
