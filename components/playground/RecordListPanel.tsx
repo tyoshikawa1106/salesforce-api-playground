@@ -108,14 +108,14 @@ function ListViewToolbar({
     onSearchChange: (value: string) => void;
 }) {
     return (
-        <div className="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-toolbar">
-            <div>
+        <div className="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center slds-gutters_x-small slds-p-horizontal_x-small slds-p-vertical_x-small slds-border_bottom slds-theme_default">
+            <div className="slds-max-small-size_1-of-1 slds-p-horizontal_x-small slds-p-vertical_xx-small">
                 <div className="slds-text-title_bold">
                     {count} 件
                 </div>
             </div>
-            <div className="slds-grid slds-grid_vertical-align-center">
-                <div className="slds-form-element">
+            <div className="slds-grid slds-grid_vertical-align-center slds-gutters_xx-small slds-max-small-size_1-of-1 slds-p-horizontal_x-small slds-p-vertical_xx-small">
+                <div className="slds-form-element slds-grow">
                     <label className="slds-assistive-text" htmlFor={searchId}>
                         このリストを検索
                     </label>

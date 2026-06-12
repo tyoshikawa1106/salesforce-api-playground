@@ -94,9 +94,7 @@ function GlobalActionButton({
     return (
         <li className="slds-global-actions__item">
             <div
-                className={`slds-dropdown-trigger slds-dropdown-trigger_click playground-global-action-menu ${
-                    popupOpen ? "slds-is-open playground-global-action-menu_open" : ""
-                }`}
+                className={`slds-dropdown-trigger slds-dropdown-trigger_click ${popupOpen ? "slds-is-open" : ""}`}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
             >
@@ -110,12 +108,12 @@ function GlobalActionButton({
                     aria-pressed={pressed}
                     onClick={onClick}
                 >
-                    <UtilityIcon className="slds-button__icon playground-global-action-icon" name={icon} />
+                    <UtilityIcon className="slds-button__icon" name={icon} />
                     {notificationCount ? <span className="slds-notification-badge slds-show-notification">{notificationCount}</span> : null}
                     <span className="slds-assistive-text">{label}</span>
                 </button>
                 {popupMessage ? (
-                    <div id={popupId} className="slds-dropdown slds-dropdown_right slds-dropdown_small playground-global-action-popup">
+                    <div id={popupId} className="slds-dropdown slds-dropdown_right slds-dropdown_small">
                         <div className="slds-p-around_small slds-text-body_regular">{popupMessage}</div>
                     </div>
                 ) : null}
@@ -138,9 +136,7 @@ function GlobalProfileMenu({
     return (
         <li className="slds-global-actions__item">
             <div
-                className={`slds-dropdown-trigger slds-dropdown-trigger_click playground-profile-menu ${
-                    open ? "slds-is-open playground-profile-menu_open" : ""
-                }`}
+                className={`slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
             >
@@ -154,14 +150,11 @@ function GlobalProfileMenu({
                     onClick={onToggle}
                 >
                     <span className="slds-avatar slds-avatar_circle slds-avatar_medium">
-                        <UtilityIcon className="slds-icon playground-global-action-icon" name="user" />
+                        <UtilityIcon className="slds-icon" name="user" />
                     </span>
                     <span className="slds-assistive-text">ユーザープロファイル</span>
                 </button>
-                <div
-                    id="profile-menu"
-                    className="slds-dropdown slds-dropdown_right slds-dropdown_actions slds-dropdown_small playground-profile-dropdown"
-                >
+                <div id="profile-menu" className="slds-dropdown slds-dropdown_right slds-dropdown_actions slds-dropdown_small">
                     <ul className="slds-dropdown__list" role="menu" aria-label="ユーザープロファイルメニュー">
                         <li className="slds-dropdown__item" role="presentation">
                             <form action="/api/auth/logout" method="post" role="presentation">
@@ -171,7 +164,7 @@ function GlobalProfileMenu({
                                     role="menuitem"
                                 >
                                     <span className="slds-icon_container slds-icon-utility-logout slds-m-right_x-small">
-                                        <UtilityIcon className="slds-icon slds-icon_x-small playground-menu-icon" name="logout" />
+                                        <UtilityIcon className="slds-icon slds-icon_x-small" name="logout" />
                                     </span>
                                     <span className="slds-truncate" title="ログアウト">
                                         ログアウト
