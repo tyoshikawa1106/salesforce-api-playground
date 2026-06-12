@@ -34,63 +34,8 @@ body {
     letter-spacing: 0;
 }
 
-.playground-global-search-icon {
-    fill: currentColor;
-}
-
-.playground-global-search-results {
-    display: block;
-    overflow-y: auto;
-}
-
-.playground-global-search-result__button {
-    color: inherit;
-    display: block;
-    text-align: left;
-}
-
-.playground-global-search-result__button:focus,
-.playground-global-search-result__button:hover,
-.playground-global-search-result_active .playground-global-search-result__button {
-    background-color: var(--slds-g-color-neutral-base-95);
-    text-decoration: none;
-}
-
-.playground-global-search-result__label,
-.playground-global-search-result__meta {
-    display: block;
-}
-
-.playground-global-search-result__meta {
-    color: var(--slds-g-color-neutral-base-40);
-    font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
-}
-
 .playground-global-action {
     position: relative;
-}
-
-.playground-global-action-popup {
-    display: none;
-    min-width: max-content;
-}
-
-.playground-global-action-menu_open .playground-global-action-popup {
-    display: block;
-}
-
-.playground-global-action-icon {
-    color: var(--slds-g-color-neutral-base-50);
-    display: block;
-    fill: currentColor;
-}
-
-.playground-profile-dropdown {
-    display: none;
-}
-
-.playground-profile-menu_open .playground-profile-dropdown {
-    display: block;
 }
 
 .playground-logout-action {
@@ -105,15 +50,6 @@ body {
     background-color: var(--slds-g-color-neutral-base-95);
     color: var(--slds-g-color-brand-base-50);
     text-decoration: none;
-}
-
-.playground-menu-icon {
-    color: var(--slds-g-color-neutral-base-30);
-    fill: currentColor;
-}
-
-.playground-utility-button-icon {
-    fill: currentColor;
 }
 
 .heroku-context-bar {
@@ -175,18 +111,6 @@ body {
     height: var(--slds-g-sizing-7, 1.5rem);
     justify-content: center;
     width: var(--slds-g-sizing-7, 1.5rem);
-}
-
-.playground-activity-section-icon {
-    transition: transform 0.1s ease-in-out;
-}
-
-.playground-activity-entry-icon {
-    transition: transform 0.1s ease-in-out;
-}
-
-.playground-activity-entry-icon_collapsed {
-    transform: rotate(-90deg);
 }
 
 .playground-activity-timeline-item__title_completed {
@@ -284,12 +208,6 @@ body {
 
     .playground-home-status-grid {
         row-gap: var(--slds-g-spacing-3, 0.75rem);
-    }
-
-    .playground-list-toolbar {
-        align-items: stretch;
-        flex-direction: column;
-        gap: 0.75rem;
     }
 
 }

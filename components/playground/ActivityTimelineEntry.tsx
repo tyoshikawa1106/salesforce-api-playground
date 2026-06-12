@@ -70,9 +70,7 @@ export function ActivityTimelineEntry({
                             title={expanded ? `${title} の詳細を閉じる` : `${title} の詳細を表示`}
                             onClick={onToggleExpanded}
                         >
-                            <UtilityIcon className={`slds-button__icon slds-timeline__details-action-icon playground-activity-entry-icon ${
-                                expanded ? "" : "playground-activity-entry-icon_collapsed"
-                            }`} name="switch" />
+                            <UtilityIcon className="slds-button__icon slds-timeline__details-action-icon" name="switch" />
                             <span className="slds-assistive-text">{expanded ? `${title} の詳細を閉じる` : `${title} の詳細を表示`}</span>
                         </button>
                         <span className={`slds-icon_container ${iconClassName} slds-timeline__icon`} title={iconLabel}>

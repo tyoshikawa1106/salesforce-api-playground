@@ -121,7 +121,7 @@ function ActivityTimelineSectionTitle({
                 onClick={onToggle}
             >
                 <UtilityIcon
-                    className="slds-button__icon slds-button__icon_left playground-activity-section-icon"
+                    className="slds-button__icon slds-button__icon_left"
                     name={expanded ? "down" : "right"}
                 />
                 <span className="slds-truncate" title={title}>{title}</span>
