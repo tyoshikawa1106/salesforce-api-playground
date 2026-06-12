@@ -113,9 +113,9 @@ function ActivityTimelineSectionTitle({
     title: string;
 }) {
     return (
-        <h3 className="slds-section__title playground-activity-section-title">
+        <h3 className="slds-section__title slds-m-bottom_medium">
             <button
-                className="slds-button slds-section__title-action playground-activity-section-title__content"
+                className="slds-button slds-section__title-action"
                 type="button"
                 aria-expanded={expanded}
                 onClick={onToggle}
@@ -125,7 +125,7 @@ function ActivityTimelineSectionTitle({
                     name={expanded ? "down" : "right"}
                 />
                 <span className="slds-truncate" title={title}>{title}</span>
-                {aside ? <span className="slds-text-body_regular playground-activity-section-title__aside">{aside}</span> : null}
+                {aside ? <span className="slds-text-body_regular slds-col_bump-left">{aside}</span> : null}
             </button>
         </h3>
     );

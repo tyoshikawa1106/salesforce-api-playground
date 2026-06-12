@@ -14,8 +14,8 @@ export function ActivityTimelineToolbar({
     onToggleAllSections: () => void;
 }) {
     return (
-        <div className="playground-activity-toolbar">
-            <div className="slds-text-align_right playground-activity-links">
+        <div className="slds-m-bottom_small">
+            <div className="slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-gutters_x-small">
                 <button className="slds-button_reset slds-text-link" type="button" disabled={loading} onClick={() => void onRefresh()}>
                     更新
                 </button>

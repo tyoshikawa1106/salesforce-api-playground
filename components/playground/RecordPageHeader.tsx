@@ -37,9 +37,9 @@ export function RecordPageHeader({
     children: ReactNode;
 }) {
     return (
-        <div className="slds-page-header slds-page-header_record-home slds-page-header_joined playground-record-header">
-            <div className="slds-page-header__row playground-record-header-row">
-                <div className="slds-page-header__col-title playground-record-header-title">
+        <div className="slds-page-header slds-page-header_record-home slds-page-header_joined">
+            <div className="slds-page-header__row slds-wrap slds-grid_vertical-align-start">
+                <div className="slds-page-header__col-title">
                     <div className="slds-media">
                         <div className="slds-media__figure">
                             <StandardPageHeaderIcon tab={tab} label={objectLabel} />
@@ -58,11 +58,11 @@ export function RecordPageHeader({
                         </div>
                     </div>
                 </div>
-                <div className="slds-page-header__col-actions slds-max-medium-size_full playground-record-header-actions">
-                    <div className="slds-page-header__controls playground-record-header-controls">
-                        <div className="slds-page-header__control playground-record-header-action">
+                <div className="slds-page-header__col-actions slds-max-medium-size_full">
+                    <div className="slds-page-header__controls slds-wrap">
+                        <div className="slds-page-header__control">
                             <button
-                                className="slds-button slds-button_icon slds-button_icon-border-filled playground-record-header-button"
+                                className="slds-button slds-button_icon slds-button_icon-border-filled"
                                 type="button"
                                 title="更新"
                                 onClick={onRefresh}
@@ -72,12 +72,12 @@ export function RecordPageHeader({
                                 <span className="slds-assistive-text">更新</span>
                             </button>
                         </div>
-                        <div className="slds-page-header__control playground-record-header-action">
+                        <div className="slds-page-header__control">
                             <div className="slds-button-group" role="group" aria-label={`${objectLabel}レコードのアクション`}>
-                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onEdit}>
+                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch" type="button" onClick={onEdit}>
                                     編集
                                 </button>
-                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch playground-record-header-button" type="button" onClick={onDelete}>
+                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch" type="button" onClick={onDelete}>
                                     削除
                                 </button>
                             </div>
@@ -85,9 +85,9 @@ export function RecordPageHeader({
                     </div>
                 </div>
             </div>
-            <div className="slds-page-header__row slds-page-header__row_gutters playground-record-header-row">
+            <div className="slds-page-header__row slds-page-header__row_gutters">
                 <div className="slds-page-header__col-details">
-                    <ul className="slds-page-header__detail-row playground-record-detail-row">{children}</ul>
+                    <ul className="slds-page-header__detail-row slds-wrap">{children}</ul>
                 </div>
             </div>
         </div>
