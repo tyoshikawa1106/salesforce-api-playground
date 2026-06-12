@@ -84,7 +84,7 @@ export function ActivityTimelineEntry({
                         <div className="slds-grid slds-grid_align-spread slds-timeline__trigger">
                             <div className="slds-grid slds-grid_vertical-align-center slds-truncate_container_75 slds-no-space">
                                 {showTaskCheckbox ? (
-                                    <span className="slds-checkbox playground-activity-checkbox">
+                                    <span className="slds-checkbox">
                                         <input
                                             id={`activity-checkbox-${activity.id}`}
                                             type="checkbox"
