@@ -68,7 +68,7 @@ export function ActivityTimeline({
                             section.activities.length === 0 ? (
                                 <ActivityTimelineEmpty />
                             ) : (
-                                <ul className="slds-timeline playground-activity-timeline__list">
+                                <ul className="slds-timeline slds-m-left_none">
                                     {section.activities.map((activity) => {
                                         const activityKey = getActivityTimelineEntryKey(activity);
 
@@ -133,7 +133,7 @@ function ActivityTimelineSectionTitle({
 
 function ActivityTimelineEmpty() {
     return (
-        <div className="slds-p-vertical_small slds-text-align_center slds-text-color_weak playground-activity-empty">
+        <div className="slds-border_left slds-m-left_medium slds-p-vertical_small slds-text-align_center slds-text-color_weak">
             表示できる活動はまだありません。
         </div>
     );

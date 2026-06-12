@@ -39,16 +39,14 @@ export function ActivityComposerBar({
                 <li className="slds-button-group-item" key={action.value}>
                     <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label={action.label} part="button-group">
                         <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label={action.label} title={action.label} value={action.value} onClick={action.onClick}>
-                            <span className={`${action.iconClassName} slds-icon_container playground-activity-composer-action__icon`} title={action.label}>
-                                <span className="playground-activity-composer-action__icon-boundary" style={action.iconStyle}>
-                                    <StandardIcon className="slds-icon slds-icon_small" name={action.iconName} />
-                                </span>
+                            <span className={`${action.iconClassName} slds-icon_container playground-activity-composer-action__icon`} title={action.label} style={action.iconStyle}>
+                                <StandardIcon className="slds-icon slds-icon_small" name={action.iconName} />
                                 <span className="slds-assistive-text">{action.label}</span>
                             </span>
-                            <span className="hidden playground-activity-composer-action__label" aria-hidden="true">{action.label}</span>
+                            <span className="slds-hide" aria-hidden="true">{action.label}</span>
                         </button>
                         <button
-                            className="slds-button slds-button_icon-border-filled fix-slds-button_icon-border-filled slds-button_last playground-activity-composer-action__menu"
+                            className="slds-button slds-button_icon-border-filled fix-slds-button_icon-border-filled slds-button_last"
                             type="button"
                             aria-expanded="false"
                             aria-haspopup="true"

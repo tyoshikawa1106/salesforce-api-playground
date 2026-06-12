@@ -59,7 +59,7 @@ export function ActivityTimelineEntry({
 
     return (
         <li>
-            <div className={`slds-timeline__item_expandable ${itemClassName} ${expandedClassName} playground-activity-timeline-item`}>
+            <div className={`slds-timeline__item_expandable ${itemClassName} ${expandedClassName} slds-p-bottom_medium`}>
                 <span className="slds-assistive-text">{iconLabel}</span>
                 <div className="slds-media">
                     <div className="slds-media__figure">
