@@ -11,7 +11,7 @@ export function RecordMainTabs({
     const detailsPanelId = "record-details-panel";
 
     return (
-        <div className="slds-tabs_default slds-tabs_card playground-record-tabs">
+        <div className="slds-tabs_default slds-tabs_card">
             <ul className="slds-tabs_default__nav slds-p-left_x-small" role="tablist">
                 <li className="slds-tabs_default__item slds-is-active" role="presentation">
                     <button

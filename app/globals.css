@@ -146,24 +146,6 @@ body {
     min-height: calc(100dvh - 6.25rem);
 }
 
-.playground-recycle-bin-toolbar-spacer {
-    display: block;
-    min-height: var(--slds-g-sizing-9, 2rem);
-    min-width: var(--slds-g-sizing-9, 2rem);
-}
-
-.playground-record-tabs {
-    --slds-c-tabs-panel-spacing-block: 0.5rem;
-}
-
-.playground-record-related-card {
-    --slds-c-card-body-spacing-block: 0.5rem;
-    --slds-c-card-body-spacing-inline: 0.5rem;
-    --slds-c-card-header-spacing-block-end: 0.25rem;
-    --slds-c-card-header-spacing-block-start: 0.5rem;
-    --slds-c-card-header-spacing-inline: 0.5rem;
-}
-
 .playground-record-section-icon {
     transition: transform 0.1s ease-in-out;
 }
@@ -213,10 +195,6 @@ body {
 
 .playground-activity-timeline-item__description {
     white-space: pre-wrap;
-}
-
-.playground-activity-checkbox {
-    display: inline-flex;
 }
 
 .playground-activity-docked-container {

@@ -55,7 +55,7 @@ describe("record page smoke rendering", () => {
         expect(accountMarkup).toContain("slds-grid slds-wrap slds-gutters_small slds-m-top_small");
         expect(accountMarkup).toContain("slds-large-size_8-of-12");
         expect(accountMarkup).toContain("slds-large-size_4-of-12");
-        expect(accountMarkup).toContain("slds-tabs_default slds-tabs_card playground-record-tabs");
+        expect(accountMarkup).toContain("slds-tabs_default slds-tabs_card");
         expect(accountMarkup).toContain("slds-tabs_default__content slds-show slds-p-around_x-small");
         expect(accountMarkup).toContain("aria-controls=\"record-details-panel\"");
         expect(accountMarkup).toContain("aria-labelledby=\"record-details-tab\"");

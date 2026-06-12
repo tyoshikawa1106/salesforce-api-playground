@@ -23,9 +23,6 @@ export function RecycleBinToolbar({
                     {count} 件
                 </div>
             </div>
-            <div className="slds-grid slds-grid_vertical-align-center" aria-hidden="true">
-                <span className="playground-recycle-bin-toolbar-spacer" />
-            </div>
         </div>
     );
 }
