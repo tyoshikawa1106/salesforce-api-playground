@@ -89,6 +89,9 @@ export function ActivityPanel({
     onToggleComposerMinimized: () => void;
 }) {
     const displayedTimelineSections = getDisplayedTimelineSections(activities, taskStatusOverrides);
+    const taskComposerVariant = activeComposer === "task" || activeComposer === "call"
+        ? activeComposer
+        : null;
     const {
         allTimelineExpanded,
         closeActionMenu,
@@ -132,7 +135,7 @@ export function ActivityPanel({
                     onToggleActionMenu={toggleActionMenu}
                 />
             )}
-            {activeComposer === "task" ? (
+            {taskComposerVariant ? (
                 <TaskDockedComposer
                     errors={taskFormErrors}
                     expanded={composerExpanded}
@@ -141,24 +144,7 @@ export function ActivityPanel({
                     lookups={lookups}
                     minimized={composerMinimized}
                     saving={saving}
-                    onCancel={onCloseComposer}
-                    onChange={onTaskFormChange}
-                    onLookupChange={onLookupChange}
-                    onToggleMinimized={onToggleComposerMinimized}
-                    onSubmit={onSaveTask}
-                    onToggleExpanded={onToggleComposerExpanded}
-                />
-            ) : null}
-            {activeComposer === "call" ? (
-                <TaskDockedComposer
-                    errors={taskFormErrors}
-                    expanded={composerExpanded}
-                    form={taskForm}
-                    lookupOptions={lookupOptions}
-                    lookups={lookups}
-                    minimized={composerMinimized}
-                    saving={saving}
-                    variant="call"
+                    variant={taskComposerVariant}
                     onCancel={onCloseComposer}
                     onChange={onTaskFormChange}
                     onLookupChange={onLookupChange}

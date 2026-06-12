@@ -1,4 +1,4 @@
-import { createElement } from "react";
+import { createElement, type ComponentProps } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ActivityTimeline } from "./ActivityCard";
@@ -15,48 +15,53 @@ import type { Activity } from "./types";
 const downIconPath = "M83 140h354c10 0 17 13 9 22L273 374c-6 8-19 8-25 0L73 162c-7-9-1-22 10-22";
 const rightIconPath = "M140 437V83c0-10 13-17 22-9l212 173c8 6 8 19 0 25L162 447c-9 7-22 1-22-10";
 
+function renderActivityPanel(overrides: Partial<ComponentProps<typeof ActivityPanel>> = {}) {
+    return renderToStaticMarkup(
+        createElement(ActivityPanel, {
+            activeComposer: null,
+            activities: [activity],
+            composerExpanded: false,
+            composerMinimized: false,
+            context: {
+                parentId: account.Id,
+                parentName: account.Name,
+                parentType: "account"
+            },
+            eventForm: getDefaultEventForm(),
+            eventFormErrors: {},
+            lookupOptions: {
+                assigned: [],
+                name: [],
+                related: []
+            },
+            lookups: {},
+            loading: false,
+            message: "",
+            saving: false,
+            taskStatusOverrides: {},
+            taskForm: getDefaultTaskForm(),
+            taskFormErrors: {},
+            onCloseComposer: noop,
+            onEventFormChange: noop,
+            onLookupChange: noop,
+            onOpenCallComposer: noop,
+            onOpenEventComposer: noop,
+            onOpenTaskComposer: noop,
+            onRefresh: noop,
+            onSaveEvent: noop,
+            onSaveTask: noop,
+            onTaskFormChange: noop,
+            onToggleComposerExpanded: noop,
+            onToggleComposerMinimized: noop,
+            onToggleTaskCompleted: noop,
+            ...overrides
+        })
+    );
+}
+
 describe("activity timeline smoke rendering", () => {
     it("renders timeline sections expanded by default", () => {
-        const markup = renderToStaticMarkup(
-            createElement(ActivityPanel, {
-                activeComposer: null,
-                activities: [activity],
-                composerExpanded: false,
-                composerMinimized: false,
-                context: {
-                    parentId: account.Id,
-                    parentName: account.Name,
-                    parentType: "account"
-                },
-                eventForm: getDefaultEventForm(),
-                eventFormErrors: {},
-                lookupOptions: {
-                    assigned: [],
-                    name: [],
-                    related: []
-                },
-                lookups: {},
-                loading: false,
-                message: "",
-                saving: false,
-                taskStatusOverrides: {},
-                taskForm: getDefaultTaskForm(),
-                taskFormErrors: {},
-                onCloseComposer: noop,
-                onEventFormChange: noop,
-                onLookupChange: noop,
-                onOpenCallComposer: noop,
-                onOpenEventComposer: noop,
-                onOpenTaskComposer: noop,
-                onRefresh: noop,
-                onSaveEvent: noop,
-                onSaveTask: noop,
-                onTaskFormChange: noop,
-                onToggleComposerExpanded: noop,
-                onToggleComposerMinimized: noop,
-                onToggleTaskCompleted: noop
-            })
-        );
+        const markup = renderActivityPanel();
 
         expect(markup).toContain("すべて展開");
         expect(markup).toContain("aria-expanded=\"true\"");
@@ -65,51 +70,24 @@ describe("activity timeline smoke rendering", () => {
     });
 
     it("renders an interactive empty timeline section", () => {
-        const markup = renderToStaticMarkup(
-            createElement(ActivityPanel, {
-                activeComposer: null,
-                activities: [],
-                composerExpanded: false,
-                composerMinimized: false,
-                context: {
-                    parentId: account.Id,
-                    parentName: account.Name,
-                    parentType: "account"
-                },
-                eventForm: getDefaultEventForm(),
-                eventFormErrors: {},
-                lookupOptions: {
-                    assigned: [],
-                    name: [],
-                    related: []
-                },
-                lookups: {},
-                loading: false,
-                message: "",
-                saving: false,
-                taskStatusOverrides: {},
-                taskForm: getDefaultTaskForm(),
-                taskFormErrors: {},
-                onCloseComposer: noop,
-                onEventFormChange: noop,
-                onLookupChange: noop,
-                onOpenCallComposer: noop,
-                onOpenEventComposer: noop,
-                onOpenTaskComposer: noop,
-                onRefresh: noop,
-                onSaveEvent: noop,
-                onSaveTask: noop,
-                onTaskFormChange: noop,
-                onToggleComposerExpanded: noop,
-                onToggleComposerMinimized: noop,
-                onToggleTaskCompleted: noop
-            })
-        );
+        const markup = renderActivityPanel({ activities: [] });
 
         expect(markup).toContain("すべて折りたたむ");
         expect(markup).toContain("<button class=\"slds-button_reset slds-text-link\" type=\"button\">すべて折りたたむ</button>");
         expect(markup).toContain("aria-expanded=\"true\"");
         expect(markup).toContain("表示できる活動はまだありません。");
+    });
+
+    it("renders the selected docked composer variant", () => {
+        const taskMarkup = renderActivityPanel({ activeComposer: "task" });
+        const callMarkup = renderActivityPanel({ activeComposer: "call" });
+        const eventMarkup = renderActivityPanel({ activeComposer: "event" });
+
+        expect(taskMarkup).toContain("id=\"new-task-composer-title\" title=\"新規ToDo\">新規ToDo");
+        expect(taskMarkup).not.toContain("id=\"new-task-composer-title\" title=\"電話を記録\">電話を記録");
+        expect(callMarkup).toContain("id=\"new-task-composer-title\" title=\"電話を記録\">電話を記録");
+        expect(callMarkup).not.toContain("id=\"new-task-composer-title\" title=\"新規ToDo\">新規ToDo");
+        expect(eventMarkup).toContain("id=\"new-event-composer-title\" title=\"新規行動\">新規行動");
     });
 
     it("renders activity timeline entries with record action menus", () => {
