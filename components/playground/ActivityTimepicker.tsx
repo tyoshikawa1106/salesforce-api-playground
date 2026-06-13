@@ -1,8 +1,10 @@
 "use client";
 
 import { type KeyboardEvent, useState } from "react";
+import { createPortal } from "react-dom";
 import { timeOptions } from "./activity-task-form";
 import { UtilityIcon } from "./SldsIcon";
+import { useInputPopupPlacement } from "./useInputPopupPlacement";
 
 export function QuickActionTimepicker({
     idPrefix,
@@ -20,6 +22,7 @@ export function QuickActionTimepicker({
     const inputId = `${idPrefix}-input`;
     const listboxId = `${idPrefix}-listbox`;
     const activeOptionId = `${listboxId}-option-${activeIndex}`;
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
 
     function selectTime(nextValue: string) {
         onChange(nextValue);
@@ -54,7 +57,8 @@ export function QuickActionTimepicker({
 
     return (
         <div
-            className={`slds-combobox_container slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
+            ref={containerRef}
+            className={`slds-combobox_container slds-dropdown-trigger slds-dropdown-trigger_click playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
             onBlur={(event) => {
                 if (!event.currentTarget.contains(event.relatedTarget)) {
                     setOpen(false);
@@ -87,8 +91,8 @@ export function QuickActionTimepicker({
                         <UtilityIcon className="slds-icon slds-icon_x-small" name="clock" />
                     </span>
                 </div>
-                {open ? (
-                    <div className="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-5" id={listboxId} role="listbox" aria-label={label}>
+                {open && portalTarget ? createPortal(
+                    <div ref={popupRef} style={popupStyle} className={`slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-5 playground-input-popup${popupClassName}`} id={listboxId} role="listbox" aria-label={label}>
                         {timeOptions.map((option, index) => (
                             <div
                                 className={`slds-media slds-listbox__option slds-media_center slds-media_small slds-listbox__option_plain ${activeIndex === index ? "slds-has-focus" : ""}`}
@@ -107,7 +111,8 @@ export function QuickActionTimepicker({
                                 </span>
                             </div>
                         ))}
-                    </div>
+                    </div>,
+                    portalTarget
                 ) : null}
             </div>
         </div>

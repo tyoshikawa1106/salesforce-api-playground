@@ -1,9 +1,11 @@
 "use client";
 
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { taskSubjectOptions } from "./activity-task-form";
 import { FieldError } from "./ActivityFieldErrorsAndInputs";
 import { UtilityIcon } from "./SldsIcon";
+import { useInputPopupPlacement } from "./useInputPopupPlacement";
 
 export function QuickActionSubjectCombobox({
     error,
@@ -27,6 +29,7 @@ export function QuickActionSubjectCombobox({
     const listboxId = `${idPrefix}-listbox`;
     const activeOptionId = `${inputId}-${activeIndex}`;
     const shouldShowOptions = (nextValue: string) => nextValue === "" || taskSubjectOptions.includes(nextValue as (typeof taskSubjectOptions)[number]);
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
 
     useEffect(() => {
         if (!open) {
@@ -92,8 +95,11 @@ export function QuickActionSubjectCombobox({
             <div className="slds-form-element__control">
                 <div className="slds-combobox_container">
                     <div
-                        ref={comboboxRef}
-                        className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
+                        ref={(element) => {
+                            comboboxRef.current = element;
+                            containerRef.current = element;
+                        }}
+                        className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
                         onBlur={(event) => {
                             if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
                                 setOpen(false);
@@ -129,8 +135,8 @@ export function QuickActionSubjectCombobox({
                                 <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default slds-icon_x-small" name="search" />
                             </div>
                         </div>
-                        {open ? (
-                            <div className="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-with-icon-7" id={listboxId} role="listbox" aria-label={label}>
+                        {open && portalTarget ? createPortal(
+                            <div ref={popupRef} style={popupStyle} className={`slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-with-icon-7 playground-input-popup${popupClassName}`} id={listboxId} role="listbox" aria-label={label}>
                                 {taskSubjectOptions.map((option, index) => {
                                     const optionLabel = option || "--なし--";
                                     const selected = value === option;
@@ -160,12 +166,13 @@ export function QuickActionSubjectCombobox({
                                         </div>
                                     );
                                 })}
-                            </div>
+                            </div>,
+                            portalTarget
                         ) : null}
                     </div>
                 </div>
-                <FieldError message={error} />
             </div>
+            <FieldError message={error} />
         </div>
     );
 }

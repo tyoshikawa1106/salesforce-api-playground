@@ -5,6 +5,9 @@
     --heroku-purple: #5a1ba9;
     --heroku-purple-dark: #300b60;
     --heroku-purple-light: #d7bff2;
+    --playground-input-popup-z-index: 9100;
+    --playground-utility-bar-height: 2.5rem;
+    --playground-utility-bar-z-index: 6500;
 }
 
 html,
@@ -41,6 +44,14 @@ body {
 
 .playground-environment-label__text {
     letter-spacing: 0;
+}
+
+.playground-shell_has-environment-label #main-content {
+    padding-top: calc(var(--slds-g-spacing-8, 3rem) + var(--slds-g-sizing-9, 2rem));
+}
+
+.playground-shell_has-utility-bar #main-content {
+    padding-bottom: calc(var(--playground-utility-bar-height) + var(--slds-g-spacing-6, 1.5rem));
 }
 
 .playground-logout-action {
@@ -121,7 +132,7 @@ body {
 }
 
 .playground-activity-docked-container {
-    bottom: 0;
+    bottom: var(--playground-utility-bar-height);
     height: auto;
     justify-content: flex-end;
     padding: 0;
@@ -130,6 +141,15 @@ body {
     top: auto;
     width: min(24rem, calc(100vw - 2rem));
     z-index: 7000;
+}
+
+.playground-utility-bar__list,
+.playground-utility-panel {
+    z-index: var(--playground-utility-bar-z-index);
+}
+
+.playground-utility-panel {
+    left: var(--slds-g-spacing-4, 1rem);
 }
 
 .playground-task-composer {
@@ -158,8 +178,17 @@ body {
     text-align: left;
 }
 
+.playground-input-popup-container_open {
+    position: relative;
+    z-index: var(--playground-input-popup-z-index);
+}
+
+.playground-input-popup {
+    z-index: var(--playground-input-popup-z-index);
+}
+
 .playground-task-datepicker {
-    z-index: 7100;
+    z-index: var(--playground-input-popup-z-index);
 }
 
 .playground-task-composer-backdrop {

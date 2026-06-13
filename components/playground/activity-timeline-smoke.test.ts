@@ -84,6 +84,7 @@ describe("activity timeline smoke rendering", () => {
         const eventMarkup = renderActivityPanel({ activeComposer: "event" });
 
         expect(taskMarkup).toContain("id=\"new-task-composer-title\" title=\"新規ToDo\">新規ToDo");
+        expect(taskMarkup).toContain("playground-input-popup-container");
         expect(taskMarkup).not.toContain("id=\"new-task-composer-title\" title=\"電話を記録\">電話を記録");
         expect(callMarkup).toContain("id=\"new-task-composer-title\" title=\"電話を記録\">電話を記録");
         expect(callMarkup).not.toContain("id=\"new-task-composer-title\" title=\"新規ToDo\">新規ToDo");

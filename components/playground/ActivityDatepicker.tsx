@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import {
     buildCalendarWeeks,
     buildDateValue,
@@ -10,6 +11,7 @@ import {
     weekDayLabels
 } from "./activity-task-form";
 import { UtilityIcon } from "./SldsIcon";
+import { useInputPopupPlacement } from "./useInputPopupPlacement";
 
 export function QuickActionDatepicker({
     hideLabel = false,
@@ -36,6 +38,7 @@ export function QuickActionDatepicker({
     const todayValue = buildDateValue(new Date());
     const displayDate = new Date(displayYear, displayMonth, 1);
     const yearOptions = Array.from({ length: 201 }, (_, index) => new Date().getFullYear() - 100 + index);
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
 
     function setVisibleMonth(nextDate: Date) {
         setDisplayYear(nextDate.getFullYear());
@@ -62,7 +65,8 @@ export function QuickActionDatepicker({
             <label className={`slds-form-element__label ${hideLabel ? "slds-assistive-text" : ""}`} htmlFor={inputId}>{label}</label>
             <div className="slds-form-element__control">
                 <div
-                    className={`slds-dropdown-trigger slds-dropdown-trigger_click slds-size_1-of-1 ${open ? "slds-is-open" : ""}`}
+                    ref={containerRef}
+                    className={`slds-dropdown-trigger slds-dropdown-trigger_click slds-size_1-of-1 playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
                     role="group"
                     onBlur={(event) => {
                         if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -91,8 +95,8 @@ export function QuickActionDatepicker({
                             <UtilityIcon className="slds-icon slds-icon_x-small" name="event" />
                         </span>
                     </div>
-                    {open ? (
-                        <div className="slds-datepicker slds-dropdown slds-dropdown_left playground-task-datepicker" id={calendarId} aria-hidden="false" aria-label={`日付ピッカー: ${displayMonth + 1}月`} role="dialog" tabIndex={-1}>
+                    {open && portalTarget ? createPortal(
+                        <div ref={popupRef} style={popupStyle} className={`slds-datepicker slds-dropdown slds-dropdown_left playground-task-datepicker playground-input-popup${popupClassName}`} id={calendarId} aria-hidden="false" aria-label={`日付ピッカー: ${displayMonth + 1}月`} role="dialog" tabIndex={-1}>
                             <div className="slds-datepicker__filter slds-grid">
                                 <div className="slds-datepicker__filter_month slds-grid slds-grid_align-spread slds-grow">
                                     <div className="slds-align-middle">
@@ -153,11 +157,12 @@ export function QuickActionDatepicker({
                                 </tbody>
                             </table>
                             <button className="slds-button slds-align_absolute-center slds-text-link" name="today" type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => selectDate(new Date())}>今日</button>
-                        </div>
+                        </div>,
+                        portalTarget
                     ) : null}
                 </div>
-                <div className="slds-form-element__help slds-assistive-text" id={formatHelpId}>形式: 2024/12/31</div>
             </div>
+            <div className="slds-form-element__help slds-assistive-text" id={formatHelpId}>形式: 2024/12/31</div>
         </>
     );
 }

@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { ContactFormFields } from "./Forms";
+import { AccountFormFields, ContactFormFields } from "./Forms";
 import {
     accountTextFields,
     accountRecordToForm,
@@ -101,5 +101,42 @@ describe("record form builders", () => {
         expect(markup).toContain(accountFixture.Name);
         expect(markup).not.toContain("<select");
         expect(markup).not.toContain("取引先なし");
+    });
+
+    it("renders account picklists as SLDS select-only comboboxes", () => {
+        const markup = renderToStaticMarkup(
+            createElement(AccountFormFields, {
+                picklistOptions: {
+                    Industry: [{ label: "Apparel", value: "Apparel" }],
+                    Type: [{ label: "Customer", value: "Customer" }]
+                },
+                value: {
+                    ...blankAccount,
+                    Industry: "Apparel",
+                    Type: "Customer"
+                },
+                onChange: noop
+            })
+        );
+
+        expect(markup).toContain("id=\"account-industry\"");
+        expect(markup).toContain("id=\"account-type\"");
+        expect(markup).toContain("role=\"combobox\"");
+        expect(markup).toContain("slds-combobox__input slds-input_faux slds-combobox__input-value");
+        expect(markup).not.toContain("<select");
+        expect(markup).not.toContain("slds-select");
+    });
+
+    it("renders required indicators without native required validation", () => {
+        const markup = renderToStaticMarkup(
+            createElement(AccountFormFields, {
+                value: blankAccount,
+                onChange: noop
+            })
+        );
+
+        expect(markup).toContain("<abbr class=\"slds-required\" title=\"必須\">*</abbr>");
+        expect(markup).not.toContain("required=\"\"");
+        expect(markup).not.toContain("required=\"required\"");
     });
 });

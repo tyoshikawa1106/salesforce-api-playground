@@ -4,9 +4,11 @@ import type {
     ActivityLookupOption,
     RemoteLookupObjectLabel
 } from "./activity-task-form";
+import { createPortal } from "react-dom";
 import { FieldError } from "./ActivityFieldErrorsAndInputs";
 import { getLookupIconMeta } from "./activity-lookup-icons";
 import { StandardIcon, UtilityIcon } from "./SldsIcon";
+import { useInputPopupPlacement } from "./useInputPopupPlacement";
 import { useQuickActionLookupState } from "./useQuickActionLookupState";
 
 export function QuickActionLookup({
@@ -49,6 +51,7 @@ export function QuickActionLookup({
     const listboxId = `${idPrefix ?? defaultIdPrefix}-listbox`;
     const inputId = `${listboxId}-input`;
     const activeOptionId = filteredOptions[activeIndex] ? `${listboxId}-option-${filteredOptions[activeIndex].id}` : undefined;
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
 
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
@@ -73,7 +76,8 @@ export function QuickActionLookup({
                 ) : (
                     <div className="slds-combobox_container">
                         <div
-                            className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
+                            ref={containerRef}
+                            className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
                             aria-controls={listboxId}
                             aria-expanded={open}
                             aria-haspopup="listbox"
@@ -110,8 +114,8 @@ export function QuickActionLookup({
                                 />
                                 <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default" name="search" />
                             </div>
-                            {open ? (
-                                <div className="slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-with-icon-7" id={listboxId} role="listbox" aria-label={label}>
+                            {open && portalTarget ? createPortal(
+                                <div ref={popupRef} style={popupStyle} className={`slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-with-icon-7 playground-input-popup${popupClassName}`} id={listboxId} role="listbox" aria-label={label}>
                                     <ul className="slds-listbox slds-listbox_vertical" role="presentation">
                                         {loadingOptions ? (
                                             <li className="slds-listbox__item" role="presentation">
@@ -164,13 +168,14 @@ export function QuickActionLookup({
                                             </li>
                                         ) : null}
                                     </ul>
-                                </div>
+                                </div>,
+                                portalTarget
                             ) : null}
                         </div>
                     </div>
                 )}
-                <FieldError message={error} />
             </div>
+            <FieldError message={error} />
         </div>
     );
 }

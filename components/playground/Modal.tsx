@@ -2,6 +2,7 @@
 
 import type { KeyboardEvent, ReactNode } from "react";
 import { useEffect, useId, useRef } from "react";
+import { UtilityIcon } from "./SldsIcon";
 
 const focusableSelector = [
     "a[href]",
@@ -44,7 +45,7 @@ export function Modal({
     title: string;
     onClose: () => void;
     narrow?: boolean;
-    children: ReactNode;
+    children?: ReactNode;
 }) {
     const titleId = useId();
     const modalRef = useRef<HTMLElement>(null);
@@ -126,7 +127,7 @@ export function Modal({
         <>
             <section
                 ref={modalRef}
-                className={`slds-modal slds-fade-in-open ${narrow ? "slds-modal_small" : ""}`}
+                className={`slds-modal slds-fade-in-open${narrow ? " slds-modal_small" : ""}`}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={titleId}
@@ -134,24 +135,25 @@ export function Modal({
                 onKeyDown={handleModalKeyDown}
             >
                 <div className="slds-modal__container">
-                    <header className="slds-modal__header">
-                        <button className="slds-button slds-button_icon slds-modal__close" type="button" onClick={onClose} aria-label="閉じる">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                        <h2 id={titleId} className="slds-modal__title slds-hyphenate">{title}</h2>
-                    </header>
+                    <button className="slds-button slds-button_icon slds-modal__close" type="button" onClick={onClose}>
+                        <UtilityIcon className="slds-button__icon slds-button__icon_large" name="close" />
+                        <span className="slds-assistive-text">閉じる</span>
+                    </button>
+                    <div className="slds-modal__header">
+                        <h1 id={titleId} className="slds-modal__title slds-hyphenate" tabIndex={-1}>{title}</h1>
+                    </div>
                     {children}
                 </div>
             </section>
-            <div className="slds-backdrop slds-backdrop_open" />
+            <div className="slds-backdrop slds-backdrop_open" role="presentation" />
         </>
     );
 }
 
-export function ModalFooter({ saving, onCancel }: { saving: boolean; onCancel: () => void }) {
+export function ModalFooter({ className = "", saving, onCancel }: { className?: string; saving: boolean; onCancel: () => void }) {
     return (
-        <div className="slds-modal__footer">
-            <button className="slds-button slds-button_neutral" type="button" onClick={onCancel}>
+        <div className={`slds-modal__footer ${className}`.trim()}>
+            <button className="slds-button slds-button_neutral" type="button" aria-label="キャンセルして閉じる" onClick={onCancel}>
                 キャンセル
             </button>
             <button className="slds-button slds-button_brand heroku-brand-action" type="submit" disabled={saving}>

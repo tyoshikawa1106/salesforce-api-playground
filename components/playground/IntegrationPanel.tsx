@@ -40,7 +40,7 @@ export function IntegrationPanel({
             />
 
             <div className="slds-m-top_small">
-                <form className="slds-box slds-theme_default" onSubmit={onCreateAccount}>
+                <form className="slds-box slds-theme_default" onSubmit={onCreateAccount} noValidate>
                     <div className="slds-text-heading_small slds-m-bottom_medium">新規取引先</div>
                     <AccountFormFields
                         loadingPicklists={picklistLoading}
