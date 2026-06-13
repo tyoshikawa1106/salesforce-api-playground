@@ -78,7 +78,7 @@ Heroku Pipeline は、Git Flow や GitHub Flow などのブランチ戦略と組
 
 Pipeline の `Tests` は、Heroku CI を有効化している場合に、Pipeline 上でテスト実行結果を確認するための機能です。
 
-Heroku CI は GitHub repository への push や pull request に合わせて、Heroku 側で一時的な test app を作り、その環境でアプリケーションのテストを実行します。Review Apps と組み合わせると、pull request ごとの変更を Heroku 環境に近い形で確認できます。
+Heroku CI は GitHub repository への push や pull request に合わせて、Heroku 側で一時的な test app を作り、その環境でアプリケーションのテストを実行します。詳しくは [Heroku CI の考え方](heroku-ci.md) を参照します。
 
 Tests は Pipeline の stage や promote そのものではなく、変更を Staging / Production へ進める前に自動テスト結果を確認するための CI 領域として扱います。
 
