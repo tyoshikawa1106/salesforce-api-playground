@@ -66,7 +66,7 @@ export function GlobalHeader({ children, connected, environmentLabel = null, ins
                             userName={userName}
                         />
                     ) : (
-                        <a className="slds-button slds-button_brand heroku-brand-action" href="/api/auth/login">
+                        <a className="slds-button slds-button_brand" href="/api/auth/login">
                             Salesforce に接続
                         </a>
                     )}

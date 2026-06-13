@@ -62,7 +62,7 @@ export function IntegrationPanel({
                         onChange={onAccountFormChange}
                     />
                     <div className="slds-m-top_medium slds-text-align_right">
-                        <button className="slds-button slds-button_brand heroku-brand-action" type="submit" disabled={loading || saving}>
+                        <button className="slds-button slds-button_brand" type="submit" disabled={loading || saving}>
                             {saving ? "作成中..." : "取引先を作成"}
                         </button>
                     </div>

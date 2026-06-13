@@ -60,23 +60,15 @@ SLDS は class だけでなく HTML 構造も重要。たとえば modal、dropd
 3. 既存の `playground-*` class で近いものがないか。
 4. どうしても足りない場合だけ、目的が分かる独自 class を追加する。
 
-独自 CSS は、SLDS 標準では表現しきれない sticky header、検索結果の overflow、アプリ固有の Heroku 色、細かい layout 調整などに限定する。
+独自 CSS は、SLDS 標準では表現しきれない sticky header、検索結果の overflow、細かい layout 調整などに限定する。
 
 `app/globals.css` に CSS を追加する時は、広すぎる selector を避ける。`button` や `table` のような要素全体へ効く selector は、SLDS の標準挙動を壊しやすい。
 
 ## このリポジトリでの色とブランド
 
-基本の UI は SLDS に寄せる。Heroku 文脈の色だけ、CSS custom property と専用 class で扱っている。
+基本の UI は SLDS に寄せる。ボタンや状態色も、まず SLDS 標準の `slds-button_brand` や theme class を使う。
 
-```css
-:root {
-    --heroku-purple: #5a1ba9;
-    --heroku-purple-dark: #300b60;
-    --heroku-purple-light: #d7bff2;
-}
-```
-
-Heroku 色を使う場合は、既存の `heroku-*` class や custom property に合わせる。新しい色を増やす前に、既存の色で表現できないか確認する。
+ブランド固有色を足す場合は、必要性と適用範囲を確認してから、専用 class と CSS custom property で限定的に扱う。
 
 ## コンポーネントを変更する時の読み方
 

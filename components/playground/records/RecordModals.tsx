@@ -312,7 +312,7 @@ export function RecordModals({
                         <button className="slds-button slds-button_neutral" type="button" onClick={actions.onCancelRestore}>
                             キャンセル
                         </button>
-                        <button className="slds-button slds-button_brand heroku-brand-action" type="button" onClick={actions.onConfirmRestore} disabled={saving}>
+                        <button className="slds-button slds-button_brand" type="button" onClick={actions.onConfirmRestore} disabled={saving}>
                             {saving ? "復元中..." : "復元"}
                         </button>
                     </div>

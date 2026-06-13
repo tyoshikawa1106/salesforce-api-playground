@@ -2,9 +2,6 @@
 
 :root {
     color-scheme: light;
-    --heroku-purple: #5a1ba9;
-    --heroku-purple-dark: #300b60;
-    --heroku-purple-light: #d7bff2;
     --playground-context-bar-height: 2.5rem;
     --playground-content-offset: calc(var(--playground-global-header-height) + var(--playground-context-bar-height) + var(--playground-content-top-gap));
     --playground-content-offset-with-environment-label: calc(var(--playground-environment-label-height) + var(--playground-content-offset));
@@ -83,33 +80,12 @@ body {
     padding-bottom: calc(var(--playground-utility-bar-height) + var(--slds-g-spacing-6, 1.5rem));
 }
 
-.playground-logout-action {
-    align-items: center;
-    color: inherit;
-    display: flex;
-    text-align: left;
-}
-
-.playground-logout-action:focus,
-.playground-logout-action:hover {
-    background-color: var(--slds-g-color-neutral-base-95);
-    color: var(--slds-g-color-brand-base-50);
-    text-decoration: none;
-}
-
 .playground-profile-popover {
     position: absolute;
     right: calc(var(--slds-g-spacing-3, 0.75rem) * -1);
     top: calc(100% + var(--slds-g-spacing-3, 0.75rem));
     width: min(22rem, calc(100vw - 2rem));
     z-index: var(--playground-overlay-z-index);
-}
-
-.heroku-brand-action {
-    --slds-c-button-brand-color-background: var(--heroku-purple);
-    --slds-c-button-brand-color-background-hover: var(--heroku-purple-dark);
-    --slds-c-button-brand-color-border: var(--heroku-purple);
-    --slds-c-button-brand-color-border-hover: var(--heroku-purple-dark);
 }
 
 .playground-login-page {

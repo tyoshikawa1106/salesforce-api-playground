@@ -156,7 +156,7 @@ export function ModalFooter({ className = "", saving, onCancel }: { className?: 
             <button className="slds-button slds-button_neutral" type="button" aria-label="キャンセルして閉じる" onClick={onCancel}>
                 キャンセル
             </button>
-            <button className="slds-button slds-button_brand heroku-brand-action" type="submit" disabled={saving}>
+            <button className="slds-button slds-button_brand" type="submit" disabled={saving}>
                 {saving ? "保存中..." : "保存"}
             </button>
         </div>
