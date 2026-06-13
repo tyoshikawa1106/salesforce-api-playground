@@ -23,7 +23,8 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 
 - title は `<type>: <日本語summary>` にする。
 - type は `feat`、`fix`、`docs`、`test`、`refactor`、`style`、`ci`、`chore` から選ぶ。
-- 通常開発では draft PR を作成する。
+- 通常開発ではローカルコミットまで行い、PR はユーザーが明示した場合だけ作成する。
+- PR を作成する場合は draft PR を作成する。
 - CI が pass したら Ready for review にする。
 - CI が fail した場合は draft のまま修正する。
 
@@ -69,9 +70,9 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 2. 必要ならIssueを作成する。
 3. `codex/...` ブランチで作業する。
 4. 変更に応じた確認を実行する。
-5. コミットして push する。
-6. draft PR を作る。
-7. CI pass 後に Ready for review にする。
+5. 作業単位でコミットする。
+6. push、draft PR 作成、CI 確認はユーザーが明示した場合だけ行う。
+7. PR を作成した場合は、CI pass 後に Ready for review にする。
 8. ユーザーが merge まで依頼した場合だけ merge する。
 
 ## merge後
