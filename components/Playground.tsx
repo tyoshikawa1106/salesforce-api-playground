@@ -32,6 +32,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         openAccount,
         openContact,
         refreshActivity,
+        recordCounts,
         recycleBinItems,
         selectedAccount,
         selectedActivity,
@@ -92,6 +93,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             selectedAccount,
             selectedActivity,
             selectedContact,
+            recordCounts,
             userCounts
         },
         recordActions: {

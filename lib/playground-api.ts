@@ -89,6 +89,7 @@ export const playgroundApiPaths = {
     },
     recycleBin: "/api/recycle-bin",
     recycleBinUndelete: "/api/recycle-bin/undelete",
+    recordCounts: "/api/record-counts",
     search(query: string): string {
         return `/api/search?q=${encodeURIComponent(query)}`;
     },

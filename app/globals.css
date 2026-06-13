@@ -102,6 +102,29 @@ body {
     row-gap: var(--playground-template-gutter);
 }
 
+.playground-home-count-card {
+    display: flex;
+    flex-direction: column;
+    min-height: var(--slds-g-sizing-12, 5rem);
+    padding-bottom: var(--slds-g-spacing-3, 0.75rem);
+    padding-top: var(--slds-g-spacing-2, 0.5rem);
+}
+
+.playground-home-count-card__label {
+    flex: 0 0 auto;
+}
+
+.playground-home-count-card__content {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
+.playground-home-count-card__content > p {
+    align-self: stretch;
+}
+
 .playground-workspace {
     min-height: calc(100vh - 6.25rem);
     min-height: calc(100dvh - 6.25rem);

@@ -104,7 +104,8 @@ describe("playground shell smoke rendering", () => {
         );
 
         expect(markup).toContain("連携ユーザーによる取引先作成");
-        expect(markup).toContain("slds-page-header__meta-text");
+        expect(markup).toContain("slds-page-header__name-meta");
+        expect(markup).not.toContain("slds-page-header__meta-text");
         expect(markup).toContain("取引先を作成");
         expect(markup).toContain("取引先名");
         expect(markup).toContain("noValidate=\"\"");
@@ -135,26 +136,36 @@ describe("playground shell smoke rendering", () => {
         expect(markup).not.toContain("slds-page-header__name-meta");
     });
 
-    it("renders the Home page header with SLDS meta text and refresh icon button", () => {
-        const markup = renderToStaticMarkup(createElement(HomePanel));
+    it("renders the Home page header without status summary content", () => {
+        const markup = renderToStaticMarkup(createElement(HomePanel, { userName: "Taro Admin" }));
 
-        expect(markup).toContain("slds-text-title_caps\">ホーム");
-        expect(markup).toContain("slds-page-header__meta-text");
+        expect(markup).toContain("slds-page-header__title slds-truncate");
+        expect(markup).toContain("title=\"Salesforce API Playground\"");
+        expect(markup).toContain("slds-page-header__name-meta\">Login: Taro Admin");
+        expect(markup).not.toContain("slds-page-header__meta-text");
+        expect(markup).not.toContain("ログインユーザー");
         expect(markup).not.toContain("playground-home-counts");
         expect(markup).not.toContain("playground-home-instance");
         expect(markup).not.toContain("インスタンス");
         expect(markup).not.toContain("接続済み");
-        expect(markup).toContain("Salesforce OAuth と REST API を試すための Next.js アプリ");
+        expect(markup).not.toContain("Salesforce OAuth と REST API を試すための Next.js アプリ");
         expect(markup).not.toContain("slds-button_icon-border-filled");
         expect(markup).not.toContain("title=\"更新\"");
+        expect(markup).not.toContain("slds-text-title_caps");
         expect(markup).not.toContain("slds-text-title_caps\">App");
     });
 
     it("renders Home count summaries as content below the header card", () => {
         const markup = renderToStaticMarkup(createElement(HomeCounts, {
             accountCount: 12,
+            campaignCount: 6,
+            caseCount: 7,
             contactCount: 34,
+            emailMessageCount: 8,
             eventCount: 5,
+            leadCount: 3,
+            opportunityCount: 4,
+            productCount: 5,
             recycleBinCount: 2,
             taskCount: 67,
             userCount: 8
@@ -168,6 +179,12 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("ToDo");
         expect(markup).toContain("ユーザー");
         expect(markup).toContain("ごみ箱");
+        expect(markup).toContain("リード");
+        expect(markup).toContain("商談");
+        expect(markup).toContain("商品");
+        expect(markup).toContain("キャンペーン");
+        expect(markup).toContain("ケース");
+        expect(markup).toContain("メールメッセージ");
         expect(markup).not.toContain("slds-page-header");
     });
 
