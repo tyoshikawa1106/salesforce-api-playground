@@ -97,6 +97,7 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 - 差分、CI、競合状態を確認してから扱う。
 - main がすでに同等以上に進んでいる古いPRは、必要に応じて close する。
 - merge はCI pass後に行う。
+- PR 作成時は `tyoshikawa1106` にレビュー依頼する。
 
 ## 注意事項
 
