@@ -162,11 +162,11 @@ export default function Playground({ environmentLabel = null }: { environmentLab
     } satisfies ComponentProps<typeof RecordModals>;
 
     return (
-        <div>
-            <EnvironmentLabelBanner environmentLabel={environmentLabel} />
+        <div className={environmentLabel ? "playground-shell playground-shell_has-environment-label" : "playground-shell"}>
             {notice ? <NoticeBanner notice={notice} /> : null}
             <GlobalHeader
                 connected={session.connected}
+                environmentLabel={environmentLabel}
                 instanceUrl={session.instanceUrl}
                 onCreateEvent={() => recordMutations.openActivityCreateModal("event", { userId: session.userId, userName: session.userName })}
                 onCreateTask={() => recordMutations.openActivityCreateModal("task", { userId: session.userId, userName: session.userName })}

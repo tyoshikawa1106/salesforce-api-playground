@@ -167,6 +167,21 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("aria-haspopup=\"dialog\"");
     });
 
+    it("renders the environment label above the fixed global header", () => {
+        const markup = renderToStaticMarkup(
+            createElement(GlobalHeader, {
+                connected: true,
+                environmentLabel: { label: "STAGING" }
+            })
+        );
+        const labelStart = markup.indexOf("playground-environment-label");
+        const headerStart = markup.indexOf("slds-global-header slds-grid");
+
+        expect(labelStart).toBeGreaterThanOrEqual(0);
+        expect(headerStart).toBeGreaterThan(labelStart);
+        expect(markup).toContain("STAGING");
+    });
+
     it("renders the Salesforce-style profile panel when open", () => {
         const markup = renderToStaticMarkup(
             createElement(GlobalHeaderActions, {

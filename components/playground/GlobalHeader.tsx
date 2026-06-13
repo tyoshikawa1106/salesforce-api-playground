@@ -1,7 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { EnvironmentLabel } from "@/lib/environment-label";
 import type { SearchResultItem } from "@/lib/salesforce/records";
+import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { GlobalHeaderActions } from "./GlobalHeaderActions";
 import { GlobalSearch } from "./GlobalSearch";
 import { useGlobalHeaderMenus } from "./useGlobalHeaderMenus";
@@ -9,6 +11,7 @@ import { useGlobalHeaderMenus } from "./useGlobalHeaderMenus";
 type GlobalHeaderProps = {
     children?: ReactNode;
     connected: boolean;
+    environmentLabel?: EnvironmentLabel | null;
     instanceUrl?: string;
     onCreateEvent?: () => void;
     onCreateTask?: () => void;
@@ -16,7 +19,7 @@ type GlobalHeaderProps = {
     onSelectSearchResult?: (result: SearchResultItem) => void;
 };
 
-export function GlobalHeader({ children, connected, instanceUrl, onCreateEvent, onCreateTask, userName, onSelectSearchResult }: GlobalHeaderProps) {
+export function GlobalHeader({ children, connected, environmentLabel = null, instanceUrl, onCreateEvent, onCreateTask, userName, onSelectSearchResult }: GlobalHeaderProps) {
     const {
         activeActionPopover,
         cancelActionPopoverClose,
@@ -34,6 +37,7 @@ export function GlobalHeader({ children, connected, instanceUrl, onCreateEvent, 
 
     return (
         <header ref={headerRef} className="slds-global-header_container" onKeyDown={closeOnEscape}>
+            <EnvironmentLabelBanner environmentLabel={environmentLabel} />
             <div className="slds-global-header slds-grid slds-grid_align-spread">
                 <div className="slds-global-header__item">
                     <div className="slds-global-header__logo">

@@ -43,6 +43,10 @@ body {
     letter-spacing: 0;
 }
 
+.playground-shell_has-environment-label #main-content {
+    padding-top: calc(var(--slds-g-spacing-8, 3rem) + var(--slds-g-sizing-9, 2rem));
+}
+
 .playground-logout-action {
     align-items: center;
     color: inherit;
