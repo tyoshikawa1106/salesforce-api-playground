@@ -171,16 +171,16 @@ body {
 }
 
 .playground-record-table,
-.playground-record-table .slds-table {
+.playground-record-table__table {
     overflow: visible;
 }
 
-.playground-record-action.slds-is-open {
+.playground-record-action_open {
     position: relative;
     z-index: var(--playground-input-popup-z-index);
 }
 
-.playground-record-table tbody tr:nth-last-child(-n + 2) .playground-record-action .slds-dropdown {
+.playground-record-table tbody tr:nth-last-child(-n + 2) .playground-record-action__dropdown {
     bottom: calc(100% + var(--slds-g-spacing-1, 0.25rem));
     top: auto;
 }

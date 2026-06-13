@@ -9,6 +9,7 @@ import {
     getSelectedVisibleRecords,
     getSelectionState
 } from "./RecordLists";
+import { RecordTableActions } from "./RecordListTableParts";
 import { RecycleBinPanel } from "../recycle-bin/RecycleBinPanel";
 import {
     accountFixture as account,
@@ -19,6 +20,26 @@ import {
 import type { Account, Contact } from "../utils/types";
 
 describe("record list smoke rendering", () => {
+    it("keeps all open row action menu items reachable by keyboard", () => {
+        const markup = renderToStaticMarkup(
+            createElement(RecordTableActions, {
+                record: account,
+                recordLabel: account.Name,
+                open: true,
+                onToggle: noop,
+                onClose: noop,
+                onEdit: noop,
+                onDelete: noop
+            })
+        );
+
+        expect(markup).toContain("playground-record-action_open");
+        expect(markup).toContain("playground-record-action__dropdown");
+        expect(markup.match(/tabindex=\"0\"/g)).toHaveLength(2);
+        expect(markup).toContain(">編集</span>");
+        expect(markup).toContain(">削除</span>");
+    });
+
     it("renders account and contact list views with record actions", () => {
         const accountBeforeFixture: Account = {
             ...account,
