@@ -25,9 +25,9 @@ Heroku CI でも buildpack 実行前の source から `.slugignore` 対象が除
 
 `.slugignore` は、設定後に作成される slug に効きます。過去に `.slugignore` なしで build された slug の内容を遡って変えるものではありません。
 
-過去の slug に docs が含まれていた可能性はあります。ただし、slug に含まれることと HTTP で公開されることは別です。Next.js の `public/` 配下に置いておらず、アプリから配信する実装もないファイルは、通常の画面や URL からは参照できません。
+slug に含まれることと、HTTP で公開されることは別です。Next.js の `public/` 配下に置いておらず、アプリから配信する実装もないファイルは、通常の画面や URL からは参照できません。
 
-過去 release / slug は rollback などの運用上残る場合があります。機密情報や実 URL を repository に入れない方針は、slugignore の有無にかかわらず守ります。
+Heroku は rollback などのために release や slug を保持する場合があります。そのため、`.slugignore` は slug の内容を小さくする補助として扱い、機密情報や実 URL は repository に含めないことを基本にします。
 
 ## このリポジトリで除外しやすいもの
 
