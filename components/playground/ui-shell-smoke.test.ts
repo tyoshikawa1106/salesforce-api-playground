@@ -7,6 +7,7 @@ import { GlobalHeaderActions } from "./GlobalHeaderActions";
 import { HomePanel } from "./HomePanel";
 import { IntegrationPanel } from "./IntegrationPanel";
 import { LoginPage, SessionLoadingPage } from "./LoginPage";
+import { Modal, ModalFooter } from "./Modal";
 import { AppNavigation, getVisibleNavigationCount } from "./Navigation";
 import { ObjectHomeHeader } from "./ObjectHome";
 import { RecordModals } from "./RecordModals";
@@ -275,6 +276,36 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("slds-docked-composer");
         expect(markup).toContain("新規ToDo");
         expect(markup).not.toContain("slds-modal__container");
+    });
+
+    it("renders Modal with the SLDS blueprint structure", () => {
+        const markup = renderToStaticMarkup(
+            createElement(
+                Modal,
+                {
+                    title: "新規取引先",
+                    onClose: noop
+                },
+                createElement("div", {
+                    className: "slds-modal__content slds-p-around_medium",
+                    id: "modal-content-id-test"
+                }, "本文"),
+                createElement(ModalFooter, {
+                    saving: false,
+                    onCancel: noop
+                })
+            )
+        );
+        const closeStart = markup.indexOf("slds-modal__close");
+        const headerStart = markup.indexOf("slds-modal__header");
+
+        expect(closeStart).toBeGreaterThanOrEqual(0);
+        expect(headerStart).toBeGreaterThan(closeStart);
+        expect(markup).toContain("slds-button__icon slds-button__icon_large");
+        expect(markup).toContain("<h1");
+        expect(markup).toContain("tabindex=\"-1\"");
+        expect(markup).toContain("role=\"presentation\"");
+        expect(markup).toContain("aria-label=\"キャンセルして閉じる\"");
     });
 
 });
