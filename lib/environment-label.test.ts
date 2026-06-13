@@ -17,9 +17,22 @@ describe("getEnvironmentLabel", () => {
         expect(getEnvironmentLabel({ APP_ENV: "develop" })).toEqual({ label: "develop" });
     });
 
+    it.each(["localhost:3000", "127.0.0.1:3000", "[::1]:3000"])(
+        "shows LOCAL for local request host %s when APP_ENV is missing",
+        (requestHost) => {
+            expect(getEnvironmentLabel({}, requestHost)).toEqual({ label: "LOCAL" });
+        }
+    );
+
+    it("does not show LOCAL for non-local request hosts when APP_ENV is missing", () => {
+        expect(getEnvironmentLabel({}, "example.com")).toBeNull();
+    });
+
     it("prefers APP_ENV_LABEL when it is set", () => {
-        expect(getEnvironmentLabel({ APP_ENV: "develop", APP_ENV_LABEL: "STAGING" })).toEqual({
-            label: "STAGING"
-        });
+        expect(getEnvironmentLabel({ APP_ENV: "develop", APP_ENV_LABEL: "STAGING" }, "localhost:3000")).toEqual(
+            {
+                label: "STAGING"
+            }
+        );
     });
 });
