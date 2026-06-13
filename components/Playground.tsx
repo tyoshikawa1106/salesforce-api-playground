@@ -21,6 +21,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         accountOptions,
         accounts,
         activeTab,
+        activityCounts,
         changeTab,
         closeActivity,
         contacts,
@@ -36,6 +37,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         selectedActivity,
         selectedContact,
         session,
+        userCounts,
     } = usePlaygroundData({ showNotice });
     const recordMutations = useRecordMutations({
         loadAll,
@@ -75,6 +77,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
     const workspaceProps = {
         view: {
             activeTab,
+            activityCounts,
             loading
         },
         session: {
@@ -88,7 +91,8 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             contacts,
             selectedAccount,
             selectedActivity,
-            selectedContact
+            selectedContact,
+            userCounts
         },
         recordActions: {
             onCreateAccount: () => recordMutations.openAccountModal(),

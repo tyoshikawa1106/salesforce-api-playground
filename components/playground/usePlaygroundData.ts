@@ -13,8 +13,15 @@ type UsePlaygroundDataOptions = {
 
 type ConnectedPlaygroundData = {
     accounts: Account[];
+    activityCounts: {
+        events: number;
+        tasks: number;
+    };
     contacts: Contact[];
     recycleBinItems: RecycleBinItem[];
+    userCounts: {
+        active: number;
+    };
 };
 
 async function loadSession() {
@@ -24,30 +31,40 @@ async function loadSession() {
 }
 
 async function loadConnectedPlaygroundData(): Promise<ConnectedPlaygroundData> {
-    const [accountResult, contactResult, recycleBinResult] = await Promise.all([
+    const [accountResult, activityCountResult, contactResult, recycleBinResult, userCountResult] = await Promise.all([
         apiRequest<{ accounts: Account[] }>(
             buildPlaygroundApiRequest(playgroundApiPaths.accounts)
+        ),
+        apiRequest<{ activityCounts: ConnectedPlaygroundData["activityCounts"] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.activityCounts)
         ),
         apiRequest<{ contacts: Contact[] }>(
             buildPlaygroundApiRequest(playgroundApiPaths.contacts)
         ),
         apiRequest<{ items: RecycleBinItem[] }>(
             buildPlaygroundApiRequest(playgroundApiPaths.recycleBin)
+        ),
+        apiRequest<{ userCounts: ConnectedPlaygroundData["userCounts"] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.userCounts)
         )
     ]);
 
     return {
         accounts: accountResult.accounts,
+        activityCounts: activityCountResult.activityCounts,
         contacts: contactResult.contacts,
-        recycleBinItems: recycleBinResult.items
+        recycleBinItems: recycleBinResult.items,
+        userCounts: userCountResult.userCounts
     };
 }
 
 export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const [session, setSession] = useState<SessionInfo | null>(null);
     const [accounts, setAccounts] = useState<Account[]>([]);
+    const [activityCounts, setActivityCounts] = useState<ConnectedPlaygroundData["activityCounts"]>({ events: 0, tasks: 0 });
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [recycleBinItems, setRecycleBinItems] = useState<RecycleBinItem[]>([]);
+    const [userCounts, setUserCounts] = useState<ConnectedPlaygroundData["userCounts"]>({ active: 0 });
     const [loading, setLoading] = useState(true);
     const {
         accountOptions,
@@ -69,15 +86,19 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const resetConnectedState = useCallback(() => {
         setSession({ connected: false });
         setAccounts([]);
+        setActivityCounts({ events: 0, tasks: 0 });
         setContacts([]);
         setRecycleBinItems([]);
+        setUserCounts({ active: 0 });
         resetConnectedSelection();
     }, [resetConnectedSelection]);
 
     const applyConnectedData = useCallback((data: ConnectedPlaygroundData) => {
         setAccounts(data.accounts);
+        setActivityCounts(data.activityCounts);
         setContacts(data.contacts);
         setRecycleBinItems(data.recycleBinItems);
+        setUserCounts(data.userCounts);
         keepSelectionForData(data.accounts, data.contacts);
     }, [keepSelectionForData]);
 
@@ -142,6 +163,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         accountOptions,
         accounts,
         activeTab,
+        activityCounts,
         changeTab,
         closeActivity,
         contacts,
@@ -157,6 +179,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         selectedContact,
         refreshActivity,
         session,
+        userCounts,
         setSelectedAccountId,
         setSelectedContactId
     };

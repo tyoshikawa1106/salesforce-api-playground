@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { GlobalHeader } from "./GlobalHeader";
 import { GlobalHeaderActions } from "./GlobalHeaderActions";
-import { HomePanel } from "./HomePanel";
+import { HomeCounts, HomePanel } from "./HomePanel";
 import { IntegrationPanel } from "./IntegrationPanel";
 import { LoginPage, SessionLoadingPage } from "./LoginPage";
 import { Modal, ModalFooter } from "./Modal";
@@ -136,21 +136,39 @@ describe("playground shell smoke rendering", () => {
     });
 
     it("renders the Home page header with SLDS meta text and refresh icon button", () => {
-        const markup = renderToStaticMarkup(
-            createElement(HomePanel, {
-                connected: true,
-                instanceUrl: "https://example.my.salesforce.com"
-            })
-        );
+        const markup = renderToStaticMarkup(createElement(HomePanel));
 
         expect(markup).toContain("slds-text-title_caps\">ホーム");
         expect(markup).toContain("slds-page-header__meta-text");
-        expect(markup).toContain("playground-home-status-grid");
+        expect(markup).not.toContain("playground-home-counts");
+        expect(markup).not.toContain("playground-home-instance");
+        expect(markup).not.toContain("インスタンス");
+        expect(markup).not.toContain("接続済み");
         expect(markup).toContain("Salesforce OAuth と REST API を試すための Next.js アプリ");
-        expect(markup).not.toContain("取引先責任者");
         expect(markup).not.toContain("slds-button_icon-border-filled");
         expect(markup).not.toContain("title=\"更新\"");
         expect(markup).not.toContain("slds-text-title_caps\">App");
+    });
+
+    it("renders Home count summaries as content below the header card", () => {
+        const markup = renderToStaticMarkup(createElement(HomeCounts, {
+            accountCount: 12,
+            contactCount: 34,
+            eventCount: 5,
+            recycleBinCount: 2,
+            taskCount: 67,
+            userCount: 8
+        }));
+
+        expect(markup).toContain("playground-home-count-summary");
+        expect(markup).toContain("playground-home-counts");
+        expect(markup).toContain("取引先");
+        expect(markup).toContain("取引先責任者");
+        expect(markup).toContain("行動");
+        expect(markup).toContain("ToDo");
+        expect(markup).toContain("ユーザー");
+        expect(markup).toContain("ごみ箱");
+        expect(markup).not.toContain("slds-page-header");
     });
 
     it("renders GlobalHeader menus with explicit popup and menu relationships", () => {

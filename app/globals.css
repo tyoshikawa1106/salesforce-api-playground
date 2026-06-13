@@ -5,7 +5,12 @@
     --heroku-purple: #5a1ba9;
     --heroku-purple-dark: #300b60;
     --heroku-purple-light: #d7bff2;
+    --playground-context-bar-height: 2.5rem;
+    --playground-content-top-gap: 0rem;
+    --playground-environment-label-height: 2.21875rem;
+    --playground-global-header-height: 3.125rem;
     --playground-input-popup-z-index: 9100;
+    --playground-template-gutter: var(--slds-g-spacing-3, 0.75rem);
     --playground-utility-bar-height: 2.5rem;
     --playground-utility-bar-z-index: 6500;
 }
@@ -46,8 +51,14 @@ body {
     letter-spacing: 0;
 }
 
+.playground-shell #main-content {
+    padding-left: var(--playground-template-gutter);
+    padding-right: var(--playground-template-gutter);
+    padding-top: calc(var(--playground-global-header-height) + var(--playground-context-bar-height) + var(--playground-content-top-gap) + var(--playground-template-gutter));
+}
+
 .playground-shell_has-environment-label #main-content {
-    padding-top: calc(var(--slds-g-spacing-8, 3rem) + var(--slds-g-sizing-9, 2rem));
+    padding-top: calc(var(--playground-environment-label-height) + var(--playground-global-header-height) + var(--playground-context-bar-height) + var(--playground-content-top-gap) + var(--playground-template-gutter));
 }
 
 .playground-shell_has-utility-bar #main-content {
@@ -85,6 +96,10 @@ body {
 
 .playground-login-page {
     min-height: 100vh;
+}
+
+.playground-home-counts {
+    row-gap: var(--playground-template-gutter);
 }
 
 .playground-workspace {
@@ -225,7 +240,25 @@ body {
     }
 }
 
+@media (max-width: 63.99em) {
+    .playground-record-detail-block:nth-child(n + 4) {
+        display: none;
+    }
+
+    .playground-record-page-area {
+        margin-bottom: var(--playground-template-gutter);
+    }
+
+    .playground-record-page-area:last-child {
+        margin-bottom: 0;
+    }
+}
+
 @media (max-width: 767px) {
+    .playground-record-detail-block:nth-child(n + 3) {
+        display: none;
+    }
+
     input,
     select,
     textarea {
@@ -236,10 +269,6 @@ body {
     .playground-login-page {
         padding-left: var(--slds-g-spacing-3, 0.75rem);
         padding-right: var(--slds-g-spacing-3, 0.75rem);
-    }
-
-    .playground-home-status-grid {
-        row-gap: var(--slds-g-spacing-3, 0.75rem);
     }
 
 }

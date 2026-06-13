@@ -20,11 +20,13 @@ describe("playgroundApiPaths", () => {
         expect(playgroundApiPaths.session).toBe("/api/session");
         expect(playgroundApiPaths.accounts).toBe("/api/accounts");
         expect(playgroundApiPaths.contacts).toBe("/api/contacts");
+        expect(playgroundApiPaths.activityCounts).toBe("/api/activity-counts");
         expect(playgroundApiPaths.activityEvents).toBe("/api/activities/events");
         expect(playgroundApiPaths.activityEvent("00Uxx0000012345/../../x?<script>")).toBe(
             "/api/activities/events/00Uxx0000012345%2F..%2F..%2Fx%3F%3Cscript%3E"
         );
         expect(playgroundApiPaths.activityTasks).toBe("/api/activities/tasks");
+        expect(playgroundApiPaths.userCounts).toBe("/api/user-counts");
         expect(playgroundApiPaths.integrationAccounts).toBe("/api/integration/ui/accounts");
         expect(playgroundApiPaths.picklistValues({ object: "Account", fields: ["Industry", "Type"] })).toBe(
             "/api/picklist-values?fields=Industry%2CType&object=Account"

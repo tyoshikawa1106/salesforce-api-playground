@@ -181,6 +181,29 @@ function getActivityById<TRecord extends TaskActivityRecord | EventActivityRecor
 const taskActivities = createActivityOperations<TaskActivityInput, TaskActivityUpdateInput>("Task");
 const eventActivities = createActivityOperations<EventActivityInput, EventActivityUpdateInput>("Event");
 
+function readCountResult(result: { totalSize?: number; records?: Array<{ expr0?: number }> }) {
+    return result.records?.[0]?.expr0 ?? result.totalSize ?? 0;
+}
+
+export async function countActivities() {
+    return withStandardObjectConnection(async (connection) => {
+        await assertObjectPermission(connection, "Task", "queryable");
+        await assertObjectPermission(connection, "Event", "queryable");
+
+        const [tasks, events] = await Promise.all([
+            connection.query<{ expr0?: number }>("SELECT COUNT() FROM Task"),
+            connection.query<{ expr0?: number }>("SELECT COUNT() FROM Event")
+        ]);
+
+        return {
+            activityCounts: {
+                tasks: readCountResult(tasks),
+                events: readCountResult(events)
+            }
+        };
+    });
+}
+
 export async function listActivities(parent: ActivityParent) {
     return withStandardObjectConnection(async (connection) => {
         const relationField = activityRelationField(parent.parentType);

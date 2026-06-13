@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as activitiesRoute from "./activities/route";
+import * as activityCountsRoute from "./activity-counts/route";
 import * as activityEventsRoute from "./activities/events/route";
 import * as activityEventRoute from "./activities/events/[id]/route";
 import * as activityTasksRoute from "./activities/tasks/route";
@@ -20,6 +21,7 @@ import {
     createTaskActivity,
     deleteEventActivity,
     deleteTaskActivity,
+    countActivities,
     getEventActivity,
     getTaskActivity,
     listActivities,
@@ -65,6 +67,7 @@ vi.mock("@/services/salesforce/activities", () => ({
     createTaskActivity: vi.fn(),
     deleteEventActivity: vi.fn(),
     deleteTaskActivity: vi.fn(),
+    countActivities: vi.fn(),
     getEventActivity: vi.fn(),
     getTaskActivity: vi.fn(),
     listActivities: vi.fn(),
@@ -83,6 +86,7 @@ const createEventActivityMock = vi.mocked(createEventActivity);
 const createTaskActivityMock = vi.mocked(createTaskActivity);
 const deleteEventActivityMock = vi.mocked(deleteEventActivity);
 const deleteTaskActivityMock = vi.mocked(deleteTaskActivity);
+const countActivitiesMock = vi.mocked(countActivities);
 const getEventActivityMock = vi.mocked(getEventActivity);
 const getTaskActivityMock = vi.mocked(getTaskActivity);
 const updateEventActivityMock = vi.mocked(updateEventActivity);
@@ -103,6 +107,23 @@ afterEach(() => {
 });
 
 describe("Activity API routes", () => {
+    it("counts activities by object type", async () => {
+        const data = {
+            activityCounts: {
+                events: 7,
+                tasks: 13
+            }
+        };
+
+        countActivitiesMock.mockResolvedValue({ data, session });
+
+        const response = await activityCountsRoute.GET();
+
+        expect(countActivitiesMock).toHaveBeenCalledWith();
+        expect(jsonWithSessionMock).toHaveBeenCalledWith(data, session);
+        await expectJson(response, data);
+    });
+
     it("lists activities for the requested parent", async () => {
         const parent = {
             parentType: "account" as const,
