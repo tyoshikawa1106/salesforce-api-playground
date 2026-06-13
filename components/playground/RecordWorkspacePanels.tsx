@@ -16,23 +16,17 @@ import type { Account, ActiveTab, Activity, Contact, DeleteState } from "./types
 function RecordListWorkspaceFrame({
     activeTab,
     children,
-    loading,
     onCreate,
-    onRefresh
 }: {
     activeTab: Extract<ActiveTab, "accounts" | "contacts">;
     children: ReactNode;
-    loading: boolean;
     onCreate: () => void;
-    onRefresh: () => void;
 }) {
     return (
         <>
             <ObjectHomeHeader
                 activeTab={activeTab}
-                loading={loading}
                 onCreate={onCreate}
-                onRefresh={onRefresh}
             />
             {children}
         </>
@@ -63,9 +57,7 @@ export function AccountListWorkspace({
     return (
         <RecordListWorkspaceFrame
             activeTab="accounts"
-            loading={loading}
             onCreate={onCreate}
-            onRefresh={onRefresh}
         >
             <AccountPanel
                 accounts={accounts}
@@ -76,6 +68,7 @@ export function AccountListWorkspace({
                 onDelete={(record) => onDeleteRecord(accountDeleteState([record], record.Name))}
                 onBulkDelete={(records) => onDeleteRecord(accountDeleteState(records, accountBulkDeleteLabel(records)))}
                 onBulkDeleteEmpty={onBulkDeleteEmpty}
+                onRefresh={onRefresh}
             />
         </RecordListWorkspaceFrame>
     );
@@ -153,9 +146,7 @@ export function ContactListWorkspace({
     return (
         <RecordListWorkspaceFrame
             activeTab="contacts"
-            loading={loading}
             onCreate={onCreate}
-            onRefresh={onRefresh}
         >
             <ContactPanel
                 contacts={contacts}
@@ -167,6 +158,7 @@ export function ContactListWorkspace({
                 onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
                 onBulkDelete={(records) => onDeleteRecord(contactDeleteState(records, contactBulkDeleteLabel(records)))}
                 onBulkDeleteEmpty={onBulkDeleteEmpty}
+                onRefresh={onRefresh}
             />
         </RecordListWorkspaceFrame>
     );

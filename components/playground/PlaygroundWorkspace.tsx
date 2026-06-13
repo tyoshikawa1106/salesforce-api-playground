@@ -93,9 +93,17 @@ export function PlaygroundWorkspace({
     const { connected, userId, userName } = session;
     const { accounts, contacts, recordCounts, selectedAccount, selectedActivity, selectedContact, userCounts } = recordSelection;
     const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
+    const recordListActive =
+        (activeTab === "accounts" && connected && !selectedAccount)
+        || (activeTab === "contacts" && connected && !selectedContact)
+        || (activeTab === "recycleBin" && connected);
+    const mainClassName = [
+        "slds-template_default",
+        recordListActive ? "playground-main-content_flush-record-list" : ""
+    ].filter(Boolean).join(" ");
 
     return (
-        <main id="main-content" className="slds-template_default">
+        <main id="main-content" className={mainClassName}>
             <section className={sectionClassName}>
                 {activeTab === "home" ? (
                     <HomePanel userName={userName} />
@@ -195,6 +203,7 @@ export function PlaygroundWorkspace({
                         loading={loading}
                         onRestore={recycleBinActions.onRestoreItems}
                         onRestoreEmpty={recycleBinActions.onRestoreEmpty}
+                        onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
             </section>

@@ -1,15 +1,11 @@
-import { PageHeader, PageHeaderControl, RefreshButton } from "./PageHeader";
+import { PageHeader, PageHeaderControl } from "./PageHeader";
 
 export function ObjectHomeHeader({
     activeTab,
-    loading,
-    onCreate,
-    onRefresh
+    onCreate
 }: {
     activeTab: "accounts" | "contacts";
-    loading: boolean;
     onCreate: () => void;
-    onRefresh: () => void;
 }) {
     const objectLabel = activeTab === "accounts" ? "取引先" : "取引先責任者";
 
@@ -17,19 +13,14 @@ export function ObjectHomeHeader({
         <PageHeader
             tab={activeTab}
             eyebrow={objectLabel}
-            title="一覧"
+            title="最近参照したデータ"
             className="slds-page-header_object-home slds-page-header_joined"
             actions={
-                <>
-                    <PageHeaderControl>
-                        <RefreshButton loading={loading} onRefresh={onRefresh} />
-                    </PageHeaderControl>
-                    <PageHeaderControl>
-                        <button className="slds-button slds-button_neutral" type="button" onClick={onCreate}>
-                            新規
-                        </button>
-                    </PageHeaderControl>
-                </>
+                <PageHeaderControl>
+                    <button className="slds-button slds-button_neutral" type="button" onClick={onCreate}>
+                        新規
+                    </button>
+                </PageHeaderControl>
             }
         />
     );

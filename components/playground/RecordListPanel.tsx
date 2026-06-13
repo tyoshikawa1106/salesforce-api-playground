@@ -23,7 +23,8 @@ export function RecordListPanel<Record extends { Id: string }>({
     onEdit,
     onDelete,
     onBulkDelete,
-    onBulkDeleteEmpty
+    onBulkDeleteEmpty,
+    onRefresh
 }: {
     records: Record[];
     loading: boolean;
@@ -42,6 +43,7 @@ export function RecordListPanel<Record extends { Id: string }>({
     onDelete: (record: Record) => void;
     onBulkDelete: (records: Record[]) => void;
     onBulkDeleteEmpty: () => void;
+    onRefresh: () => void;
 }) {
     const listState = useRecordListState(records, filterListRecords);
     const selectedVisibleRecords = getSelectedVisibleRecords(listState.filteredRecords, listState.selectedIds);
@@ -56,39 +58,42 @@ export function RecordListPanel<Record extends { Id: string }>({
     }
 
     return (
-        <div className="slds-theme_default">
+        <section className="slds-card slds-card_boundary playground-list-view">
             <ListViewToolbar
                 count={listState.filteredRecords.length}
                 bulkDeleteLabel={bulkDeleteLabel}
                 searchId={searchId}
                 searchValue={listState.searchTerm}
                 onBulkDelete={runBulkDelete}
+                onRefresh={onRefresh}
                 onSearchChange={listState.setSearchTerm}
             />
-            <RecordListEmptyStates
-                loading={loading}
-                hasRecords={listState.hasRecords}
-                hasFilteredRecords={listState.hasFilteredRecords}
-                connected={connected}
-                loadingMessage={messages.loading}
-                emptyMessage={messages.empty}
-                disconnectedMessage={messages.disconnected}
-                filteredEmptyMessage={messages.filteredEmpty}
-            />
-            {!loading && listState.hasFilteredRecords ? (
-                <RecordListTable
-                    ariaLabel={ariaLabel}
-                    columns={columns}
-                    getRecordLabel={getRecordLabel}
-                    listState={listState}
-                    primaryColumnLabel={primaryColumnLabel}
-                    selectAllLabel={selectAllLabel}
-                    onDelete={onDelete}
-                    onEdit={onEdit}
-                    onOpen={onOpen}
+            <div className="slds-card__body playground-list-view__body">
+                <RecordListEmptyStates
+                    loading={loading}
+                    hasRecords={listState.hasRecords}
+                    hasFilteredRecords={listState.hasFilteredRecords}
+                    connected={connected}
+                    loadingMessage={messages.loading}
+                    emptyMessage={messages.empty}
+                    disconnectedMessage={messages.disconnected}
+                    filteredEmptyMessage={messages.filteredEmpty}
                 />
-            ) : null}
-        </div>
+                {!loading && listState.hasFilteredRecords ? (
+                    <RecordListTable
+                        ariaLabel={ariaLabel}
+                        columns={columns}
+                        getRecordLabel={getRecordLabel}
+                        listState={listState}
+                        primaryColumnLabel={primaryColumnLabel}
+                        selectAllLabel={selectAllLabel}
+                        onDelete={onDelete}
+                        onEdit={onEdit}
+                        onOpen={onOpen}
+                    />
+                ) : null}
+            </div>
+        </section>
     );
 }
 
@@ -98,6 +103,7 @@ function ListViewToolbar({
     searchId,
     searchValue,
     onBulkDelete,
+    onRefresh,
     onSearchChange
 }: {
     count: number;
@@ -105,22 +111,27 @@ function ListViewToolbar({
     searchId: string;
     searchValue: string;
     onBulkDelete: () => void;
+    onRefresh: () => void;
     onSearchChange: (value: string) => void;
 }) {
     return (
-        <div className="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center slds-gutters_x-small slds-p-horizontal_x-small slds-p-vertical_x-small slds-border_bottom slds-theme_default">
-            <div className="slds-max-small-size_1-of-1 slds-p-horizontal_x-small slds-p-vertical_xx-small">
-                <div className="slds-text-title_bold">
-                    {count} 件
-                </div>
+        <div className="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-view__toolbar">
+            <div className="slds-col slds-align-bottom slds-p-vertical_xx-small">
+                <p className="slds-text-body_small">
+                    <span aria-live="polite" role="status">
+                        {count} 個の項目
+                    </span>
+                </p>
             </div>
-            <div className="slds-grid slds-grid_vertical-align-center slds-gutters_xx-small slds-max-small-size_1-of-1 slds-p-horizontal_x-small slds-p-vertical_xx-small">
-                <div className="slds-form-element slds-grow">
+            <div className="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center slds-wrap slds-p-vertical_xx-small playground-list-view__controls">
+                <div className="slds-form-element playground-list-view__search">
                     <label className="slds-assistive-text" htmlFor={searchId}>
                         このリストを検索
                     </label>
                     <div className="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
-                        <span className="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_left" aria-hidden="true" />
+                        <span className="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_left" aria-hidden="true">
+                            <UtilityIcon className="slds-icon slds-icon-text-default slds-icon_xx-small" name="search" />
+                        </span>
                         <input
                             id={searchId}
                             className="slds-input slds-max-medium-size_full playground-list-search"
@@ -132,7 +143,36 @@ function ListViewToolbar({
                     </div>
                 </div>
                 <button
+                    className="slds-button slds-button_icon slds-button_icon-more slds-m-left_xx-small"
+                    type="button"
+                    title="リストビューコントロール"
+                    aria-label="リストビューコントロール"
+                    disabled
+                >
+                    <UtilityIcon className="slds-button__icon" name="settings" />
+                    <UtilityIcon className="slds-button__icon slds-button__icon_x-small slds-m-left_xx-small" name="down" />
+                </button>
+                <button
+                    className="slds-button slds-button_icon slds-button_icon-more slds-m-left_xx-small"
+                    type="button"
+                    title="リスト表示を選択"
+                    aria-label="リスト表示を選択"
+                    disabled
+                >
+                    <UtilityIcon className="slds-button__icon" name="table" />
+                    <UtilityIcon className="slds-button__icon slds-button__icon_x-small slds-m-left_xx-small" name="down" />
+                </button>
+                <button
                     className="slds-button slds-button_icon slds-button_icon-border-filled slds-m-left_x-small"
+                    type="button"
+                    title="更新"
+                    aria-label="更新"
+                    onClick={onRefresh}
+                >
+                    <UtilityIcon className="slds-button__icon" name="refresh" />
+                </button>
+                <button
+                    className="slds-button slds-button_icon slds-button_icon-border-filled slds-m-left_xx-small"
                     type="button"
                     title={bulkDeleteLabel}
                     aria-label={bulkDeleteLabel}

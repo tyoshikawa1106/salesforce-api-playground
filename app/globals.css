@@ -57,8 +57,18 @@ body {
     padding-top: calc(var(--playground-global-header-height) + var(--playground-context-bar-height) + var(--playground-content-top-gap) + var(--playground-template-gutter));
 }
 
+.playground-shell #main-content.playground-main-content_flush-record-list {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: calc(var(--playground-global-header-height) + var(--playground-context-bar-height) + var(--playground-content-top-gap));
+}
+
 .playground-shell_has-environment-label #main-content {
     padding-top: calc(var(--playground-environment-label-height) + var(--playground-global-header-height) + var(--playground-context-bar-height) + var(--playground-content-top-gap) + var(--playground-template-gutter));
+}
+
+.playground-shell_has-environment-label #main-content.playground-main-content_flush-record-list {
+    padding-top: calc(var(--playground-environment-label-height) + var(--playground-global-header-height) + var(--playground-context-bar-height) + var(--playground-content-top-gap));
 }
 
 .playground-shell_has-utility-bar #main-content {
@@ -136,6 +146,36 @@ body {
 
 .playground-record-section-icon_collapsed {
     transform: rotate(-90deg);
+}
+
+.playground-list-view {
+    overflow: visible;
+}
+
+.playground-list-view__body {
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 0;
+}
+
+.playground-list-view__empty {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    min-height: var(--slds-g-sizing-13, 8rem);
+    justify-content: center;
+}
+
+.playground-list-view__toolbar {
+    gap: var(--slds-g-spacing-2, 0.5rem);
+}
+
+.playground-list-view__controls {
+    justify-content: flex-end;
+}
+
+.playground-list-view__search {
+    width: min(17rem, calc(100vw - 11rem));
 }
 
 .playground-activity-card {
@@ -292,6 +332,16 @@ body {
     .playground-login-page {
         padding-left: var(--slds-g-spacing-3, 0.75rem);
         padding-right: var(--slds-g-spacing-3, 0.75rem);
+    }
+
+    .playground-list-view__controls {
+        flex: 1 1 auto;
+        justify-content: flex-start;
+    }
+
+    .playground-list-view__search {
+        flex: 1 1 auto;
+        width: auto;
     }
 
 }

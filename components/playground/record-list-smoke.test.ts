@@ -29,7 +29,8 @@ describe("record list smoke rendering", () => {
                 onEdit: noop,
                 onOpen: noop,
                 onBulkDelete: noop,
-                onBulkDeleteEmpty: noop
+                onBulkDeleteEmpty: noop,
+                onRefresh: noop
             })
         );
         const contactMarkup = renderToStaticMarkup(
@@ -42,14 +43,19 @@ describe("record list smoke rendering", () => {
                 onOpen: noop,
                 onOpenAccountById: noop,
                 onBulkDelete: noop,
-                onBulkDeleteEmpty: noop
+                onBulkDeleteEmpty: noop,
+                onRefresh: noop
             })
         );
+        const refreshActionIndex = accountMarkup.indexOf("aria-label=\"更新\"");
+        const deleteActionIndex = accountMarkup.indexOf("aria-label=\"選択した取引先を削除\"");
 
         expect(accountMarkup).toContain("Acme");
         expect(accountMarkup).toContain("最終更新者");
         expect(accountMarkup).toContain("Admin User");
-        expect(accountMarkup).toContain("1 件");
+        expect(accountMarkup).toContain("1 個の項目");
+        expect(accountMarkup).not.toContain("数秒前に更新されました");
+        expect(accountMarkup).toContain("slds-card__body playground-list-view__body");
         expect(accountMarkup).toContain("このリストを検索...");
         expect(accountMarkup).toContain("role=\"grid\"");
         expect(accountMarkup).toContain("aria-multiselectable=\"true\"");
@@ -60,12 +66,14 @@ describe("record list smoke rendering", () => {
         expect(accountMarkup).toContain("role=\"gridcell\"");
         expect(accountMarkup).toContain("aria-label=\"表示中の取引先をすべて選択\"");
         expect(accountMarkup).not.toContain("ビュー: 自分の取引先");
-        expect(accountMarkup).not.toContain("List view controls");
-        expect(accountMarkup).not.toContain("Display as table");
+        expect(accountMarkup).toContain("リストビューコントロール");
+        expect(accountMarkup).toContain("リスト表示を選択");
         expect(accountMarkup).not.toContain("Refresh list");
         expect(accountMarkup).toContain("slds-checkbox__label");
         expect(accountMarkup).toContain("slds-text-align_right slds-cell_action-mode");
         expect(accountMarkup).toContain("aria-label=\"選択した取引先を削除\"");
+        expect(refreshActionIndex).toBeGreaterThan(-1);
+        expect(refreshActionIndex).toBeLessThan(deleteActionIndex);
         expect(accountMarkup).toContain("slds-m-left_x-small");
         expect(accountMarkup).not.toContain("playground-list-selection");
         expect(accountMarkup).toContain("slds-dropdown-trigger slds-dropdown-trigger_click");
@@ -87,7 +95,7 @@ describe("record list smoke rendering", () => {
         expect(contactMarkup).toContain("Taro Yamada");
         expect(contactMarkup).toContain("最終更新者");
         expect(contactMarkup).toContain("Sales User");
-        expect(contactMarkup).toContain("1 件");
+        expect(contactMarkup).toContain("1 個の項目");
         expect(contactMarkup).toContain("Manager");
         expect(contactMarkup).toContain("aria-label=\"表示中の取引先責任者をすべて選択\"");
         expect(contactMarkup).toContain("aria-label=\"選択した取引先責任者を削除\"");
@@ -100,18 +108,25 @@ describe("record list smoke rendering", () => {
                 items: [recycleBinItem],
                 loading: false,
                 onRestore: noop,
-                onRestoreEmpty: noop
+                onRestoreEmpty: noop,
+                onRefresh: noop
             })
         );
+        const objectIconIndex = markup.indexOf("slds-icon-standard-account");
+        const objectLabelIndex = markup.indexOf("title=\"取引先\">取引先");
 
         expect(markup).toContain("最近削除された項目");
         expect(markup).not.toContain("完全に削除");
         expect(markup).not.toContain("Recycle Bin に残っている Account / Contact を表示します。");
         expect(markup).toContain("復元");
+        expect(markup).toContain("1 個の項目");
+        expect(markup).toContain("aria-label=\"更新\"");
         expect(markup).not.toContain("このリストを検索");
         expect(markup).toContain("aria-label=\"表示中の項目をすべて選択\"");
         expect(markup).toContain("ごみ箱の項目一覧");
         expect(markup).toContain("取引先");
+        expect(objectIconIndex).toBeGreaterThan(-1);
+        expect(objectIconIndex).toBeLessThan(objectLabelIndex);
         expect(markup).toContain("Acme");
         expect(markup).toContain("削除したユーザー");
         expect(markup).toContain("Taro Admin");
