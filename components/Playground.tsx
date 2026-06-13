@@ -186,7 +186,13 @@ export default function Playground({ environmentLabel = null }: { environmentLab
                 userName={session.userName}
                 onSelectSearchResult={openSearchResult}
             >
-                <AppNavigation activeTab={activeTab} connected={session.connected} onChange={changeTab} />
+                <AppNavigation
+                    activeTab={activeTab}
+                    connected={session.connected}
+                    onCreateAccount={() => recordMutations.openAccountModal()}
+                    onCreateContact={() => recordMutations.openContactModal()}
+                    onChange={changeTab}
+                />
             </GlobalHeader>
 
             <PlaygroundWorkspace {...workspaceProps} />

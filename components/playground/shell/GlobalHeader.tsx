@@ -44,7 +44,7 @@ export function GlobalHeader({ children, connected, environmentLabel = null, ins
                         <span className="slds-assistive-text">Salesforce</span>
                     </div>
                 </div>
-                <div className="slds-global-header__item slds-global-header__item_search">
+                <div className="slds-global-header__item slds-global-header__item_search playground-global-header__search">
                     <GlobalSearch connected={connected} onSelectSearchResult={onSelectSearchResult} />
                 </div>
                 <div className="slds-global-header__item">

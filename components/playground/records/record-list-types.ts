@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 export type RecordListColumn<Record> = {
     label: string;
+    hideOnMobile?: boolean;
     getValue: (record: Record) => ReactNode;
 };
 

@@ -48,10 +48,14 @@ export function getVisibleNavigationCount(containerWidth: number, itemWidths: nu
 export function AppNavigation({
     activeTab,
     connected,
+    onCreateAccount,
+    onCreateContact,
     onChange
 }: {
     activeTab: ActiveTab;
     connected: boolean;
+    onCreateAccount?: () => void;
+    onCreateContact?: () => void;
     onChange: (tab: ActiveTab) => void;
 }) {
     const [visibleTabCount, setVisibleTabCount] = useState(baseNavigationTabs.length);
@@ -119,6 +123,20 @@ export function AppNavigation({
         setOpenMenuTab((currentTab) => currentTab === tab ? null : tab);
     }
 
+    function runPrimaryAction(tab: ActiveTab) {
+        setOpenMenuTab(null);
+        setOverflowMenuOpen(false);
+
+        if (tab === "accounts") {
+            onCreateAccount?.();
+            return;
+        }
+
+        if (tab === "contacts") {
+            onCreateContact?.();
+        }
+    }
+
     return (
         <div id="app-navigation" className="slds-context-bar playground-context-bar">
             <div className="slds-context-bar__primary">
@@ -147,6 +165,7 @@ export function AppNavigation({
                             menuId={item.menuId}
                             open={openMenuTab === item.tab}
                             onSelect={() => changeNavigationTab(item.tab)}
+                            onPrimaryAction={() => runPrimaryAction(item.tab)}
                             onToggleMenu={() => toggleNavigationMenu(item.tab)}
                         />
                     ))}
@@ -267,6 +286,7 @@ function NavigationItem({
     label,
     menuId,
     onSelect,
+    onPrimaryAction,
     onToggleMenu,
     open = false
 }: {
@@ -275,6 +295,7 @@ function NavigationItem({
     label: string;
     menuId?: string;
     onSelect: () => void;
+    onPrimaryAction?: () => void;
     onToggleMenu?: () => void;
     open?: boolean;
 }) {
@@ -329,12 +350,12 @@ function NavigationItem({
                                     tabIndex={open ? 0 : -1}
                                     onClick={(event) => {
                                         event.preventDefault();
-                                        onSelect();
+                                        onPrimaryAction?.();
                                     }}
                                 >
-                                    <span title={`${label} の主操作`}>
+                                    <span title={`${label} を新規作成`}>
                                         <UtilityIcon className="slds-icon slds-icon_x-small slds-icon-text-default slds-m-right_x-small" name="add" />
-                                        主操作
+                                        新規
                                     </span>
                                 </a>
                             </li>

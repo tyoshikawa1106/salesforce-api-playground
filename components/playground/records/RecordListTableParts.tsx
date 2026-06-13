@@ -97,9 +97,9 @@ export function RecordTableActions<Record>({
     );
 }
 
-export function DataTableColumnHeader({ label }: { label: string }) {
+export function DataTableColumnHeader({ className = "", label }: { className?: string; label: string }) {
     return (
-        <th className="slds-is-resizable slds-cell_action-mode" scope="col">
+        <th className={`slds-is-resizable slds-cell_action-mode ${className}`.trim()} scope="col">
             <DataTableHeader label={label} />
         </th>
     );
@@ -203,12 +203,12 @@ export function SelectionCell({
     );
 }
 
-export function TableCell({ label, value }: { label: string; value?: ReactNode }) {
+export function TableCell({ className = "", label, value }: { className?: string; label: string; value?: ReactNode }) {
     const displayValue = value || "-";
     const title = typeof displayValue === "string" ? displayValue : undefined;
 
     return (
-        <td className="slds-cell_action-mode" data-label={label} role="gridcell">
+        <td className={`slds-cell_action-mode ${className}`.trim()} data-label={label} role="gridcell">
             <div className="slds-truncate" title={title}>
                 {displayValue}
             </div>

@@ -46,9 +46,13 @@ export function RecordListTable<Record extends { Id: string }>({
                         onChange={listState.toggleVisibleSelection}
                     />
                     <DataTableColumnHeader label={primaryColumnLabel} />
-                    {columns.map((column) => (
-                        <DataTableColumnHeader key={column.label} label={column.label} />
-                    ))}
+                    {columns.map((column) => {
+                        const columnClassName = column.hideOnMobile ? "playground-record-table__cell_mobile-hidden" : "";
+
+                        return (
+                            <DataTableColumnHeader key={column.label} className={columnClassName} label={column.label} />
+                        );
+                    })}
                     <th className="slds-cell_action-mode" scope="col" style={{ width: "3.25rem" }}>
                         <DataTableHeader label="アクション" assistive />
                     </th>
@@ -76,9 +80,13 @@ export function RecordListTable<Record extends { Id: string }>({
                                     </button>
                                 </div>
                             </th>
-                            {columns.map((column) => (
-                                <TableCell key={column.label} label={column.label} value={column.getValue(record)} />
-                            ))}
+                            {columns.map((column) => {
+                                const columnClassName = column.hideOnMobile ? "playground-record-table__cell_mobile-hidden" : "";
+
+                                return (
+                                    <TableCell key={column.label} className={columnClassName} label={column.label} value={column.getValue(record)} />
+                                );
+                            })}
                             <td className="slds-cell_action-mode slds-text-align_center" data-label="アクション" role="gridcell">
                                 <RecordTableActions
                                     record={record}
