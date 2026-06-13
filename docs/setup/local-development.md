@@ -37,20 +37,20 @@ npm run dev
 
 ## 確認コマンド
 
-変更内容に応じて必要なものを選びます。
+変更内容に応じて必要なものを選びます。通常開発の途中確認では、targeted test、`npm run typecheck`、`git diff --check` など軽い確認を優先します。
 
 | 変更内容 | 確認 |
 | --- | --- |
 | docs のみ | `git diff --check` |
-| TypeScript / React / API | `npm run lint`, `npm run typecheck` |
-| UI / SLDS | `npm run slds:lint`, `npm run lint` |
+| TypeScript / React / API | targeted test, `npm run typecheck`, 必要に応じて `npm run lint` |
+| UI / SLDS | targeted test, `npm run typecheck`, 必要に応じて `npm run slds:lint` / `npm run lint` |
 | 影響範囲が広い変更 | `npm run test:coverage`, `npm run build` |
 
 ## よく使う確認
 
 ```bash
-npm run lint
 npm run typecheck
+npm run lint
 npm run test:coverage
 npm run build
 ```

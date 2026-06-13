@@ -178,8 +178,8 @@ npm run slds:lint:fix
 
 | 変更内容 | 主な確認 |
 | --- | --- |
-| SLDS class / CSS の変更 | `npm run slds:lint` |
-| React コンポーネントの JSX 変更 | `npm run lint`, `npm run typecheck` |
+| SLDS class / CSS の変更 | `npm run typecheck`, 必要に応じて `npm run slds:lint` |
+| React コンポーネントの JSX 変更 | `npm run typecheck`, 必要に応じて `npm run lint` |
 | UI 表示や状態に影響する変更 | 関連テスト、必要に応じて `npm run test:coverage` |
 | 広範囲な UI / CSS 変更 | `npm run build` も検討 |
 
@@ -201,7 +201,7 @@ SLDS class の意味が分からない
   → 既存実装、ローカル package、必要なら公式 Blueprint を見る
 
 変更後の確認が分からない
-  → npm run slds:lint と npm run typecheck を起点にする
+  → npm run typecheck と関連テストを起点にする
 ```
 
 SLDS 開発では、独自に作り込むより、標準の構造に乗ることが重要。見た目、HTML 構造、アクセシビリティ、lint をまとめて確認すると、Salesforce らしい UI を保ちやすい。
