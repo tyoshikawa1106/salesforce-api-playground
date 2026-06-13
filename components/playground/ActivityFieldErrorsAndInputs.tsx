@@ -8,7 +8,7 @@ import {
     type TaskFormErrors
 } from "./activity-task-form";
 import type { PicklistOption } from "./picklist-options";
-import { taskStatusFallbackOptions } from "./picklist-options";
+import { taskStatusFallbackOptions, withCurrentPicklistOption } from "./picklist-options";
 
 export function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
     return <ActivityFormErrorSummary errorLabels={getTaskFormErrorLabels(errors)} />;
@@ -143,9 +143,7 @@ export function QuickActionSelect({
     required?: boolean;
     value: string;
 }) {
-    const displayedOptions = value && !options.some((option) => option.value === value)
-        ? [...options, { label: value, value }]
-        : options;
+    const displayedOptions = withCurrentPicklistOption(options, value);
 
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>

@@ -21,7 +21,8 @@ export function usePicklistValues({
     const [data, setData] = useState<PicklistValuesResponse | null>(null);
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
-    const fieldsKey = useMemo(() => fieldApiNames.join(","), [fieldApiNames]);
+    const fieldsKey = useMemo(() => fieldApiNames.filter(Boolean).join(","), [fieldApiNames]);
+    const requestFields = useMemo(() => fieldsKey.split(",").filter(Boolean), [fieldsKey]);
 
     useEffect(() => {
         let active = true;
@@ -38,7 +39,7 @@ export function usePicklistValues({
 
         apiRequest<PicklistValuesResponse>(
             buildPlaygroundApiRequest(playgroundApiPaths.picklistValues({
-                fields: fieldsKey.split(",").filter(Boolean),
+                fields: requestFields,
                 object: objectApiName,
                 recordTypeId
             }))
@@ -63,7 +64,7 @@ export function usePicklistValues({
         return () => {
             active = false;
         };
-    }, [enabled, fieldsKey, objectApiName, recordTypeId]);
+    }, [enabled, objectApiName, recordTypeId, requestFields]);
 
     return {
         data,

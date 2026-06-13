@@ -12,13 +12,10 @@ export const taskStatusFallbackOptions: PicklistOption[] = [
     { label: "Deferred", value: "Deferred" }
 ];
 
-export function picklistOptionsForField<TFieldName extends string>(
-    picklists: PicklistValuesResponse | null,
-    fieldApiName: TFieldName,
+export function withCurrentPicklistOption(
+    options: PicklistOption[],
     currentValue = ""
 ): PicklistOption[] {
-    const options = picklists?.fields[fieldApiName] ?? [];
-
     if (!currentValue || options.some((option) => option.value === currentValue)) {
         return options;
     }
@@ -30,4 +27,12 @@ export function picklistOptionsForField<TFieldName extends string>(
             value: currentValue
         }
     ];
+}
+
+export function picklistOptionsForField<TFieldName extends string>(
+    picklists: PicklistValuesResponse | null,
+    fieldApiName: TFieldName,
+    currentValue = ""
+): PicklistOption[] {
+    return withCurrentPicklistOption(picklists?.fields[fieldApiName] ?? [], currentValue);
 }
