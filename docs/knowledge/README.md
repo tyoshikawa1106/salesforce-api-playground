@@ -27,7 +27,9 @@
 ## Heroku
 
 - [Heroku Button の仕組み](heroku-button.md)
+- [Heroku CI の考え方](heroku-ci.md)
 - [Heroku Pipeline 運用パターン](heroku-pipeline.md)
+- [Heroku .slugignore の考え方](heroku-slugignore.md)
 
 ## プロジェクト導入
 
