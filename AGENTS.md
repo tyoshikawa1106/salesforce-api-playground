@@ -129,9 +129,12 @@
 変更内容と影響範囲に応じて、レビュー判断に必要な最小限の確認コマンドを選ぶ。コード変更時でも常に full check を必須とはしない。
 
 - docs / template のみ: `git diff --check`
-- TypeScript / React / API / services の変更: 影響範囲に応じて `npm run lint` / `npm run typecheck` / `npm run test:coverage` を選ぶ
-- UI / CSS / SLDS 構造の変更: 影響範囲に応じて `npm run slds:lint` / `npm run lint` / `npm run typecheck` / `npm run test:coverage` を選ぶ
+- 通常開発の途中確認では、変更箇所に対応する targeted test、`npm run typecheck`、`git diff --check` など、時間と token 消費が小さい確認を優先する。
+- TypeScript / React / API / services の変更: 影響範囲に応じて targeted test / `npm run typecheck` / `npm run lint` / `npm run test:coverage` を選ぶ
+- UI / CSS / SLDS 構造の変更: 影響範囲に応じて targeted test / `npm run typecheck` / `npm run slds:lint` / `npm run lint` / `npm run test:coverage` を選ぶ
 - ビルド設定、Next.js 設定、依存関係、環境変数の扱い、広範囲な UI 変更: `npm run build` を含める
+- `npm run lint` や `npm run slds:lint` は、変更範囲やリスクに応じて選ぶ。小さな局所変更では必須にせず、PR 作成前、外部共有前、広範囲変更、lint 影響が疑われる変更で優先する。
+- GitHub Actions / PR checks の確認は、push / PR 作成 / ready for review / merge など、ユーザーが GitHub 上の操作を明示した後に行う。ローカルコミット前後の通常確認として CI を見に行かない。
 - PR 作成前、外部共有前、CI 失敗後の修正確認、変更範囲が広い場合は full check（`npm run lint` / `npm run slds:lint` / `npm run typecheck` / `npm run test:coverage` / `npm run build`）を推奨する
 - 実行しない項目がある場合は、レビュー判断に関係するものだけ PR 本文に理由を書く。
 - 実 Salesforce 接続のように Codex 作業で恒常的に実施しない確認は、Salesforce 接続や手動確認がレビュー判断に関係する変更の場合だけ記載する。
