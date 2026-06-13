@@ -56,6 +56,7 @@ export function AppNavigation({
 }) {
     const [visibleTabCount, setVisibleTabCount] = useState(baseNavigationTabs.length);
     const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
+    const [openMenuTab, setOpenMenuTab] = useState<ActiveTab | null>(null);
     const secondaryNavRef = useRef<HTMLElement | null>(null);
     const measuredItemRefs = useRef<(HTMLLIElement | null)[]>([]);
     const measuredOverflowRef = useRef<HTMLLIElement | null>(null);
@@ -108,8 +109,14 @@ export function AppNavigation({
     }, [overflowTabs.length]);
 
     function changeNavigationTab(tab: ActiveTab) {
+        setOpenMenuTab(null);
         setOverflowMenuOpen(false);
         onChange(tab);
+    }
+
+    function toggleNavigationMenu(tab: ActiveTab) {
+        setOverflowMenuOpen(false);
+        setOpenMenuTab((currentTab) => currentTab === tab ? null : tab);
     }
 
     return (
@@ -138,7 +145,9 @@ export function AppNavigation({
                             hasMenu={item.hasMenu}
                             label={item.label}
                             menuId={item.menuId}
+                            open={openMenuTab === item.tab}
                             onSelect={() => changeNavigationTab(item.tab)}
+                            onToggleMenu={() => toggleNavigationMenu(item.tab)}
                         />
                     ))}
                     {overflowTabs.length > 0 ? (
@@ -148,7 +157,10 @@ export function AppNavigation({
                             open={overflowMenuOpen}
                             selectedTab={activeTab}
                             onSelect={changeNavigationTab}
-                            onToggle={() => setOverflowMenuOpen((open) => !open)}
+                            onToggle={() => {
+                                setOpenMenuTab(null);
+                                setOverflowMenuOpen((open) => !open);
+                            }}
                         />
                     ) : null}
                 </ul>
@@ -254,19 +266,24 @@ function NavigationItem({
     hasMenu = false,
     label,
     menuId,
-    onSelect
+    onSelect,
+    onToggleMenu,
+    open = false
 }: {
     active: boolean;
     hasMenu?: boolean;
     label: string;
     menuId?: string;
     onSelect: () => void;
+    onToggleMenu?: () => void;
+    open?: boolean;
 }) {
     const itemClassName = [
         "slds-context-bar__item",
         active ? "slds-is-active" : "",
         active ? "playground-context-bar__item_active" : "",
-        hasMenu ? "slds-context-bar__dropdown-trigger slds-dropdown-trigger slds-dropdown-trigger_click" : ""
+        hasMenu ? "slds-context-bar__dropdown-trigger slds-dropdown-trigger slds-dropdown-trigger_click" : "",
+        hasMenu && open ? "slds-is-open" : ""
     ].filter(Boolean).join(" ");
     const menuGroupId = menuId ? `${menuId}-group` : undefined;
 
@@ -290,15 +307,31 @@ function NavigationItem({
             {hasMenu ? (
                 <>
                     <div className="slds-context-bar__icon-action slds-p-left_none">
-                        <button className="slds-button slds-button_icon slds-context-bar__button" type="button" aria-haspopup="true" title={`${label} のサブメニューを開く`}>
+                        <button
+                            className="slds-button slds-button_icon slds-context-bar__button"
+                            type="button"
+                            aria-controls={menuId}
+                            aria-expanded={open}
+                            aria-haspopup="true"
+                            title={`${label} のサブメニューを開く`}
+                            onClick={onToggleMenu}
+                        >
                             <UtilityIcon className="slds-icon slds-icon-text-default slds-icon_xx-small slds-m-left_xxx-small slds-m-top_xxx-small" name="chevrondown" />
                             <span className="slds-assistive-text">{label} のサブメニューを開く</span>
                         </button>
                     </div>
-                    <div className="slds-dropdown slds-dropdown_right">
-                        <ul className="slds-dropdown__list" role="menu">
+                    <div className="slds-dropdown slds-dropdown_right" id={menuId}>
+                        <ul className="slds-dropdown__list" role="menu" aria-label={`${label} のサブメニュー`}>
                             <li className="slds-dropdown__item" role="presentation">
-                                <a href="#" role="menuitem" tabIndex={-1} onClick={(event) => event.preventDefault()}>
+                                <a
+                                    href="#"
+                                    role="menuitem"
+                                    tabIndex={open ? 0 : -1}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        onSelect();
+                                    }}
+                                >
                                     <span title={`${label} の主操作`}>
                                         <UtilityIcon className="slds-icon slds-icon_x-small slds-icon-text-default slds-m-right_x-small" name="add" />
                                         主操作
@@ -311,7 +344,15 @@ function NavigationItem({
                                         <span>{label}</span>
                                     </li>
                                     <li className="slds-dropdown__item" role="presentation">
-                                        <a href="#" role="menuitem" tabIndex={-1} onClick={(event) => event.preventDefault()}>
+                                        <a
+                                            href="#"
+                                            role="menuitem"
+                                            tabIndex={open ? 0 : -1}
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                onSelect();
+                                            }}
+                                        >
                                             <span title={`${label} を表示`}>{label} を表示</span>
                                         </a>
                                     </li>

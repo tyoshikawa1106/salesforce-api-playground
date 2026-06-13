@@ -1,6 +1,6 @@
 "use client";
 
-import { type MouseEvent, useState } from "react";
+import { type MouseEvent, useId, useState } from "react";
 import { StandardIcon, UtilityIcon, type StandardIconName, type UtilityIconName } from "./SldsIcon";
 import { actionPopoverIds, type ActionPopoverLabel } from "./useGlobalHeaderMenus";
 
@@ -197,7 +197,9 @@ function GlobalTaskMenuButton({
 }
 
 function GlobalFavoritesActions() {
+    const favoritesMenuId = useId();
     const [favoriteSelected, setFavoriteSelected] = useState(false);
+    const [favoritesMenuOpen, setFavoritesMenuOpen] = useState(false);
     const favoriteLabel = favoriteSelected ? "お気に入りから削除" : "お気に入りに追加";
     const favoriteClassName = [
         "slds-button",
@@ -207,10 +209,16 @@ function GlobalFavoritesActions() {
         "slds-button_icon-small",
         favoriteSelected ? "slds-is-selected" : ""
     ].filter(Boolean).join(" ");
+    const favoritesContainerClassName = [
+        "slds-global-actions__favorites",
+        "slds-dropdown-trigger",
+        "slds-dropdown-trigger_click",
+        favoritesMenuOpen ? "slds-is-open" : ""
+    ].filter(Boolean).join(" ");
 
     return (
         <li className="slds-global-actions__item slds-dropdown-trigger slds-dropdown-trigger_click slds-grid">
-            <div className="slds-global-actions__favorites slds-dropdown-trigger slds-dropdown-trigger_click" role="group">
+            <div className={favoritesContainerClassName} role="group">
                 <div className="slds-button-group">
                     <button
                         className={favoriteClassName}
@@ -226,10 +234,39 @@ function GlobalFavoritesActions() {
                         className="slds-button slds-button_icon slds-global-actions__favorites-more slds-button_icon-border slds-button_icon-small"
                         type="button"
                         title="お気に入りを表示"
+                        aria-controls={favoritesMenuId}
+                        aria-expanded={favoritesMenuOpen}
+                        aria-haspopup="menu"
+                        onClick={() => setFavoritesMenuOpen((open) => !open)}
                     >
                         <UtilityIcon className="slds-button__icon slds-button__icon_small slds-m-top_xx-small" name="down" />
                         <span className="slds-assistive-text">お気に入りを表示</span>
                     </button>
+                </div>
+                <div id={favoritesMenuId} className="slds-dropdown slds-dropdown_right slds-dropdown_small slds-nubbin_top-right">
+                    <ul className="slds-dropdown__list" role="menu" aria-label="お気に入り">
+                        {favoriteSelected ? (
+                            <li className="slds-dropdown__item" role="presentation">
+                                <a
+                                    href="#"
+                                    role="menuitem"
+                                    tabIndex={favoritesMenuOpen ? 0 : -1}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        setFavoritesMenuOpen(false);
+                                    }}
+                                >
+                                    <span title="Salesforce API Playground">
+                                        Salesforce API Playground
+                                    </span>
+                                </a>
+                            </li>
+                        ) : (
+                            <li className="slds-dropdown__item slds-p-horizontal_small slds-p-vertical_x-small" role="presentation">
+                                <span className="slds-text-color_weak">お気に入りはありません</span>
+                            </li>
+                        )}
+                    </ul>
                 </div>
             </div>
         </li>
