@@ -66,6 +66,69 @@ type RecordModalsProps = {
     };
 };
 
+function ActivityEditLookupRows({
+    assignedError,
+    activityLookupOptions,
+    activityLookups,
+    onActivityLookupsChange
+}: {
+    assignedError?: string;
+    activityLookupOptions: ActivityLookupOptions;
+    activityLookups: ActivityLookupState;
+    onActivityLookupsChange: (value: ActivityLookupState) => void;
+}) {
+    return (
+        <>
+            <QuickActionFormRow>
+                <QuickActionLookup
+                    label="名前"
+                    objectLabel="取引先責任者"
+                    options={activityLookupOptions.name}
+                    placeholder="取引先責任者を検索..."
+                    value={activityLookups.name}
+                    onChange={(name) => onActivityLookupsChange({ ...activityLookups, name })}
+                />
+            </QuickActionFormRow>
+            <QuickActionFormRow>
+                <QuickActionLookup
+                    label="関連先"
+                    objectLabel="取引先"
+                    options={activityLookupOptions.related}
+                    placeholder="取引先を検索..."
+                    value={activityLookups.related}
+                    onChange={(related) => onActivityLookupsChange({ ...activityLookups, related })}
+                />
+            </QuickActionFormRow>
+            <QuickActionFormRow>
+                <QuickActionLookup
+                    error={assignedError}
+                    label="割り当て先"
+                    objectLabel="ユーザー"
+                    options={activityLookupOptions.assigned}
+                    placeholder="ユーザーを検索..."
+                    required
+                    value={activityLookups.assigned}
+                    onChange={(assigned) => onActivityLookupsChange({ ...activityLookups, assigned })}
+                />
+            </QuickActionFormRow>
+        </>
+    );
+}
+
+function ActivityEditDescriptionRow({
+    value,
+    onChange
+}: {
+    value: string;
+    onChange: (value: string) => void;
+}) {
+    return (
+        <QuickActionFormRow>
+            <QuickActionLongTextInput label="説明" value={value} onChange={onChange} />
+        </QuickActionFormRow>
+    );
+}
+
 export function RecordModals({
     forms,
     state,
@@ -195,21 +258,11 @@ export function RecordModals({
                                                 <QuickActionDatepicker label="期日" value={taskForm.ActivityDate} onChange={(ActivityDate) => onTaskFormChange({ ...taskForm, ActivityDate })} />
                                             </div>
                                         </QuickActionFormRow>
-                                        <QuickActionFormRow>
-                                            <QuickActionLookup label="名前" objectLabel="取引先責任者" options={activityLookupOptions.name} placeholder="取引先責任者を検索..." value={activityLookups.name} onChange={(name) => onActivityLookupsChange({ ...activityLookups, name })} />
-                                        </QuickActionFormRow>
-                                        <QuickActionFormRow>
-                                            <QuickActionLookup label="関連先" objectLabel="取引先" options={activityLookupOptions.related} placeholder="取引先を検索..." value={activityLookups.related} onChange={(related) => onActivityLookupsChange({ ...activityLookups, related })} />
-                                        </QuickActionFormRow>
-                                        <QuickActionFormRow>
-                                            <QuickActionLookup error={taskErrors.assignedUserName} label="割り当て先" objectLabel="ユーザー" options={activityLookupOptions.assigned} placeholder="ユーザーを検索..." required value={activityLookups.assigned} onChange={(assigned) => onActivityLookupsChange({ ...activityLookups, assigned })} />
-                                        </QuickActionFormRow>
+                                        <ActivityEditLookupRows assignedError={taskErrors.assignedUserName} activityLookupOptions={activityLookupOptions} activityLookups={activityLookups} onActivityLookupsChange={onActivityLookupsChange} />
                                         <QuickActionFormRow>
                                             <QuickActionSelect error={taskErrors.Status} label="状況" options={picklists?.taskStatusOptions} required value={taskForm.Status} onChange={(Status) => onTaskFormChange({ ...taskForm, Status })} />
                                         </QuickActionFormRow>
-                                        <QuickActionFormRow>
-                                            <QuickActionLongTextInput label="説明" value={taskForm.Description} onChange={(Description) => onTaskFormChange({ ...taskForm, Description })} />
-                                        </QuickActionFormRow>
+                                        <ActivityEditDescriptionRow value={taskForm.Description} onChange={(Description) => onTaskFormChange({ ...taskForm, Description })} />
                                     </QuickActionFormGroup>
                                 </div>
                             ) : (
@@ -225,21 +278,11 @@ export function RecordModals({
                                         <QuickActionFormRow>
                                             <QuickActionDateTimePicker error={eventErrors.EndDateTime} label="終了" required idPrefix="activity-edit-event-end" value={eventForm.EndDateTime} onChange={(EndDateTime) => onEventFormChange({ ...eventForm, EndDateTime })} />
                                         </QuickActionFormRow>
-                                        <QuickActionFormRow>
-                                            <QuickActionLookup label="名前" objectLabel="取引先責任者" options={activityLookupOptions.name} placeholder="取引先責任者を検索..." value={activityLookups.name} onChange={(name) => onActivityLookupsChange({ ...activityLookups, name })} />
-                                        </QuickActionFormRow>
-                                        <QuickActionFormRow>
-                                            <QuickActionLookup label="関連先" objectLabel="取引先" options={activityLookupOptions.related} placeholder="取引先を検索..." value={activityLookups.related} onChange={(related) => onActivityLookupsChange({ ...activityLookups, related })} />
-                                        </QuickActionFormRow>
-                                        <QuickActionFormRow>
-                                            <QuickActionLookup error={eventErrors.assignedUserName} label="割り当て先" objectLabel="ユーザー" options={activityLookupOptions.assigned} placeholder="ユーザーを検索..." required value={activityLookups.assigned} onChange={(assigned) => onActivityLookupsChange({ ...activityLookups, assigned })} />
-                                        </QuickActionFormRow>
+                                        <ActivityEditLookupRows assignedError={eventErrors.assignedUserName} activityLookupOptions={activityLookupOptions} activityLookups={activityLookups} onActivityLookupsChange={onActivityLookupsChange} />
                                         <QuickActionFormRow>
                                             <QuickActionTextInput label="場所" value={eventForm.Location} onChange={(Location) => onEventFormChange({ ...eventForm, Location })} />
                                         </QuickActionFormRow>
-                                        <QuickActionFormRow>
-                                            <QuickActionLongTextInput label="説明" value={eventForm.Description} onChange={(Description) => onEventFormChange({ ...eventForm, Description })} />
-                                        </QuickActionFormRow>
+                                        <ActivityEditDescriptionRow value={eventForm.Description} onChange={(Description) => onEventFormChange({ ...eventForm, Description })} />
                                     </QuickActionFormGroup>
                                 </div>
                             )}

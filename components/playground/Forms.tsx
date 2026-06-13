@@ -2,6 +2,7 @@ import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { Account } from "./types";
 import { accountTextFields, contactAccountField, contactTextFields } from "./record-forms";
 import type { PicklistOptionsByField } from "./picklist-options";
+import { withCurrentPicklistOption } from "./picklist-options";
 
 type AccountSelectFieldName = "Industry" | "Type";
 
@@ -153,9 +154,7 @@ function SelectField({
     value: string;
     onChange: (value: string) => void;
 }) {
-    const displayedOptions = value && !options.some((option) => option.value === value)
-        ? [...options, { label: value, value }]
-        : options;
+    const displayedOptions = withCurrentPicklistOption(options, value);
 
     return (
         <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
