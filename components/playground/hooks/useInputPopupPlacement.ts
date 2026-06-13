@@ -1,6 +1,22 @@
 "use client";
 
-import { type CSSProperties, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+
+type PopupBoundary = Pick<Node, "contains"> | null;
+
+export function isInputPopupTargetWithin(target: EventTarget | null, container: PopupBoundary, popup: PopupBoundary) {
+    if (!target) {
+        return false;
+    }
+
+    const targetNode = target as Node;
+
+    return Boolean(container?.contains(targetNode) || popup?.contains(targetNode));
+}
+
+export function shouldCloseInputPopupOnBlur(relatedTarget: EventTarget | null, container: PopupBoundary, popup: PopupBoundary) {
+    return !isInputPopupTargetWithin(relatedTarget, container, popup);
+}
 
 export function useInputPopupPlacement(open: boolean) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -77,11 +93,21 @@ export function useInputPopupPlacement(open: boolean) {
         };
     }, [open, portalTarget]);
 
+    const isTargetWithinPopup = useCallback((target: EventTarget | null) => (
+        isInputPopupTargetWithin(target, containerRef.current, popupRef.current)
+    ), []);
+
+    const shouldCloseOnBlur = useCallback((relatedTarget: EventTarget | null) => (
+        shouldCloseInputPopupOnBlur(relatedTarget, containerRef.current, popupRef.current)
+    ), []);
+
     return {
         containerRef,
+        isTargetWithinPopup,
         popupClassName: openAbove ? " playground-input-popup_above" : "",
         popupRef,
         popupStyle,
-        portalTarget
+        portalTarget,
+        shouldCloseOnBlur
     };
 }

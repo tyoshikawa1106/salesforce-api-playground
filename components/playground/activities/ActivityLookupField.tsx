@@ -52,7 +52,7 @@ export function QuickActionLookup({
     const inputId = `${listboxId}-input`;
     const errorId = error ? `${inputId}-error` : undefined;
     const activeOptionId = filteredOptions[activeIndex] ? `${listboxId}-option-${filteredOptions[activeIndex].id}` : undefined;
-    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget, shouldCloseOnBlur } = useInputPopupPlacement(open);
 
     return (
         <QuickActionFieldShell
@@ -89,7 +89,7 @@ export function QuickActionLookup({
                             aria-haspopup="listbox"
                             role="combobox"
                             onBlur={(event) => {
-                                if (!event.currentTarget.contains(event.relatedTarget)) {
+                                if (shouldCloseOnBlur(event.relatedTarget)) {
                                     setOpen(false);
                                 }
                             }}

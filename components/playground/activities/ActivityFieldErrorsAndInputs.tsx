@@ -208,7 +208,7 @@ export function QuickActionSelect({
     const errorId = error ? `${inputId}-error` : undefined;
     const listboxId = `${inputId}-listbox`;
     const activeOptionId = `${listboxId}-option-${activeIndex}`;
-    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget, shouldCloseOnBlur } = useInputPopupPlacement(open);
 
     useEffect(() => {
         setActiveIndex(selectedIndex);
@@ -267,7 +267,7 @@ export function QuickActionSelect({
                         ref={containerRef}
                         className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
                         onBlur={(event) => {
-                            if (!event.currentTarget.contains(event.relatedTarget)) {
+                            if (shouldCloseOnBlur(event.relatedTarget)) {
                                 setOpen(false);
                             }
                         }}

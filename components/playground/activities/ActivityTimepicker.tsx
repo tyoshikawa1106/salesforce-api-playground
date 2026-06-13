@@ -22,7 +22,7 @@ export function QuickActionTimepicker({
     const inputId = `${idPrefix}-input`;
     const listboxId = `${idPrefix}-listbox`;
     const activeOptionId = `${listboxId}-option-${activeIndex}`;
-    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget, shouldCloseOnBlur } = useInputPopupPlacement(open);
 
     function selectTime(nextValue: string) {
         onChange(nextValue);
@@ -60,7 +60,7 @@ export function QuickActionTimepicker({
             ref={containerRef}
             className={`slds-combobox_container slds-dropdown-trigger slds-dropdown-trigger_click playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
             onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) {
+                if (shouldCloseOnBlur(event.relatedTarget)) {
                     setOpen(false);
                 }
             }}
