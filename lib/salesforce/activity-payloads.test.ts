@@ -87,6 +87,42 @@ describe("Salesforce activity payload readers", () => {
         });
     });
 
+    it("normalizes task create payloads without parent records", async () => {
+        await expect(
+            readTaskActivityCreatePayload(jsonRequest({
+                Subject: "Global task",
+                OwnerId: "005xx0000012345",
+                Status: "Not Started"
+            }))
+        ).resolves.toEqual({
+            Subject: "Global task",
+            ActivityDate: undefined,
+            OwnerId: "005xx0000012345",
+            Status: "Not Started",
+            Priority: undefined,
+            TaskSubtype: undefined,
+            Description: undefined
+        });
+    });
+
+    it("normalizes event create payloads without parent records", async () => {
+        await expect(
+            readEventActivityCreatePayload(jsonRequest({
+                Subject: "Global meeting",
+                StartDateTime: "2026-06-08T10:00:00.000Z",
+                EndDateTime: "2026-06-08T11:00:00.000Z",
+                OwnerId: "005xx0000012345"
+            }))
+        ).resolves.toEqual({
+            Subject: "Global meeting",
+            StartDateTime: "2026-06-08T10:00:00.000Z",
+            EndDateTime: "2026-06-08T11:00:00.000Z",
+            OwnerId: "005xx0000012345",
+            Location: undefined,
+            Description: undefined
+        });
+    });
+
     it("rejects invalid activity lookup ids", async () => {
         await expect(
             readEventActivityCreatePayload(jsonRequest({
@@ -211,6 +247,18 @@ describe("Salesforce activity payload readers", () => {
             }))
         ).rejects.toMatchObject({
             message: "parentType must be account or contact.",
+            status: 400
+        });
+    });
+
+    it("rejects incomplete parent payloads", async () => {
+        await expect(
+            readTaskActivityCreatePayload(jsonRequest({
+                parentType: "account",
+                Subject: "Call"
+            }))
+        ).rejects.toMatchObject({
+            message: "parentType and parentId must be provided together.",
             status: 400
         });
     });

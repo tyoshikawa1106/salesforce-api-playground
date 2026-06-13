@@ -42,7 +42,7 @@ export function ActivityDockedComposerFrame({
             aria-labelledby={titleId}
             aria-describedby={bodyId}
         >
-            <header className="slds-docked-composer__header slds-grid slds-shrink-none" aria-live="assertive">
+            <header className="slds-docked-composer__header slds-grid slds-shrink-none playground-task-composer__header" aria-live="assertive">
                 <div className="slds-media slds-media_center slds-has-flexi-truncate">
                     <div className="slds-media__figure slds-m-right_x-small">
                         <span className="slds-icon_container" title={title}>

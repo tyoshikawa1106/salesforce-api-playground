@@ -12,6 +12,7 @@ export type ModalState =
     | { type: "account"; mode: "edit"; record: Account }
     | { type: "contact"; mode: "create"; record?: undefined }
     | { type: "contact"; mode: "edit"; record: Contact }
+    | { type: "activity"; mode: "create"; activityType: Activity["type"]; record?: undefined }
     | { type: "activity"; mode: "edit"; record: Activity };
 
 export type DeleteState =

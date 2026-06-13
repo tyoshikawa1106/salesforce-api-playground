@@ -72,7 +72,7 @@ export function PlaygroundWorkspace({
     const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
 
     return (
-        <main className="slds-template_default">
+        <main id="main-content" className="slds-template_default slds-m-top_xx-large slds-p-top_xx-large">
             <section className={sectionClassName}>
                 {activeTab === "home" ? (
                     <HomePanel

@@ -7,19 +7,28 @@
     --heroku-purple-light: #d7bff2;
 }
 
+html,
+body {
+    background-color: var(--slds-g-color-neutral-base-95, #f3f3f3);
+}
+
 body {
     margin: 0;
     min-height: 100vh;
     min-height: 100dvh;
 }
 
-.salesforce-brand-logo {
-    display: block;
-    object-fit: contain;
+.playground-context-bar {
+    border-bottom-color: var(--slds-g-color-brand-base-50);
+    border-top-color: var(--slds-g-color-brand-base-50);
 }
 
-.playground-global-header-container {
-    position: sticky;
+.playground-context-bar__item_active {
+    border-top-color: var(--slds-g-color-brand-base-50);
+}
+
+.playground-context-bar .slds-context-bar__item.playground-context-bar__item_active::before {
+    background: var(--slds-g-color-brand-base-50);
 }
 
 .playground-environment-label {
@@ -32,10 +41,6 @@ body {
 
 .playground-environment-label__text {
     letter-spacing: 0;
-}
-
-.playground-global-action {
-    position: relative;
 }
 
 .playground-logout-action {
@@ -52,18 +57,12 @@ body {
     text-decoration: none;
 }
 
-.heroku-context-bar {
-    border-bottom-color: var(--heroku-purple);
-}
-
-.heroku-context-bar__item_active.heroku-context-bar__item_active:before {
-    background: var(--heroku-purple);
-}
-
-.heroku-context-bar__label-action_active,
-.heroku-context-bar__label-action_active:focus,
-.heroku-context-bar__label-action_active:hover {
-    color: var(--heroku-purple);
+.playground-profile-popover {
+    position: absolute;
+    right: calc(var(--slds-g-spacing-3, 0.75rem) * -1);
+    top: calc(100% + var(--slds-g-spacing-3, 0.75rem));
+    width: min(22rem, calc(100vw - 2rem));
+    z-index: 7000;
 }
 
 .heroku-brand-action {
@@ -141,6 +140,10 @@ body {
     overflow: hidden;
     transition: height 0.12s ease-out, box-shadow 0.12s ease-out;
     width: min(24rem, calc(100vw - 2rem));
+}
+
+.playground-task-composer__header {
+    border-bottom-color: var(--slds-g-color-brand-base-50);
 }
 
 .playground-task-composer__body {

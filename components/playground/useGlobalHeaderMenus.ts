@@ -4,6 +4,7 @@ import { type KeyboardEvent, useCallback, useEffect, useRef, useState } from "re
 
 export const actionPopoverIds = {
     "グローバルアクション": "global-action-popover",
+    ガイダンスセンター: "global-guidance-popover",
     ヘルプ: "global-help-popover",
     設定: "global-settings-popover"
 } as const;

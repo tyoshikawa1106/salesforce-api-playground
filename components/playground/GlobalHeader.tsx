@@ -1,18 +1,22 @@
 "use client";
 
-import Image from "next/image";
+import type { ReactNode } from "react";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { GlobalHeaderActions } from "./GlobalHeaderActions";
 import { GlobalSearch } from "./GlobalSearch";
-import { salesforceLogo } from "./icons";
 import { useGlobalHeaderMenus } from "./useGlobalHeaderMenus";
 
 type GlobalHeaderProps = {
+    children?: ReactNode;
     connected: boolean;
+    instanceUrl?: string;
+    onCreateEvent?: () => void;
+    onCreateTask?: () => void;
+    userName?: string;
     onSelectSearchResult?: (result: SearchResultItem) => void;
 };
 
-export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderProps) {
+export function GlobalHeader({ children, connected, instanceUrl, onCreateEvent, onCreateTask, userName, onSelectSearchResult }: GlobalHeaderProps) {
     const {
         activeActionPopover,
         cancelActionPopoverClose,
@@ -29,19 +33,14 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
     } = useGlobalHeaderMenus();
 
     return (
-        <header ref={headerRef} className="slds-global-header_container playground-global-header-container" onKeyDown={closeOnEscape}>
+        <header ref={headerRef} className="slds-global-header_container" onKeyDown={closeOnEscape}>
             <div className="slds-global-header slds-grid slds-grid_align-spread">
                 <div className="slds-global-header__item">
-                    <Image
-                        className="salesforce-brand-logo"
-                        src={salesforceLogo}
-                        alt="Salesforce"
-                        width={58}
-                        height={40}
-                        priority
-                    />
+                    <div className="slds-global-header__logo">
+                        <span className="slds-assistive-text">Salesforce</span>
+                    </div>
                 </div>
-                <div className="slds-global-header__item slds-global-header__item_search slds-show_medium">
+                <div className="slds-global-header__item slds-global-header__item_search">
                     <GlobalSearch connected={connected} onSelectSearchResult={onSelectSearchResult} />
                 </div>
                 <div className="slds-global-header__item">
@@ -50,6 +49,9 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                             activeActionPopover={activeActionPopover}
                             cancelActionPopoverClose={cancelActionPopoverClose}
                             cancelProfileMenuClose={cancelProfileMenuClose}
+                            instanceUrl={instanceUrl}
+                            onCreateEvent={onCreateEvent}
+                            onCreateTask={onCreateTask}
                             profileMenuOpen={profileMenuOpen}
                             scheduleActionPopoverClose={scheduleActionPopoverClose}
                             scheduleProfileMenuClose={scheduleProfileMenuClose}
@@ -57,6 +59,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                             toggleActionPopover={toggleActionPopover}
                             toggleNotificationBadge={toggleNotificationBadge}
                             toggleProfileMenu={toggleProfileMenu}
+                            userName={userName}
                         />
                     ) : (
                         <a className="slds-button slds-button_brand heroku-brand-action" href="/api/auth/login">
@@ -65,6 +68,7 @@ export function GlobalHeader({ connected, onSelectSearchResult }: GlobalHeaderPr
                     )}
                 </div>
             </div>
+            {children}
         </header>
     );
 }

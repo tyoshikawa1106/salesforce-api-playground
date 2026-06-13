@@ -46,6 +46,21 @@ export function useRecordModalState() {
         setModal({ type: "activity", mode: "edit", record });
     }
 
+    function openActivityCreateModal(activityType: Activity["type"], assignedUser?: { userId?: string; userName?: string }) {
+        setTaskForm(getDefaultTaskForm());
+        setEventForm(getDefaultEventForm());
+        setActivityLookups(assignedUser?.userName
+            ? {
+                assigned: {
+                    id: assignedUser.userId || assignedUser.userName,
+                    label: assignedUser.userName,
+                    objectLabel: "ユーザー"
+                }
+            }
+            : {});
+        setModal({ type: "activity", mode: "create", activityType });
+    }
+
     return {
         accountForm,
         activityLookups,
@@ -58,6 +73,7 @@ export function useRecordModalState() {
         integrationAccountForm,
         modal,
         openAccountModal,
+        openActivityCreateModal,
         openActivityModal,
         openContactModal,
         restoreState,

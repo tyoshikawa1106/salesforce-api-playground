@@ -1,4 +1,4 @@
-import type { FormEvent } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { ActivityLookupState, EventForm, TaskForm } from "./activity-task-form";
 import {
@@ -14,6 +14,11 @@ import {
     QuickActionTextInput,
     TaskFormErrorSummary
 } from "./ActivityQuickActionFields";
+import {
+    EventDockedComposer,
+    TaskDockedComposer,
+    type ActivityLookupOptions
+} from "./ActivityDockedComposers";
 import { validateEventForm, validateTaskForm } from "./activity-task-form";
 import {
     AccountFormFields,
@@ -59,6 +64,9 @@ export function RecordModals({
     state,
     actions
 }: RecordModalsProps) {
+    const [activityComposerExpanded, setActivityComposerExpanded] = useState(false);
+    const [activityComposerMinimized, setActivityComposerMinimized] = useState(false);
+    const [showActivityValidation, setShowActivityValidation] = useState(false);
     const {
         accountForm,
         accountOptions,
@@ -73,13 +81,28 @@ export function RecordModals({
         onTaskFormChange
     } = forms;
     const { deleteState, modal, restoreState, saving } = state;
-    const activityLookupOptions = {
+    const activityLookupOptions: ActivityLookupOptions = {
         assigned: activityLookups.assigned ? [activityLookups.assigned] : [],
         name: activityLookups.name ? [activityLookups.name] : [],
         related: activityLookups.related ? [activityLookups.related] : []
     };
-    const taskErrors = validateTaskForm(taskForm, activityLookups.assigned?.label);
-    const eventErrors = validateEventForm(eventForm, activityLookups.assigned?.label);
+    const taskErrors = showActivityValidation ? validateTaskForm(taskForm, activityLookups.assigned?.label) : {};
+    const eventErrors = showActivityValidation ? validateEventForm(eventForm, activityLookups.assigned?.label) : {};
+    const activityModalType = modal?.type === "activity"
+        ? modal.mode === "create" ? modal.activityType : modal.record.type
+        : null;
+    const activityModalLabel = activityModalType === "task" ? "ToDo" : "行動";
+
+    useEffect(() => {
+        setActivityComposerExpanded(false);
+        setActivityComposerMinimized(false);
+        setShowActivityValidation(false);
+    }, [modal]);
+
+    function saveActivity(event: FormEvent<HTMLFormElement>) {
+        setShowActivityValidation(true);
+        actions.onSaveActivity(event);
+    }
 
     return (
         <>
@@ -105,11 +128,47 @@ export function RecordModals({
                 </Modal>
             ) : null}
 
-            {modal?.type === "activity" ? (
-                <Modal title={`${modal.record.type === "task" ? "ToDo" : "行動"}を編集`} onClose={actions.onCloseRecordModal}>
-                    <form onSubmit={actions.onSaveActivity} noValidate>
+            {modal?.type === "activity" && modal.mode === "create" && activityModalType === "task" ? (
+                <TaskDockedComposer
+                    errors={taskErrors}
+                    expanded={activityComposerExpanded}
+                    form={taskForm}
+                    lookupOptions={activityLookupOptions}
+                    lookups={activityLookups}
+                    minimized={activityComposerMinimized}
+                    saving={saving}
+                    onCancel={actions.onCloseRecordModal}
+                    onChange={onTaskFormChange}
+                    onLookupChange={onActivityLookupsChange}
+                    onSubmit={saveActivity}
+                    onToggleExpanded={() => setActivityComposerExpanded((expanded) => !expanded)}
+                    onToggleMinimized={() => setActivityComposerMinimized((minimized) => !minimized)}
+                />
+            ) : null}
+
+            {modal?.type === "activity" && modal.mode === "create" && activityModalType === "event" ? (
+                <EventDockedComposer
+                    errors={eventErrors}
+                    expanded={activityComposerExpanded}
+                    form={eventForm}
+                    lookupOptions={activityLookupOptions}
+                    lookups={activityLookups}
+                    minimized={activityComposerMinimized}
+                    saving={saving}
+                    onCancel={actions.onCloseRecordModal}
+                    onChange={onEventFormChange}
+                    onLookupChange={onActivityLookupsChange}
+                    onSubmit={saveActivity}
+                    onToggleExpanded={() => setActivityComposerExpanded((expanded) => !expanded)}
+                    onToggleMinimized={() => setActivityComposerMinimized((minimized) => !minimized)}
+                />
+            ) : null}
+
+            {modal?.type === "activity" && modal.mode === "edit" ? (
+                <Modal title={`${activityModalLabel}を編集`} onClose={actions.onCloseRecordModal}>
+                    <form onSubmit={saveActivity} noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
-                            {modal.record.type === "task" ? (
+                            {activityModalType === "task" ? (
                                 <div className="slds-form_compound">
                                     <TaskFormErrorSummary errors={taskErrors} />
                                     <QuickActionFormGroup>
