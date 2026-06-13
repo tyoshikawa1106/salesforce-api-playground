@@ -34,7 +34,7 @@ export function RecordListEmptyStates({
 
 function EmptyState({ message }: { message: string }) {
     return (
-        <div className="slds-text-align_center slds-p-around_xx-large">
+        <div className="slds-text-align_center playground-list-view__empty">
             <span className="slds-icon_container slds-icon-utility-info slds-m-bottom_small" aria-hidden="true">
                 <span className="slds-assistive-text">情報</span>
             </span>

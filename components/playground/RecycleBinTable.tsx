@@ -8,20 +8,35 @@ import {
     SelectionHeaderCell,
     TableCell
 } from "./RecordListTableParts";
-import { StandardIcon, type StandardIconName } from "./SldsIcon";
+import { StandardIcon, UtilityIcon, type StandardIconName } from "./SldsIcon";
 import type { RecycleBinItem } from "./types";
 
 export function RecycleBinToolbar({
-    count
+    count,
+    onRefresh
 }: {
     count: number;
+    onRefresh: () => void;
 }) {
     return (
-        <div className="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center slds-gutters_x-small slds-p-horizontal_x-small slds-p-vertical_x-small slds-border_bottom slds-theme_default">
-            <div className="slds-max-small-size_1-of-1 slds-p-horizontal_x-small slds-p-vertical_xx-small">
-                <div className="slds-text-title_bold">
-                    {count} 件
-                </div>
+        <div className="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_x-small slds-border_bottom slds-theme_default playground-list-view__toolbar">
+            <div className="slds-col slds-align-bottom slds-p-vertical_xx-small">
+                <p className="slds-text-body_small">
+                    <span aria-live="polite" role="status">
+                        {count} 個の項目
+                    </span>
+                </p>
+            </div>
+            <div className="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small playground-list-view__controls">
+                <button
+                    className="slds-button slds-button_icon slds-button_icon-border-filled"
+                    type="button"
+                    title="更新"
+                    aria-label="更新"
+                    onClick={onRefresh}
+                >
+                    <UtilityIcon className="slds-button__icon" name="refresh" />
+                </button>
             </div>
         </div>
     );
@@ -35,11 +50,11 @@ export function RecycleBinEmptyState({
     hasItems: boolean;
 }) {
     if (loading) {
-        return <div className="slds-text-align_center slds-p-around_xx-large">ごみ箱を読み込んでいます...</div>;
+        return <div className="slds-text-align_center playground-list-view__empty">ごみ箱を読み込んでいます...</div>;
     }
 
     if (!hasItems) {
-        return <div className="slds-text-align_center slds-p-around_xx-large">ごみ箱に表示できる項目はありません。</div>;
+        return <div className="slds-text-align_center playground-list-view__empty">ごみ箱に表示できる項目はありません。</div>;
     }
 
     return null;
@@ -106,11 +121,11 @@ function RecycleBinObjectType({ item }: { item: RecycleBinItem }) {
 
     return (
         <span className="slds-grid slds-grid_vertical-align-center slds-truncate">
+            <span className={`slds-icon_container ${iconClass} slds-m-right_x-small`} title={item.objectLabel}>
+                <StandardIcon className="slds-icon slds-icon_x-small" name={iconName} />
+            </span>
             <span className="slds-truncate" title={item.objectLabel}>
                 {item.objectLabel}
-            </span>
-            <span className={`slds-icon_container ${iconClass} slds-m-left_x-small`} title={item.objectLabel}>
-                <StandardIcon className="slds-icon slds-icon_x-small" name={iconName} />
             </span>
         </span>
     );

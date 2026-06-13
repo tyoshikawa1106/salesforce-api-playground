@@ -31,6 +31,7 @@ type RecordPanelProps<Record extends { Id: string }> = {
     onDelete: (record: Record) => void;
     onBulkDelete: (records: Record[]) => void;
     onBulkDeleteEmpty: () => void;
+    onRefresh: () => void;
 };
 
 const accountListConfig: RecordListConfig<Account> = {
@@ -107,7 +108,8 @@ function RecordPanel<Record extends { Id: string }>({
     onEdit,
     onDelete,
     onBulkDelete,
-    onBulkDeleteEmpty
+    onBulkDeleteEmpty,
+    onRefresh
 }: RecordPanelProps<Record> & { config: RecordListConfig<Record> }) {
     return (
         <RecordListPanel
@@ -128,6 +130,7 @@ function RecordPanel<Record extends { Id: string }>({
             onDelete={onDelete}
             onBulkDelete={onBulkDelete}
             onBulkDeleteEmpty={onBulkDeleteEmpty}
+            onRefresh={onRefresh}
         />
     );
 }

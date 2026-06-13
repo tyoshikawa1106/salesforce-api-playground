@@ -10,11 +10,12 @@ import { LoginPage, SessionLoadingPage } from "./LoginPage";
 import { Modal, ModalFooter } from "./Modal";
 import { AppNavigation, getVisibleNavigationCount } from "./Navigation";
 import { ObjectHomeHeader } from "./ObjectHome";
+import { PlaygroundWorkspace } from "./PlaygroundWorkspace";
 import { RecordModals } from "./RecordModals";
 import { UtilityBar } from "./UtilityBar";
 import { getDefaultEventForm, getDefaultTaskForm } from "./activity-task-form";
 import { blankAccount, blankContact } from "./record-forms";
-import { noop } from "./test-fixtures";
+import { accountFixture, noop } from "./test-fixtures";
 
 describe("playground shell smoke rendering", () => {
     it("renders an environment label banner for non-production environments", () => {
@@ -114,26 +115,83 @@ describe("playground shell smoke rendering", () => {
         expect(markup).not.toContain("slds-theme_default slds-p-vertical_medium");
     });
 
-    it("renders list view page header without the stale update meta text", () => {
+    it("renders list view page header with the standard list view title", () => {
         const markup = renderToStaticMarkup(
             createElement(ObjectHomeHeader, {
                 activeTab: "accounts",
-                loading: false,
-                onCreate: noop,
-                onRefresh: noop
+                onCreate: noop
             })
         );
 
-        expect(markup).toContain("title=\"一覧\"");
-        expect(markup).toContain("一覧");
+        expect(markup).toContain("title=\"最近参照したデータ\"");
+        expect(markup).toContain("最近参照したデータ");
         expect(markup).toContain("slds-button slds-button_neutral");
         expect(markup).toContain(">新規</button>");
         expect(markup).not.toContain("新規取引先");
         expect(markup).not.toContain("slds-button_brand");
-        expect(markup).not.toContain("最近参照したデータ");
         expect(markup).not.toContain("たった今更新");
         expect(markup).not.toContain("slds-page-header__meta-text");
         expect(markup).not.toContain("slds-page-header__name-meta");
+    });
+
+    it("removes the outer content padding for record list views", () => {
+        const markup = renderToStaticMarkup(
+            createElement(PlaygroundWorkspace, {
+                view: {
+                    activeTab: "accounts",
+                    activityCounts: { events: 0, tasks: 0 },
+                    loading: false
+                },
+                session: {
+                    connected: true,
+                    userName: "Taro Admin"
+                },
+                recordSelection: {
+                    accounts: [accountFixture],
+                    contacts: [],
+                    recordCounts: {
+                        campaigns: 0,
+                        cases: 0,
+                        emailMessages: 0,
+                        leads: 0,
+                        opportunities: 0,
+                        products: 0
+                    },
+                    selectedAccount: null,
+                    selectedActivity: null,
+                    selectedContact: null,
+                    userCounts: { active: 0 }
+                },
+                recordActions: {
+                    onBulkDeleteEmpty: noop,
+                    onCreateAccount: noop,
+                    onCreateContact: noop,
+                    onDeleteRecord: noop,
+                    onEditAccount: noop,
+                    onEditActivity: noop,
+                    onEditContact: noop,
+                    onOpenAccount: noop,
+                    onOpenAccountById: noop,
+                    onOpenActivity: noop,
+                    onOpenContact: noop,
+                    onOpenContactById: noop,
+                    onRefresh: noop
+                },
+                integrationForm: {
+                    accountForm: blankAccount,
+                    saving: false,
+                    onAccountFormChange: noop,
+                    onCreateAccount: noop
+                },
+                recycleBinActions: {
+                    items: [],
+                    onRestoreEmpty: noop,
+                    onRestoreItems: noop
+                }
+            })
+        );
+
+        expect(markup).toContain("slds-template_default playground-main-content_flush-record-list");
     });
 
     it("renders the Home page header without status summary content", () => {
