@@ -65,6 +65,50 @@ export function QuickActionFormRow({ children }: { children: ReactNode }) {
     );
 }
 
+export function QuickActionFieldShell({
+    as = "div",
+    children,
+    error,
+    errorId,
+    label,
+    labelFor,
+    required = false
+}: {
+    as?: "div" | "fieldset";
+    children: ReactNode;
+    error?: string;
+    errorId?: string;
+    label: string;
+    labelFor?: string;
+    required?: boolean;
+}) {
+    const className = `slds-form-element slds-size_1-of-1${error ? " slds-has-error" : ""}`;
+
+    if (as === "fieldset") {
+        return (
+            <fieldset className={className} aria-describedby={errorId} aria-invalid={Boolean(error)}>
+                <legend className="slds-form-element__label">
+                    <RequiredFieldMarker required={required} />
+                    {label}
+                </legend>
+                {children}
+                <FieldError id={errorId} message={error} />
+            </fieldset>
+        );
+    }
+
+    return (
+        <div className={className}>
+            <label className="slds-form-element__label" htmlFor={labelFor}>
+                <RequiredFieldMarker required={required} />
+                {label}
+            </label>
+            {children}
+            <FieldError id={errorId} message={error} />
+        </div>
+    );
+}
+
 export function QuickActionTextInput({
     error,
     label,
@@ -82,11 +126,13 @@ export function QuickActionTextInput({
     const errorId = error ? `${inputId}-error` : undefined;
 
     return (
-        <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <label className="slds-form-element__label" htmlFor={inputId}>
-                <RequiredFieldMarker required={required} />
-                {label}
-            </label>
+        <QuickActionFieldShell
+            error={error}
+            errorId={errorId}
+            label={label}
+            labelFor={inputId}
+            required={required}
+        >
             <div className="slds-form-element__control">
                 <input
                     className="slds-input"
@@ -99,8 +145,7 @@ export function QuickActionTextInput({
                     onChange={(event) => onChange(event.target.value)}
                 />
             </div>
-            <FieldError id={errorId} message={error} />
-        </div>
+        </QuickActionFieldShell>
     );
 }
 
@@ -209,11 +254,13 @@ export function QuickActionSelect({
     }
 
     return (
-        <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <label className="slds-form-element__label" htmlFor={inputId}>
-                <RequiredFieldMarker required={required} />
-                {label}
-            </label>
+        <QuickActionFieldShell
+            error={error}
+            errorId={errorId}
+            label={label}
+            labelFor={inputId}
+            required={required}
+        >
             <div className="slds-form-element__control">
                 <div className="slds-combobox_container">
                     <div
@@ -277,8 +324,7 @@ export function QuickActionSelect({
                     </div>
                 </div>
             </div>
-            <FieldError id={errorId} message={error} />
-        </div>
+        </QuickActionFieldShell>
     );
 }
 

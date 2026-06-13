@@ -5,7 +5,7 @@ import type {
     RemoteLookupObjectLabel
 } from "./activity-task-form";
 import { createPortal } from "react-dom";
-import { FieldError } from "./ActivityFieldErrorsAndInputs";
+import { QuickActionFieldShell } from "./ActivityFieldErrorsAndInputs";
 import { getLookupIconMeta } from "./activity-lookup-icons";
 import { StandardIcon, UtilityIcon } from "./SldsIcon";
 import { useInputPopupPlacement } from "./useInputPopupPlacement";
@@ -55,8 +55,13 @@ export function QuickActionLookup({
     const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
 
     return (
-        <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="required" aria-hidden="true">* </abbr> : null}{label}</label>
+        <QuickActionFieldShell
+            error={error}
+            errorId={errorId}
+            label={label}
+            labelFor={inputId}
+            required={required}
+        >
             <div className="slds-form-element__control">
                 {value ? (
                     <div className="slds-combobox_container slds-has-selection">
@@ -181,7 +186,6 @@ export function QuickActionLookup({
                     </div>
                 )}
             </div>
-            <FieldError id={errorId} message={error} />
-        </div>
+        </QuickActionFieldShell>
     );
 }
