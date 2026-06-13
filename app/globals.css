@@ -11,7 +11,9 @@
     --playground-environment-label-height: 2.21875rem;
     --playground-environment-label-z-index: 8000;
     --playground-global-header-height: 3.125rem;
+    --playground-global-search-mobile-width: 11rem;
     --playground-input-popup-z-index: 9100;
+    --playground-list-search-mobile-width: 11rem;
     --playground-overlay-backdrop-z-index: 6990;
     --playground-overlay-z-index: 7000;
     --playground-template-gutter: var(--slds-g-spacing-3, 0.75rem);
@@ -178,7 +180,13 @@ body {
 }
 
 .playground-list-view__search {
-    width: min(17rem, calc(100vw - 11rem));
+    width: min(13rem, calc(100vw - 11rem));
+}
+
+.playground-global-header__search {
+    flex: 0 1 20rem;
+    max-width: min(20rem, calc(100vw - 18rem));
+    min-width: 0;
 }
 
 .playground-activity-card {
@@ -337,7 +345,18 @@ body {
 
     .playground-list-view__search {
         flex: 1 1 auto;
-        width: auto;
+        max-width: var(--playground-list-search-mobile-width);
+        width: var(--playground-list-search-mobile-width);
+    }
+
+    .playground-global-header__search {
+        flex-basis: var(--playground-global-search-mobile-width);
+        max-width: var(--playground-global-search-mobile-width);
+        min-width: var(--playground-global-search-mobile-width);
+    }
+
+    .playground-record-table__cell_mobile-hidden {
+        display: none;
     }
 
 }

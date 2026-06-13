@@ -48,11 +48,11 @@ const accountListConfig: RecordListConfig<Account> = {
     },
     columns: [
         { label: "電話", getValue: (account) => renderPhoneLink(account.Phone) },
-        { label: "Web サイト", getValue: (account) => renderWebsiteLink(account.Website) },
+        { label: "Web サイト", hideOnMobile: true, getValue: (account) => renderWebsiteLink(account.Website) },
         { label: "業種", getValue: (account) => account.Industry },
-        { label: "請求先", getValue: getAccountBilling },
-        { label: "最終更新日", getValue: (account) => formatDate(account.LastModifiedDate) },
-        { label: "最終更新者", getValue: (account) => account.LastModifiedBy?.Name }
+        { label: "請求先", hideOnMobile: true, getValue: getAccountBilling },
+        { label: "最終更新日", hideOnMobile: true, getValue: (account) => formatDate(account.LastModifiedDate) },
+        { label: "最終更新者", hideOnMobile: true, getValue: (account) => account.LastModifiedBy?.Name }
     ],
     filterListRecords: filterAccounts,
     getRecordLabel: (account) => account.Name
@@ -71,11 +71,11 @@ const contactListConfig: RecordListConfig<Contact> = {
         filteredEmpty: "検索条件に一致する取引先責任者が見つかりません。"
     },
     columns: [
-        { label: "役職", getValue: (contact) => contact.Title },
+        { label: "役職", hideOnMobile: true, getValue: (contact) => contact.Title },
         { label: "メール", getValue: (contact) => renderEmailLink(contact.Email) },
-        { label: "電話", getValue: (contact) => renderPhoneLink(contact.Phone) },
-        { label: "最終更新日", getValue: (contact) => formatDate(contact.LastModifiedDate) },
-        { label: "最終更新者", getValue: (contact) => contact.LastModifiedBy?.Name }
+        { label: "電話", hideOnMobile: true, getValue: (contact) => renderPhoneLink(contact.Phone) },
+        { label: "最終更新日", hideOnMobile: true, getValue: (contact) => formatDate(contact.LastModifiedDate) },
+        { label: "最終更新者", hideOnMobile: true, getValue: (contact) => contact.LastModifiedBy?.Name }
     ],
     filterListRecords: filterContacts,
     getRecordLabel: getContactName
@@ -157,7 +157,7 @@ export function ContactPanel({
             config={{
                 ...contactListConfig,
                 columns: [
-                    { label: "役職", getValue: (contact) => contact.Title },
+                    { label: "役職", hideOnMobile: true, getValue: (contact) => contact.Title },
                     { label: "取引先名", getValue: (contact) => renderAccountNameLink(contact, onOpenAccountById) },
                     ...contactListConfig.columns.slice(1)
                 ]

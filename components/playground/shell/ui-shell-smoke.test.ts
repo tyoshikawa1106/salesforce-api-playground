@@ -98,6 +98,9 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("aria-label=\"取引先 のサブメニュー\"");
         expect(markup).toContain("role=\"menuitem\"");
         expect(markup).toContain("tabindex=\"-1\"");
+        expect(markup).toContain("title=\"取引先 を新規作成\"");
+        expect(markup).toContain(">新規</span>");
+        expect(markup).not.toContain("主操作");
         expect(markup).not.toContain("連携 のサブメニューを開く");
         expect(markup).not.toContain("ごみ箱 のサブメニューを開く");
     });

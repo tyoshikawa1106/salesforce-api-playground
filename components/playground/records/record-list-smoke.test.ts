@@ -90,6 +90,7 @@ describe("record list smoke rendering", () => {
         expect(firstAccountIndex).toBeGreaterThan(-1);
         expect(firstAccountIndex).toBeLessThan(secondAccountIndex);
         expect(accountMarkup).toContain("最終更新者");
+        expect(accountMarkup).toContain("playground-record-table__cell_mobile-hidden");
         expect(accountMarkup).toContain("Admin User");
         expect(accountMarkup).toContain("2 個の項目");
         expect(accountMarkup).not.toContain("数秒前に更新されました");
