@@ -11,7 +11,7 @@ export function DataTable({
     children: ReactNode;
 }) {
     return (
-        <div className="slds-scrollable_x">
+        <div className="playground-record-table">
             <table
                 className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
                 role="grid"
@@ -50,7 +50,7 @@ export function RecordTableActions<Record>({
     }
 
     return (
-        <div className={`slds-dropdown-trigger slds-dropdown-trigger_click${open ? " slds-is-open" : ""}`}>
+        <div className={`slds-dropdown-trigger slds-dropdown-trigger_click playground-record-action${open ? " slds-is-open" : ""}`}>
             <button
                 className="slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small"
                 type="button"

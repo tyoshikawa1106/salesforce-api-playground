@@ -148,6 +148,10 @@ body {
     min-height: calc(100dvh - 6.25rem);
 }
 
+.playground-main-content_flush-record-list .playground-workspace {
+    min-height: auto;
+}
+
 .playground-record-section-icon {
     transition: transform 0.1s ease-in-out;
 }
@@ -164,6 +168,21 @@ body {
     margin-bottom: 0;
     margin-top: 0;
     padding: 0;
+}
+
+.playground-record-table,
+.playground-record-table .slds-table {
+    overflow: visible;
+}
+
+.playground-record-action.slds-is-open {
+    position: relative;
+    z-index: var(--playground-input-popup-z-index);
+}
+
+.playground-record-table tbody tr:nth-last-child(-n + 2) .playground-record-action .slds-dropdown {
+    bottom: calc(100% + var(--slds-g-spacing-1, 0.25rem));
+    top: auto;
 }
 
 .playground-list-view__empty {
