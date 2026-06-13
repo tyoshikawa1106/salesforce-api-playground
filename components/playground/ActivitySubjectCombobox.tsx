@@ -3,7 +3,7 @@
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { taskSubjectOptions } from "./activity-task-form";
-import { FieldError } from "./ActivityFieldErrorsAndInputs";
+import { QuickActionFieldShell } from "./ActivityFieldErrorsAndInputs";
 import { UtilityIcon } from "./SldsIcon";
 import { useInputPopupPlacement } from "./useInputPopupPlacement";
 
@@ -91,8 +91,13 @@ export function QuickActionSubjectCombobox({
     }
 
     return (
-        <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="required" aria-hidden="true">* </abbr> : null}{label}</label>
+        <QuickActionFieldShell
+            error={error}
+            errorId={errorId}
+            label={label}
+            labelFor={inputId}
+            required={required}
+        >
             <div className="slds-form-element__control">
                 <div className="slds-combobox_container">
                     <div
@@ -174,7 +179,6 @@ export function QuickActionSubjectCombobox({
                     </div>
                 </div>
             </div>
-            <FieldError id={errorId} message={error} />
-        </div>
+        </QuickActionFieldShell>
     );
 }

@@ -1,6 +1,7 @@
 export {
     EventFormErrorSummary,
     FieldError,
+    QuickActionFieldShell,
     QuickActionFormGroup,
     QuickActionFormRow,
     QuickActionFormRows,

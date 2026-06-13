@@ -6,7 +6,7 @@ import {
     getDateTimeTimeValue,
     normalizeTimeInputValue
 } from "./activity-task-form";
-import { FieldError } from "./ActivityFieldErrorsAndInputs";
+import { QuickActionFieldShell } from "./ActivityFieldErrorsAndInputs";
 import { QuickActionDatepicker } from "./ActivityDatepicker";
 import { QuickActionTimepicker } from "./ActivityTimepicker";
 
@@ -41,10 +41,13 @@ export function QuickActionDateTimePicker({
     }
 
     return (
-        <fieldset className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`} aria-describedby={errorId} aria-invalid={Boolean(error)}>
-            <legend className="slds-form-element__label">
-                {required ? <abbr className="slds-required" title="required" aria-hidden="true">* </abbr> : null}{label}
-            </legend>
+        <QuickActionFieldShell
+            as="fieldset"
+            error={error}
+            errorId={errorId}
+            label={label}
+            required={required}
+        >
             <div className="slds-form-element__control">
                 <div className="slds-grid slds-gutters_x-small">
                     <div className="slds-col slds-size_2-of-3">
@@ -66,7 +69,6 @@ export function QuickActionDateTimePicker({
                     </div>
                 </div>
             </div>
-            <FieldError id={errorId} message={error} />
-        </fieldset>
+        </QuickActionFieldShell>
     );
 }
