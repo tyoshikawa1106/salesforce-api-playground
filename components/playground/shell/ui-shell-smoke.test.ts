@@ -414,13 +414,14 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("slds-global-actions__help");
         expect(markup).toContain("slds-global-actions__setup");
         expect(markup).toContain("slds-global-actions__notifications");
+        expect(markup).toContain("playground-global-actions__mobile-hidden");
+        expect(markup).toContain("playground-global-actions__profile");
         expect(markup).toContain("slds-avatar_profile-image-medium");
         expect(markup).toContain("slds-global-header__logo");
         expect(markup).not.toContain("playground-global-header-container");
         expect(markup).not.toContain("slds-show_medium");
         expect(markup).not.toContain("playground-global-search-icon");
         expect(markup).not.toContain("playground-global-action-icon");
-        expect(markup).not.toContain("playground-global-action");
         expect(markup).not.toContain("playground-menu-icon");
     });
 

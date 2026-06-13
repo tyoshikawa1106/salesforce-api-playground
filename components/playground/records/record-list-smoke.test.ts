@@ -83,14 +83,22 @@ describe("record list smoke rendering", () => {
         const deleteActionIndex = accountMarkup.indexOf("aria-label=\"選択した取引先を削除\"");
         const firstAccountIndex = accountMarkup.indexOf("Aardvark");
         const secondAccountIndex = accountMarkup.indexOf("Acme");
+        const accountNameHeaderIndex = accountMarkup.indexOf("取引先名");
+        const accountIndustryHeaderIndex = accountMarkup.indexOf("業種");
+        const accountPhoneHeaderIndex = accountMarkup.indexOf("電話");
         const firstContactIndex = contactMarkup.indexOf("Aiko Sato");
         const secondContactIndex = contactMarkup.indexOf("Taro Yamada");
+        const contactNameHeaderIndex = contactMarkup.indexOf("氏名");
+        const contactAccountHeaderIndex = contactMarkup.indexOf("取引先名");
+        const contactTitleHeaderIndex = contactMarkup.indexOf("役職");
 
         expect(accountMarkup).toContain("Acme");
         expect(firstAccountIndex).toBeGreaterThan(-1);
         expect(firstAccountIndex).toBeLessThan(secondAccountIndex);
         expect(accountMarkup).toContain("最終更新者");
         expect(accountMarkup).toContain("playground-record-table__cell_mobile-hidden");
+        expect(accountNameHeaderIndex).toBeLessThan(accountIndustryHeaderIndex);
+        expect(accountIndustryHeaderIndex).toBeLessThan(accountPhoneHeaderIndex);
         expect(accountMarkup).toContain("Admin User");
         expect(accountMarkup).toContain("2 個の項目");
         expect(accountMarkup).not.toContain("数秒前に更新されました");
@@ -135,6 +143,8 @@ describe("record list smoke rendering", () => {
         expect(firstContactIndex).toBeGreaterThan(-1);
         expect(firstContactIndex).toBeLessThan(secondContactIndex);
         expect(contactMarkup).toContain("最終更新者");
+        expect(contactNameHeaderIndex).toBeLessThan(contactAccountHeaderIndex);
+        expect(contactAccountHeaderIndex).toBeLessThan(contactTitleHeaderIndex);
         expect(contactMarkup).toContain("Sales User");
         expect(contactMarkup).toContain("2 個の項目");
         expect(contactMarkup).toContain("Manager");
