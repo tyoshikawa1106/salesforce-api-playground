@@ -72,7 +72,7 @@ export function GlobalHeaderActions({
     userName?: string;
 }) {
     return (
-        <ul className="slds-global-actions" aria-label="グローバルアクション">
+        <ul className="slds-global-actions playground-global-actions" aria-label="グローバルアクション">
             <GlobalFavoritesActions />
             <GlobalTaskMenuButton
                 open={activeActionPopover === "グローバルアクション"}
@@ -142,7 +142,7 @@ function GlobalTaskMenuButton({
     }
 
     return (
-        <li className="slds-global-actions__item slds-m-right_small">
+        <li className="slds-global-actions__item slds-m-right_small playground-global-actions__mobile-hidden">
             <div
                 className={`slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
                 onMouseEnter={onMouseEnter}
@@ -217,7 +217,7 @@ function GlobalFavoritesActions() {
     ].filter(Boolean).join(" ");
 
     return (
-        <li className="slds-global-actions__item slds-dropdown-trigger slds-dropdown-trigger_click slds-grid">
+        <li className="slds-global-actions__item slds-dropdown-trigger slds-dropdown-trigger_click slds-grid playground-global-actions__mobile-hidden">
             <div className={favoritesContainerClassName} role="group">
                 <div className="slds-button-group">
                     <button
@@ -301,7 +301,7 @@ function GlobalActionButton({
     pressed?: boolean;
 }) {
     return (
-        <li className="slds-global-actions__item">
+        <li className="slds-global-actions__item playground-global-actions__mobile-hidden">
             <div
                 className={`slds-dropdown-trigger slds-dropdown-trigger_click ${popupOpen ? "slds-is-open" : ""}`}
                 onMouseEnter={onMouseEnter}
@@ -356,7 +356,7 @@ function GlobalProfileMenu({
     const organizationLabel = instanceUrl || "接続済みの組織";
 
     return (
-        <li className="slds-global-actions__item">
+        <li className="slds-global-actions__item playground-global-actions__profile">
             <div
                 className={`slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
                 onMouseEnter={onMouseEnter}

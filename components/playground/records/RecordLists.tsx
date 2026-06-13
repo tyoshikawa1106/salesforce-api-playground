@@ -47,9 +47,9 @@ const accountListConfig: RecordListConfig<Account> = {
         filteredEmpty: "検索条件に一致する取引先が見つかりません。"
     },
     columns: [
-        { label: "電話", getValue: (account) => renderPhoneLink(account.Phone) },
-        { label: "Web サイト", hideOnMobile: true, getValue: (account) => renderWebsiteLink(account.Website) },
         { label: "業種", getValue: (account) => account.Industry },
+        { label: "電話", hideOnMobile: true, getValue: (account) => renderPhoneLink(account.Phone) },
+        { label: "Web サイト", hideOnMobile: true, getValue: (account) => renderWebsiteLink(account.Website) },
         { label: "請求先", hideOnMobile: true, getValue: getAccountBilling },
         { label: "最終更新日", hideOnMobile: true, getValue: (account) => formatDate(account.LastModifiedDate) },
         { label: "最終更新者", hideOnMobile: true, getValue: (account) => account.LastModifiedBy?.Name }
@@ -72,7 +72,7 @@ const contactListConfig: RecordListConfig<Contact> = {
     },
     columns: [
         { label: "役職", hideOnMobile: true, getValue: (contact) => contact.Title },
-        { label: "メール", getValue: (contact) => renderEmailLink(contact.Email) },
+        { label: "メール", hideOnMobile: true, getValue: (contact) => renderEmailLink(contact.Email) },
         { label: "電話", hideOnMobile: true, getValue: (contact) => renderPhoneLink(contact.Phone) },
         { label: "最終更新日", hideOnMobile: true, getValue: (contact) => formatDate(contact.LastModifiedDate) },
         { label: "最終更新者", hideOnMobile: true, getValue: (contact) => contact.LastModifiedBy?.Name }
@@ -157,9 +157,8 @@ export function ContactPanel({
             config={{
                 ...contactListConfig,
                 columns: [
-                    { label: "役職", hideOnMobile: true, getValue: (contact) => contact.Title },
                     { label: "取引先名", getValue: (contact) => renderAccountNameLink(contact, onOpenAccountById) },
-                    ...contactListConfig.columns.slice(1)
+                    ...contactListConfig.columns
                 ]
             }}
             records={contacts}

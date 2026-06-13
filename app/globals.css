@@ -350,9 +350,21 @@ body {
     }
 
     .playground-global-header__search {
-        flex-basis: var(--playground-global-search-mobile-width);
-        max-width: var(--playground-global-search-mobile-width);
-        min-width: var(--playground-global-search-mobile-width);
+        flex: 1 1 var(--playground-global-search-mobile-width);
+        max-width: none;
+        min-width: 0;
+    }
+
+    .playground-global-actions {
+        flex: 0 0 auto;
+    }
+
+    .playground-global-actions__mobile-hidden {
+        display: none;
+    }
+
+    .playground-global-actions__profile {
+        margin-left: var(--slds-g-spacing-1, 0.25rem);
     }
 
     .playground-record-table__cell_mobile-hidden {
