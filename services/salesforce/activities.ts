@@ -1,4 +1,4 @@
-import type { SaveResult } from "jsforce";
+import type { Connection, SaveResult } from "jsforce";
 import type {
     ActivityParent,
     ActivityCreateParent,
@@ -11,13 +11,15 @@ import type {
     TaskActivityRecord
 } from "@/lib/salesforce/activities";
 import { DEFAULT_SALESFORCE_QUERY_LIMIT } from "@/lib/salesforce/query-limits";
-import { withStandardObjectConnection } from "./client";
+import { createdSalesforceResult, withStandardObjectConnection } from "./client";
 import { countQueryableRecords } from "./count-results";
 import { createStandardObjectOperations } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
 type ActivityObjectName = "Task" | "Event";
 type ActivityCreateInput = TaskActivityInput | EventActivityInput;
+type TaskTimelineItem = Extract<ActivityTimelineItem, { type: "task" }>;
+type EventTimelineItem = Extract<ActivityTimelineItem, { type: "event" }>;
 
 const taskFields = [
     "Id",
@@ -98,7 +100,7 @@ function compareActivityItems(a: ActivityTimelineItem, b: ActivityTimelineItem) 
     return (bDate ?? b.lastModifiedDate ?? "").localeCompare(aDate ?? a.lastModifiedDate ?? "");
 }
 
-function toTaskItem(record: TaskActivityRecord): ActivityTimelineItem {
+function toTaskItem(record: TaskActivityRecord): TaskTimelineItem {
     return {
         type: "task",
         id: record.Id,
@@ -119,7 +121,7 @@ function toTaskItem(record: TaskActivityRecord): ActivityTimelineItem {
     };
 }
 
-function toEventItem(record: EventActivityRecord): ActivityTimelineItem {
+function toEventItem(record: EventActivityRecord): EventTimelineItem {
     return {
         type: "event",
         id: record.Id,
@@ -160,6 +162,48 @@ function getActivityById<TRecord extends TaskActivityRecord | EventActivityRecor
         }
 
         return { activity: mapRecord(record) };
+    });
+}
+
+async function queryActivityById<TRecord extends TaskActivityRecord | EventActivityRecord, TItem extends ActivityTimelineItem>(
+    connection: Connection,
+    objectName: ActivityObjectName,
+    fields: readonly string[],
+    id: string,
+    mapRecord: (record: TRecord) => TItem
+) {
+    const result = await connection.query<TRecord>([
+        `SELECT ${fields.join(", ")}`,
+        `FROM ${objectName}`,
+        `WHERE Id = '${id}'`,
+        "LIMIT 1"
+    ].join(" "));
+
+    return result.records[0] ? mapRecord(result.records[0]) : null;
+}
+
+function createActivityWithHydratedResult<
+    TInput extends ActivityCreateInput,
+    TRecord extends TaskActivityRecord | EventActivityRecord,
+    TItem extends ActivityTimelineItem
+>(
+    objectName: ActivityObjectName,
+    fields: readonly string[],
+    input: TInput,
+    mapRecord: (record: TRecord) => TItem
+) {
+    return withStandardObjectConnection(async (connection) => {
+        await assertObjectPermission(connection, objectName, "createable");
+        await assertObjectPermission(connection, objectName, "queryable");
+
+        const result = await connection.sobject(objectName).create(buildActivityCreateFields(input));
+        const created = createdSalesforceResult(result);
+        const activity = await queryActivityById<TRecord, TItem>(connection, objectName, fields, created.id, mapRecord);
+
+        return {
+            ...created,
+            activity
+        };
     });
 }
 
@@ -220,18 +264,12 @@ export async function listActivities(parent: ActivityParent) {
 }
 
 export async function createTaskActivity(input: TaskActivityInput) {
-    const created = await taskActivities.create(input);
-    const activity = created.data.id
-        ? await getTaskActivity(created.data.id)
-        : null;
-
-    return {
-        data: {
-            ...created.data,
-            activity: activity?.data.activity ?? null
-        },
-        session: activity?.session ?? created.session
-    };
+    return createActivityWithHydratedResult<TaskActivityInput, TaskActivityRecord, TaskTimelineItem>(
+        "Task",
+        taskFields,
+        input,
+        toTaskItem
+    );
 }
 
 export async function updateTaskActivity(id: string, input: TaskActivityUpdateInput) {
@@ -247,18 +285,12 @@ export async function deleteTaskActivity(id: string) {
 }
 
 export async function createEventActivity(input: EventActivityInput) {
-    const created = await eventActivities.create(input);
-    const activity = created.data.id
-        ? await getEventActivity(created.data.id)
-        : null;
-
-    return {
-        data: {
-            ...created.data,
-            activity: activity?.data.activity ?? null
-        },
-        session: activity?.session ?? created.session
-    };
+    return createActivityWithHydratedResult<EventActivityInput, EventActivityRecord, EventTimelineItem>(
+        "Event",
+        eventFields,
+        input,
+        toEventItem
+    );
 }
 
 export async function getEventActivity(id: string) {

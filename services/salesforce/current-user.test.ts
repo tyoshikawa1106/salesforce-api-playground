@@ -2,12 +2,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SalesforceSession } from "@/lib/salesforce/session";
 import { getCurrentUserName } from "./current-user";
 import { withStandardObjectConnection } from "./client";
+import { assertObjectPermission } from "./object-permissions";
 
 vi.mock("./client", () => ({
     withStandardObjectConnection: vi.fn()
 }));
 
+vi.mock("./object-permissions", () => ({
+    assertObjectPermission: vi.fn()
+}));
+
 const withStandardObjectConnectionMock = vi.mocked(withStandardObjectConnection);
+const assertObjectPermissionMock = vi.mocked(assertObjectPermission);
 
 const session: SalesforceSession = {
     accessToken: "access-token",
@@ -40,6 +46,7 @@ describe("Salesforce current user service", () => {
             session
         });
 
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "User", "queryable");
         expect(query).toHaveBeenCalledWith(
             "SELECT Id, Name FROM User WHERE Id = '005xx0000012345' LIMIT 1"
         );
@@ -59,6 +66,23 @@ describe("Salesforce current user service", () => {
             session
         });
 
+        expect(query).not.toHaveBeenCalled();
+        expect(assertObjectPermissionMock).not.toHaveBeenCalled();
+    });
+
+    it("does not query when current user read permission is unavailable", async () => {
+        const query = vi.fn();
+        const connection = { query };
+
+        assertObjectPermissionMock.mockRejectedValueOnce(new Error("User の参照権限がありません。"));
+        withStandardObjectConnectionMock.mockImplementationOnce(async (operation) => ({
+            data: await operation(connection as never, session),
+            session
+        }));
+
+        await expect(getCurrentUserName()).rejects.toThrow("User の参照権限がありません。");
+
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "User", "queryable");
         expect(query).not.toHaveBeenCalled();
     });
 });
