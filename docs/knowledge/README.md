@@ -33,5 +33,7 @@
 
 ## プロジェクト導入
 
-- [プロジェクト初期セットアップガイド](project-bootstrap-guide.md)
+- [プロジェクトセットアップガイド](project-setup-guide.md)
+- [Git 管理しないファイル](repository-ignore-rules.md)
+- [リポジトリの文字コードと改行設定](repository-text-normalization.md)
 - [業務本番化の検討観点](production-readiness.md)
