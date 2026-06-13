@@ -92,8 +92,38 @@ describe("playground shell smoke rendering", () => {
 
         expect(markup).toContain("ごみ箱");
         expect(markup).toContain("aria-current=\"page\"");
+        expect(markup).toContain("取引先 のサブメニューを開く");
+        expect(markup).toContain("取引先責任者 のサブメニューを開く");
+        expect(markup).toContain("aria-expanded=\"false\"");
+        expect(markup).toContain("aria-label=\"取引先 のサブメニュー\"");
+        expect(markup).toContain("role=\"menuitem\"");
+        expect(markup).toContain("tabindex=\"-1\"");
         expect(markup).not.toContain("連携 のサブメニューを開く");
         expect(markup).not.toContain("ごみ箱 のサブメニューを開く");
+    });
+
+    it("renders the favorites menu as a toggleable SLDS menu", () => {
+        const markup = renderToStaticMarkup(
+            createElement(GlobalHeaderActions, {
+                activeActionPopover: null,
+                cancelActionPopoverClose: noop,
+                cancelProfileMenuClose: noop,
+                profileMenuOpen: false,
+                scheduleActionPopoverClose: noop,
+                scheduleProfileMenuClose: noop,
+                showNotificationBadge: false,
+                toggleActionPopover: noop,
+                toggleNotificationBadge: noop,
+                toggleProfileMenu: noop
+            })
+        );
+
+        expect(markup).toContain("title=\"お気に入りを表示\"");
+        expect(markup).toContain("aria-haspopup=\"menu\"");
+        expect(markup).toContain("aria-expanded=\"false\"");
+        expect(markup).toContain("role=\"menu\"");
+        expect(markup).toContain("aria-label=\"お気に入り\"");
+        expect(markup).toContain("お気に入りはありません");
     });
 
     it("calculates visible navigation items with an overflow menu reservation", () => {
