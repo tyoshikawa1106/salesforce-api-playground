@@ -62,7 +62,9 @@ export const playgroundApiPaths = {
     activityTask(id: string): string {
         return `/api/activities/tasks/${encodeURIComponent(id)}`;
     },
+    activityCounts: "/api/activity-counts",
     session: "/api/session",
+    userCounts: "/api/user-counts",
     accounts: "/api/accounts",
     contacts: "/api/contacts",
     integrationAccounts: "/api/integration/ui/accounts",

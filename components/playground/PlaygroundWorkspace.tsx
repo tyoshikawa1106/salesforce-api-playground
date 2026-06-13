@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import type { AccountForm } from "@/lib/salesforce/records";
-import { HomePanel } from "./HomePanel";
+import { HomeCounts, HomePanel } from "./HomePanel";
 import { IntegrationPanel } from "./IntegrationPanel";
 import {
     AccountDetailWorkspace,
@@ -16,6 +16,10 @@ import type { Account, ActiveTab, Activity, Contact, DeleteState, RecycleBinItem
 type PlaygroundWorkspaceProps = {
     view: {
         activeTab: ActiveTab;
+        activityCounts: {
+            events: number;
+            tasks: number;
+        };
         loading: boolean;
     };
     session: {
@@ -30,6 +34,9 @@ type PlaygroundWorkspaceProps = {
         selectedAccount: Account | null;
         selectedActivity: Activity | null;
         selectedContact: Contact | null;
+        userCounts: {
+            active: number;
+        };
     };
     recordActions: {
         onCreateAccount: () => void;
@@ -74,19 +81,16 @@ export function PlaygroundWorkspace({
     picklists,
     recycleBinActions
 }: PlaygroundWorkspaceProps) {
-    const { activeTab, loading } = view;
-    const { connected, instanceUrl, userId, userName } = session;
-    const { accounts, contacts, selectedAccount, selectedActivity, selectedContact } = recordSelection;
+    const { activeTab, activityCounts, loading } = view;
+    const { connected, userId, userName } = session;
+    const { accounts, contacts, selectedAccount, selectedActivity, selectedContact, userCounts } = recordSelection;
     const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
 
     return (
-        <main id="main-content" className="slds-template_default slds-m-top_xx-large slds-p-top_xx-large">
+        <main id="main-content" className="slds-template_default">
             <section className={sectionClassName}>
                 {activeTab === "home" ? (
-                    <HomePanel
-                        connected={connected}
-                        instanceUrl={instanceUrl}
-                    />
+                    <HomePanel />
                 ) : null}
 
                 {activeTab === "accounts" && connected && !selectedAccount ? (
@@ -186,6 +190,16 @@ export function PlaygroundWorkspace({
                     />
                 ) : null}
             </section>
+            {activeTab === "home" ? (
+                <HomeCounts
+                    accountCount={accounts.length}
+                    contactCount={contacts.length}
+                    eventCount={activityCounts.events}
+                    recycleBinCount={recycleBinActions.items.length}
+                    taskCount={activityCounts.tasks}
+                    userCount={userCounts.active}
+                />
+            ) : null}
         </main>
     );
 }
