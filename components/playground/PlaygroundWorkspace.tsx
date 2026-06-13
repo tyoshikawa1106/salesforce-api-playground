@@ -1,19 +1,19 @@
 import type { FormEvent } from "react";
 import type { HomeRecordCounts } from "@/lib/playground-record-counts";
 import type { AccountForm } from "@/lib/salesforce/records";
-import { HomeCounts, HomePanel } from "./HomePanel";
-import type { HomeCountValues } from "./HomePanel";
-import { IntegrationPanel } from "./IntegrationPanel";
+import { HomeCounts, HomePanel } from "./home/HomePanel";
+import type { HomeCountValues } from "./home/HomePanel";
+import { IntegrationPanel } from "./integration/IntegrationPanel";
 import {
     AccountDetailWorkspace,
     AccountListWorkspace,
     ActivityDetailWorkspace,
     ContactDetailWorkspace,
     ContactListWorkspace
-} from "./RecordWorkspacePanels";
-import { RecycleBinPanel } from "./RecycleBinPanel";
-import type { PicklistOption, PicklistOptionsByField } from "./picklist-options";
-import type { Account, ActiveTab, Activity, Contact, DeleteState, RecycleBinItem } from "./types";
+} from "./records/RecordWorkspacePanels";
+import { RecycleBinPanel } from "./recycle-bin/RecycleBinPanel";
+import type { PicklistOption, PicklistOptionsByField } from "./utils/picklist-options";
+import type { Account, ActiveTab, Activity, Contact, DeleteState, RecycleBinItem } from "./utils/types";
 
 type PlaygroundWorkspaceProps = {
     view: {

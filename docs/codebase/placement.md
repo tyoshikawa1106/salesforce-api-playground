@@ -4,8 +4,8 @@
 
 | 追加したいもの | 置き場所 |
 | --- | --- |
-| 新しい画面部品 | `components/playground` |
-| 画面全体の状態管理変更 | `components/Playground.tsx` または `components/playground/use*.ts` |
+| 新しい画面部品 | `components/playground/<役割別サブフォルダ>` |
+| 画面全体の状態管理変更 | `components/Playground.tsx` または `components/playground/hooks` |
 | ブラウザから呼ぶ新しい API | `app/api/**/route.ts` |
 | API request payload の検証 | `lib/salesforce/request-payloads.ts` または関連する `lib/salesforce/*` |
 | Salesforce の新しい CRUD / SOQL | `services/salesforce` |

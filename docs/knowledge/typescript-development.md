@@ -29,10 +29,10 @@ import type { AccountForm } from "@/lib/salesforce/records";
 
 | 種類 | 例 | 置き場所 |
 | --- | --- | --- |
-| Playground UI の型 | `ActiveTab`, `Account`, `Contact` | `components/playground/types.ts` |
+| Playground UI の型 | `ActiveTab`, `Account`, `Contact` | `components/playground/utils/types.ts` |
 | UI と API の request / response | `PlaygroundApiRequest` | `lib/playground-api.ts` |
 | Salesforce record / form | `AccountForm`, `ContactForm` | `lib/salesforce/records.ts` |
-| 一覧表示用の型 | record list 関連 | `components/playground/record-list-types.ts` |
+| 一覧表示用の型 | record list 関連 | `components/playground/records/record-list-types.ts` |
 | コンポーネント props | `GlobalHeaderProps` など | 各 `.tsx` ファイル内 |
 
 型を探す時は、まず「その型が UI 専用か、API と共有するか、Salesforce 由来か」を考える。UI 専用なら `components/playground`、API や Salesforce と共有するなら `lib` 側にあることが多い。
