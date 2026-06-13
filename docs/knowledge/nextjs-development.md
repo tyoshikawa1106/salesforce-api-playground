@@ -134,14 +134,14 @@ HTTP の入口は `app/api`。入力検証や Salesforce 共通処理は `lib/sa
 ```text
 components/playground/*
   ↓
-components/playground/api.ts
+components/playground/utils/api.ts
   ↓
 lib/playground-api.ts
   ↓
 app/api/**/route.ts
 ```
 
-UI 側の fetch helper は `components/playground/api.ts`、path や request / response 型の共通定義は `lib/playground-api.ts` を見る。
+UI 側の fetch helper は `components/playground/utils/api.ts`、path や request / response 型の共通定義は `lib/playground-api.ts` を見る。
 
 ## 確認コマンド
 

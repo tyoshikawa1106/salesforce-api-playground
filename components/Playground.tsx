@@ -2,18 +2,18 @@
 
 import type { ComponentProps } from "react";
 import type { EnvironmentLabel } from "@/lib/environment-label";
-import { EnvironmentLabelBanner } from "./playground/EnvironmentLabelBanner";
-import { AppNavigation } from "./playground/Navigation";
-import { GlobalHeader } from "./playground/GlobalHeader";
-import { LoginPage, SessionLoadingPage } from "./playground/LoginPage";
-import { NoticeBanner } from "./playground/NoticeBanner";
+import { EnvironmentLabelBanner } from "./playground/shell/EnvironmentLabelBanner";
+import { AppNavigation } from "./playground/shell/Navigation";
+import { GlobalHeader } from "./playground/shell/GlobalHeader";
+import { LoginPage, SessionLoadingPage } from "./playground/shell/LoginPage";
+import { NoticeBanner } from "./playground/shell/NoticeBanner";
 import { PlaygroundWorkspace } from "./playground/PlaygroundWorkspace";
-import { RecordModals } from "./playground/RecordModals";
-import { UtilityBar } from "./playground/UtilityBar";
-import { useNotice } from "./playground/useNotice";
-import { usePlaygroundData } from "./playground/usePlaygroundData";
-import { usePlaygroundPicklists } from "./playground/usePlaygroundPicklists";
-import { useRecordMutations } from "./playground/useRecordMutations";
+import { RecordModals } from "./playground/records/RecordModals";
+import { UtilityBar } from "./playground/shell/UtilityBar";
+import { useNotice } from "./playground/shell/useNotice";
+import { usePlaygroundData } from "./playground/hooks/usePlaygroundData";
+import { usePlaygroundPicklists } from "./playground/hooks/usePlaygroundPicklists";
+import { useRecordMutations } from "./playground/records/useRecordMutations";
 
 export default function Playground({ environmentLabel = null }: { environmentLabel?: EnvironmentLabel | null }) {
     const { notice, showNotice } = useNotice();

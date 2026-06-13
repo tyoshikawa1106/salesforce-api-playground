@@ -36,7 +36,7 @@
 | `app/api/search` | グローバル検索 API を置く。 |
 | `app/api/session` | OAuth session 状態確認 API を置く。 |
 | `components` | React UI の入口コンポーネントと Playground 部品を置く。 |
-| `components/playground` | Playground 画面のヘッダー、一覧、詳細、フォーム、活動、hooks、UI helper を置く。 |
+| `components/playground` | Playground 専用 UI を役割別のサブフォルダに置く。 |
 | `docs/api` | API Routes と Salesforce API 連携の仕様を置く。 |
 | `docs/codebase` | ディレクトリ構成、主要ファイル一覧、配置判断を置く。 |
 | `docs/deployment` | Heroku デプロイと運用確認の詳細を置く。 |
@@ -69,25 +69,15 @@
 | パス | 役割 |
 | --- | --- |
 | `components/Playground.tsx` | Playground 画面全体の状態管理と UI 構成 |
-| `components/playground/LoginPage.tsx` | 未接続時の Salesforce 接続導線 |
-| `components/playground/GlobalHeader.tsx` | 接続後のグローバルヘッダー、検索、ログアウト |
-| `components/playground/Navigation.tsx` | 主要タブのナビゲーション |
-| `components/playground/ObjectHome.tsx` | ホーム、オブジェクトホーム、Integration タブのヘッダー |
-| `components/playground/RecordLists.tsx` | Account / Contact 一覧 |
-| `components/playground/RecordPages.tsx` | Account / Contact 詳細 |
-| `components/playground/Forms.tsx` | Account / Contact フォーム |
-| `components/playground/Modal.tsx` | 作成 / 編集 / 削除確認モーダル |
-| `components/playground/NoticeBanner.tsx` | success / error / loading 通知 |
-| `components/playground/picklist-options.ts` | Salesforce 選択リスト値をフォーム options へ変換する helper |
-| `components/playground/api.ts` | UI から API を呼ぶ helper と UI 表示向けエラー |
-| `components/playground/mutations.ts` | 作成 / 更新 / 削除など UI 操作の request 組み立て |
-| `components/playground/playground-data-state.ts` | Playground の取得結果、選択状態、検索結果反映の純粋 helper |
-| `components/playground/record-actions.ts` | Account / Contact の削除状態と操作 label の helper |
-| `components/playground/usePicklistValues.ts` | 選択リスト値 API の取得状態を管理する hook |
-| `components/playground/usePlaygroundPicklists.ts` | Playground で使う選択リスト値の取得と fallback を管理する hook |
-| `components/playground/usePlaygroundData.ts` | session、Account、Contact、検索結果の取得状態 |
-| `components/playground/useNotice.ts` | 通知 state と自動クローズ |
-| `components/playground/types.ts` | UI state 用の型 |
+| `components/playground/PlaygroundWorkspace.tsx` | 接続後の作業領域とタブ表示の組み立て |
+| `components/playground/shell` | Login、GlobalHeader、Navigation、UtilityBar、通知、共通 shell 部品 |
+| `components/playground/home` | Home タブ |
+| `components/playground/records` | Account / Contact の一覧、詳細、フォーム、record 系 hooks / helper |
+| `components/playground/activities` | Task / Event、ActivityTimeline、Composer、activity 系 hooks / helper |
+| `components/playground/integration` | Integration タブ |
+| `components/playground/recycle-bin` | Recycle Bin タブ |
+| `components/playground/hooks` | Playground 全体にまたがる UI hooks |
+| `components/playground/utils` | UI 表示、API 呼び出し、選択肢変換、型、テスト fixture などの共通 helper |
 
 UI / CSS は SLDS の標準コンポーネントとユーティリティを優先します。SLDS の CSS と assets は npm dependency の `@salesforce-ux/design-system` から利用し、公式リソースを手作業でコピーして固定化しません。
 
