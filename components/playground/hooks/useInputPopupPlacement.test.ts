@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+    clampInputPopupLeft,
     isInputPopupTargetWithin,
     shouldCloseInputPopupOnBlur
 } from "./useInputPopupPlacement";
@@ -33,5 +34,25 @@ describe("input popup placement helpers", () => {
         expect(isInputPopupTargetWithin(outsideTarget, null, null)).toBe(false);
         expect(shouldCloseInputPopupOnBlur(outsideTarget, null, null)).toBe(true);
         expect(shouldCloseInputPopupOnBlur(null, null, null)).toBe(true);
+    });
+
+    it("keeps fixed popups inside the viewport horizontally", () => {
+        expect(clampInputPopupLeft({
+            containerLeft: 405,
+            popupWidth: 136,
+            viewportWidth: 590
+        })).toBe(405);
+
+        expect(clampInputPopupLeft({
+            containerLeft: 405,
+            popupWidth: 220,
+            viewportWidth: 590
+        })).toBe(362);
+
+        expect(clampInputPopupLeft({
+            containerLeft: -12,
+            popupWidth: 300,
+            viewportWidth: 390
+        })).toBe(8);
     });
 });
