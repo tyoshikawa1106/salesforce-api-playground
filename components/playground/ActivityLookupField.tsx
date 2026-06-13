@@ -50,12 +50,13 @@ export function QuickActionLookup({
     const defaultIdPrefix = objectLabel === "取引先" ? "task-related-account" : objectLabel === "取引先責任者" ? "task-name-contact" : "task-assigned-user";
     const listboxId = `${idPrefix ?? defaultIdPrefix}-listbox`;
     const inputId = `${listboxId}-input`;
+    const errorId = error ? `${inputId}-error` : undefined;
     const activeOptionId = filteredOptions[activeIndex] ? `${listboxId}-option-${filteredOptions[activeIndex].id}` : undefined;
     const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
 
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}</label>
+            <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="required" aria-hidden="true">* </abbr> : null}{label}</label>
             <div className="slds-form-element__control">
                 {value ? (
                     <div className="slds-combobox_container slds-has-selection">
@@ -65,7 +66,7 @@ export function QuickActionLookup({
                                     <StandardIcon className="slds-icon slds-icon_small" name={iconName} />
                                     <span className="slds-assistive-text">{objectLabel}</span>
                                 </span>
-                                <input className="slds-input slds-combobox__input slds-combobox__input-value" id={inputId} type="text" role="textbox" readOnly aria-invalid={Boolean(error)} value={value.label} />
+                                <input className="slds-input slds-combobox__input slds-combobox__input-value" id={inputId} type="text" role="textbox" readOnly aria-describedby={errorId} aria-invalid={Boolean(error)} value={value.label} />
                                 <button className="slds-button slds-button_icon slds-input__icon slds-input__icon_right" type="button" title={`${value.label} を削除`} onClick={clearValue}>
                                     <UtilityIcon className="slds-button__icon" name="close" />
                                     <span className="slds-assistive-text">{value.label} を削除</span>
@@ -100,6 +101,7 @@ export function QuickActionLookup({
                                     role="combobox"
                                     aria-activedescendant={open ? activeOptionId : undefined}
                                     aria-autocomplete="list"
+                                    aria-describedby={errorId}
                                     aria-controls={listboxId}
                                     aria-expanded={open}
                                     aria-haspopup="listbox"
@@ -120,8 +122,12 @@ export function QuickActionLookup({
                                         {loadingOptions ? (
                                             <li className="slds-listbox__item" role="presentation">
                                                 <div className="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option" aria-disabled="true" aria-selected="false">
-                                                    <span className="slds-media__body">
-                                                        <span className="slds-listbox__option-text">候補を読み込んでいます...</span>
+                                                    <span className="slds-media__body slds-text-align_center slds-is-relative slds-p-vertical_small">
+                                                        <span className="slds-spinner slds-spinner_small slds-spinner_brand" role="status">
+                                                            <span className="slds-assistive-text">候補を読み込んでいます...</span>
+                                                            <span className="slds-spinner__dot-a" />
+                                                            <span className="slds-spinner__dot-b" />
+                                                        </span>
                                                     </span>
                                                 </div>
                                             </li>
@@ -175,7 +181,7 @@ export function QuickActionLookup({
                     </div>
                 )}
             </div>
-            <FieldError message={error} />
+            <FieldError id={errorId} message={error} />
         </div>
     );
 }

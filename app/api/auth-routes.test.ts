@@ -7,7 +7,6 @@ import { exchangeCodeForToken, revokeSalesforceSession, salesforceErrorResponse 
 import { buildAuthorizationUrl } from "@/lib/salesforce/client-core";
 import { getSalesforceConfig } from "@/lib/salesforce/config";
 import { getConfiguredAppOrigin } from "@/lib/salesforce/urls";
-import { getCurrentUserName } from "@/services/salesforce/current-user";
 import {
     SESSION_COOKIE,
     STATE_COOKIE,
@@ -111,10 +110,6 @@ vi.mock("@/lib/salesforce/session", () => {
     };
 });
 
-vi.mock("@/services/salesforce/current-user", () => ({
-    getCurrentUserName: vi.fn()
-}));
-
 const cookiesMock = vi.mocked(cookies);
 const exchangeCodeForTokenMock = vi.mocked(exchangeCodeForToken);
 const revokeSalesforceSessionMock = vi.mocked(revokeSalesforceSession);
@@ -126,7 +121,6 @@ const clearSessionCookieMock = vi.mocked(clearSessionCookie);
 const clearStateCookieMock = vi.mocked(clearStateCookie);
 const createOauthStateMock = vi.mocked(createOauthState);
 const getSessionMock = vi.mocked(getSession);
-const getCurrentUserNameMock = vi.mocked(getCurrentUserName);
 const setSessionCookieMock = vi.mocked(setSessionCookie);
 const setStateCookieMock = vi.mocked(setStateCookie);
 
@@ -156,7 +150,6 @@ describe("Session API route", () => {
 
     it("returns connected session metadata without secrets", async () => {
         getSessionMock.mockResolvedValue(dummySalesforceSession);
-        getCurrentUserNameMock.mockResolvedValue({ data: "Admin User", session: dummySalesforceSession });
 
         const response = await sessionRoute.GET();
         const body = await response.json();
@@ -165,8 +158,7 @@ describe("Session API route", () => {
             connected: true,
             instanceUrl: dummySalesforceSession.instanceUrl,
             issuedAt: dummySalesforceSession.issuedAt,
-            userId: dummySalesforceSession.userId,
-            userName: "Admin User"
+            userId: dummySalesforceSession.userId
         });
         expect(JSON.stringify(body)).not.toContain(dummySalesforceSession.accessToken);
         expect(JSON.stringify(body)).not.toContain(dummySalesforceSession.refreshToken);

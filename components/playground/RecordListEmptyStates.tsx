@@ -18,7 +18,7 @@ export function RecordListEmptyStates({
     filteredEmptyMessage: string;
 }) {
     if (loading) {
-        return <EmptyState message={loadingMessage} />;
+        return <LoadingState message={loadingMessage} />;
     }
 
     if (!hasRecords) {
@@ -30,6 +30,18 @@ export function RecordListEmptyStates({
     }
 
     return null;
+}
+
+function LoadingState({ message }: { message: string }) {
+    return (
+        <div className="slds-text-align_center slds-is-relative playground-list-view__empty">
+            <div className="slds-spinner slds-spinner_small slds-spinner_brand" role="status">
+                <span className="slds-assistive-text">{message}</span>
+                <div className="slds-spinner__dot-a" />
+                <div className="slds-spinner__dot-b" />
+            </div>
+        </div>
+    );
 }
 
 function EmptyState({ message }: { message: string }) {

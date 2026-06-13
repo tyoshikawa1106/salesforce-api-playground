@@ -92,4 +92,21 @@ describe("record page smoke rendering", () => {
         expect(activityMarkup).not.toContain("新規ToDo");
         expect(activityMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
     });
+
+    it("disables record edit and delete actions while loading", () => {
+        const markup = renderToStaticMarkup(
+            createElement(AccountRecordPage, {
+                account,
+                contacts: [contact],
+                loading: true,
+                onDelete: noop,
+                onEdit: noop,
+                onOpenContact: noop,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("type=\"button\" disabled=\"\">編集</button>");
+        expect(markup).toContain("type=\"button\" disabled=\"\">削除</button>");
+    });
 });

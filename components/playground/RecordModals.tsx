@@ -26,6 +26,7 @@ import {
 } from "./Forms";
 import { Modal, ModalFooter } from "./Modal";
 import type { PicklistOption, PicklistOptionsByField } from "./picklist-options";
+import { getRequiredFieldMessage, accountTextFields, contactTextFields } from "./record-forms";
 import type { Account, DeleteState, ModalState, RestoreState } from "./types";
 
 type RecordModalsProps = {
@@ -109,6 +110,7 @@ export function RecordModals({
     const [activityComposerExpanded, setActivityComposerExpanded] = useState(false);
     const [activityComposerMinimized, setActivityComposerMinimized] = useState(false);
     const [showActivityValidation, setShowActivityValidation] = useState(false);
+    const [showRecordValidation, setShowRecordValidation] = useState(false);
     const {
         accountForm,
         accountOptions,
@@ -130,6 +132,12 @@ export function RecordModals({
     };
     const taskErrors = showActivityValidation ? validateTaskForm(taskForm, activityLookups.assigned?.label) : {};
     const eventErrors = showActivityValidation ? validateEventForm(eventForm, activityLookups.assigned?.label) : {};
+    const accountErrors = showRecordValidation && !accountForm.Name.trim()
+        ? { Name: getRequiredFieldMessage(accountTextFields, "Name") }
+        : {};
+    const contactErrors = showRecordValidation && !contactForm.LastName.trim()
+        ? { LastName: getRequiredFieldMessage(contactTextFields, "LastName") }
+        : {};
     const activityModalType = modal?.type === "activity"
         ? modal.mode === "create" ? modal.activityType : modal.record.type
         : null;
@@ -139,7 +147,18 @@ export function RecordModals({
         setActivityComposerExpanded(false);
         setActivityComposerMinimized(false);
         setShowActivityValidation(false);
+        setShowRecordValidation(false);
     }, [modal]);
+
+    function saveAccount(event: FormEvent<HTMLFormElement>) {
+        setShowRecordValidation(true);
+        actions.onSaveAccount(event);
+    }
+
+    function saveContact(event: FormEvent<HTMLFormElement>) {
+        setShowRecordValidation(true);
+        actions.onSaveContact(event);
+    }
 
     function saveActivity(event: FormEvent<HTMLFormElement>) {
         setShowActivityValidation(true);
@@ -150,9 +169,10 @@ export function RecordModals({
         <>
             {modal?.type === "account" ? (
                 <Modal title={modal.mode === "create" ? "新規取引先" : "取引先を編集"} onClose={actions.onCloseRecordModal}>
-                    <form onSubmit={actions.onSaveAccount} noValidate>
+                    <form onSubmit={saveAccount} noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
                             <AccountFormFields
+                                fieldErrors={accountErrors}
                                 loadingPicklists={picklists?.accountLoading}
                                 picklistError={picklists?.accountError}
                                 picklistOptions={picklists?.accountOptions}
@@ -167,9 +187,9 @@ export function RecordModals({
 
             {modal?.type === "contact" ? (
                 <Modal title={modal.mode === "create" ? "新規取引先責任者" : "取引先責任者を編集"} onClose={actions.onCloseRecordModal}>
-                    <form onSubmit={actions.onSaveContact} noValidate>
+                    <form onSubmit={saveContact} noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
-                            <ContactFormFields value={contactForm} accounts={accountOptions} onChange={onContactFormChange} />
+                            <ContactFormFields fieldErrors={contactErrors} value={contactForm} accounts={accountOptions} onChange={onContactFormChange} />
                         </div>
                         <ModalFooter saving={saving} onCancel={actions.onCloseRecordModal} />
                     </form>

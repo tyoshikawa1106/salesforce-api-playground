@@ -50,7 +50,15 @@ export function RecycleBinEmptyState({
     hasItems: boolean;
 }) {
     if (loading) {
-        return <div className="slds-text-align_center playground-list-view__empty">ごみ箱を読み込んでいます...</div>;
+        return (
+            <div className="slds-text-align_center slds-is-relative playground-list-view__empty">
+                <div className="slds-spinner slds-spinner_small slds-spinner_brand" role="status">
+                    <span className="slds-assistive-text">ごみ箱を読み込んでいます...</span>
+                    <div className="slds-spinner__dot-a" />
+                    <div className="slds-spinner__dot-b" />
+                </div>
+            </div>
+        );
     }
 
     if (!hasItems) {

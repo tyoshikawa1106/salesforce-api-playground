@@ -29,6 +29,7 @@ export function QuickActionDateTimePicker({
 }) {
     const dateValue = getDateTimeDateValue(value);
     const timeValue = getDateTimeTimeValue(value);
+    const errorId = error ? `${idPrefix}-error` : undefined;
 
     function changeDate(nextDate: string) {
         onChange(buildDateTimeInputValue(nextDate, timeValue));
@@ -40,9 +41,9 @@ export function QuickActionDateTimePicker({
     }
 
     return (
-        <fieldset className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`} aria-invalid={Boolean(error)}>
+        <fieldset className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`} aria-describedby={errorId} aria-invalid={Boolean(error)}>
             <legend className="slds-form-element__label">
-                {required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}
+                {required ? <abbr className="slds-required" title="required" aria-hidden="true">* </abbr> : null}{label}
             </legend>
             <div className="slds-form-element__control">
                 <div className="slds-grid slds-gutters_x-small">
@@ -65,7 +66,7 @@ export function QuickActionDateTimePicker({
                     </div>
                 </div>
             </div>
-            <FieldError message={error} />
+            <FieldError id={errorId} message={error} />
         </fieldset>
     );
 }

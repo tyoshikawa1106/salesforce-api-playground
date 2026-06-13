@@ -121,6 +121,49 @@ describe("record list smoke rendering", () => {
         expect(contactMarkup).not.toContain("ビュー: 自分の取引先責任者");
     });
 
+    it("renders account loading with only a small visible spinner", () => {
+        const markup = renderToStaticMarkup(
+            createElement(AccountPanel, {
+                accounts: [],
+                connected: true,
+                loading: true,
+                onDelete: noop,
+                onEdit: noop,
+                onOpen: noop,
+                onBulkDelete: noop,
+                onBulkDeleteEmpty: noop,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("slds-spinner_small");
+        expect(markup).toContain("slds-is-relative");
+        expect(markup).toContain("取引先を読み込んでいます...");
+        expect(markup).toContain("slds-assistive-text");
+        expect(markup).toContain("aria-label=\"更新\" disabled=\"\"");
+        expect(markup).toContain("aria-label=\"選択した取引先を削除\" disabled=\"\"");
+        expect(markup).not.toContain("<p>取引先を読み込んでいます...");
+        expect(markup).not.toContain("slds-icon-utility-info");
+    });
+
+    it("renders recycle bin loading with only a small visible spinner", () => {
+        const markup = renderToStaticMarkup(
+            createElement(RecycleBinPanel, {
+                items: [],
+                loading: true,
+                onRestore: noop,
+                onRestoreEmpty: noop,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("slds-spinner_small");
+        expect(markup).toContain("slds-is-relative");
+        expect(markup).toContain("ごみ箱を読み込んでいます...");
+        expect(markup).toContain("slds-assistive-text");
+        expect(markup).not.toContain(">ごみ箱を読み込んでいます...</div>");
+    });
+
     it("renders recycle bin list with mixed object restore controls", () => {
         const newerRecycleBinItem = {
             ...recycleBinItem,

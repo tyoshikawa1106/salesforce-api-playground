@@ -26,6 +26,7 @@ export function QuickActionSubjectCombobox({
     const [activeIndex, setActiveIndex] = useState(1);
     const comboboxRef = useRef<HTMLDivElement>(null);
     const inputId = `${idPrefix}-input`;
+    const errorId = error ? `${inputId}-error` : undefined;
     const listboxId = `${idPrefix}-listbox`;
     const activeOptionId = `${inputId}-${activeIndex}`;
     const shouldShowOptions = (nextValue: string) => nextValue === "" || taskSubjectOptions.includes(nextValue as (typeof taskSubjectOptions)[number]);
@@ -91,7 +92,7 @@ export function QuickActionSubjectCombobox({
 
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="必須">*</abbr> : null}{label}</label>
+            <label className="slds-form-element__label" htmlFor={inputId}>{required ? <abbr className="slds-required" title="required" aria-hidden="true">* </abbr> : null}{label}</label>
             <div className="slds-form-element__control">
                 <div className="slds-combobox_container">
                     <div
@@ -113,6 +114,7 @@ export function QuickActionSubjectCombobox({
                                 type="text"
                                 role="combobox"
                                 aria-autocomplete="list"
+                                aria-describedby={errorId}
                                 aria-controls={listboxId}
                                 aria-expanded={open}
                                 aria-haspopup="listbox"
@@ -172,7 +174,7 @@ export function QuickActionSubjectCombobox({
                     </div>
                 </div>
             </div>
-            <FieldError message={error} />
+            <FieldError id={errorId} message={error} />
         </div>
     );
 }

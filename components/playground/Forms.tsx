@@ -11,12 +11,14 @@ const accountSelectFields = new Set<string>(["Industry", "Type"]);
 
 export function AccountFormFields({
     loadingPicklists = false,
+    fieldErrors = {},
     picklistError = "",
     picklistOptions = {},
     value,
     onChange
 }: {
     loadingPicklists?: boolean;
+    fieldErrors?: Partial<Record<keyof AccountForm, string>>;
     picklistError?: string;
     picklistOptions?: PicklistOptionsByField<AccountSelectFieldName>;
     value: AccountForm;
@@ -43,6 +45,7 @@ export function AccountFormFields({
 
                 return (
                     <TextField
+                        error={fieldErrors[field.key]}
                         key={field.key}
                         id={field.id}
                         label={field.label}
@@ -60,10 +63,12 @@ export function AccountFormFields({
 export function ContactFormFields({
     value,
     accounts,
+    fieldErrors = {},
     onChange
 }: {
     value: ContactForm;
     accounts: Account[];
+    fieldErrors?: Partial<Record<keyof ContactForm, string>>;
     onChange: (value: ContactForm) => void;
 }) {
     const accountOptions = accounts.map(accountToLookupOption);
@@ -74,6 +79,7 @@ export function ContactFormFields({
         <div className="slds-grid slds-wrap slds-gutters">
             {contactTextFields.map((field) => (
                 <TextField
+                    error={fieldErrors[field.key]}
                     key={field.key}
                     id={field.id}
                     label={field.label}
@@ -119,6 +125,7 @@ function buildCurrentAccountLookup(accountId: string): ActivityLookupOption | un
 }
 
 function TextField({
+    error,
     id,
     label,
     value,
@@ -126,6 +133,7 @@ function TextField({
     type = "text",
     required = false
 }: {
+    error?: string;
     id: string;
     label: string;
     value: string;
@@ -133,10 +141,12 @@ function TextField({
     type?: string;
     required?: boolean;
 }) {
+    const errorId = error ? `${id}-error` : undefined;
+
     return (
-        <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
+        <div className={`slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element ${error ? "slds-has-error" : ""}`}>
             <label className="slds-form-element__label" htmlFor={id}>
-                {required ? <abbr className="slds-required" title="必須">*</abbr> : null}
+                {required ? <abbr className="slds-required" title="required" aria-hidden="true">* </abbr> : null}
                 {label}
             </label>
             <div className="slds-form-element__control">
@@ -144,10 +154,13 @@ function TextField({
                     id={id}
                     className="slds-input"
                     type={type}
+                    aria-describedby={errorId}
+                    aria-invalid={Boolean(error)}
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                 />
             </div>
+            {error ? <div className="slds-form-element__help" id={errorId}>{error}</div> : null}
         </div>
     );
 }
@@ -173,7 +186,7 @@ function SelectField({
         <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
             <QuickActionSelect
                 disabled={disabled}
-                emptyLabel="読み込み中..."
+                emptyLabel=""
                 error={helpText}
                 idPrefix={id}
                 label={label}

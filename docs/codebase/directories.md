@@ -24,6 +24,7 @@
 | `app/api/auth/logout` | Salesforce session 終了用 Route Handler を置く。 |
 | `app/api/contacts` | Contact API の Route Handler を置く。 |
 | `app/api/contacts/[id]` | Contact 単体操作の Route Handler を置く。 |
+| `app/api/current-user` | 接続中の Salesforce ユーザー名取得 API を置く。 |
 | `app/api/integration` | Client Credentials Flow 前提の外部連携 API を置く。 |
 | `app/api/integration/accounts` | 外部連携用 Account API の Route Handler を置く。 |
 | `app/api/integration/accounts/[id]` | 外部連携用 Account 単体操作の Route Handler を置く。 |

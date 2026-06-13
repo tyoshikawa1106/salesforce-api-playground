@@ -54,11 +54,12 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("slds-p-around_none");
     });
 
-    it("renders session loading without the login action", () => {
+    it("renders session loading without visible content", () => {
         const markup = renderToStaticMarkup(createElement(SessionLoadingPage));
 
-        expect(markup).toContain("接続状態を確認しています...");
         expect(markup).toContain("aria-busy=\"true\"");
+        expect(markup).not.toContain("接続状態を確認しています...");
+        expect(markup).not.toContain("slds-spinner");
         expect(markup).not.toContain("/api/auth/login");
         expect(markup).not.toContain("Salesforce に接続");
     });
@@ -115,6 +116,22 @@ describe("playground shell smoke rendering", () => {
         expect(markup).not.toContain("slds-theme_default slds-p-vertical_medium");
     });
 
+    it("disables the Integration account create action while loading", () => {
+        const markup = renderToStaticMarkup(
+            createElement(IntegrationPanel, {
+                accountForm: blankAccount,
+                loading: true,
+                saving: false,
+                onAccountFormChange: noop,
+                onCreateAccount: noop,
+                onRefresh: noop
+            })
+        );
+
+        expect(markup).toContain("type=\"submit\" disabled=\"\"");
+        expect(markup).toContain("取引先を作成");
+    });
+
     it("renders list view page header with the standard list view title", () => {
         const markup = renderToStaticMarkup(
             createElement(ObjectHomeHeader, {
@@ -132,6 +149,18 @@ describe("playground shell smoke rendering", () => {
         expect(markup).not.toContain("たった今更新");
         expect(markup).not.toContain("slds-page-header__meta-text");
         expect(markup).not.toContain("slds-page-header__name-meta");
+    });
+
+    it("disables the list view create action while loading", () => {
+        const markup = renderToStaticMarkup(
+            createElement(ObjectHomeHeader, {
+                activeTab: "accounts",
+                loading: true,
+                onCreate: noop
+            })
+        );
+
+        expect(markup).toContain("type=\"button\" disabled=\"\">新規</button>");
     });
 
     it("removes the outer content padding for record list views", () => {
@@ -213,6 +242,13 @@ describe("playground shell smoke rendering", () => {
         expect(markup).not.toContain("slds-text-title_caps\">App");
     });
 
+    it("keeps the Home login label visible before the user name loads", () => {
+        const markup = renderToStaticMarkup(createElement(HomePanel));
+
+        expect(markup).toContain("slds-page-header__name-meta\">Login:");
+        expect(markup).not.toContain("Login: Salesforce ユーザー");
+    });
+
     it("renders Home count summaries as content below the header card", () => {
         const markup = renderToStaticMarkup(createElement(HomeCounts, {
             accountCount: 12,
@@ -244,6 +280,32 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("ケース");
         expect(markup).toContain("メールメッセージ");
         expect(markup).not.toContain("slds-page-header");
+        expect(markup).not.toContain("slds-spinner_small");
+    });
+
+    it("renders Home count summaries as loading spinners while data is loading", () => {
+        const markup = renderToStaticMarkup(createElement(HomeCounts, {
+            accountCount: 0,
+            campaignCount: 0,
+            caseCount: 0,
+            contactCount: 0,
+            emailMessageCount: 0,
+            eventCount: 0,
+            leadCount: 0,
+            opportunityCount: 0,
+            productCount: 0,
+            recycleBinCount: 0,
+            taskCount: 0,
+            userCount: 0,
+            loading: true
+        }));
+
+        expect(markup).toContain("playground-home-count-summary");
+        expect(markup).toContain("slds-spinner_small");
+        expect(markup).toContain("slds-is-relative");
+        expect(markup).toContain("取引先の件数を読み込んでいます...");
+        expect(markup).not.toContain("title=\"0 件\"");
+        expect(markup).not.toContain(">0</p>");
     });
 
     it("renders GlobalHeader menus with explicit popup and menu relationships", () => {

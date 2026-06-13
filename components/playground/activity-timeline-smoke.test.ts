@@ -78,6 +78,19 @@ describe("activity timeline smoke rendering", () => {
         expect(markup).toContain("表示できる活動はまだありません。");
     });
 
+    it("renders activity loading with only a small visible spinner", () => {
+        const markup = renderActivityPanel({ loading: true });
+
+        expect(markup).toContain("slds-spinner_small");
+        expect(markup).toContain("slds-is-relative");
+        expect(markup).toContain("活動を読み込んでいます...");
+        expect(markup).toContain("slds-assistive-text");
+        expect(markup).toContain("aria-label=\"新規ToDo\" title=\"新規ToDo\" value=\"NewTask\" disabled=\"\"");
+        expect(markup).toContain("aria-label=\"新規行動\" title=\"新規行動\" value=\"NewEvent\" disabled=\"\"");
+        expect(markup).toContain("aria-label=\"電話を記録\" title=\"電話を記録\" value=\"LogCall\" disabled=\"\"");
+        expect(markup).not.toContain("<p class=\"slds-text-color_weak slds-p-around_medium\">活動を読み込んでいます...");
+    });
+
     it("renders the selected docked composer variant", () => {
         const taskMarkup = renderActivityPanel({ activeComposer: "task" });
         const callMarkup = renderActivityPanel({ activeComposer: "call" });

@@ -127,6 +127,37 @@ describe("record form builders", () => {
         expect(markup).not.toContain("slds-select");
     });
 
+    it("renders account required field errors with SLDS error markup", () => {
+        const markup = renderToStaticMarkup(
+            createElement(AccountFormFields, {
+                fieldErrors: {
+                    Name: "取引先名は必須です。"
+                },
+                value: blankAccount,
+                onChange: noop
+            })
+        );
+
+        expect(markup).toContain("slds-form-element slds-has-error");
+        expect(markup).toContain("aria-describedby=\"account-name-error\"");
+        expect(markup).toContain("aria-invalid=\"true\"");
+        expect(markup).toContain("id=\"account-name-error\"");
+        expect(markup).toContain("取引先名は必須です。");
+    });
+
+    it("renders loading account picklists without visible loading text", () => {
+        const markup = renderToStaticMarkup(
+            createElement(AccountFormFields, {
+                loadingPicklists: true,
+                value: blankAccount,
+                onChange: noop
+            })
+        );
+
+        expect(markup).toContain("aria-disabled=\"true\"");
+        expect(markup).not.toContain("読み込み中...");
+    });
+
     it("renders required indicators without native required validation", () => {
         const markup = renderToStaticMarkup(
             createElement(AccountFormFields, {
@@ -135,7 +166,7 @@ describe("record form builders", () => {
             })
         );
 
-        expect(markup).toContain("<abbr class=\"slds-required\" title=\"必須\">*</abbr>");
+        expect(markup).toContain("<abbr class=\"slds-required\" title=\"required\" aria-hidden=\"true\">* </abbr>");
         expect(markup).not.toContain("required=\"\"");
         expect(markup).not.toContain("required=\"required\"");
     });

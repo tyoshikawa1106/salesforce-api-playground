@@ -68,6 +68,8 @@
 | `app/api/auth/logout/route.ts` | Salesforce session Cookie を破棄する。 |
 | `app/api/contacts/[id]/route.ts` | Contact 単体の取得、更新、削除 API を定義する。 |
 | `app/api/contacts/route.ts` | Contact 一覧取得、作成 API を定義する。 |
+| `app/api/current-user-routes.test.ts` | 現在ユーザー API Route の挙動を確認する。 |
+| `app/api/current-user/route.ts` | 接続中の Salesforce ユーザー名取得 API を定義する。 |
 | `app/api/integration-routes.test.ts` | 外部連携 API Route の挙動を確認する。 |
 | `app/api/integration/accounts/[id]/route.ts` | 外部連携用 Account 単体更新 API を定義する。 |
 | `app/api/integration/accounts/route.ts` | 外部連携用 Account 作成 API を定義する。 |

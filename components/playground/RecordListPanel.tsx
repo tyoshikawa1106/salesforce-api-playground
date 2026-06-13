@@ -61,6 +61,7 @@ export function RecordListPanel<Record extends { Id: string }>({
         <section className="slds-card slds-card_boundary playground-list-view">
             <ListViewToolbar
                 count={listState.filteredRecords.length}
+                loading={loading}
                 bulkDeleteLabel={bulkDeleteLabel}
                 searchId={searchId}
                 searchValue={listState.searchTerm}
@@ -99,6 +100,7 @@ export function RecordListPanel<Record extends { Id: string }>({
 
 function ListViewToolbar({
     count,
+    loading,
     bulkDeleteLabel,
     searchId,
     searchValue,
@@ -107,6 +109,7 @@ function ListViewToolbar({
     onSearchChange
 }: {
     count: number;
+    loading: boolean;
     bulkDeleteLabel: string;
     searchId: string;
     searchValue: string;
@@ -168,6 +171,7 @@ function ListViewToolbar({
                     title="更新"
                     aria-label="更新"
                     onClick={onRefresh}
+                    disabled={loading}
                 >
                     <UtilityIcon className="slds-button__icon" name="refresh" />
                 </button>
@@ -177,6 +181,7 @@ function ListViewToolbar({
                     title={bulkDeleteLabel}
                     aria-label={bulkDeleteLabel}
                     onClick={onBulkDelete}
+                    disabled={loading}
                 >
                     <UtilityIcon className="slds-button__icon" name="delete" />
                 </button>
