@@ -22,6 +22,16 @@ const objectMutationMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("./client", () => ({
+    createdSalesforceResult: vi.fn((result: { id?: string; success?: boolean }) => {
+        if (!result.success || !result.id) {
+            throw new Error("Salesforce API request failed.");
+        }
+
+        return {
+            id: result.id,
+            success: true
+        };
+    }),
     withStandardObjectConnection: vi.fn()
 }));
 
@@ -60,34 +70,55 @@ const session: SalesforceSession = {
     userId: "005xx0000012345"
 };
 
-function mockCreatedTaskLookup(record = {
+function mockActivityCreateConnection({
+    id,
+    objectName,
+    record
+}: {
+    id: string;
+    objectName: "Task" | "Event";
+    record: Record<string, unknown>;
+}) {
+    const create = vi.fn().mockResolvedValueOnce({ id, success: true });
+    const query = vi.fn().mockResolvedValueOnce({ records: [record] });
+    const sobject = vi.fn((name: string) => {
+        if (name !== objectName) {
+            throw new Error(`Unexpected sObject: ${name}`);
+        }
+
+        return { create };
+    });
+    const connection = { query, sobject };
+    withStandardObjectConnectionMock.mockImplementationOnce(async (operation) => ({
+        data: await operation(connection as never, session),
+        session
+    }));
+
+    return { create, query, sobject };
+}
+
+function mockTaskCreateConnection(record = {
     Id: "00Txx0000012345",
     Subject: "Call",
     ActivityDate: "2026-06-08"
 }) {
-    const query = vi.fn().mockResolvedValueOnce({ records: [record] });
-    const connection = { query };
-    withStandardObjectConnectionMock.mockImplementationOnce(async (operation) => ({
-        data: await operation(connection as never, session),
-        session
-    }));
-
-    return query;
+    return mockActivityCreateConnection({
+        id: "00Txx0000012345",
+        objectName: "Task",
+        record
+    });
 }
 
-function mockCreatedEventLookup(record = {
+function mockEventCreateConnection(record = {
     Id: "00Uxx0000012345",
     Subject: "Meeting",
     StartDateTime: "2026-06-08T10:00:00.000Z"
 }) {
-    const query = vi.fn().mockResolvedValueOnce({ records: [record] });
-    const connection = { query };
-    withStandardObjectConnectionMock.mockImplementationOnce(async (operation) => ({
-        data: await operation(connection as never, session),
-        session
-    }));
-
-    return query;
+    return mockActivityCreateConnection({
+        id: "00Uxx0000012345",
+        objectName: "Event",
+        record
+    });
 }
 
 afterEach(() => {
@@ -206,11 +237,7 @@ describe("Salesforce activity services", () => {
     });
 
     it("creates account tasks with WhatId", async () => {
-        createStandardObjectMock.mockResolvedValue({
-            data: { id: "00Txx0000012345", success: true },
-            session
-        });
-        const query = mockCreatedTaskLookup();
+        const { create, query } = mockTaskCreateConnection();
 
         await expect(createTaskActivity({
             parentType: "account",
@@ -229,7 +256,9 @@ describe("Salesforce activity services", () => {
             session
         });
 
-        expect(createStandardObjectMock).toHaveBeenCalledWith("Task", {
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(expect.anything(), "Task", "createable");
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(expect.anything(), "Task", "queryable");
+        expect(create).toHaveBeenCalledWith({
             Subject: "Call",
             Status: "Not Started",
             WhatId: "001xx000003DGbY"
@@ -238,11 +267,7 @@ describe("Salesforce activity services", () => {
     });
 
     it("creates contact tasks with selected task lookups", async () => {
-        createStandardObjectMock.mockResolvedValue({
-            data: { id: "00Txx0000012345", success: true },
-            session
-        });
-        mockCreatedTaskLookup();
+        const { create } = mockTaskCreateConnection();
 
         await createTaskActivity({
             parentType: "contact",
@@ -254,7 +279,7 @@ describe("Salesforce activity services", () => {
             Status: "Not Started"
         });
 
-        expect(createStandardObjectMock).toHaveBeenCalledWith("Task", {
+        expect(create).toHaveBeenCalledWith({
             Subject: "Call",
             ActivityDate: "2026-06-08",
             OwnerId: "005xx0000012345",
@@ -262,6 +287,31 @@ describe("Salesforce activity services", () => {
             WhoId: "003xx000004TmiQ",
             WhatId: "001xx000003DGbY"
         });
+    });
+
+    it("checks task query permission before creating a task that must be reloaded", async () => {
+        const create = vi.fn();
+        const connection = {
+            query: vi.fn(),
+            sobject: vi.fn(() => ({ create }))
+        };
+        assertObjectPermissionMock
+            .mockResolvedValueOnce({} as never)
+            .mockRejectedValueOnce(new Error("Task の参照権限がありません。"));
+        withStandardObjectConnectionMock.mockImplementationOnce(async (operation) => ({
+            data: await operation(connection as never, session),
+            session
+        }));
+
+        await expect(createTaskActivity({
+            Subject: "Call",
+            Status: "Not Started"
+        })).rejects.toThrow("Task の参照権限がありません。");
+
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "Task", "createable");
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "Task", "queryable");
+        expect(create).not.toHaveBeenCalled();
+        expect(connection.query).not.toHaveBeenCalled();
     });
 
     it("updates task status", async () => {
@@ -324,11 +374,7 @@ describe("Salesforce activity services", () => {
     });
 
     it("creates contact events with WhoId", async () => {
-        createStandardObjectMock.mockResolvedValue({
-            data: { id: "00Uxx0000012345", success: true },
-            session
-        });
-        mockCreatedEventLookup();
+        const { create } = mockEventCreateConnection();
 
         await createEventActivity({
             parentType: "contact",
@@ -341,7 +387,9 @@ describe("Salesforce activity services", () => {
             Location: "Online"
         });
 
-        expect(createStandardObjectMock).toHaveBeenCalledWith("Event", {
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(expect.anything(), "Event", "createable");
+        expect(assertObjectPermissionMock).toHaveBeenCalledWith(expect.anything(), "Event", "queryable");
+        expect(create).toHaveBeenCalledWith({
             Subject: "Meeting",
             StartDateTime: "2026-06-08T10:00:00.000Z",
             EndDateTime: "2026-06-08T11:00:00.000Z",

@@ -149,10 +149,10 @@ Next.js の画面、API Route、設定を変更した時は、影響範囲に応
 
 | 変更内容 | 主な確認 |
 | --- | --- |
-| ページや API Route の軽微な変更 | `npm run lint`, `npm run typecheck` |
+| ページや API Route の軽微な変更 | `npm run typecheck`, 必要に応じて `npm run lint` |
 | API Route の挙動変更 | 関連する test、必要に応じて `npm run test:coverage` |
 | Next.js 設定や build に影響する変更 | `npm run build` |
-| UI / CSS も含む変更 | `npm run slds:lint`, `npm run lint`, `npm run typecheck` |
+| UI / CSS も含む変更 | `npm run typecheck`, 必要に応じて `npm run slds:lint` / `npm run lint` |
 
 Next.js の変更は、型検査だけでは build 時の問題を拾い切れない場合がある。設定、routing、server/client 境界に触る場合は `npm run build` の重要度が上がる。
 

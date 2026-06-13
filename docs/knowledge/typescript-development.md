@@ -176,12 +176,12 @@ TypeScript の変更では、まず型検査を確認する。
 npm run typecheck
 ```
 
-React コンポーネント、API Route、Salesforce 型、共通 helper を変更した場合は、影響範囲に応じて `npm run lint` や関連テストも実行する。
+React コンポーネント、API Route、Salesforce 型、共通 helper を変更した場合は、影響範囲に応じて関連テストや `npm run lint` も実行する。
 
 | 変更内容 | 主な確認 |
 | --- | --- |
 | 型定義だけの変更 | `npm run typecheck` |
-| React props / hooks の変更 | `npm run lint`, `npm run typecheck` |
+| React props / hooks の変更 | `npm run typecheck`, 必要に応じて `npm run lint` |
 | API request / response 型の変更 | `npm run typecheck`, 関連テスト |
 | 入力検証や Salesforce record 型の変更 | `npm run typecheck`, `npm run test:coverage` |
 

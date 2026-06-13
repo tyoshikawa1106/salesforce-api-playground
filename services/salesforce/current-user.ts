@@ -1,4 +1,5 @@
 import { withStandardObjectConnection } from "./client";
+import { assertObjectPermission } from "./object-permissions";
 
 type UserRecord = {
     Id: string;
@@ -15,6 +16,7 @@ export async function getCurrentUserName() {
             return undefined;
         }
 
+        await assertObjectPermission(connection, "User", "queryable");
         const response = await connection.query<UserRecord>(
             `SELECT Id, Name FROM User WHERE Id = '${session.userId}' LIMIT 1`
         );
