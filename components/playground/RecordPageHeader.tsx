@@ -74,10 +74,10 @@ export function RecordPageHeader({
                         </div>
                         <div className="slds-page-header__control">
                             <div className="slds-button-group" role="group" aria-label={`${objectLabel}レコードのアクション`}>
-                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch" type="button" onClick={onEdit}>
+                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch" type="button" onClick={onEdit} disabled={loading}>
                                     編集
                                 </button>
-                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch" type="button" onClick={onDelete}>
+                                <button className="slds-button slds-button_neutral slds-max-small-button_stretch" type="button" onClick={onDelete} disabled={loading}>
                                     削除
                                 </button>
                             </div>

@@ -30,6 +30,7 @@ type ConnectedPlaygroundData = {
     userCounts: {
         active: number;
     };
+    userName?: string;
 };
 
 async function loadSession() {
@@ -39,7 +40,7 @@ async function loadSession() {
 }
 
 async function loadConnectedPlaygroundData(): Promise<ConnectedPlaygroundData> {
-    const [accountResult, activityCountResult, contactResult, recordCountResult, recycleBinResult, userCountResult] = await Promise.all([
+    const [accountResult, activityCountResult, contactResult, currentUserResult, recordCountResult, recycleBinResult, userCountResult] = await Promise.all([
         apiRequest<{ accounts: Account[] }>(
             buildPlaygroundApiRequest(playgroundApiPaths.accounts)
         ),
@@ -49,6 +50,9 @@ async function loadConnectedPlaygroundData(): Promise<ConnectedPlaygroundData> {
         apiRequest<{ contacts: Contact[] }>(
             buildPlaygroundApiRequest(playgroundApiPaths.contacts)
         ),
+        apiRequest<{ userName?: string }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.currentUser)
+        ).catch(() => ({ userName: undefined })),
         apiRequest<{ recordCounts: ConnectedPlaygroundData["recordCounts"] }>(
             buildPlaygroundApiRequest(playgroundApiPaths.recordCounts)
         ),
@@ -66,7 +70,8 @@ async function loadConnectedPlaygroundData(): Promise<ConnectedPlaygroundData> {
         contacts: contactResult.contacts,
         recordCounts: recordCountResult.recordCounts,
         recycleBinItems: recycleBinResult.items,
-        userCounts: userCountResult.userCounts
+        userCounts: userCountResult.userCounts,
+        userName: currentUserResult.userName
     };
 }
 
@@ -128,6 +133,9 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         setRecordCounts(data.recordCounts);
         setRecycleBinItems(data.recycleBinItems);
         setUserCounts(data.userCounts);
+        setSession((currentSession) => currentSession?.connected
+            ? { ...currentSession, userName: data.userName }
+            : currentSession);
         keepSelectionForData(data.accounts, data.contacts);
     }, [keepSelectionForData]);
 

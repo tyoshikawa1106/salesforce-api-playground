@@ -15,6 +15,7 @@ type HomeCountsProps = {
     recycleBinCount: number;
     taskCount: number;
     userCount: number;
+    loading?: boolean;
 };
 
 type RecordCountSummary = {
@@ -29,7 +30,7 @@ export function HomePanel({ userName }: { userName?: string }) {
         <PageHeader
             tab="home"
             title="Salesforce API Playground"
-            metaText={userName ? `Login: ${userName}` : undefined}
+            metaText={userName ? `Login: ${userName}` : "Login:"}
         />
     );
 }
@@ -46,7 +47,8 @@ export function HomeCounts({
     productCount,
     recycleBinCount,
     taskCount,
-    userCount
+    userCount,
+    loading = false
 }: HomeCountsProps) {
     const summaries: RecordCountSummary[] = [
         { count: accountCount, iconClassName: "slds-icon-standard-account", iconName: "account", label: "取引先" },
@@ -66,13 +68,13 @@ export function HomeCounts({
     return (
         <section className="slds-m-top_small playground-home-count-summary">
             <div className="slds-grid slds-wrap slds-gutters playground-home-counts">
-                {summaries.map((summary) => <RecordCountCard key={summary.label} summary={summary} />)}
+                {summaries.map((summary) => <RecordCountCard key={summary.label} loading={loading} summary={summary} />)}
             </div>
         </section>
     );
 }
 
-function RecordCountCard({ summary }: { summary: RecordCountSummary }) {
+function RecordCountCard({ loading, summary }: { loading: boolean; summary: RecordCountSummary }) {
     const { count, iconClassName, iconName, label } = summary;
 
     return (
@@ -91,12 +93,22 @@ function RecordCountCard({ summary }: { summary: RecordCountSummary }) {
                     </span>
                 </h2>
                 <div className="slds-tile__detail playground-home-count-card__content">
-                    <p className="slds-text-heading_medium slds-text-align_center" title={`${count} 件`}>
-                        <AnimatedCount value={count} />
+                    <p className="slds-text-heading_medium slds-text-align_center slds-is-relative" title={loading ? undefined : `${count} 件`}>
+                        {loading ? <CountLoadingSpinner label={label} /> : <AnimatedCount value={count} />}
                     </p>
                 </div>
             </article>
         </div>
+    );
+}
+
+function CountLoadingSpinner({ label }: { label: string }) {
+    return (
+        <span className="slds-spinner slds-spinner_small slds-spinner_brand" role="status">
+            <span className="slds-assistive-text">{label}の件数を読み込んでいます...</span>
+            <span className="slds-spinner__dot-a" />
+            <span className="slds-spinner__dot-b" />
+        </span>
     );
 }
 

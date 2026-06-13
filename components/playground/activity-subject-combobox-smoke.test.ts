@@ -36,6 +36,8 @@ describe("activity subject combobox smoke rendering", () => {
         const controlEnd = markup.indexOf("</div><div class=\"slds-form-element__help\"");
 
         expect(markup).toContain("slds-form-element slds-size_1-of-1 slds-has-error");
+        expect(markup).toContain("aria-describedby=\"activity-text-件名-error\"");
+        expect(markup).toContain("id=\"activity-text-件名-error\"");
         expect(controlEnd).toBeGreaterThanOrEqual(0);
         expect(markup).toContain("件名は必須です。");
     });
@@ -53,9 +55,10 @@ describe("activity subject combobox smoke rendering", () => {
         );
         const legendStart = markup.indexOf("<legend class=\"slds-form-element__label\"");
         const controlStart = markup.indexOf("<div class=\"slds-form-element__control\">");
-        const helpStart = markup.indexOf("<div class=\"slds-form-element__help\">");
+        const helpStart = markup.indexOf("<div class=\"slds-form-element__help\" id=\"event-start-error\">");
 
         expect(markup).toContain("<fieldset class=\"slds-form-element slds-size_1-of-1 slds-has-error\"");
+        expect(markup).toContain("aria-describedby=\"event-start-error\"");
         expect(legendStart).toBeGreaterThanOrEqual(0);
         expect(controlStart).toBeGreaterThan(legendStart);
         expect(helpStart).toBeGreaterThan(controlStart);

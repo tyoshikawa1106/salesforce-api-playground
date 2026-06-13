@@ -13,10 +13,12 @@ type ActivityComposerAction = {
 };
 
 export function ActivityComposerBar({
+    disabled = false,
     onOpenCall,
     onOpenEvent,
     onOpenTask
 }: {
+    disabled?: boolean;
     onOpenCall: () => void;
     onOpenEvent: () => void;
     onOpenTask: () => void;
@@ -38,7 +40,7 @@ export function ActivityComposerBar({
             {actions.map((action) => (
                 <li className="slds-button-group-item" key={action.value}>
                     <div className="slds-button-group fix_button-group-flexbox" role="group" aria-label={action.label} part="button-group">
-                        <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label={action.label} title={action.label} value={action.value} onClick={action.onClick}>
+                        <button className="slds-button slds-button_neutral playground-activity-composer-action" type="button" aria-label={action.label} title={action.label} value={action.value} onClick={action.onClick} disabled={disabled}>
                             <span className={`${action.iconClassName} slds-icon_container playground-activity-composer-action__icon`} title={action.label} style={action.iconStyle}>
                                 <StandardIcon className="slds-icon slds-icon_small" name={action.iconName} />
                                 <span className="slds-assistive-text">{action.label}</span>

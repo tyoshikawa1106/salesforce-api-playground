@@ -16,16 +16,19 @@ import type { Account, ActiveTab, Activity, Contact, DeleteState } from "./types
 function RecordListWorkspaceFrame({
     activeTab,
     children,
+    loading,
     onCreate,
 }: {
     activeTab: Extract<ActiveTab, "accounts" | "contacts">;
     children: ReactNode;
+    loading: boolean;
     onCreate: () => void;
 }) {
     return (
         <>
             <ObjectHomeHeader
                 activeTab={activeTab}
+                loading={loading}
                 onCreate={onCreate}
             />
             {children}
@@ -57,6 +60,7 @@ export function AccountListWorkspace({
     return (
         <RecordListWorkspaceFrame
             activeTab="accounts"
+            loading={loading}
             onCreate={onCreate}
         >
             <AccountPanel
@@ -146,6 +150,7 @@ export function ContactListWorkspace({
     return (
         <RecordListWorkspaceFrame
             activeTab="contacts"
+            loading={loading}
             onCreate={onCreate}
         >
             <ContactPanel

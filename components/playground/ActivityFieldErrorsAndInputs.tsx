@@ -79,6 +79,7 @@ export function QuickActionTextInput({
     value: string;
 }) {
     const inputId = `activity-text-${label}`;
+    const errorId = error ? `${inputId}-error` : undefined;
 
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
@@ -91,13 +92,14 @@ export function QuickActionTextInput({
                     className="slds-input"
                     id={inputId}
                     type="text"
+                    aria-describedby={errorId}
                     aria-invalid={Boolean(error)}
                     maxLength={255}
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                 />
             </div>
-            <FieldError message={error} />
+            <FieldError id={errorId} message={error} />
         </div>
     );
 }
@@ -158,6 +160,7 @@ export function QuickActionSelect({
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(selectedIndex);
     const inputId = idPrefix ?? `activity-picklist-${label}`;
+    const errorId = error ? `${inputId}-error` : undefined;
     const listboxId = `${inputId}-listbox`;
     const activeOptionId = `${listboxId}-option-${activeIndex}`;
     const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
@@ -229,6 +232,7 @@ export function QuickActionSelect({
                                 type="button"
                                 role="combobox"
                                 aria-activedescendant={open ? activeOptionId : undefined}
+                                aria-describedby={errorId}
                                 aria-controls={listboxId}
                                 aria-disabled={disabled}
                                 aria-expanded={open}
@@ -273,15 +277,15 @@ export function QuickActionSelect({
                     </div>
                 </div>
             </div>
-            <FieldError message={error} />
+            <FieldError id={errorId} message={error} />
         </div>
     );
 }
 
-export function FieldError({ message }: { message?: string }) {
-    return message ? <div className="slds-form-element__help">{message}</div> : null;
+export function FieldError({ id, message }: { id?: string; message?: string }) {
+    return message ? <div className="slds-form-element__help" id={id}>{message}</div> : null;
 }
 
 function RequiredFieldMarker({ required }: { required: boolean }) {
-    return required ? <abbr className="slds-required" title="必須">*</abbr> : null;
+    return required ? <abbr className="slds-required" title="required" aria-hidden="true">* </abbr> : null;
 }

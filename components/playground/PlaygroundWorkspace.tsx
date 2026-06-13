@@ -221,6 +221,7 @@ export function PlaygroundWorkspace({
                     recycleBinCount={recycleBinActions.items.length}
                     taskCount={activityCounts.tasks}
                     userCount={userCounts.active}
+                    loading={loading}
                 />
             ) : null}
         </main>

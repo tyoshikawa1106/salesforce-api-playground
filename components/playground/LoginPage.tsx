@@ -1,17 +1,6 @@
 export function SessionLoadingPage() {
     return (
-        <main className="slds-template_default slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-p-around_large slds-theme_shade playground-login-page">
-            <section className="slds-text-align_center" aria-live="polite" aria-busy="true">
-                <div className="slds-spinner slds-spinner_medium slds-spinner_brand" role="status">
-                    <span className="slds-assistive-text">接続状態を確認しています...</span>
-                    <div className="slds-spinner__dot-a" />
-                    <div className="slds-spinner__dot-b" />
-                </div>
-                <p className="slds-text-body_regular slds-text-color_weak slds-m-top_x-large">
-                    接続状態を確認しています...
-                </p>
-            </section>
-        </main>
+        <main className="slds-template_default slds-theme_shade playground-login-page" aria-busy="true" />
     );
 }
 

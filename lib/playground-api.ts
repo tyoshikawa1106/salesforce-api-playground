@@ -63,6 +63,7 @@ export const playgroundApiPaths = {
         return `/api/activities/tasks/${encodeURIComponent(id)}`;
     },
     activityCounts: "/api/activity-counts",
+    currentUser: "/api/current-user",
     session: "/api/session",
     userCounts: "/api/user-counts",
     accounts: "/api/accounts",

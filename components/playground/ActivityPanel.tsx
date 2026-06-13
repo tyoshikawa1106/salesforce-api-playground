@@ -109,7 +109,7 @@ export function ActivityPanel({
 
     return (
         <div className="playground-activity-panel">
-            <ActivityComposerBar onOpenCall={onOpenCallComposer} onOpenEvent={onOpenEventComposer} onOpenTask={onOpenTaskComposer} />
+            <ActivityComposerBar disabled={loading} onOpenCall={onOpenCallComposer} onOpenEvent={onOpenEventComposer} onOpenTask={onOpenTaskComposer} />
             <ActivityTimelineToolbar
                 allSectionsExpanded={allTimelineExpanded}
                 loading={loading}
@@ -119,7 +119,13 @@ export function ActivityPanel({
             />
             {message ? <p className="slds-text-color_weak slds-m-bottom_x-small">{message}</p> : null}
             {loading ? (
-                <p className="slds-text-color_weak slds-p-around_medium">活動を読み込んでいます...</p>
+                <div className="slds-text-align_center slds-is-relative slds-p-around_medium">
+                    <div className="slds-spinner slds-spinner_small slds-spinner_brand" role="status">
+                        <span className="slds-assistive-text">活動を読み込んでいます...</span>
+                        <div className="slds-spinner__dot-a" />
+                        <div className="slds-spinner__dot-b" />
+                    </div>
+                </div>
             ) : (
                 <ActivityTimeline
                     context={context}
