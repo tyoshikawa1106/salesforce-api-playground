@@ -17,6 +17,7 @@
 | `eslint.config.mjs` | ESLint の設定を定義する。 |
 | `next-env.d.ts` | Next.js が生成、利用する TypeScript 型参照を置く。 |
 | `next.config.mjs` | Next.js の設定を定義する。 |
+| `next.config.test.mjs` | Next.js 設定の headers などを確認するテストを定義する。 |
 | `package-lock.json` | npm 依存関係の解決結果を固定する。 |
 | `package.json` | npm scripts、依存関係、Node.js / npm 条件を定義する。 |
 | `slds-linter.eslint.config.mjs` | SLDS Linter 用の ESLint 設定を定義する。 |
@@ -71,6 +72,7 @@
 | `app/api/integration/accounts/[id]/route.ts` | 外部連携用 Account 単体更新 API を定義する。 |
 | `app/api/integration/accounts/route.ts` | 外部連携用 Account 作成 API を定義する。 |
 | `app/api/integration/ui/accounts/route.ts` | UI から外部連携 Account API を試すための中継 API を定義する。 |
+| `app/api/picklist-values-routes.test.ts` | 選択リスト値 API Route の挙動を確認する。 |
 | `app/api/picklist-values/route.ts` | 画面入力で使う Salesforce 選択リスト値の取得 API を定義する。 |
 | `app/api/recycle-bin-routes.test.ts` | Recycle Bin API Route の挙動を確認する。 |
 | `app/api/recycle-bin/route.ts` | Recycle Bin 内レコード取得 API を定義する。 |
@@ -140,6 +142,7 @@
 | `components/playground/RecycleBinPanel.tsx` | Recycle Bin タブのパネルを表示する。 |
 | `components/playground/RecycleBinTable.tsx` | Recycle Bin 内レコードのテーブルを表示する。 |
 | `components/playground/SldsIcon.tsx` | SLDS icon を表示する共通コンポーネントを定義する。 |
+| `components/playground/activity-create-helpers.ts` | 活動作成時の composer 種別や状態更新 helper を定義する。 |
 | `components/playground/activity-date-utils.ts` | 活動の日付、時刻表示や変換 helper を定義する。 |
 | `components/playground/activity-form-defaults.ts` | 活動フォームの初期値を定義する。 |
 | `components/playground/activity-form-mappers.ts` | 活動フォーム state と API payload / 表示値の変換を定義する。 |
@@ -171,6 +174,8 @@
 | `components/playground/useGlobalHeaderMenus.ts` | グローバルヘッダー内メニューの状態を管理する hook を定義する。 |
 | `components/playground/useGlobalSearch.ts` | グローバル検索の入力、実行、結果反映を管理する hook を定義する。 |
 | `components/playground/useNotice.ts` | 通知 state と自動クローズを管理する hook を定義する。 |
+| `components/playground/usePicklistValues.ts` | 選択リスト値 API の取得状態を管理する hook を定義する。 |
+| `components/playground/usePlaygroundPicklists.ts` | Playground で使う選択リスト値の取得と fallback を管理する hook を定義する。 |
 | `components/playground/usePlaygroundData.ts` | session、Account、Contact、検索結果などの取得状態を管理する hook を定義する。 |
 | `components/playground/usePlaygroundSelection.ts` | 現在選択中のタブやレコードを管理する hook を定義する。 |
 | `components/playground/useQuickActionLookupState.ts` | クイックアクション lookup の入力、候補、選択状態を管理する hook を定義する。 |
@@ -199,6 +204,7 @@
 | `lib/salesforce/error-sanitizer.ts` | token / secret 系の値をログやエラー詳細からマスクする。 |
 | `lib/salesforce/integration-security.ts` | `x-integration-api-key` の検証を行う。 |
 | `lib/salesforce/json-payload.ts` | API request body の JSON 読み取り helper を定義する。 |
+| `lib/salesforce/picklist-values.ts` | 選択リスト値 API で使う型や共通定義を置く。 |
 | `lib/salesforce/query-limits.ts` | Salesforce query の取得件数上限を定義する。 |
 | `lib/salesforce/record-fields.ts` | Account / Contact で許可するフィールド定義を置く。 |
 | `lib/salesforce/records.ts` | Account / Contact / Search などの型定義を置く。 |
@@ -220,6 +226,7 @@
 | `services/salesforce/current-user.ts` | Salesforce の現在ユーザー情報を取得する。 |
 | `services/salesforce/object-mutations.ts` | Salesforce オブジェクトの作成、更新、削除処理を共通化する。 |
 | `services/salesforce/object-permissions.ts` | CRUD 実行前の Salesforce オブジェクト権限確認を行う。 |
+| `services/salesforce/picklist-values.ts` | Salesforce describe から画面入力用の選択リスト値を取得する。 |
 | `services/salesforce/record-queries.ts` | Account / Contact の SOQL query 組み立てを定義する。 |
 | `services/salesforce/records.ts` | Account / Contact の SOQL、create、update、delete、検索を行う。 |
 | `services/salesforce/recycle-bin-helpers.ts` | Recycle Bin レコードの整形や復元 helper を定義する。 |
@@ -235,5 +242,8 @@
 | `docs/codebase/files.md` | 主要ファイル一覧を示す。 |
 | `docs/codebase/placement.md` | 新しい実装やドキュメントの配置判断を示す。 |
 | `docs/api/index.md` | API docs の入口を定義する。 |
+| `docs/api/picklist-values.md` | 選択リスト値 API の仕様を示す。 |
+| `docs/deployment/index.md` | deployment docs の入口を定義する。 |
 | `docs/setup/index.md` | 開発・運用 docs の入口を定義する。 |
 | `docs/setup/salesforce-integration-client-credentials.md` | Client Credentials Flow 用の Integration ユーザー設定を示す。 |
+| `docs/ui/index.md` | 画面 docs の入口を定義する。 |
