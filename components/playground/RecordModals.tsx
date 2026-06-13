@@ -8,13 +8,13 @@ import {
     QuickActionFormGroup,
     QuickActionFormRow,
     QuickActionLongTextInput,
-    QuickActionLookup,
     QuickActionSelect,
     QuickActionSubjectCombobox,
     QuickActionTextInput,
     TaskFormErrorSummary
 } from "./ActivityQuickActionFields";
 import {
+    ActivityLookupRow,
     EventDockedComposer,
     TaskDockedComposer,
     type ActivityLookupOptions
@@ -79,38 +79,9 @@ function ActivityEditLookupRows({
 }) {
     return (
         <>
-            <QuickActionFormRow>
-                <QuickActionLookup
-                    label="名前"
-                    objectLabel="取引先責任者"
-                    options={activityLookupOptions.name}
-                    placeholder="取引先責任者を検索..."
-                    value={activityLookups.name}
-                    onChange={(name) => onActivityLookupsChange({ ...activityLookups, name })}
-                />
-            </QuickActionFormRow>
-            <QuickActionFormRow>
-                <QuickActionLookup
-                    label="関連先"
-                    objectLabel="取引先"
-                    options={activityLookupOptions.related}
-                    placeholder="取引先を検索..."
-                    value={activityLookups.related}
-                    onChange={(related) => onActivityLookupsChange({ ...activityLookups, related })}
-                />
-            </QuickActionFormRow>
-            <QuickActionFormRow>
-                <QuickActionLookup
-                    error={assignedError}
-                    label="割り当て先"
-                    objectLabel="ユーザー"
-                    options={activityLookupOptions.assigned}
-                    placeholder="ユーザーを検索..."
-                    required
-                    value={activityLookups.assigned}
-                    onChange={(assigned) => onActivityLookupsChange({ ...activityLookups, assigned })}
-                />
-            </QuickActionFormRow>
+            <ActivityLookupRow field="name" lookupOptions={activityLookupOptions} lookups={activityLookups} onLookupChange={onActivityLookupsChange} />
+            <ActivityLookupRow field="related" lookupOptions={activityLookupOptions} lookups={activityLookups} onLookupChange={onActivityLookupsChange} />
+            <ActivityLookupRow error={assignedError} field="assigned" lookupOptions={activityLookupOptions} lookups={activityLookups} required onLookupChange={onActivityLookupsChange} />
         </>
     );
 }

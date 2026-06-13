@@ -56,7 +56,7 @@ const lookupFieldLabels: Record<ActivityLookupKey, {
     }
 };
 
-function ActivityLookupRow({
+export function ActivityLookupRow({
     error,
     field,
     lookupOptions,
