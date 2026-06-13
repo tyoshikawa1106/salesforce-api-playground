@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-api";
+import { createEmptyHomeRecordCounts } from "@/lib/playground-record-counts";
+import type { HomeRecordCounts } from "@/lib/playground-record-counts";
 import type { SessionInfo } from "@/lib/playground-api";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest, PlaygroundApiError } from "./api";
@@ -18,14 +20,7 @@ type ConnectedPlaygroundData = {
         tasks: number;
     };
     contacts: Contact[];
-    recordCounts: {
-        campaigns: number;
-        cases: number;
-        emailMessages: number;
-        leads: number;
-        opportunities: number;
-        products: number;
-    };
+    recordCounts: HomeRecordCounts;
     recycleBinItems: RecycleBinItem[];
     userCounts: {
         active: number;
@@ -80,14 +75,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [activityCounts, setActivityCounts] = useState<ConnectedPlaygroundData["activityCounts"]>({ events: 0, tasks: 0 });
     const [contacts, setContacts] = useState<Contact[]>([]);
-    const [recordCounts, setRecordCounts] = useState<ConnectedPlaygroundData["recordCounts"]>({
-        campaigns: 0,
-        cases: 0,
-        emailMessages: 0,
-        leads: 0,
-        opportunities: 0,
-        products: 0
-    });
+    const [recordCounts, setRecordCounts] = useState<ConnectedPlaygroundData["recordCounts"]>(createEmptyHomeRecordCounts);
     const [recycleBinItems, setRecycleBinItems] = useState<RecycleBinItem[]>([]);
     const [userCounts, setUserCounts] = useState<ConnectedPlaygroundData["userCounts"]>({ active: 0 });
     const [loading, setLoading] = useState(true);
@@ -113,14 +101,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         setAccounts([]);
         setActivityCounts({ events: 0, tasks: 0 });
         setContacts([]);
-        setRecordCounts({
-            campaigns: 0,
-            cases: 0,
-            emailMessages: 0,
-            leads: 0,
-            opportunities: 0,
-            products: 0
-        });
+        setRecordCounts(createEmptyHomeRecordCounts());
         setRecycleBinItems([]);
         setUserCounts({ active: 0 });
         resetConnectedSelection();

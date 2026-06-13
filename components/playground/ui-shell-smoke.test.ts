@@ -1,10 +1,12 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { createEmptyHomeRecordCounts } from "@/lib/playground-record-counts";
 import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { GlobalHeader } from "./GlobalHeader";
 import { GlobalHeaderActions } from "./GlobalHeaderActions";
 import { HomeCounts, HomePanel } from "./HomePanel";
+import type { HomeCountValues } from "./HomePanel";
 import { IntegrationPanel } from "./IntegrationPanel";
 import { LoginPage, SessionLoadingPage } from "./LoginPage";
 import { Modal, ModalFooter } from "./Modal";
@@ -16,6 +18,21 @@ import { UtilityBar } from "./UtilityBar";
 import { getDefaultEventForm, getDefaultTaskForm } from "./activity-task-form";
 import { blankAccount, blankContact } from "./record-forms";
 import { accountFixture, noop } from "./test-fixtures";
+
+const homeCountValues: HomeCountValues = {
+    accounts: 12,
+    campaigns: 6,
+    cases: 7,
+    contacts: 34,
+    emailMessages: 8,
+    events: 5,
+    leads: 3,
+    opportunities: 4,
+    products: 5,
+    recycleBinItems: 2,
+    tasks: 67,
+    users: 8
+};
 
 describe("playground shell smoke rendering", () => {
     it("renders an environment label banner for non-production environments", () => {
@@ -178,14 +195,7 @@ describe("playground shell smoke rendering", () => {
                 recordSelection: {
                     accounts: [accountFixture],
                     contacts: [],
-                    recordCounts: {
-                        campaigns: 0,
-                        cases: 0,
-                        emailMessages: 0,
-                        leads: 0,
-                        opportunities: 0,
-                        products: 0
-                    },
+                    recordCounts: createEmptyHomeRecordCounts(),
                     selectedAccount: null,
                     selectedActivity: null,
                     selectedContact: null,
@@ -251,18 +261,7 @@ describe("playground shell smoke rendering", () => {
 
     it("renders Home count summaries as content below the header card", () => {
         const markup = renderToStaticMarkup(createElement(HomeCounts, {
-            accountCount: 12,
-            campaignCount: 6,
-            caseCount: 7,
-            contactCount: 34,
-            emailMessageCount: 8,
-            eventCount: 5,
-            leadCount: 3,
-            opportunityCount: 4,
-            productCount: 5,
-            recycleBinCount: 2,
-            taskCount: 67,
-            userCount: 8
+            counts: homeCountValues
         }));
 
         expect(markup).toContain("playground-home-count-summary");
@@ -285,18 +284,15 @@ describe("playground shell smoke rendering", () => {
 
     it("renders Home count summaries as loading spinners while data is loading", () => {
         const markup = renderToStaticMarkup(createElement(HomeCounts, {
-            accountCount: 0,
-            campaignCount: 0,
-            caseCount: 0,
-            contactCount: 0,
-            emailMessageCount: 0,
-            eventCount: 0,
-            leadCount: 0,
-            opportunityCount: 0,
-            productCount: 0,
-            recycleBinCount: 0,
-            taskCount: 0,
-            userCount: 0,
+            counts: {
+                ...createEmptyHomeRecordCounts(),
+                accounts: 0,
+                contacts: 0,
+                events: 0,
+                recycleBinItems: 0,
+                tasks: 0,
+                users: 0
+            },
             loading: true
         }));
 

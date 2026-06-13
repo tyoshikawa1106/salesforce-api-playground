@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { homeRecordCountObjectConfigs } from "@/lib/playground-record-counts";
 import type { SalesforceSession } from "@/lib/salesforce/session";
 import { withStandardObjectConnection } from "./client";
 import { assertObjectPermission } from "./object-permissions";
@@ -23,14 +24,7 @@ const session: SalesforceSession = {
     userId: "005xx0000012345"
 };
 
-const countExpectations = [
-    ["leads", "Lead", 3],
-    ["opportunities", "Opportunity", 4],
-    ["products", "Product2", 5],
-    ["campaigns", "Campaign", 6],
-    ["cases", "Case", 7],
-    ["emailMessages", "EmailMessage", 8]
-] as const;
+const countValues = [3, 4, 5, 6, 7, 8];
 
 function mockCountQueryResults(values: number[], resultKey: "expr0" | "totalSize") {
     return vi.fn().mockImplementation(async () => {
@@ -48,7 +42,7 @@ afterEach(() => {
 
 describe("Salesforce record count services", () => {
     it("counts configured home record objects after checking query permission", async () => {
-        const query = mockCountQueryResults(countExpectations.map(([, , count]) => count), "expr0");
+        const query = mockCountQueryResults([...countValues], "expr0");
         const connection = { query };
 
         withStandardObjectConnectionMock.mockImplementation(async (operation) => ({
@@ -70,7 +64,7 @@ describe("Salesforce record count services", () => {
             session
         });
 
-        countExpectations.forEach(([, objectApiName], index) => {
+        homeRecordCountObjectConfigs.forEach(({ objectApiName }, index) => {
             expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, objectApiName, "queryable");
             expect(query).toHaveBeenNthCalledWith(index + 1, `SELECT COUNT() FROM ${objectApiName}`);
         });
