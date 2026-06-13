@@ -161,8 +161,8 @@ export function QuickActionDatepicker({
                         portalTarget
                     ) : null}
                 </div>
-                <div className="slds-form-element__help slds-assistive-text" id={formatHelpId}>形式: 2024/12/31</div>
             </div>
+            <div className="slds-form-element__help slds-assistive-text" id={formatHelpId}>形式: 2024/12/31</div>
         </>
     );
 }

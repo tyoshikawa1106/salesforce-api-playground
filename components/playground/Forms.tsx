@@ -1,10 +1,9 @@
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { Account } from "./types";
 import type { ActivityLookupOption } from "./activity-task-form";
-import { QuickActionLookup } from "./ActivityQuickActionFields";
+import { QuickActionLookup, QuickActionSelect } from "./ActivityQuickActionFields";
 import { accountTextFields, contactAccountField, contactTextFields } from "./record-forms";
 import type { PicklistOptionsByField } from "./picklist-options";
-import { withCurrentPicklistOption } from "./picklist-options";
 
 type AccountSelectFieldName = "Industry" | "Type";
 
@@ -145,7 +144,6 @@ function TextField({
                     id={id}
                     className="slds-input"
                     type={type}
-                    required={required}
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                 />
@@ -171,32 +169,18 @@ function SelectField({
     value: string;
     onChange: (value: string) => void;
 }) {
-    const displayedOptions = withCurrentPicklistOption(options, value);
-
     return (
-        <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
-            <label className="slds-form-element__label" htmlFor={id}>
-                {label}
-            </label>
-            <div className="slds-form-element__control">
-                <div className="slds-select_container">
-                    <select
-                        id={id}
-                        className="slds-select"
-                        disabled={disabled}
-                        value={value}
-                        onChange={(event) => onChange(event.target.value)}
-                    >
-                        <option value="">{disabled ? "読み込み中..." : "--なし--"}</option>
-                        {displayedOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                {helpText ? <div className="slds-form-element__help">{helpText}</div> : null}
-            </div>
+        <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+            <QuickActionSelect
+                disabled={disabled}
+                emptyLabel="読み込み中..."
+                error={helpText}
+                idPrefix={id}
+                label={label}
+                options={options}
+                value={value}
+                onChange={onChange}
+            />
         </div>
     );
 }

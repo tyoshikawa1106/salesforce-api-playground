@@ -40,7 +40,7 @@ export function useInputPopupPlacement(open: boolean) {
         function updatePlacement() {
             const containerRect = measuredContainer.getBoundingClientRect();
             const popupRect = measuredPopup.getBoundingClientRect();
-            const footer = measuredContainer.closest(".playground-task-composer, .slds-modal__container")?.querySelector(".playground-task-composer__footer, .playground-activity-modal-footer");
+            const footer = measuredContainer.closest(".playground-task-composer, .slds-modal__container")?.querySelector(".playground-task-composer__footer, .playground-activity-modal-footer, .slds-modal__footer");
             const footerTop = footer ? footer.getBoundingClientRect().top : window.innerHeight;
             const lowerBoundary = Math.min(window.innerHeight - 8, footerTop - 4);
             const popupHeight = Math.max(popupRect.height, measuredPopup.scrollHeight);
@@ -59,17 +59,21 @@ export function useInputPopupPlacement(open: boolean) {
                 top: nextOpenAbove ? Math.max(8, containerRect.top - height - 4) : containerRect.bottom + 4,
                 visibility: "visible",
                 width: containerRect.width,
-                zIndex: 7200
+                zIndex: "var(--playground-input-popup-z-index)"
             });
         }
 
         updatePlacement();
         window.addEventListener("resize", updatePlacement);
         scrollContainer?.addEventListener("scroll", updatePlacement, { passive: true });
+        const resizeObserver = new ResizeObserver(updatePlacement);
+        resizeObserver.observe(measuredContainer);
+        resizeObserver.observe(measuredPopup);
 
         return () => {
             window.removeEventListener("resize", updatePlacement);
             scrollContainer?.removeEventListener("scroll", updatePlacement);
+            resizeObserver.disconnect();
         };
     }, [open, portalTarget]);
 

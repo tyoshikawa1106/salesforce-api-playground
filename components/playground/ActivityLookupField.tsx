@@ -174,8 +174,8 @@ export function QuickActionLookup({
                         </div>
                     </div>
                 )}
-                <FieldError message={error} />
             </div>
+            <FieldError message={error} />
         </div>
     );
 }

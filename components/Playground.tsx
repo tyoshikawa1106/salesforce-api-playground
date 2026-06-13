@@ -9,6 +9,7 @@ import { LoginPage, SessionLoadingPage } from "./playground/LoginPage";
 import { NoticeBanner } from "./playground/NoticeBanner";
 import { PlaygroundWorkspace } from "./playground/PlaygroundWorkspace";
 import { RecordModals } from "./playground/RecordModals";
+import { UtilityBar } from "./playground/UtilityBar";
 import { useNotice } from "./playground/useNotice";
 import { usePlaygroundData } from "./playground/usePlaygroundData";
 import { usePlaygroundPicklists } from "./playground/usePlaygroundPicklists";
@@ -161,8 +162,14 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         }
     } satisfies ComponentProps<typeof RecordModals>;
 
+    const shellClassName = [
+        "playground-shell",
+        "playground-shell_has-utility-bar",
+        environmentLabel ? "playground-shell_has-environment-label" : ""
+    ].filter(Boolean).join(" ");
+
     return (
-        <div className={environmentLabel ? "playground-shell playground-shell_has-environment-label" : "playground-shell"}>
+        <div className={shellClassName}>
             {notice ? <NoticeBanner notice={notice} /> : null}
             <GlobalHeader
                 connected={session.connected}
@@ -179,6 +186,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             <PlaygroundWorkspace {...workspaceProps} />
 
             <RecordModals {...recordModalProps} />
+            <UtilityBar />
         </div>
     );
 }

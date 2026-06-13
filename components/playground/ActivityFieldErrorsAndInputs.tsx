@@ -93,12 +93,11 @@ export function QuickActionTextInput({
                     type="text"
                     aria-invalid={Boolean(error)}
                     maxLength={255}
-                    required={required}
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                 />
-                <FieldError message={error} />
             </div>
+            <FieldError message={error} />
         </div>
     );
 }
@@ -132,14 +131,20 @@ export function QuickActionLongTextInput({
 }
 
 export function QuickActionSelect({
+    disabled = false,
+    emptyLabel = "--なし--",
     error,
+    idPrefix,
     label,
     onChange,
     options = taskStatusFallbackOptions,
     required = false,
     value
 }: {
+    disabled?: boolean;
+    emptyLabel?: string;
     error?: string;
+    idPrefix?: string;
     label: string;
     onChange: (value: string) => void;
     options?: PicklistOption[];
@@ -147,12 +152,12 @@ export function QuickActionSelect({
     value: string;
 }) {
     const displayedOptions = withCurrentPicklistOption(options, value);
-    const selectOptions = [{ label: "--なし--", value: "" }, ...displayedOptions];
+    const selectOptions = [{ label: disabled ? emptyLabel : "--なし--", value: "" }, ...displayedOptions];
     const selectedIndex = Math.max(selectOptions.findIndex((option) => option.value === value), 0);
-    const selectedLabel = selectOptions[selectedIndex]?.label ?? "--なし--";
+    const selectedLabel = selectOptions[selectedIndex]?.label ?? emptyLabel;
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(selectedIndex);
-    const inputId = `activity-picklist-${label}`;
+    const inputId = idPrefix ?? `activity-picklist-${label}`;
     const listboxId = `${inputId}-listbox`;
     const activeOptionId = `${listboxId}-option-${activeIndex}`;
     const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
@@ -162,11 +167,19 @@ export function QuickActionSelect({
     }, [selectedIndex]);
 
     function selectValue(nextValue: string) {
+        if (disabled) {
+            return;
+        }
+
         onChange(nextValue);
         setOpen(false);
     }
 
-    function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+        if (disabled) {
+            return;
+        }
+
         if (event.key === "ArrowDown") {
             event.preventDefault();
             setOpen(true);
@@ -210,25 +223,25 @@ export function QuickActionSelect({
                         }}
                     >
                         <div className="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
-                            <input
-                                className="slds-combobox__input slds-input"
+                            <button
+                                className="slds-combobox__input slds-input_faux slds-combobox__input-value"
                                 id={inputId}
-                                type="text"
+                                type="button"
                                 role="combobox"
                                 aria-activedescendant={open ? activeOptionId : undefined}
                                 aria-controls={listboxId}
+                                aria-disabled={disabled}
                                 aria-expanded={open}
                                 aria-haspopup="listbox"
                                 aria-invalid={Boolean(error)}
-                                aria-readonly="true"
-                                autoComplete="off"
-                                readOnly
-                                required={required}
-                                value={selectedLabel}
-                                onClick={() => setOpen(true)}
-                                onFocus={() => setOpen(true)}
+                                aria-required={required}
+                                disabled={disabled}
+                                onClick={() => setOpen(!disabled)}
+                                onFocus={() => setOpen(!disabled)}
                                 onKeyDown={handleKeyDown}
-                            />
+                            >
+                                <span className="slds-truncate" title={selectedLabel}>{selectedLabel}</span>
+                            </button>
                             <div className="slds-input__icon-group slds-input__icon-group_right">
                                 <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default slds-icon_x-small" name="down" />
                             </div>

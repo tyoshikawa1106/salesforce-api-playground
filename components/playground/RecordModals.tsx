@@ -150,7 +150,7 @@ export function RecordModals({
         <>
             {modal?.type === "account" ? (
                 <Modal title={modal.mode === "create" ? "新規取引先" : "取引先を編集"} onClose={actions.onCloseRecordModal}>
-                    <form onSubmit={actions.onSaveAccount}>
+                    <form onSubmit={actions.onSaveAccount} noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
                             <AccountFormFields
                                 loadingPicklists={picklists?.accountLoading}
@@ -167,7 +167,7 @@ export function RecordModals({
 
             {modal?.type === "contact" ? (
                 <Modal title={modal.mode === "create" ? "新規取引先責任者" : "取引先責任者を編集"} onClose={actions.onCloseRecordModal}>
-                    <form onSubmit={actions.onSaveContact}>
+                    <form onSubmit={actions.onSaveContact} noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
                             <ContactFormFields value={contactForm} accounts={accountOptions} onChange={onContactFormChange} />
                         </div>

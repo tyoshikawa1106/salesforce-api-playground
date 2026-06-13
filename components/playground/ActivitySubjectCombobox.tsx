@@ -171,8 +171,8 @@ export function QuickActionSubjectCombobox({
                         ) : null}
                     </div>
                 </div>
-                <FieldError message={error} />
             </div>
+            <FieldError message={error} />
         </div>
     );
 }

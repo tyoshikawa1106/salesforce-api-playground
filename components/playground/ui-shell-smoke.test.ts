@@ -11,6 +11,7 @@ import { Modal, ModalFooter } from "./Modal";
 import { AppNavigation, getVisibleNavigationCount } from "./Navigation";
 import { ObjectHomeHeader } from "./ObjectHome";
 import { RecordModals } from "./RecordModals";
+import { UtilityBar } from "./UtilityBar";
 import { getDefaultEventForm, getDefaultTaskForm } from "./activity-task-form";
 import { blankAccount, blankContact } from "./record-forms";
 import { noop } from "./test-fixtures";
@@ -106,6 +107,7 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("slds-page-header__meta-text");
         expect(markup).toContain("取引先を作成");
         expect(markup).toContain("取引先名");
+        expect(markup).toContain("noValidate=\"\"");
         expect(markup).toContain("slds-m-top_small\"><form");
         expect(markup).not.toContain("slds-p-around_medium\"><form");
         expect(markup).not.toContain("slds-theme_default slds-p-vertical_medium");
@@ -238,6 +240,22 @@ describe("playground shell smoke rendering", () => {
         expect(markup).not.toContain("playground-menu-icon");
     });
 
+    it("renders the docked utility bar with SLDS structure", () => {
+        const markup = renderToStaticMarkup(createElement(UtilityBar));
+
+        expect(markup).toContain("slds-utility-bar_container");
+        expect(markup).toContain("aria-label=\"Utility Bar\"");
+        expect(markup).toContain("slds-utility-bar__item");
+        expect(markup).toContain("slds-button slds-utility-bar__action");
+        expect(markup).toContain("slds-utility-bar__text");
+        expect(markup).toContain("Call");
+        expect(markup).toContain("History");
+        expect(markup).toContain("Notes");
+        expect(markup).toContain("Omni-Channel");
+        expect(markup).toContain("aria-pressed=\"false\"");
+        expect(markup).not.toContain("slds-utility-panel");
+    });
+
     it("renders global activity create actions as docked composers", () => {
         const markup = renderToStaticMarkup(
             createElement(RecordModals, {
@@ -276,6 +294,80 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("slds-docked-composer");
         expect(markup).toContain("新規ToDo");
         expect(markup).not.toContain("slds-modal__container");
+    });
+
+    it("renders record modal forms without native browser validation", () => {
+        const accountMarkup = renderToStaticMarkup(
+            createElement(RecordModals, {
+                forms: {
+                    accountForm: blankAccount,
+                    accountOptions: [],
+                    activityLookups: {},
+                    contactForm: blankContact,
+                    eventForm: getDefaultEventForm(),
+                    taskForm: getDefaultTaskForm(),
+                    onAccountFormChange: noop,
+                    onActivityLookupsChange: noop,
+                    onContactFormChange: noop,
+                    onEventFormChange: noop,
+                    onTaskFormChange: noop
+                },
+                state: {
+                    deleteState: null,
+                    modal: { type: "account", mode: "create" },
+                    restoreState: null,
+                    saving: false
+                },
+                actions: {
+                    onCancelDelete: noop,
+                    onCancelRestore: noop,
+                    onCloseRecordModal: noop,
+                    onConfirmDelete: noop,
+                    onConfirmRestore: noop,
+                    onSaveAccount: noop,
+                    onSaveActivity: noop,
+                    onSaveContact: noop
+                }
+            })
+        );
+        const contactMarkup = renderToStaticMarkup(
+            createElement(RecordModals, {
+                forms: {
+                    accountForm: blankAccount,
+                    accountOptions: [],
+                    activityLookups: {},
+                    contactForm: blankContact,
+                    eventForm: getDefaultEventForm(),
+                    taskForm: getDefaultTaskForm(),
+                    onAccountFormChange: noop,
+                    onActivityLookupsChange: noop,
+                    onContactFormChange: noop,
+                    onEventFormChange: noop,
+                    onTaskFormChange: noop
+                },
+                state: {
+                    deleteState: null,
+                    modal: { type: "contact", mode: "create" },
+                    restoreState: null,
+                    saving: false
+                },
+                actions: {
+                    onCancelDelete: noop,
+                    onCancelRestore: noop,
+                    onCloseRecordModal: noop,
+                    onConfirmDelete: noop,
+                    onConfirmRestore: noop,
+                    onSaveAccount: noop,
+                    onSaveActivity: noop,
+                    onSaveContact: noop
+                }
+            })
+        );
+
+        expect(accountMarkup).toContain("noValidate=\"\"");
+        expect(contactMarkup).toContain("noValidate=\"\"");
+        expect(accountMarkup).not.toContain("required=\"\"");
+        expect(contactMarkup).not.toContain("required=\"\"");
     });
 
     it("renders Modal with the SLDS blueprint structure", () => {
