@@ -50,7 +50,7 @@ export function RecordTableActions<Record>({
     }
 
     return (
-        <div className={`slds-dropdown-trigger slds-dropdown-trigger_click playground-record-action${open ? " slds-is-open" : ""}`}>
+        <div className={`slds-dropdown-trigger slds-dropdown-trigger_click${open ? " slds-is-open" : ""} playground-record-action`}>
             <button
                 className="slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small"
                 type="button"
