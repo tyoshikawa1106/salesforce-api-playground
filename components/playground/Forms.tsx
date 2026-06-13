@@ -1,5 +1,7 @@
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { Account } from "./types";
+import type { ActivityLookupOption } from "./activity-task-form";
+import { QuickActionLookup } from "./ActivityQuickActionFields";
 import { accountTextFields, contactAccountField, contactTextFields } from "./record-forms";
 import type { PicklistOptionsByField } from "./picklist-options";
 import { withCurrentPicklistOption } from "./picklist-options";
@@ -65,6 +67,10 @@ export function ContactFormFields({
     accounts: Account[];
     onChange: (value: ContactForm) => void;
 }) {
+    const accountOptions = accounts.map(accountToLookupOption);
+    const selectedAccount = accountOptions.find((option) => option.id === value.AccountId)
+        ?? buildCurrentAccountLookup(value.AccountId);
+
     return (
         <div className="slds-grid slds-wrap slds-gutters">
             {contactTextFields.map((field) => (
@@ -78,28 +84,39 @@ export function ContactFormFields({
                     onChange={(nextValue) => onChange({ ...value, [field.key]: nextValue })}
                 />
             ))}
-            <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
-                <label className="slds-form-element__label" htmlFor={contactAccountField.id}>
-                    {contactAccountField.label}
-                </label>
-                <div className="slds-form-element__control">
-                    <select
-                        id={contactAccountField.id}
-                        className="slds-select"
-                        value={value.AccountId}
-                        onChange={(event) => onChange({ ...value, AccountId: event.target.value })}
-                    >
-                        <option value="">取引先なし</option>
-                        {accounts.map((account) => (
-                            <option key={account.Id} value={account.Id}>
-                                {account.Name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+            <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <QuickActionLookup
+                    idPrefix={contactAccountField.id}
+                    label={contactAccountField.label}
+                    objectLabel="取引先"
+                    options={accountOptions}
+                    placeholder="取引先を検索..."
+                    value={selectedAccount}
+                    onChange={(nextValue) => onChange({ ...value, AccountId: nextValue?.id ?? "" })}
+                />
             </div>
         </div>
     );
+}
+
+function accountToLookupOption(account: Account): ActivityLookupOption {
+    return {
+        id: account.Id,
+        label: account.Name,
+        objectLabel: "取引先"
+    };
+}
+
+function buildCurrentAccountLookup(accountId: string): ActivityLookupOption | undefined {
+    if (!accountId) {
+        return undefined;
+    }
+
+    return {
+        id: accountId,
+        label: accountId,
+        objectLabel: "取引先"
+    };
 }
 
 function TextField({

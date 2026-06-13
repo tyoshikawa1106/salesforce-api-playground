@@ -11,6 +11,7 @@ import { useQuickActionLookupState } from "./useQuickActionLookupState";
 
 export function QuickActionLookup({
     error,
+    idPrefix,
     label,
     objectLabel,
     onChange,
@@ -20,6 +21,7 @@ export function QuickActionLookup({
     value
 }: {
     error?: string;
+    idPrefix?: string;
     label: string;
     objectLabel: RemoteLookupObjectLabel;
     onChange: (value: ActivityLookupOption | undefined) => void;
@@ -43,7 +45,8 @@ export function QuickActionLookup({
         setOpen
     } = useQuickActionLookupState({ objectLabel, onChange, options, value });
     const { iconClassName, iconName } = getLookupIconMeta(objectLabel);
-    const listboxId = objectLabel === "取引先" ? "task-related-account-listbox" : objectLabel === "取引先責任者" ? "task-name-contact-listbox" : "task-assigned-user-listbox";
+    const defaultIdPrefix = objectLabel === "取引先" ? "task-related-account" : objectLabel === "取引先責任者" ? "task-name-contact" : "task-assigned-user";
+    const listboxId = `${idPrefix ?? defaultIdPrefix}-listbox`;
     const inputId = `${listboxId}-input`;
     const activeOptionId = filteredOptions[activeIndex] ? `${listboxId}-option-${filteredOptions[activeIndex].id}` : undefined;
 

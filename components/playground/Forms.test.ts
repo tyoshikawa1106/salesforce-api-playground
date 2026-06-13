@@ -1,4 +1,7 @@
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { ContactFormFields } from "./Forms";
 import {
     accountTextFields,
     accountRecordToForm,
@@ -9,6 +12,7 @@ import {
     contactTextFields,
     getRequiredFieldMessage
 } from "./record-forms";
+import { accountFixture, noop } from "./test-fixtures";
 
 describe("record form builders", () => {
     it("builds blank forms when no record is provided", () => {
@@ -77,5 +81,25 @@ describe("record form builders", () => {
             label: "取引先"
         });
         expect(getRequiredFieldMessage(accountTextFields, "Name")).toBe("取引先名は必須です。");
+    });
+
+    it("renders the contact account field as an account lookup", () => {
+        const markup = renderToStaticMarkup(
+            createElement(ContactFormFields, {
+                accounts: [accountFixture],
+                value: {
+                    ...blankContact,
+                    AccountId: accountFixture.Id
+                },
+                onChange: noop
+            })
+        );
+
+        expect(markup).toContain("contact-account-listbox-input");
+        expect(markup).toContain("role=\"combobox\"");
+        expect(markup).toContain("slds-combobox__input-value");
+        expect(markup).toContain(accountFixture.Name);
+        expect(markup).not.toContain("<select");
+        expect(markup).not.toContain("取引先なし");
     });
 });
