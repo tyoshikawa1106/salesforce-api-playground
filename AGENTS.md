@@ -39,7 +39,7 @@
 - `develop` は旧 Git Flow 運用の統合ブランチとして削除済みとし、再作成しない。
 - `release/*` と `hotfix/*` は旧 Git Flow 運用の一時ブランチとして新規作成しない。
 - Heroku は Pipeline を使い、GitHub `main` への merge 後に Staging app へ自動デプロイし、確認後に Production app へ promote する運用を基本とする。
-- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy / promote しない。通常開発ではユーザー確認後に PR を `main` に作成し、CI pass 後に ready for review へ変更する。
+- ユーザーから「デプロイして」と指示された場合も、エージェントは Heroku へ直接 push / deploy / promote しない。通常開発では作業ブランチ上でコミットまで行い、push / PR 作成 / CI checks 確認はユーザーが明示した場合のみ進める。
 - Heroku への手動デプロイ操作が必要な例外ケースでは、理由と実行するコマンドを明示し、ユーザーの明確な承認を得てから実行する。
 - `main` へ直接コミットしない。
 - コミットは作業単位で分割し、コミットメッセージは `<type>: <summary>` の形式で書く。
@@ -49,8 +49,8 @@
 - Issue title には `feat:`、`fix:`、`docs:`、`refactor:` などの PR title 向け prefix を付けない。
 - Issue title に `Closes #<Issue番号>` のような PR closing keyword だけを使わない。
 - エージェントは、ユーザーの明示的な依頼なしに Issue / PR を新規作成したり、既存 Issue / PR の対応関係を増やしたりしない。親 Issue の一部だけを実装する場合も、個別 Issue を作るか、親 Issue に `Closes` を付けるか、`Issue なし` とするかをユーザーに確認してから行う。
-- 通常開発では、開発完了時点でコミットせずに作業を止め、変更内容、未コミット差分、実行した確認、未実行の確認理由をユーザーへ報告する。
-- ユーザーが内容確認後に開発 OK またはコミット / PR 作成を明示した場合のみ、コミット、必要な確認コマンド、push、draft PR 作成、CI checks 確認、ready for review 化へ進む。
+- 通常開発では、開発完了時点で変更内容と確認結果を整理し、作業単位でコミットしてからユーザーへ報告する。
+- 通常開発では、ユーザーが明示した場合のみ push、draft PR 作成、CI checks 確認、ready for review 化へ進む。
 - ユーザーが PR 作成を明示した時点で対応する Issue がない場合は、原則として PR 作成前に Issue を作成し、PR body に `Closes #<Issue番号>` を記載する。Issue を作らない例外が必要な場合は、PR 作成前にユーザーへ確認する。
 - Draft PR を作成した通常開発作業では、PR checks を確認し、required checks が pass している場合は `gh pr ready` などで ready for review へ変更し、PR が draft ではないことを再確認する。CI が pending の場合は、完了まで確認してから ready 化する。やむを得ず待機を中断する場合は、PR が draft のままであることと未完了 check を明記する。
 - CI が fail した場合は draft のまま修正し、pass するまで ready for review にしない。
@@ -66,7 +66,7 @@
 - PR が Issue を解決する場合は、PR と Issue の milestone を揃え、両方を Project に追加する。
 - Codex が GitHub Connector または `gh` で milestone / Project を安全に設定できない場合は、PR 本文または最終報告に未設定理由を記載し、手動設定対象として扱う。
 - PR のマージは原則ユーザーが行う。通常は merge commit でマージする。
-- トークン消費を抑えるため、通常開発ではエージェントは原則として未コミット差分の報告で一度停止し、ユーザーの開発 OK 後に PR 作成、checks 確認、ready for review 化までを担当する。PR の merge はユーザーが行う。
+- トークン消費を抑えるため、通常開発ではエージェントは原則としてローカルコミットの報告で一度停止し、push、PR 作成、checks 確認、ready for review 化はユーザーが明示した場合のみ担当する。PR の merge はユーザーが行う。
 - ユーザーが明示的に PR merge まで依頼した場合のみ、エージェントは checks pass、ready for review 化、merge、`main` 同期、マージ済み作業ブランチ削除まで実施してよい。
 - ユーザーが「目標を設定します」と明示した連続作業では、作業開始時に Codex の目標機能を開始し、完了時に目標を complete にして token 使用量と経過時間を報告する。目標機能を利用できない場合は、その理由を最終報告に記載する。
 - 複数 Issue を連続対応する場合、Issue / PR は内容やリスクが近いものを可能な範囲でまとめ、PR 数を増やしすぎない。ユーザーが順番実装や個別 PR を明示した場合はその指示を優先する。

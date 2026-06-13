@@ -29,11 +29,34 @@ type UserLookupRecord = {
     Name?: string;
 };
 
-const lookupObjectToSalesforceObject = {
-    account: "Account",
-    contact: "Contact",
-    user: "User"
-} as const satisfies Record<ActivityLookupObject, string>;
+type LookupRecord = AccountLookupRecord | ContactLookupRecord | UserLookupRecord;
+type LookupObjectConfig = {
+    objectApiName: "Account" | "Contact" | "User";
+    selectFields: string;
+    searchFields: readonly string[];
+    emptyWhereClause?: string;
+    searchWhereSuffix?: string;
+};
+
+const lookupObjectConfigs: Record<ActivityLookupObject, LookupObjectConfig> = {
+    account: {
+        objectApiName: "Account",
+        selectFields: "Id, Name",
+        searchFields: ["Name"]
+    },
+    contact: {
+        objectApiName: "Contact",
+        selectFields: "Id, Name, Account.Name",
+        searchFields: ["Name", "Account.Name"]
+    },
+    user: {
+        objectApiName: "User",
+        selectFields: "Id, Name",
+        searchFields: ["Name"],
+        emptyWhereClause: "WHERE IsActive = true",
+        searchWhereSuffix: "AND IsActive = true"
+    }
+};
 
 const maxQueryLength = 80;
 
@@ -47,8 +70,12 @@ function escapeSoqlLikeValue(value: string): string {
     }).join("");
 }
 
+function isActivityLookupObject(value: string): value is ActivityLookupObject {
+    return value in lookupObjectConfigs;
+}
+
 function readLookupObject(value: string): ActivityLookupObject {
-    if (value === "account" || value === "contact" || value === "user") {
+    if (isActivityLookupObject(value)) {
         return value;
     }
 
@@ -64,71 +91,39 @@ export function readActivityLookupParams(request: Request) {
 }
 
 function buildLookupWhereClause(object: ActivityLookupObject, query: string): string {
+    const config = lookupObjectConfigs[object];
+
     if (!query) {
-        return "";
+        return config.emptyWhereClause ?? "";
     }
 
     const likeValue = `%${escapeSoqlLikeValue(query)}%`;
-    const nameCondition = `Name LIKE '${likeValue}' ESCAPE '\\\\'`;
+    const searchConditions = config.searchFields
+        .map((field) => `${field} LIKE '${likeValue}' ESCAPE '\\\\'`)
+        .join(" OR ");
 
-    if (object === "contact") {
-        return `WHERE ${nameCondition} OR Account.Name LIKE '${likeValue}' ESCAPE '\\\\'`;
-    }
-
-    return `WHERE ${nameCondition}`;
+    return ["WHERE", searchConditions, config.searchWhereSuffix].filter(Boolean).join(" ");
 }
 
 function buildLookupQuery(object: ActivityLookupObject, query: string): string {
+    const config = lookupObjectConfigs[object];
     const whereClause = buildLookupWhereClause(object, query);
     const orderBy = query
         ? "ORDER BY Name ASC"
         : "ORDER BY LastViewedDate DESC NULLS LAST, LastModifiedDate DESC";
 
-    if (object === "account") {
-        return [
-            "SELECT Id, Name",
-            "FROM Account",
-            whereClause,
-            orderBy,
-            "LIMIT 5"
-        ].filter(Boolean).join(" ");
-    }
-
-    if (object === "contact") {
-        return [
-            "SELECT Id, Name, Account.Name",
-            "FROM Contact",
-            whereClause,
-            orderBy,
-            "LIMIT 5"
-        ].filter(Boolean).join(" ");
-    }
-
     return [
-        "SELECT Id, Name",
-        "FROM User",
-        whereClause || "WHERE IsActive = true",
-        whereClause ? "AND IsActive = true" : "",
+        `SELECT ${config.selectFields}`,
+        `FROM ${config.objectApiName}`,
+        whereClause,
         orderBy,
         "LIMIT 5"
     ].filter(Boolean).join(" ");
 }
 
 function mapLookupRecords(
-    object: "account",
-    records: AccountLookupRecord[]
-): ActivityLookupResult[];
-function mapLookupRecords(
-    object: "contact",
-    records: ContactLookupRecord[]
-): ActivityLookupResult[];
-function mapLookupRecords(
-    object: "user",
-    records: UserLookupRecord[]
-): ActivityLookupResult[];
-function mapLookupRecords(
     object: ActivityLookupObject,
-    records: Array<AccountLookupRecord | ContactLookupRecord | UserLookupRecord>
+    records: LookupRecord[]
 ): ActivityLookupResult[] {
     return records
         .map((record): ActivityLookupResult | null => {
@@ -154,19 +149,11 @@ export async function listActivityLookupOptions({
     query: string;
 }) {
     return withStandardObjectConnection(async (connection) => {
-        await assertObjectPermission(connection, lookupObjectToSalesforceObject[object], "queryable");
+        const config = lookupObjectConfigs[object];
 
-        if (object === "account") {
-            const response = await connection.query<AccountLookupRecord>(buildLookupQuery(object, query));
-            return { options: mapLookupRecords(object, response.records) };
-        }
+        await assertObjectPermission(connection, config.objectApiName, "queryable");
+        const response = await connection.query<LookupRecord>(buildLookupQuery(object, query));
 
-        if (object === "contact") {
-            const response = await connection.query<ContactLookupRecord>(buildLookupQuery(object, query));
-            return { options: mapLookupRecords(object, response.records) };
-        }
-
-        const response = await connection.query<UserLookupRecord>(buildLookupQuery(object, query));
         return { options: mapLookupRecords(object, response.records) };
     });
 }

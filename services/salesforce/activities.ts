@@ -12,7 +12,8 @@ import type {
 } from "@/lib/salesforce/activities";
 import { DEFAULT_SALESFORCE_QUERY_LIMIT } from "@/lib/salesforce/query-limits";
 import { withStandardObjectConnection } from "./client";
-import { createStandardObject, deleteStandardObject, updateStandardObject } from "./object-mutations";
+import { countQueryableRecords } from "./count-results";
+import { createStandardObjectOperations } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
 type ActivityObjectName = "Task" | "Event";
@@ -90,22 +91,6 @@ function buildActivityCreateFields<TInput extends ActivityCreateInput>(input: TI
     };
 }
 
-function createActivityOperations<TCreateInput extends ActivityCreateInput, TUpdateInput extends object>(
-    objectName: ActivityObjectName
-) {
-    return {
-        create(input: TCreateInput) {
-            return createStandardObject(objectName, buildActivityCreateFields(input));
-        },
-        update(id: string, input: TUpdateInput) {
-            return updateStandardObject(objectName, id, input);
-        },
-        deleteOne(id: string) {
-            return deleteStandardObject(objectName, id);
-        }
-    };
-}
-
 function compareActivityItems(a: ActivityTimelineItem, b: ActivityTimelineItem) {
     const aDate = a.type === "event" ? a.startDateTime : a.date;
     const bDate = b.type === "event" ? b.startDateTime : b.date;
@@ -178,27 +163,24 @@ function getActivityById<TRecord extends TaskActivityRecord | EventActivityRecor
     });
 }
 
-const taskActivities = createActivityOperations<TaskActivityInput, TaskActivityUpdateInput>("Task");
-const eventActivities = createActivityOperations<EventActivityInput, EventActivityUpdateInput>("Event");
-
-function readCountResult(result: { totalSize?: number; records?: Array<{ expr0?: number }> }) {
-    return result.records?.[0]?.expr0 ?? result.totalSize ?? 0;
-}
+const taskActivities = createStandardObjectOperations<TaskActivityInput, TaskActivityUpdateInput>("Task", {
+    buildCreateInput: buildActivityCreateFields
+});
+const eventActivities = createStandardObjectOperations<EventActivityInput, EventActivityUpdateInput>("Event", {
+    buildCreateInput: buildActivityCreateFields
+});
 
 export async function countActivities() {
     return withStandardObjectConnection(async (connection) => {
-        await assertObjectPermission(connection, "Task", "queryable");
-        await assertObjectPermission(connection, "Event", "queryable");
-
         const [tasks, events] = await Promise.all([
-            connection.query<{ expr0?: number }>("SELECT COUNT() FROM Task"),
-            connection.query<{ expr0?: number }>("SELECT COUNT() FROM Event")
+            countQueryableRecords(connection, "Task"),
+            countQueryableRecords(connection, "Event")
         ]);
 
         return {
             activityCounts: {
-                tasks: readCountResult(tasks),
-                events: readCountResult(events)
+                tasks,
+                events
             }
         };
     });

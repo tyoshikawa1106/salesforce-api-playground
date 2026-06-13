@@ -1,29 +1,43 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { HomeRecordCounts } from "@/lib/playground-record-counts";
 import { PageHeader } from "./PageHeader";
 import { StandardIcon, type StandardIconName } from "./SldsIcon";
 
+export type HomeCountValues = HomeRecordCounts & {
+    accounts: number;
+    contacts: number;
+    events: number;
+    recycleBinItems: number;
+    tasks: number;
+    users: number;
+};
+
 type HomeCountsProps = {
-    accountCount: number;
-    campaignCount: number;
-    caseCount: number;
-    contactCount: number;
-    emailMessageCount: number;
-    eventCount: number;
-    leadCount: number;
-    opportunityCount: number;
-    productCount: number;
-    recycleBinCount: number;
-    taskCount: number;
-    userCount: number;
+    counts: HomeCountValues;
     loading?: boolean;
 };
 
-type RecordCountSummary = {
-    count: number;
+type HomeCountCardConfig = {
+    key: keyof HomeCountValues;
     iconClassName: string;
     iconName: StandardIconName;
     label: string;
 };
+
+const homeCountCardConfigs: HomeCountCardConfig[] = [
+    { key: "accounts", iconClassName: "slds-icon-standard-account", iconName: "account", label: "取引先" },
+    { key: "contacts", iconClassName: "slds-icon-standard-contact", iconName: "contact", label: "取引先責任者" },
+    { key: "events", iconClassName: "slds-icon-standard-event", iconName: "event", label: "行動" },
+    { key: "tasks", iconClassName: "slds-icon-standard-task", iconName: "task", label: "ToDo" },
+    { key: "users", iconClassName: "slds-icon-standard-user", iconName: "user", label: "ユーザー" },
+    { key: "recycleBinItems", iconClassName: "slds-icon-standard-empty", iconName: "recycleBin", label: "ごみ箱" },
+    { key: "leads", iconClassName: "slds-icon-standard-lead", iconName: "lead", label: "リード" },
+    { key: "opportunities", iconClassName: "slds-icon-standard-opportunity", iconName: "opportunity", label: "商談" },
+    { key: "products", iconClassName: "slds-icon-standard-product", iconName: "product", label: "商品" },
+    { key: "campaigns", iconClassName: "slds-icon-standard-campaign", iconName: "campaign", label: "キャンペーン" },
+    { key: "cases", iconClassName: "slds-icon-standard-case", iconName: "case", label: "ケース" },
+    { key: "emailMessages", iconClassName: "slds-icon-standard-email", iconName: "email", label: "メールメッセージ" }
+];
 
 export function HomePanel({ userName }: { userName?: string }) {
     return (
@@ -36,46 +50,35 @@ export function HomePanel({ userName }: { userName?: string }) {
 }
 
 export function HomeCounts({
-    accountCount,
-    campaignCount,
-    caseCount,
-    contactCount,
-    emailMessageCount,
-    eventCount,
-    leadCount,
-    opportunityCount,
-    productCount,
-    recycleBinCount,
-    taskCount,
-    userCount,
+    counts,
     loading = false
 }: HomeCountsProps) {
-    const summaries: RecordCountSummary[] = [
-        { count: accountCount, iconClassName: "slds-icon-standard-account", iconName: "account", label: "取引先" },
-        { count: contactCount, iconClassName: "slds-icon-standard-contact", iconName: "contact", label: "取引先責任者" },
-        { count: eventCount, iconClassName: "slds-icon-standard-event", iconName: "event", label: "行動" },
-        { count: taskCount, iconClassName: "slds-icon-standard-task", iconName: "task", label: "ToDo" },
-        { count: userCount, iconClassName: "slds-icon-standard-user", iconName: "user", label: "ユーザー" },
-        { count: recycleBinCount, iconClassName: "slds-icon-standard-empty", iconName: "recycleBin", label: "ごみ箱" },
-        { count: leadCount, iconClassName: "slds-icon-standard-lead", iconName: "lead", label: "リード" },
-        { count: opportunityCount, iconClassName: "slds-icon-standard-opportunity", iconName: "opportunity", label: "商談" },
-        { count: productCount, iconClassName: "slds-icon-standard-product", iconName: "product", label: "商品" },
-        { count: campaignCount, iconClassName: "slds-icon-standard-campaign", iconName: "campaign", label: "キャンペーン" },
-        { count: caseCount, iconClassName: "slds-icon-standard-case", iconName: "case", label: "ケース" },
-        { count: emailMessageCount, iconClassName: "slds-icon-standard-email", iconName: "email", label: "メールメッセージ" }
-    ];
-
     return (
         <section className="slds-m-top_small playground-home-count-summary">
             <div className="slds-grid slds-wrap slds-gutters playground-home-counts">
-                {summaries.map((summary) => <RecordCountCard key={summary.label} loading={loading} summary={summary} />)}
+                {homeCountCardConfigs.map((config) => (
+                    <RecordCountCard
+                        key={config.key}
+                        config={config}
+                        count={counts[config.key]}
+                        loading={loading}
+                    />
+                ))}
             </div>
         </section>
     );
 }
 
-function RecordCountCard({ loading, summary }: { loading: boolean; summary: RecordCountSummary }) {
-    const { count, iconClassName, iconName, label } = summary;
+function RecordCountCard({
+    config,
+    count,
+    loading
+}: {
+    config: HomeCountCardConfig;
+    count: number;
+    loading: boolean;
+}) {
+    const { iconClassName, iconName, label } = config;
 
     return (
         <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 playground-home-counts__item">

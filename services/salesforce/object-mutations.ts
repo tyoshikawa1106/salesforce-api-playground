@@ -15,6 +15,9 @@ type BulkDeleteResult = {
 type SalesforceRecordConnectionRunner<TData, TResult> = (
     operation: (connection: Connection) => Promise<TData>
 ) => Promise<TResult>;
+type StandardObjectOperationsOptions<TCreateInput extends object, TStandardCreateInput extends object> = {
+    buildCreateInput?: (input: TCreateInput) => TStandardCreateInput;
+};
 
 function createObject<TInput extends object, TResult>(
     runWithConnection: SalesforceRecordConnectionRunner<CreatedRecordResult, TResult>,
@@ -89,4 +92,34 @@ export function createIntegrationStandardObject<TInput extends object>(objectNam
 
 export function updateIntegrationStandardObject<TInput extends object>(objectName: string, id: string, input: TInput) {
     return updateObject(withIntegrationConnection, objectName, id, input);
+}
+
+export function createStandardObjectOperations<
+    TCreateInput extends object,
+    TUpdateInput extends object,
+    TStandardCreateInput extends object = TCreateInput
+>(
+    objectName: string,
+    { buildCreateInput = (input) => input as unknown as TStandardCreateInput }: StandardObjectOperationsOptions<TCreateInput, TStandardCreateInput> = {}
+) {
+    return {
+        create(input: TCreateInput) {
+            return createStandardObject(objectName, buildCreateInput(input));
+        },
+        update(id: string, input: TUpdateInput) {
+            return updateStandardObject(objectName, id, input);
+        },
+        deleteOne(id: string) {
+            return deleteStandardObject(objectName, id);
+        },
+        deleteMany(ids: string[]) {
+            return deleteStandardObjects(objectName, ids);
+        },
+        createIntegration(input: TCreateInput) {
+            return createIntegrationStandardObject(objectName, buildCreateInput(input));
+        },
+        updateIntegration(id: string, input: TUpdateInput) {
+            return updateIntegrationStandardObject(objectName, id, input);
+        }
+    };
 }
