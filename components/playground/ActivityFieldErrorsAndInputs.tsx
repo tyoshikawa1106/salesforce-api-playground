@@ -7,6 +7,8 @@ import {
     type EventFormErrors,
     type TaskFormErrors
 } from "./activity-task-form";
+import type { PicklistOption } from "./picklist-options";
+import { taskStatusFallbackOptions } from "./picklist-options";
 
 export function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
     return <ActivityFormErrorSummary errorLabels={getTaskFormErrorLabels(errors)} />;
@@ -130,15 +132,21 @@ export function QuickActionSelect({
     error,
     label,
     onChange,
+    options = taskStatusFallbackOptions,
     required = false,
     value
 }: {
     error?: string;
     label: string;
     onChange: (value: string) => void;
+    options?: PicklistOption[];
     required?: boolean;
     value: string;
 }) {
+    const displayedOptions = value && !options.some((option) => option.value === value)
+        ? [...options, { label: value, value }]
+        : options;
+
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
             <span className="slds-form-element__label">
@@ -149,11 +157,11 @@ export function QuickActionSelect({
                 <span className="slds-select_container">
                     <select className="slds-select" required={required} aria-invalid={Boolean(error)} value={value} onChange={(event) => onChange(event.target.value)}>
                         <option value="">--なし--</option>
-                        <option value="Not Started">Not Started</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Waiting on someone else">Waiting on someone else</option>
-                        <option value="Deferred">Deferred</option>
+                        {displayedOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
                     </select>
                 </span>
             </span>

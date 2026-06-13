@@ -26,6 +26,9 @@ describe("playgroundApiPaths", () => {
         );
         expect(playgroundApiPaths.activityTasks).toBe("/api/activities/tasks");
         expect(playgroundApiPaths.integrationAccounts).toBe("/api/integration/ui/accounts");
+        expect(playgroundApiPaths.picklistValues({ object: "Account", fields: ["Industry", "Type"] })).toBe(
+            "/api/picklist-values?fields=Industry%2CType&object=Account"
+        );
         expect(playgroundApiPaths.record("accounts", "001xx000003DGbY")).toBe(
             "/api/accounts/001xx000003DGbY"
         );
@@ -43,6 +46,13 @@ describe("playgroundApiPaths", () => {
         );
         expect(playgroundApiPaths.activityTask("00Txx0000012345/../../x?<script>")).toBe(
             "/api/activities/tasks/00Txx0000012345%2F..%2F..%2Fx%3F%3Cscript%3E"
+        );
+        expect(playgroundApiPaths.picklistValues({
+            object: "Task",
+            fields: ["Status"],
+            recordTypeId: "012xx0000000001AAA/../../x?<script>"
+        })).toBe(
+            "/api/picklist-values?fields=Status&object=Task&recordTypeId=012xx0000000001AAA%2F..%2F..%2Fx%3F%3Cscript%3E"
         );
     });
 });

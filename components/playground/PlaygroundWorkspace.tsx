@@ -10,6 +10,7 @@ import {
     ContactListWorkspace
 } from "./RecordWorkspacePanels";
 import { RecycleBinPanel } from "./RecycleBinPanel";
+import type { PicklistOption, PicklistOptionsByField } from "./picklist-options";
 import type { Account, ActiveTab, Activity, Contact, DeleteState, RecycleBinItem } from "./types";
 
 type PlaygroundWorkspaceProps = {
@@ -47,9 +48,15 @@ type PlaygroundWorkspaceProps = {
     };
     integrationForm: {
         accountForm: AccountForm;
+        accountPicklistError?: string;
+        accountPicklistLoading?: boolean;
+        accountPicklistOptions?: PicklistOptionsByField<"Industry" | "Type">;
         saving: boolean;
         onAccountFormChange: (value: AccountForm) => void;
         onCreateAccount: (event: FormEvent<HTMLFormElement>) => void;
+    };
+    picklists?: {
+        taskStatusOptions?: PicklistOption[];
     };
     recycleBinActions: {
         items: RecycleBinItem[];
@@ -64,6 +71,7 @@ export function PlaygroundWorkspace({
     recordSelection,
     recordActions,
     integrationForm,
+    picklists,
     recycleBinActions
 }: PlaygroundWorkspaceProps) {
     const { activeTab, loading } = view;
@@ -108,6 +116,7 @@ export function PlaygroundWorkspace({
                         onOpenActivity={recordActions.onOpenActivity}
                         onOpenContact={recordActions.onOpenContact}
                         onRefresh={recordActions.onRefresh}
+                        taskStatusOptions={picklists?.taskStatusOptions}
                     />
                 ) : null}
 
@@ -138,6 +147,7 @@ export function PlaygroundWorkspace({
                         onOpenAccount={recordActions.onOpenAccountById}
                         onOpenActivity={recordActions.onOpenActivity}
                         onRefresh={recordActions.onRefresh}
+                        taskStatusOptions={picklists?.taskStatusOptions}
                     />
                 ) : null}
 
@@ -156,6 +166,9 @@ export function PlaygroundWorkspace({
                 {activeTab === "integration" && connected ? (
                     <IntegrationPanel
                         accountForm={integrationForm.accountForm}
+                        picklistError={integrationForm.accountPicklistError}
+                        picklistLoading={integrationForm.accountPicklistLoading}
+                        picklistOptions={integrationForm.accountPicklistOptions}
                         loading={loading}
                         saving={integrationForm.saving}
                         onAccountFormChange={integrationForm.onAccountFormChange}

@@ -1,27 +1,56 @@
 import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { Account } from "./types";
 import { accountTextFields, contactAccountField, contactTextFields } from "./record-forms";
+import type { PicklistOptionsByField } from "./picklist-options";
+
+type AccountSelectFieldName = "Industry" | "Type";
+
+const accountSelectFields = new Set<string>(["Industry", "Type"]);
 
 export function AccountFormFields({
+    loadingPicklists = false,
+    picklistError = "",
+    picklistOptions = {},
     value,
     onChange
 }: {
+    loadingPicklists?: boolean;
+    picklistError?: string;
+    picklistOptions?: PicklistOptionsByField<AccountSelectFieldName>;
     value: AccountForm;
     onChange: (value: AccountForm) => void;
 }) {
     return (
         <div className="slds-grid slds-wrap slds-gutters">
-            {accountTextFields.map((field) => (
-                <TextField
-                    key={field.key}
-                    id={field.id}
-                    label={field.label}
-                    required={field.required}
-                    type={field.type}
-                    value={value[field.key]}
-                    onChange={(nextValue) => onChange({ ...value, [field.key]: nextValue })}
-                />
-            ))}
+            {accountTextFields.map((field) => {
+                const fieldValue = value[field.key];
+                if (accountSelectFields.has(field.key)) {
+                    return (
+                        <SelectField
+                            key={field.key}
+                            disabled={loadingPicklists}
+                            helpText={picklistError}
+                            id={field.id}
+                            label={field.label}
+                            options={picklistOptions[field.key as AccountSelectFieldName] ?? []}
+                            value={fieldValue}
+                            onChange={(nextValue) => onChange({ ...value, [field.key]: nextValue })}
+                        />
+                    );
+                }
+
+                return (
+                    <TextField
+                        key={field.key}
+                        id={field.id}
+                        label={field.label}
+                        required={field.required}
+                        type={field.type}
+                        value={fieldValue}
+                        onChange={(nextValue) => onChange({ ...value, [field.key]: nextValue })}
+                    />
+                );
+            })}
         </div>
     );
 }
@@ -102,6 +131,55 @@ function TextField({
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                 />
+            </div>
+        </div>
+    );
+}
+
+function SelectField({
+    disabled,
+    helpText,
+    id,
+    label,
+    options,
+    value,
+    onChange
+}: {
+    disabled: boolean;
+    helpText: string;
+    id: string;
+    label: string;
+    options: Array<{ label: string; value: string }>;
+    value: string;
+    onChange: (value: string) => void;
+}) {
+    const displayedOptions = value && !options.some((option) => option.value === value)
+        ? [...options, { label: value, value }]
+        : options;
+
+    return (
+        <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-form-element">
+            <label className="slds-form-element__label" htmlFor={id}>
+                {label}
+            </label>
+            <div className="slds-form-element__control">
+                <div className="slds-select_container">
+                    <select
+                        id={id}
+                        className="slds-select"
+                        disabled={disabled}
+                        value={value}
+                        onChange={(event) => onChange(event.target.value)}
+                    >
+                        <option value="">{disabled ? "読み込み中..." : "--なし--"}</option>
+                        {displayedOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                {helpText ? <div className="slds-form-element__help">{helpText}</div> : null}
             </div>
         </div>
     );

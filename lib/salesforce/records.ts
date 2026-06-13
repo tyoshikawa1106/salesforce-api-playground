@@ -7,6 +7,7 @@ export type SalesforceQueryResponse<T> = {
 export type AccountRecord = {
     Id: string;
     Name: string;
+    RecordTypeId?: string;
     Phone?: string;
     Website?: string;
     Industry?: string;

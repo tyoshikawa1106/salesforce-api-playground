@@ -7,6 +7,7 @@ import { RecordFieldGrid } from "./RecordFieldGrid";
 import { RecordPageHeader } from "./RecordPageHeader";
 import { RecordMainTabs } from "./RecordMainTabs";
 import { UtilityIcon } from "./SldsIcon";
+import type { PicklistOption } from "./picklist-options";
 import type { ActiveTab, Activity } from "./types";
 
 type RecordPageFrameProps<Record extends object> = {
@@ -27,6 +28,7 @@ type RecordPageFrameProps<Record extends object> = {
     relatedContent?: ReactNode;
     detailFields: Array<[string, ReactNode]>;
     systemFields: Array<[string, ReactNode]>;
+    taskStatusOptions?: PicklistOption[];
     onDeleteActivity?: (activity: Activity, afterDelete?: () => Promise<void> | void) => void;
     onEditActivity?: (activity: Activity) => void;
     onDelete: (record: Record) => void;
@@ -52,6 +54,7 @@ export function RecordPageFrame<Record extends object>({
     relatedContent,
     detailFields,
     systemFields,
+    taskStatusOptions,
     onDeleteActivity,
     onEditActivity,
     onDelete,
@@ -102,6 +105,7 @@ export function RecordPageFrame<Record extends object>({
                             relatedContent={relatedContent}
                             relatedLookupOptions={activityRelatedLookupOptions}
                             relatedName={activityRelatedName}
+                            taskStatusOptions={taskStatusOptions}
                         />
                     </div>
                 ) : null}

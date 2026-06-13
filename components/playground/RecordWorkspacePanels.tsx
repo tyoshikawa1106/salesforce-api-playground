@@ -10,6 +10,7 @@ import {
 } from "./record-actions";
 import { AccountPanel, ContactPanel } from "./RecordLists";
 import { AccountRecordPage, ActivityRecordPage, ContactRecordPage } from "./RecordPages";
+import type { PicklistOption } from "./picklist-options";
 import type { Account, ActiveTab, Activity, Contact, DeleteState } from "./types";
 
 function RecordListWorkspaceFrame({
@@ -91,7 +92,8 @@ export function AccountDetailWorkspace({
     onEditActivity,
     onOpenActivity,
     onOpenContact,
-    onRefresh
+    onRefresh,
+    taskStatusOptions
 }: {
     account: Account;
     assignedUserId?: string;
@@ -104,6 +106,7 @@ export function AccountDetailWorkspace({
     onOpenActivity: (activity: Activity) => void;
     onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
+    taskStatusOptions?: PicklistOption[];
 }) {
     return (
         <AccountRecordPage
@@ -118,6 +121,7 @@ export function AccountDetailWorkspace({
             onOpenActivity={onOpenActivity}
             onOpenContact={onOpenContact}
             onRefresh={onRefresh}
+            taskStatusOptions={taskStatusOptions}
             loading={loading}
         />
     );
@@ -178,7 +182,8 @@ export function ContactDetailWorkspace({
     onEditActivity,
     onOpenAccount,
     onOpenActivity,
-    onRefresh
+    onRefresh,
+    taskStatusOptions
 }: {
     assignedUserId?: string;
     assignedUserName?: string;
@@ -190,6 +195,7 @@ export function ContactDetailWorkspace({
     onOpenAccount: (accountId: string) => void;
     onOpenActivity: (activity: Activity) => void;
     onRefresh: () => void;
+    taskStatusOptions?: PicklistOption[];
 }) {
     return (
         <ContactRecordPage
@@ -203,6 +209,7 @@ export function ContactDetailWorkspace({
             onOpenAccount={onOpenAccount}
             onOpenActivity={onOpenActivity}
             onRefresh={onRefresh}
+            taskStatusOptions={taskStatusOptions}
             loading={loading}
         />
     );

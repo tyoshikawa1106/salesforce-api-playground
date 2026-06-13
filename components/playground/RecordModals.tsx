@@ -25,6 +25,7 @@ import {
     ContactFormFields
 } from "./Forms";
 import { Modal, ModalFooter } from "./Modal";
+import type { PicklistOption, PicklistOptionsByField } from "./picklist-options";
 import type { Account, DeleteState, ModalState, RestoreState } from "./types";
 
 type RecordModalsProps = {
@@ -47,6 +48,12 @@ type RecordModalsProps = {
         restoreState: RestoreState | null;
         saving: boolean;
     };
+    picklists?: {
+        accountError?: string;
+        accountLoading?: boolean;
+        accountOptions?: PicklistOptionsByField<"Industry" | "Type">;
+        taskStatusOptions?: PicklistOption[];
+    };
     actions: {
         onCancelDelete: () => void;
         onCancelRestore: () => void;
@@ -62,6 +69,7 @@ type RecordModalsProps = {
 export function RecordModals({
     forms,
     state,
+    picklists,
     actions
 }: RecordModalsProps) {
     const [activityComposerExpanded, setActivityComposerExpanded] = useState(false);
@@ -110,7 +118,13 @@ export function RecordModals({
                 <Modal title={modal.mode === "create" ? "新規取引先" : "取引先を編集"} onClose={actions.onCloseRecordModal}>
                     <form onSubmit={actions.onSaveAccount}>
                         <div className="slds-modal__content slds-p-around_medium">
-                            <AccountFormFields value={accountForm} onChange={onAccountFormChange} />
+                            <AccountFormFields
+                                loadingPicklists={picklists?.accountLoading}
+                                picklistError={picklists?.accountError}
+                                picklistOptions={picklists?.accountOptions}
+                                value={accountForm}
+                                onChange={onAccountFormChange}
+                            />
                         </div>
                         <ModalFooter saving={saving} onCancel={actions.onCloseRecordModal} />
                     </form>
@@ -137,6 +151,7 @@ export function RecordModals({
                     lookups={activityLookups}
                     minimized={activityComposerMinimized}
                     saving={saving}
+                    statusOptions={picklists?.taskStatusOptions}
                     onCancel={actions.onCloseRecordModal}
                     onChange={onTaskFormChange}
                     onLookupChange={onActivityLookupsChange}
@@ -190,7 +205,7 @@ export function RecordModals({
                                             <QuickActionLookup error={taskErrors.assignedUserName} label="割り当て先" objectLabel="ユーザー" options={activityLookupOptions.assigned} placeholder="ユーザーを検索..." required value={activityLookups.assigned} onChange={(assigned) => onActivityLookupsChange({ ...activityLookups, assigned })} />
                                         </QuickActionFormRow>
                                         <QuickActionFormRow>
-                                            <QuickActionSelect error={taskErrors.Status} label="状況" required value={taskForm.Status} onChange={(Status) => onTaskFormChange({ ...taskForm, Status })} />
+                                            <QuickActionSelect error={taskErrors.Status} label="状況" options={picklists?.taskStatusOptions} required value={taskForm.Status} onChange={(Status) => onTaskFormChange({ ...taskForm, Status })} />
                                         </QuickActionFormRow>
                                         <QuickActionFormRow>
                                             <QuickActionLongTextInput label="説明" value={taskForm.Description} onChange={(Description) => onTaskFormChange({ ...taskForm, Description })} />

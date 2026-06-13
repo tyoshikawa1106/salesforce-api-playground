@@ -57,7 +57,24 @@ function escapeSoslTerm(term: string): string {
     return term.replace(soslReservedCharacters, "\\$&");
 }
 
-export function buildGlobalSearchSosl(query: string): string {
+function withOptionalAccountRecordTypeId(fields: readonly string[], includeRecordTypeId: boolean) {
+    return includeRecordTypeId
+        ? fields.flatMap((field) => field === "Id" ? ["Id", "RecordTypeId"] : [field])
+        : [...fields];
+}
+
+export function buildAccountListQuery(includeRecordTypeId = false): string {
+    const fields = withOptionalAccountRecordTypeId(accountListQueryFields, includeRecordTypeId);
+
+    return [
+        `SELECT ${fields.join(", ")}`,
+        "FROM Account",
+        "ORDER BY LastModifiedDate DESC",
+        `LIMIT ${DEFAULT_SALESFORCE_QUERY_LIMIT}`
+    ].join(" ");
+}
+
+export function buildGlobalSearchSosl(query: string, includeAccountRecordTypeId = false): string {
     const escapedTerms = query
         .trim()
         .split(/\s+/)
@@ -65,9 +82,11 @@ export function buildGlobalSearchSosl(query: string): string {
         .filter(Boolean);
     const searchExpression = `${escapedTerms.join(" ")}*`;
 
+    const accountFields = withOptionalAccountRecordTypeId(accountSearchFields, includeAccountRecordTypeId);
+
     return [
         `FIND {${searchExpression}} IN ALL FIELDS RETURNING`,
-        `Account(${accountSearchFields.join(", ")} LIMIT 5),`,
+        `Account(${accountFields.join(", ")} LIMIT 5),`,
         `Contact(${contactSearchFields.join(", ")} LIMIT 5)`
     ].join(" ");
 }
@@ -79,6 +98,7 @@ export function toSearchResultItem(record: SalesforceSearchRecord): SearchResult
             record: {
                 Id: record.Id,
                 Name: record.Name,
+                RecordTypeId: record.RecordTypeId,
                 Phone: record.Phone,
                 Website: record.Website,
                 Industry: record.Industry,

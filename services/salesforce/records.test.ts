@@ -154,6 +154,26 @@ describe("Salesforce record services", () => {
         );
     });
 
+    it("includes Account RecordTypeId only when describe exposes the field", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.describe.mockResolvedValue({
+            fields: [{ name: "Id" }, { name: "RecordTypeId" }],
+            queryable: true
+        });
+        jsforceMocks.query.mockResolvedValue({
+            records: [{ Id: "001xx000003DGbY", RecordTypeId: "012xx0000000001AAA", Name: "Acme" }]
+        });
+
+        await expect(listAccounts()).resolves.toEqual({
+            data: { accounts: [{ Id: "001xx000003DGbY", RecordTypeId: "012xx0000000001AAA", Name: "Acme" }] },
+            session
+        });
+
+        expect(jsforceMocks.query).toHaveBeenCalledWith(
+            "SELECT Id, RecordTypeId, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, CreatedDate, LastModifiedDate, LastModifiedBy.Name FROM Account ORDER BY LastModifiedDate DESC LIMIT 200"
+        );
+    });
+
     it("lists contacts with the last modified user field", async () => {
         getSessionMock.mockResolvedValue(session);
         jsforceMocks.query.mockResolvedValue({
@@ -385,6 +405,44 @@ describe("Salesforce record services", () => {
         });
         expect(jsforceMocks.search).toHaveBeenCalledWith(
             "FIND {Acme*} IN ALL FIELDS RETURNING Account(Id, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, CreatedDate, LastModifiedDate LIMIT 5), Contact(Id, FirstName, LastName, Email, Phone, Title, Department, AccountId, Account.Name, CreatedDate, LastModifiedDate LIMIT 5)"
+        );
+    });
+
+    it("includes Account RecordTypeId in SOSL only when describe exposes the field", async () => {
+        getSessionMock.mockResolvedValue(session);
+        jsforceMocks.describe
+            .mockResolvedValueOnce({
+                fields: [{ name: "Id" }, { name: "RecordTypeId" }],
+                searchable: true
+            })
+            .mockResolvedValueOnce({
+                searchable: true
+            });
+        jsforceMocks.search.mockResolvedValue({
+            searchRecords: [
+                {
+                    attributes: { type: "Account" },
+                    Id: "001xx000003DGbY",
+                    RecordTypeId: "012xx0000000001AAA",
+                    Name: "Acme"
+                }
+            ]
+        });
+
+        await expect(searchAccountsAndContacts("Acme")).resolves.toMatchObject({
+            data: {
+                results: [
+                    {
+                        record: {
+                            RecordTypeId: "012xx0000000001AAA"
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(jsforceMocks.search).toHaveBeenCalledWith(
+            "FIND {Acme*} IN ALL FIELDS RETURNING Account(Id, RecordTypeId, Name, Phone, Website, Industry, Type, BillingCity, BillingCountry, CreatedDate, LastModifiedDate LIMIT 5), Contact(Id, FirstName, LastName, Email, Phone, Title, Department, AccountId, Account.Name, CreatedDate, LastModifiedDate LIMIT 5)"
         );
     });
 

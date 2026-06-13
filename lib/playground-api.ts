@@ -66,6 +66,25 @@ export const playgroundApiPaths = {
     accounts: "/api/accounts",
     contacts: "/api/contacts",
     integrationAccounts: "/api/integration/ui/accounts",
+    picklistValues({
+        fields,
+        object,
+        recordTypeId
+    }: {
+        fields: string[];
+        object: "Account" | "Task";
+        recordTypeId?: string;
+    }): string {
+        const searchParams = new URLSearchParams({
+            fields: fields.join(","),
+            object
+        });
+        if (recordTypeId?.trim()) {
+            searchParams.set("recordTypeId", recordTypeId.trim());
+        }
+
+        return `/api/picklist-values?${searchParams.toString()}`;
+    },
     recycleBin: "/api/recycle-bin",
     recycleBinUndelete: "/api/recycle-bin/undelete",
     search(query: string): string {
