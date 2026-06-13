@@ -13,7 +13,7 @@ import type {
 import { DEFAULT_SALESFORCE_QUERY_LIMIT } from "@/lib/salesforce/query-limits";
 import { withStandardObjectConnection } from "./client";
 import { countQueryableRecords } from "./count-results";
-import { createStandardObject, deleteStandardObject, updateStandardObject } from "./object-mutations";
+import { createStandardObjectOperations } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
 type ActivityObjectName = "Task" | "Event";
@@ -91,22 +91,6 @@ function buildActivityCreateFields<TInput extends ActivityCreateInput>(input: TI
     };
 }
 
-function createActivityOperations<TCreateInput extends ActivityCreateInput, TUpdateInput extends object>(
-    objectName: ActivityObjectName
-) {
-    return {
-        create(input: TCreateInput) {
-            return createStandardObject(objectName, buildActivityCreateFields(input));
-        },
-        update(id: string, input: TUpdateInput) {
-            return updateStandardObject(objectName, id, input);
-        },
-        deleteOne(id: string) {
-            return deleteStandardObject(objectName, id);
-        }
-    };
-}
-
 function compareActivityItems(a: ActivityTimelineItem, b: ActivityTimelineItem) {
     const aDate = a.type === "event" ? a.startDateTime : a.date;
     const bDate = b.type === "event" ? b.startDateTime : b.date;
@@ -179,8 +163,12 @@ function getActivityById<TRecord extends TaskActivityRecord | EventActivityRecor
     });
 }
 
-const taskActivities = createActivityOperations<TaskActivityInput, TaskActivityUpdateInput>("Task");
-const eventActivities = createActivityOperations<EventActivityInput, EventActivityUpdateInput>("Event");
+const taskActivities = createStandardObjectOperations<TaskActivityInput, TaskActivityUpdateInput>("Task", {
+    buildCreateInput: buildActivityCreateFields
+});
+const eventActivities = createStandardObjectOperations<EventActivityInput, EventActivityUpdateInput>("Event", {
+    buildCreateInput: buildActivityCreateFields
+});
 
 export async function countActivities() {
     return withStandardObjectConnection(async (connection) => {

@@ -11,12 +11,7 @@ import type {
 } from "@/lib/salesforce/records";
 import { withStandardObjectConnection } from "./client";
 import {
-    createIntegrationStandardObject,
-    createStandardObject,
-    deleteStandardObject,
-    deleteStandardObjects,
-    updateIntegrationStandardObject,
-    updateStandardObject
+    createStandardObjectOperations
 } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 import {
@@ -31,31 +26,8 @@ function hasDescribeField(describe: { fields?: Array<{ name: string }> }, fieldN
     return describe.fields?.some((field) => field.name === fieldName) ?? false;
 }
 
-function createRecordOperations<TCreateInput extends object, TUpdateInput extends object>(objectName: string) {
-    return {
-        create(input: TCreateInput) {
-            return createStandardObject(objectName, input);
-        },
-        update(id: string, input: TUpdateInput) {
-            return updateStandardObject(objectName, id, input);
-        },
-        deleteOne(id: string) {
-            return deleteStandardObject(objectName, id);
-        },
-        deleteMany(ids: string[]) {
-            return deleteStandardObjects(objectName, ids);
-        },
-        createIntegration(input: TCreateInput) {
-            return createIntegrationStandardObject(objectName, input);
-        },
-        updateIntegration(id: string, input: TUpdateInput) {
-            return updateIntegrationStandardObject(objectName, id, input);
-        }
-    };
-}
-
-const accountRecords = createRecordOperations<AccountInput, AccountUpdateInput>("Account");
-const contactRecords = createRecordOperations<ContactInput, ContactUpdateInput>("Contact");
+const accountRecords = createStandardObjectOperations<AccountInput, AccountUpdateInput>("Account");
+const contactRecords = createStandardObjectOperations<ContactInput, ContactUpdateInput>("Contact");
 
 export async function listAccounts() {
     return withStandardObjectConnection(async (connection) => {

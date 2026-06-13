@@ -15,14 +15,31 @@ import { withStandardObjectConnection } from "./client";
 import { createStandardObject, deleteStandardObject, updateStandardObject } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
+const objectMutationMocks = vi.hoisted(() => ({
+    createStandardObject: vi.fn(),
+    deleteStandardObject: vi.fn(),
+    updateStandardObject: vi.fn()
+}));
+
 vi.mock("./client", () => ({
     withStandardObjectConnection: vi.fn()
 }));
 
 vi.mock("./object-mutations", () => ({
-    createStandardObject: vi.fn(),
-    deleteStandardObject: vi.fn(),
-    updateStandardObject: vi.fn()
+    createStandardObject: objectMutationMocks.createStandardObject,
+    deleteStandardObject: objectMutationMocks.deleteStandardObject,
+    updateStandardObject: objectMutationMocks.updateStandardObject,
+    createStandardObjectOperations: vi.fn((objectName: string, options: { buildCreateInput?: (input: object) => object } = {}) => ({
+        create(input: object) {
+            return objectMutationMocks.createStandardObject(objectName, options.buildCreateInput?.(input) ?? input);
+        },
+        update(id: string, input: object) {
+            return objectMutationMocks.updateStandardObject(objectName, id, input);
+        },
+        deleteOne(id: string) {
+            return objectMutationMocks.deleteStandardObject(objectName, id);
+        }
+    }))
 }));
 
 vi.mock("./object-permissions", () => ({
