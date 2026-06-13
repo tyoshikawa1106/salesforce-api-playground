@@ -27,6 +27,7 @@ describe("playgroundApiPaths", () => {
         );
         expect(playgroundApiPaths.activityTasks).toBe("/api/activities/tasks");
         expect(playgroundApiPaths.userCounts).toBe("/api/user-counts");
+        expect(playgroundApiPaths.recordCounts).toBe("/api/record-counts");
         expect(playgroundApiPaths.integrationAccounts).toBe("/api/integration/ui/accounts");
         expect(playgroundApiPaths.picklistValues({ object: "Account", fields: ["Industry", "Type"] })).toBe(
             "/api/picklist-values?fields=Industry%2CType&object=Account"

@@ -1,62 +1,102 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PageHeader } from "./PageHeader";
+import { StandardIcon, type StandardIconName } from "./SldsIcon";
 
 type HomeCountsProps = {
     accountCount: number;
+    campaignCount: number;
+    caseCount: number;
     contactCount: number;
+    emailMessageCount: number;
     eventCount: number;
+    leadCount: number;
+    opportunityCount: number;
+    productCount: number;
     recycleBinCount: number;
     taskCount: number;
     userCount: number;
 };
 
-export function HomePanel() {
+type RecordCountSummary = {
+    count: number;
+    iconClassName: string;
+    iconName: StandardIconName;
+    label: string;
+};
+
+export function HomePanel({ userName }: { userName?: string }) {
     return (
         <PageHeader
             tab="home"
-            eyebrow="ホーム"
             title="Salesforce API Playground"
-            metaText="Salesforce OAuth と REST API を試すための Next.js アプリ"
+            metaText={userName ? `Login: ${userName}` : undefined}
         />
     );
 }
 
 export function HomeCounts({
     accountCount,
+    campaignCount,
+    caseCount,
     contactCount,
+    emailMessageCount,
     eventCount,
+    leadCount,
+    opportunityCount,
+    productCount,
     recycleBinCount,
     taskCount,
     userCount
 }: HomeCountsProps) {
-    const summaries = [
-        ["取引先", accountCount],
-        ["取引先責任者", contactCount],
-        ["行動", eventCount],
-        ["ToDo", taskCount],
-        ["ユーザー", userCount],
-        ["ごみ箱", recycleBinCount]
-    ] as const;
+    const summaries: RecordCountSummary[] = [
+        { count: accountCount, iconClassName: "slds-icon-standard-account", iconName: "account", label: "取引先" },
+        { count: contactCount, iconClassName: "slds-icon-standard-contact", iconName: "contact", label: "取引先責任者" },
+        { count: eventCount, iconClassName: "slds-icon-standard-event", iconName: "event", label: "行動" },
+        { count: taskCount, iconClassName: "slds-icon-standard-task", iconName: "task", label: "ToDo" },
+        { count: userCount, iconClassName: "slds-icon-standard-user", iconName: "user", label: "ユーザー" },
+        { count: recycleBinCount, iconClassName: "slds-icon-standard-empty", iconName: "recycleBin", label: "ごみ箱" },
+        { count: leadCount, iconClassName: "slds-icon-standard-lead", iconName: "lead", label: "リード" },
+        { count: opportunityCount, iconClassName: "slds-icon-standard-opportunity", iconName: "opportunity", label: "商談" },
+        { count: productCount, iconClassName: "slds-icon-standard-product", iconName: "product", label: "商品" },
+        { count: campaignCount, iconClassName: "slds-icon-standard-campaign", iconName: "campaign", label: "キャンペーン" },
+        { count: caseCount, iconClassName: "slds-icon-standard-case", iconName: "case", label: "ケース" },
+        { count: emailMessageCount, iconClassName: "slds-icon-standard-email", iconName: "email", label: "メールメッセージ" }
+    ];
 
     return (
         <section className="slds-m-top_small playground-home-count-summary">
             <div className="slds-grid slds-wrap slds-gutters playground-home-counts">
-                {summaries.map(([label, count]) => (
-                    <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 playground-home-counts__item" key={label}>
-                        <article className="slds-tile slds-box slds-box_x-small slds-theme_default">
-                            <h2 className="slds-tile__title slds-truncate" title={label}>
-                                {label}
-                            </h2>
-                            <div className="slds-tile__detail">
-                                <p className="slds-text-heading_medium" title={`${count} 件`}>
-                                    <AnimatedCount value={count} />
-                                </p>
-                            </div>
-                        </article>
-                    </div>
-                ))}
+                {summaries.map((summary) => <RecordCountCard key={summary.label} summary={summary} />)}
             </div>
         </section>
+    );
+}
+
+function RecordCountCard({ summary }: { summary: RecordCountSummary }) {
+    const { count, iconClassName, iconName, label } = summary;
+
+    return (
+        <div className="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 playground-home-counts__item">
+            <article className="slds-tile slds-box slds-box_x-small slds-theme_default playground-home-count-card">
+                <h2 className="slds-tile__title playground-home-count-card__label" title={label}>
+                    <span className="slds-media slds-media_center">
+                        <span className="slds-media__figure slds-m-right_x-small">
+                            <span className={`slds-icon_container ${iconClassName}`} title={label}>
+                                <StandardIcon className="slds-icon slds-icon_x-small" name={iconName} />
+                            </span>
+                        </span>
+                        <span className="slds-media__body slds-truncate">
+                            {label}
+                        </span>
+                    </span>
+                </h2>
+                <div className="slds-tile__detail playground-home-count-card__content">
+                    <p className="slds-text-heading_medium slds-text-align_center" title={`${count} 件`}>
+                        <AnimatedCount value={count} />
+                    </p>
+                </div>
+            </article>
+        </div>
     );
 }
 

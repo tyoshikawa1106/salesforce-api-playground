@@ -11,7 +11,7 @@ export function PageHeader({
     className = "slds-page-header_joined"
 }: {
     tab: ActiveTab;
-    eyebrow: string;
+    eyebrow?: string;
     title: string;
     actions?: ReactNode;
     metaText?: string;
@@ -23,12 +23,14 @@ export function PageHeader({
                 <div className="slds-page-header__col-title">
                     <div className="slds-media">
                         <div className="slds-media__figure">
-                            <StandardPageHeaderIcon tab={tab} label={eyebrow} />
+                            <StandardPageHeaderIcon tab={tab} label={eyebrow ?? title} />
                         </div>
                         <div className="slds-media__body">
                             <div className="slds-page-header__name">
                                 <div className="slds-page-header__name-title">
-                                    <p className="slds-text-title_caps">{eyebrow}</p>
+                                    {eyebrow ? (
+                                        <p className="slds-text-title_caps">{eyebrow}</p>
+                                    ) : null}
                                     <h1>
                                         <span className="slds-page-header__title slds-truncate" title={title}>
                                             {title}
@@ -36,6 +38,9 @@ export function PageHeader({
                                     </h1>
                                 </div>
                             </div>
+                            {metaText ? (
+                                <p className="slds-page-header__name-meta">{metaText}</p>
+                            ) : null}
                         </div>
                     </div>
                 </div>
@@ -45,13 +50,6 @@ export function PageHeader({
                     </div>
                 ) : null}
             </div>
-            {metaText ? (
-                <div className="slds-page-header__row">
-                    <div className="slds-page-header__col-meta">
-                        <p className="slds-page-header__meta-text">{metaText}</p>
-                    </div>
-                </div>
-            ) : null}
         </div>
     );
 }

@@ -31,6 +31,14 @@ type PlaygroundWorkspaceProps = {
     recordSelection: {
         accounts: Account[];
         contacts: Contact[];
+        recordCounts: {
+            campaigns: number;
+            cases: number;
+            emailMessages: number;
+            leads: number;
+            opportunities: number;
+            products: number;
+        };
         selectedAccount: Account | null;
         selectedActivity: Activity | null;
         selectedContact: Contact | null;
@@ -83,14 +91,14 @@ export function PlaygroundWorkspace({
 }: PlaygroundWorkspaceProps) {
     const { activeTab, activityCounts, loading } = view;
     const { connected, userId, userName } = session;
-    const { accounts, contacts, selectedAccount, selectedActivity, selectedContact, userCounts } = recordSelection;
+    const { accounts, contacts, recordCounts, selectedAccount, selectedActivity, selectedContact, userCounts } = recordSelection;
     const sectionClassName = activeTab === "home" ? "slds-card" : "playground-workspace";
 
     return (
         <main id="main-content" className="slds-template_default">
             <section className={sectionClassName}>
                 {activeTab === "home" ? (
-                    <HomePanel />
+                    <HomePanel userName={userName} />
                 ) : null}
 
                 {activeTab === "accounts" && connected && !selectedAccount ? (
@@ -193,8 +201,14 @@ export function PlaygroundWorkspace({
             {activeTab === "home" ? (
                 <HomeCounts
                     accountCount={accounts.length}
+                    campaignCount={recordCounts.campaigns}
+                    caseCount={recordCounts.cases}
                     contactCount={contacts.length}
+                    emailMessageCount={recordCounts.emailMessages}
                     eventCount={activityCounts.events}
+                    leadCount={recordCounts.leads}
+                    opportunityCount={recordCounts.opportunities}
+                    productCount={recordCounts.products}
                     recycleBinCount={recycleBinActions.items.length}
                     taskCount={activityCounts.tasks}
                     userCount={userCounts.active}
