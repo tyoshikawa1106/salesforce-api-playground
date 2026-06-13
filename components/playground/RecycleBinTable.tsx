@@ -75,6 +75,8 @@ export function RecycleBinTable({
     onToggleSelection: (id: string) => void;
     onToggleVisibleSelection: () => void;
 }) {
+    const sortedItems = [...items].sort((a, b) => (b.deletedAt || "").localeCompare(a.deletedAt || ""));
+
     return (
         <DataTable ariaLabel="ごみ箱の項目一覧">
             <thead>
@@ -85,14 +87,14 @@ export function RecycleBinTable({
                         mixed={someVisibleSelected}
                         onChange={onToggleVisibleSelection}
                     />
-                    <DataTableColumnHeader label="名前" />
-                    <DataTableColumnHeader label="種別" />
                     <DataTableColumnHeader label="削除日時" />
                     <DataTableColumnHeader label="削除したユーザー" />
+                    <DataTableColumnHeader label="種別" />
+                    <DataTableColumnHeader label="レコード名" />
                 </tr>
             </thead>
             <tbody>
-                {items.map((item) => (
+                {sortedItems.map((item) => (
                     <tr key={`${item.objectApiName}:${item.id}`} className="slds-hint-parent" aria-selected={selectedIds.has(item.id)}>
                         <SelectionCell
                             ariaLabel={`${item.objectLabel} ${item.name} を選択`}
@@ -100,14 +102,14 @@ export function RecycleBinTable({
                             onChange={() => onToggleSelection(item.id)}
                             toggleOnCellClick
                         />
-                        <th className="slds-cell_action-mode" scope="row" data-label="名前">
+                        <TableCell label="削除日時" value={formatDate(item.deletedAt)} />
+                        <TableCell label="削除したユーザー" value={item.deletedByName} />
+                        <TableCell label="種別" value={<RecycleBinObjectType item={item} />} />
+                        <th className="slds-cell_action-mode" scope="row" data-label="レコード名">
                             <div className="slds-truncate" title={item.name}>
                                 {item.name}
                             </div>
                         </th>
-                        <TableCell label="種別" value={<RecycleBinObjectType item={item} />} />
-                        <TableCell label="削除日時" value={formatDate(item.deletedAt)} />
-                        <TableCell label="削除したユーザー" value={item.deletedByName} />
                     </tr>
                 ))}
             </tbody>
