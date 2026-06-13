@@ -1,2 +1,25 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Normalize text files to LF in the repository.
+* text=auto eol=lf
+
+# Source and project files.
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+*.svg text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary assets.
+*.gif binary -eol
+*.ico binary -eol
+*.jpg binary -eol
+*.jpeg binary -eol
+*.pdf binary -eol
+*.png binary -eol
+*.webp binary -eol
+*.woff binary -eol
+*.woff2 binary -eol
