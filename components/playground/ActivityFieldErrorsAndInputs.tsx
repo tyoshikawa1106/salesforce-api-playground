@@ -1,6 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type KeyboardEvent, type ReactNode, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
     getEventFormErrorLabels,
     getTaskFormErrorLabels,
@@ -9,6 +10,8 @@ import {
 } from "./activity-task-form";
 import type { PicklistOption } from "./picklist-options";
 import { taskStatusFallbackOptions, withCurrentPicklistOption } from "./picklist-options";
+import { UtilityIcon } from "./SldsIcon";
+import { useInputPopupPlacement } from "./useInputPopupPlacement";
 
 export function TaskFormErrorSummary({ errors }: { errors: TaskFormErrors }) {
     return <ActivityFormErrorSummary errorLabels={getTaskFormErrorLabels(errors)} />;
@@ -144,25 +147,119 @@ export function QuickActionSelect({
     value: string;
 }) {
     const displayedOptions = withCurrentPicklistOption(options, value);
+    const selectOptions = [{ label: "--なし--", value: "" }, ...displayedOptions];
+    const selectedIndex = Math.max(selectOptions.findIndex((option) => option.value === value), 0);
+    const selectedLabel = selectOptions[selectedIndex]?.label ?? "--なし--";
+    const [open, setOpen] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(selectedIndex);
+    const inputId = `activity-picklist-${label}`;
+    const listboxId = `${inputId}-listbox`;
+    const activeOptionId = `${listboxId}-option-${activeIndex}`;
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
+
+    useEffect(() => {
+        setActiveIndex(selectedIndex);
+    }, [selectedIndex]);
+
+    function selectValue(nextValue: string) {
+        onChange(nextValue);
+        setOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setOpen(true);
+            setActiveIndex((current) => Math.min(current + 1, selectOptions.length - 1));
+            return;
+        }
+
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setOpen(true);
+            setActiveIndex((current) => Math.max(current - 1, 0));
+            return;
+        }
+
+        if (event.key === "Enter" && open) {
+            event.preventDefault();
+            selectValue(selectOptions[activeIndex]?.value ?? "");
+            return;
+        }
+
+        if (event.key === "Escape") {
+            setOpen(false);
+        }
+    }
 
     return (
         <div className={`slds-form-element slds-size_1-of-1 ${error ? "slds-has-error" : ""}`}>
-            <span className="slds-form-element__label">
+            <label className="slds-form-element__label" htmlFor={inputId}>
                 <RequiredFieldMarker required={required} />
                 {label}
-            </span>
-            <span className="slds-form-element__control">
-                <span className="slds-select_container">
-                    <select className="slds-select" required={required} aria-invalid={Boolean(error)} value={value} onChange={(event) => onChange(event.target.value)}>
-                        <option value="">--なし--</option>
-                        {displayedOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                </span>
-            </span>
+            </label>
+            <div className="slds-form-element__control">
+                <div className="slds-combobox_container">
+                    <div
+                        ref={containerRef}
+                        className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
+                        onBlur={(event) => {
+                            if (!event.currentTarget.contains(event.relatedTarget)) {
+                                setOpen(false);
+                            }
+                        }}
+                    >
+                        <div className="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                            <input
+                                className="slds-combobox__input slds-input"
+                                id={inputId}
+                                type="text"
+                                role="combobox"
+                                aria-activedescendant={open ? activeOptionId : undefined}
+                                aria-controls={listboxId}
+                                aria-expanded={open}
+                                aria-haspopup="listbox"
+                                aria-invalid={Boolean(error)}
+                                aria-readonly="true"
+                                autoComplete="off"
+                                readOnly
+                                required={required}
+                                value={selectedLabel}
+                                onClick={() => setOpen(true)}
+                                onFocus={() => setOpen(true)}
+                                onKeyDown={handleKeyDown}
+                            />
+                            <div className="slds-input__icon-group slds-input__icon-group_right">
+                                <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default slds-icon_x-small" name="down" />
+                            </div>
+                        </div>
+                        {open && portalTarget ? createPortal(
+                            <div ref={popupRef} style={popupStyle} className={`slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_left slds-dropdown_length-5 playground-input-popup${popupClassName}`} id={listboxId} role="listbox" aria-label={label}>
+                                {selectOptions.map((option, index) => (
+                                    <div
+                                        className={`slds-media slds-listbox__option slds-media_center slds-media_small slds-listbox__option_plain ${activeIndex === index ? "slds-has-focus" : ""}`}
+                                        data-value={option.value}
+                                        id={`${listboxId}-option-${index}`}
+                                        key={option.value}
+                                        role="option"
+                                        aria-selected={value === option.value}
+                                        onPointerDown={(event) => {
+                                            event.preventDefault();
+                                            selectValue(option.value);
+                                        }}
+                                        onMouseEnter={() => setActiveIndex(index)}
+                                    >
+                                        <span className="slds-media__body">
+                                            <span title={option.label}>{option.label}</span>
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>,
+                            portalTarget
+                        ) : null}
+                    </div>
+                </div>
+            </div>
             <FieldError message={error} />
         </div>
     );

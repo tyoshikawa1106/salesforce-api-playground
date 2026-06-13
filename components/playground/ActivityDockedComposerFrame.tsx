@@ -73,7 +73,7 @@ export function ActivityDockedComposerFrame({
                 <legend className="slds-assistive-text">{title}</legend>
                 {children}
             </fieldset>
-            <footer className="slds-docked-composer__footer slds-shrink-none slds-grid_align-end">
+            <footer className="slds-docked-composer__footer slds-shrink-none slds-grid_align-end playground-task-composer__footer">
                 <button className="slds-button slds-button_brand" type="submit" disabled={saving}>
                     保存
                 </button>

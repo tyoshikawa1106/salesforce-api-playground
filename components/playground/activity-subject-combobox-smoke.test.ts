@@ -18,6 +18,7 @@ describe("activity subject combobox smoke rendering", () => {
 
         expect(markup).toContain("id=\"new-event-subject-combobox-input\"");
         expect(markup).toContain("aria-controls=\"new-event-subject-combobox-listbox\"");
+        expect(markup).toContain("playground-input-popup-container");
         expect(markup).not.toContain("role=\"listbox\"");
     });
 });

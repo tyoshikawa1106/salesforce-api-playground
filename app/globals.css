@@ -162,8 +162,17 @@ body {
     text-align: left;
 }
 
+.playground-input-popup-container_open {
+    position: relative;
+    z-index: 7200;
+}
+
+.playground-input-popup {
+    z-index: 7200;
+}
+
 .playground-task-datepicker {
-    z-index: 7100;
+    z-index: 7200;
 }
 
 .playground-task-composer-backdrop {

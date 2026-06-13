@@ -216,7 +216,7 @@ export function RecordModals({
             {modal?.type === "activity" && modal.mode === "edit" ? (
                 <Modal title={`${activityModalLabel}を編集`} onClose={actions.onCloseRecordModal}>
                     <form onSubmit={saveActivity} noValidate>
-                        <div className="slds-modal__content slds-p-around_medium">
+                        <div className="slds-modal__content slds-p-around_medium playground-activity-modal-content">
                             {activityModalType === "task" ? (
                                 <div className="slds-form_compound">
                                     <TaskFormErrorSummary errors={taskErrors} />
@@ -258,7 +258,7 @@ export function RecordModals({
                                 </div>
                             )}
                         </div>
-                        <ModalFooter saving={saving} onCancel={actions.onCloseRecordModal} />
+                        <ModalFooter className="playground-activity-modal-footer" saving={saving} onCancel={actions.onCloseRecordModal} />
                     </form>
                 </Modal>
             ) : null}
