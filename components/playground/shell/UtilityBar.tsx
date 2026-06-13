@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { StandardIcon, UtilityIcon, type UtilityIconName } from "./SldsIcon";
+import { useVisualViewportBottomOffset } from "./useVisualViewportBottomOffset";
 
 type UtilityBarItemId = "call" | "history" | "notes" | "omni";
 
@@ -23,6 +24,8 @@ export function UtilityBar() {
     const [activeItemId, setActiveItemId] = useState<UtilityBarItemId | null>(null);
     const activeItem = utilityItems.find((item) => item.id === activeItemId);
     const panelHeadingId = activeItem ? `utility-panel-heading-${activeItem.id}` : undefined;
+
+    useVisualViewportBottomOffset();
 
     return (
         <footer className="slds-utility-bar_container playground-utility-bar" aria-label="Utility Bar">
