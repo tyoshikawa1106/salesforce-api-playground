@@ -62,14 +62,12 @@ body {
 }
 
 .playground-shell #main-content {
-    padding-left: var(--playground-template-gutter);
-    padding-right: var(--playground-template-gutter);
+    padding-inline: var(--playground-template-gutter);
     padding-top: var(--playground-content-offset-with-gutter);
 }
 
 .playground-shell #main-content.playground-main-content_flush-record-list {
-    padding-left: 0;
-    padding-right: 0;
+    padding-inline: 0;
     padding-top: var(--playground-content-offset);
 }
 
@@ -199,8 +197,7 @@ body {
 .playground-activity-composer-action {
     justify-content: center;
     min-width: auto;
-    padding-left: var(--slds-g-spacing-3, 0.75rem);
-    padding-right: var(--slds-g-spacing-3, 0.75rem);
+    padding-inline: var(--slds-g-spacing-3, 0.75rem);
 }
 
 .playground-activity-composer-action__icon {
@@ -271,10 +268,7 @@ body {
     z-index: var(--playground-input-popup-z-index);
 }
 
-.playground-input-popup {
-    z-index: var(--playground-input-popup-z-index);
-}
-
+.playground-input-popup,
 .playground-task-datepicker {
     z-index: var(--playground-input-popup-z-index);
 }
@@ -286,11 +280,9 @@ body {
 .playground-task-composer-modal {
     display: flex;
     justify-content: center;
-    margin-left: auto;
-    margin-right: auto;
+    margin-inline: auto;
     position: fixed;
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     top: var(--slds-g-spacing-12, 6rem);
     width: min(56rem, calc(100vw - 3rem));
     z-index: var(--playground-overlay-z-index);
@@ -340,8 +332,7 @@ body {
     }
 
     .playground-login-page {
-        padding-left: var(--slds-g-spacing-3, 0.75rem);
-        padding-right: var(--slds-g-spacing-3, 0.75rem);
+        padding-inline: var(--slds-g-spacing-3, 0.75rem);
     }
 
     .playground-list-view__controls {
