@@ -1,6 +1,6 @@
 "use client";
 
-import { type KeyboardEvent, useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { taskSubjectOptions } from "./activity-task-form";
 import { QuickActionFieldShell } from "./ActivityFieldErrorsAndInputs";
@@ -24,13 +24,12 @@ export function QuickActionSubjectCombobox({
 }) {
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(1);
-    const comboboxRef = useRef<HTMLDivElement>(null);
     const inputId = `${idPrefix}-input`;
     const errorId = error ? `${inputId}-error` : undefined;
     const listboxId = `${idPrefix}-listbox`;
     const activeOptionId = `${inputId}-${activeIndex}`;
     const shouldShowOptions = (nextValue: string) => nextValue === "" || taskSubjectOptions.includes(nextValue as (typeof taskSubjectOptions)[number]);
-    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
+    const { containerRef, isTargetWithinPopup, popupClassName, popupRef, popupStyle, portalTarget, shouldCloseOnBlur } = useInputPopupPlacement(open);
 
     useEffect(() => {
         if (!open) {
@@ -38,8 +37,7 @@ export function QuickActionSubjectCombobox({
         }
 
         function closeOnOutsidePointer(event: Event) {
-            const { current } = comboboxRef;
-            if (event.target instanceof Node && current?.contains(event.target)) {
+            if (isTargetWithinPopup(event.target)) {
                 return;
             }
 
@@ -51,7 +49,7 @@ export function QuickActionSubjectCombobox({
         return () => {
             document.removeEventListener("pointerdown", closeOnOutsidePointer);
         };
-    }, [open]);
+    }, [isTargetWithinPopup, open]);
 
     function selectSubject(nextValue: string) {
         onChange(nextValue);
@@ -101,13 +99,10 @@ export function QuickActionSubjectCombobox({
             <div className="slds-form-element__control">
                 <div className="slds-combobox_container">
                     <div
-                        ref={(element) => {
-                            comboboxRef.current = element;
-                            containerRef.current = element;
-                        }}
+                        ref={containerRef}
                         className={`slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
                         onBlur={(event) => {
-                            if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
+                            if (shouldCloseOnBlur(event.relatedTarget)) {
                                 setOpen(false);
                             }
                         }}

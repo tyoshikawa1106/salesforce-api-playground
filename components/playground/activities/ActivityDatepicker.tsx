@@ -38,7 +38,7 @@ export function QuickActionDatepicker({
     const todayValue = buildDateValue(new Date());
     const displayDate = new Date(displayYear, displayMonth, 1);
     const yearOptions = Array.from({ length: 201 }, (_, index) => new Date().getFullYear() - 100 + index);
-    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget } = useInputPopupPlacement(open);
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget, shouldCloseOnBlur } = useInputPopupPlacement(open);
 
     function setVisibleMonth(nextDate: Date) {
         setDisplayYear(nextDate.getFullYear());
@@ -69,7 +69,7 @@ export function QuickActionDatepicker({
                     className={`slds-dropdown-trigger slds-dropdown-trigger_click slds-size_1-of-1 playground-input-popup-container ${open ? "slds-is-open playground-input-popup-container_open" : ""}`}
                     role="group"
                     onBlur={(event) => {
-                        if (!event.currentTarget.contains(event.relatedTarget)) {
+                        if (shouldCloseOnBlur(event.relatedTarget)) {
                             setOpen(false);
                         }
                     }}
