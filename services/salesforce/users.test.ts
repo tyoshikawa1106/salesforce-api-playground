@@ -28,8 +28,11 @@ afterEach(() => {
 });
 
 describe("Salesforce user services", () => {
-    it("counts active users after checking query permission", async () => {
-        const query = vi.fn().mockResolvedValueOnce({ records: [{ expr0: 8 }] });
+    it.each([
+        ["COUNT() expression", { records: [{ expr0: 8 }] }, 8],
+        ["totalSize fallback", { totalSize: 3 }, 3]
+    ] as const)("counts active users from %s", async (_label, countResult, expectedCount) => {
+        const query = vi.fn().mockResolvedValueOnce(countResult);
         const connection = { query };
 
         withStandardObjectConnectionMock.mockImplementation(async (operation) => ({
@@ -40,7 +43,7 @@ describe("Salesforce user services", () => {
         await expect(countActiveUsers()).resolves.toEqual({
             data: {
                 userCounts: {
-                    active: 8
+                    active: expectedCount
                 }
             },
             session
@@ -48,23 +51,5 @@ describe("Salesforce user services", () => {
 
         expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "User", "queryable");
         expect(query).toHaveBeenCalledWith("SELECT COUNT() FROM User WHERE IsActive = true");
-    });
-
-    it("falls back to totalSize when the count expression is unavailable", async () => {
-        const query = vi.fn().mockResolvedValueOnce({ totalSize: 3 });
-        const connection = { query };
-
-        withStandardObjectConnectionMock.mockImplementation(async (operation) => ({
-            data: await operation(connection as never, session),
-            session
-        }));
-
-        await expect(countActiveUsers()).resolves.toMatchObject({
-            data: {
-                userCounts: {
-                    active: 3
-                }
-            }
-        });
     });
 });

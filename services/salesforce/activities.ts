@@ -12,6 +12,7 @@ import type {
 } from "@/lib/salesforce/activities";
 import { DEFAULT_SALESFORCE_QUERY_LIMIT } from "@/lib/salesforce/query-limits";
 import { withStandardObjectConnection } from "./client";
+import { countQueryableRecords } from "./count-results";
 import { createStandardObject, deleteStandardObject, updateStandardObject } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 
@@ -181,24 +182,17 @@ function getActivityById<TRecord extends TaskActivityRecord | EventActivityRecor
 const taskActivities = createActivityOperations<TaskActivityInput, TaskActivityUpdateInput>("Task");
 const eventActivities = createActivityOperations<EventActivityInput, EventActivityUpdateInput>("Event");
 
-function readCountResult(result: { totalSize?: number; records?: Array<{ expr0?: number }> }) {
-    return result.records?.[0]?.expr0 ?? result.totalSize ?? 0;
-}
-
 export async function countActivities() {
     return withStandardObjectConnection(async (connection) => {
-        await assertObjectPermission(connection, "Task", "queryable");
-        await assertObjectPermission(connection, "Event", "queryable");
-
         const [tasks, events] = await Promise.all([
-            connection.query<{ expr0?: number }>("SELECT COUNT() FROM Task"),
-            connection.query<{ expr0?: number }>("SELECT COUNT() FROM Event")
+            countQueryableRecords(connection, "Task"),
+            countQueryableRecords(connection, "Event")
         ]);
 
         return {
             activityCounts: {
-                tasks: readCountResult(tasks),
-                events: readCountResult(events)
+                tasks,
+                events
             }
         };
     });
