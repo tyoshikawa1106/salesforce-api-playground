@@ -20,12 +20,16 @@ import {
 } from "./object-mutations";
 import { assertObjectPermission } from "./object-permissions";
 import {
-    accountListQuery,
+    buildAccountListQuery,
     buildGlobalSearchSosl,
     contactListQuery,
     toSearchResultItem,
     type SalesforceSearchRecord
 } from "./record-queries";
+
+function hasDescribeField(describe: { fields?: Array<{ name: string }> }, fieldName: string): boolean {
+    return describe.fields?.some((field) => field.name === fieldName) ?? false;
+}
 
 function createRecordOperations<TCreateInput extends object, TUpdateInput extends object>(objectName: string) {
     return {
@@ -55,8 +59,8 @@ const contactRecords = createRecordOperations<ContactInput, ContactUpdateInput>(
 
 export async function listAccounts() {
     return withStandardObjectConnection(async (connection) => {
-        await assertObjectPermission(connection, "Account", "queryable");
-        const response = await connection.query<AccountRecord>(accountListQuery);
+        const describe = await assertObjectPermission(connection, "Account", "queryable");
+        const response = await connection.query<AccountRecord>(buildAccountListQuery(hasDescribeField(describe, "RecordTypeId")));
         return { accounts: response.records };
     });
 }
@@ -95,9 +99,9 @@ export async function listContacts() {
 
 export async function searchAccountsAndContacts(query: string) {
     return withStandardObjectConnection(async (connection) => {
-        await assertObjectPermission(connection, "Account", "searchable");
+        const accountDescribe = await assertObjectPermission(connection, "Account", "searchable");
         await assertObjectPermission(connection, "Contact", "searchable");
-        const response = await connection.search(buildGlobalSearchSosl(query));
+        const response = await connection.search(buildGlobalSearchSosl(query, hasDescribeField(accountDescribe, "RecordTypeId")));
         return {
             results: response.searchRecords
                 .map((record) => toSearchResultItem(record as SalesforceSearchRecord))

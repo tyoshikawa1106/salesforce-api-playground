@@ -71,6 +71,7 @@
 | `app/api/integration/accounts/[id]/route.ts` | 外部連携用 Account 単体更新 API を定義する。 |
 | `app/api/integration/accounts/route.ts` | 外部連携用 Account 作成 API を定義する。 |
 | `app/api/integration/ui/accounts/route.ts` | UI から外部連携 Account API を試すための中継 API を定義する。 |
+| `app/api/picklist-values/route.ts` | 画面入力で使う Salesforce 選択リスト値の取得 API を定義する。 |
 | `app/api/recycle-bin-routes.test.ts` | Recycle Bin API Route の挙動を確認する。 |
 | `app/api/recycle-bin/route.ts` | Recycle Bin 内レコード取得 API を定義する。 |
 | `app/api/recycle-bin/undelete/route.ts` | Recycle Bin からの復元 API を定義する。 |
@@ -118,6 +119,7 @@
 | `components/playground/Modal.tsx` | 作成、編集、削除確認などのモーダルを表示する。 |
 | `components/playground/Navigation.tsx` | Playground の主要タブナビゲーションを表示する。 |
 | `components/playground/NoticeBanner.tsx` | success / error / loading 通知を表示する。 |
+| `components/playground/picklist-options.ts` | 選択リスト値をフォーム options に変換する helper を定義する。 |
 | `components/playground/ObjectHome.tsx` | オブジェクトホーム系パネルのヘッダーと枠を表示する。 |
 | `components/playground/PageHeader.tsx` | ページヘッダーの共通表示を定義する。 |
 | `components/playground/PlaygroundWorkspace.tsx` | Playground 接続後の作業領域を表示する。 |

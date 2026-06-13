@@ -9,9 +9,14 @@ import { LoginPage, SessionLoadingPage } from "./playground/LoginPage";
 import { NoticeBanner } from "./playground/NoticeBanner";
 import { PlaygroundWorkspace } from "./playground/PlaygroundWorkspace";
 import { RecordModals } from "./playground/RecordModals";
+import { picklistOptionsForField } from "./playground/picklist-options";
 import { useNotice } from "./playground/useNotice";
+import { usePicklistValues } from "./playground/usePicklistValues";
 import { usePlaygroundData } from "./playground/usePlaygroundData";
 import { useRecordMutations } from "./playground/useRecordMutations";
+
+const accountPicklistFields = ["Industry", "Type"];
+const taskPicklistFields = ["Status"];
 
 export default function Playground({ environmentLabel = null }: { environmentLabel?: EnvironmentLabel | null }) {
     const { notice, showNotice } = useNotice();
@@ -41,6 +46,36 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         onActivitySaved: refreshActivity,
         showNotice
     });
+    const connected = session?.connected === true;
+    const accountModalRecordTypeId = recordMutations.modal?.type === "account" && recordMutations.modal.mode === "edit"
+        ? recordMutations.modal.record.RecordTypeId
+        : undefined;
+    const accountModalPicklists = usePicklistValues({
+        enabled: connected && recordMutations.modal?.type === "account",
+        fieldApiNames: accountPicklistFields,
+        objectApiName: "Account",
+        recordTypeId: accountModalRecordTypeId
+    });
+    const integrationAccountPicklists = usePicklistValues({
+        enabled: connected,
+        fieldApiNames: accountPicklistFields,
+        objectApiName: "Account"
+    });
+    const taskStatusPicklists = usePicklistValues({
+        enabled: connected,
+        fieldApiNames: taskPicklistFields,
+        objectApiName: "Task"
+    });
+    const modalAccountPicklistOptions = {
+        Industry: picklistOptionsForField(accountModalPicklists.data, "Industry", recordMutations.accountForm.Industry),
+        Type: picklistOptionsForField(accountModalPicklists.data, "Type", recordMutations.accountForm.Type)
+    };
+    const integrationAccountPicklistOptions = {
+        Industry: picklistOptionsForField(integrationAccountPicklists.data, "Industry", recordMutations.integrationAccountForm.Industry),
+        Type: picklistOptionsForField(integrationAccountPicklists.data, "Type", recordMutations.integrationAccountForm.Type)
+    };
+    const taskStatusOptions = picklistOptionsForField(taskStatusPicklists.data, "Status", recordMutations.taskForm.Status);
+    const resolvedTaskStatusOptions = taskStatusOptions.length > 0 ? taskStatusOptions : undefined;
 
     if (session === null) {
         return (
@@ -97,9 +132,15 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         },
         integrationForm: {
             accountForm: recordMutations.integrationAccountForm,
+            accountPicklistError: integrationAccountPicklists.error,
+            accountPicklistLoading: integrationAccountPicklists.loading,
+            accountPicklistOptions: integrationAccountPicklistOptions,
             saving: recordMutations.saving,
             onAccountFormChange: recordMutations.setIntegrationAccountForm,
             onCreateAccount: recordMutations.createIntegrationAccount
+        },
+        picklists: {
+            taskStatusOptions: resolvedTaskStatusOptions
         },
         recycleBinActions: {
             items: recycleBinItems,
@@ -127,6 +168,12 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             modal: recordMutations.modal,
             restoreState: recordMutations.restoreState,
             saving: recordMutations.saving
+        },
+        picklists: {
+            accountError: accountModalPicklists.error,
+            accountLoading: accountModalPicklists.loading,
+            accountOptions: modalAccountPicklistOptions,
+            taskStatusOptions: resolvedTaskStatusOptions
         },
         actions: {
             onCancelDelete: recordMutations.closeDeleteModal,

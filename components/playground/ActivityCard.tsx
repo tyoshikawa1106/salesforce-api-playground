@@ -7,6 +7,7 @@ import {
     type ActivityRecordContext
 } from "./activity-task-form";
 import { ActivityPanel } from "./ActivityPanel";
+import type { PicklistOption } from "./picklist-options";
 import { useActivityCardState } from "./useActivityCardState";
 
 export type { ActivityLookupOption } from "./activity-task-form";
@@ -34,6 +35,7 @@ export function ActivityCard({
     relatedContent,
     relatedLookupOptions = [],
     relatedName,
+    taskStatusOptions,
     onDeleteActivity,
     onEditActivity,
     onOpenActivity
@@ -44,6 +46,7 @@ export function ActivityCard({
     onOpenActivity?: (activity: ActivityTimelineItem) => void;
     relatedContent?: ReactNode;
     relatedLookupOptions?: ActivityLookupOption[];
+    taskStatusOptions?: PicklistOption[];
 }) {
     const [activeTab, setActiveTab] = useState<"activity" | "related">("activity");
     const hasRelatedContent = Boolean(relatedContent);
@@ -125,6 +128,7 @@ export function ActivityCard({
                             composerMinimized={activityState.composerMinimized}
                             taskFormErrors={activityState.taskFormErrors}
                             saving={activityState.savingActivity}
+                            taskStatusOptions={taskStatusOptions}
                             lookupOptions={activityState.lookupOptions}
                             lookups={activityState.activityLookups}
                             onCloseComposer={activityState.closeComposer}

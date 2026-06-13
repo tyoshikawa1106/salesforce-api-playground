@@ -4,6 +4,7 @@ import { DetailBlock } from "./RecordPageHeader";
 import { RecordPageFrame } from "./RecordPageFrame";
 import { RelatedContactsCard } from "./RecordRelatedCards";
 import { renderPhoneLink, renderWebsiteLink } from "./RecordValueLinks";
+import type { PicklistOption } from "./picklist-options";
 import type { Account, Activity, Contact } from "./types";
 
 export function AccountRecordPage({
@@ -18,7 +19,8 @@ export function AccountRecordPage({
     onEditActivity,
     onOpenActivity,
     onOpenContact,
-    onRefresh
+    onRefresh,
+    taskStatusOptions
 }: {
     account: Account;
     assignedUserId?: string;
@@ -32,6 +34,7 @@ export function AccountRecordPage({
     onOpenActivity?: (activity: Activity) => void;
     onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
+    taskStatusOptions?: PicklistOption[];
 }) {
     const accountLookupOption = {
         id: account.Id,
@@ -88,6 +91,7 @@ export function AccountRecordPage({
                 ["作成日", formatDate(account.CreatedDate)],
                 ["最終更新日", formatDate(account.LastModifiedDate)]
             ]}
+            taskStatusOptions={taskStatusOptions}
         />
     );
 }

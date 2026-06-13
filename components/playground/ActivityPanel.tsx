@@ -20,6 +20,7 @@ import {
 import { ActivityTimelineToolbar } from "./ActivityTimelineToolbar";
 import { getDisplayedTimelineSections } from "./activity-panel-state";
 import { useActivityTimelineDisclosure } from "./useActivityTimelineDisclosure";
+import type { PicklistOption } from "./picklist-options";
 
 export type ActivityComposerKind = "call" | "event" | "task";
 
@@ -36,6 +37,7 @@ export function ActivityPanel({
     loading,
     message,
     saving,
+    taskStatusOptions,
     taskStatusOverrides,
     taskForm,
     taskFormErrors,
@@ -68,6 +70,7 @@ export function ActivityPanel({
     loading: boolean;
     message: string;
     saving: boolean;
+    taskStatusOptions?: PicklistOption[];
     taskStatusOverrides: Record<string, TaskStatusOverride>;
     taskForm: TaskForm;
     taskFormErrors: TaskFormErrors;
@@ -144,6 +147,7 @@ export function ActivityPanel({
                     lookups={lookups}
                     minimized={composerMinimized}
                     saving={saving}
+                    statusOptions={taskStatusOptions}
                     variant={taskComposerVariant}
                     onCancel={onCloseComposer}
                     onChange={onTaskFormChange}

@@ -24,6 +24,7 @@ import {
     TaskFormErrorSummary
 } from "./ActivityQuickActionFields";
 import { ActivityDockedComposerFrame } from "./ActivityDockedComposerFrame";
+import type { PicklistOption } from "./picklist-options";
 
 export type ActivityLookupOptions = {
     assigned: ActivityLookupOption[];
@@ -210,6 +211,7 @@ export function TaskDockedComposer({
     lookups,
     minimized,
     saving,
+    statusOptions,
     variant = "task",
     onCancel,
     onChange,
@@ -225,6 +227,7 @@ export function TaskDockedComposer({
     lookups: ActivityLookupState;
     minimized: boolean;
     saving: boolean;
+    statusOptions?: PicklistOption[];
     variant?: "call" | "task";
     onCancel: () => void;
     onChange: (value: TaskForm) => void;
@@ -302,6 +305,7 @@ export function TaskDockedComposer({
                         <QuickActionSelect
                             error={errors.Status}
                             label="状況"
+                            options={statusOptions}
                             required
                             value={form.Status}
                             onChange={(Status) => onChange({ ...form, Status })}
