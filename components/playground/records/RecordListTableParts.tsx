@@ -13,7 +13,7 @@ export function DataTable({
     return (
         <div className="playground-record-table">
             <table
-                className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
+                className="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols playground-record-table__table"
                 role="grid"
                 aria-label={ariaLabel}
                 aria-multiselectable="true"
@@ -50,7 +50,7 @@ export function RecordTableActions<Record>({
     }
 
     return (
-        <div className={`slds-dropdown-trigger slds-dropdown-trigger_click${open ? " slds-is-open" : ""} playground-record-action`}>
+        <div className={`slds-dropdown-trigger slds-dropdown-trigger_click${open ? " slds-is-open" : ""} playground-record-action${open ? " playground-record-action_open" : ""}`}>
             <button
                 className="slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small"
                 type="button"
@@ -63,7 +63,7 @@ export function RecordTableActions<Record>({
                 <UtilityButtonIcon name="down" label="" />
                 <span className="slds-assistive-text">{menuLabel}</span>
             </button>
-            <div className="slds-dropdown slds-dropdown_right" id={menuId}>
+            <div className="slds-dropdown slds-dropdown_right playground-record-action__dropdown" id={menuId}>
                 <ul className="slds-dropdown__list" role="menu" aria-label={menuLabel}>
                     <li className="slds-dropdown__item" role="presentation">
                         <a
@@ -82,7 +82,7 @@ export function RecordTableActions<Record>({
                         <a
                             href="#"
                             role="menuitem"
-                            tabIndex={-1}
+                            tabIndex={open ? 0 : -1}
                             onClick={(event) => {
                                 event.preventDefault();
                                 runMenuAction(onDelete);
