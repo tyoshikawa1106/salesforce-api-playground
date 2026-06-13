@@ -20,9 +20,20 @@ import type { Account, Contact } from "./types";
 
 describe("record list smoke rendering", () => {
     it("renders account and contact list views with record actions", () => {
+        const accountBeforeFixture: Account = {
+            ...account,
+            Id: "001xx000003DGbA",
+            Name: "Aardvark"
+        };
+        const contactBeforeFixture: Contact = {
+            ...contact,
+            Id: "003xx000004TmiA",
+            FirstName: "Aiko",
+            LastName: "Sato"
+        };
         const accountMarkup = renderToStaticMarkup(
             createElement(AccountPanel, {
-                accounts: [account],
+                accounts: [account, accountBeforeFixture],
                 connected: true,
                 loading: false,
                 onDelete: noop,
@@ -35,7 +46,7 @@ describe("record list smoke rendering", () => {
         );
         const contactMarkup = renderToStaticMarkup(
             createElement(ContactPanel, {
-                contacts: [contact],
+                contacts: [contact, contactBeforeFixture],
                 connected: true,
                 loading: false,
                 onDelete: noop,
@@ -49,11 +60,17 @@ describe("record list smoke rendering", () => {
         );
         const refreshActionIndex = accountMarkup.indexOf("aria-label=\"更新\"");
         const deleteActionIndex = accountMarkup.indexOf("aria-label=\"選択した取引先を削除\"");
+        const firstAccountIndex = accountMarkup.indexOf("Aardvark");
+        const secondAccountIndex = accountMarkup.indexOf("Acme");
+        const firstContactIndex = contactMarkup.indexOf("Aiko Sato");
+        const secondContactIndex = contactMarkup.indexOf("Taro Yamada");
 
         expect(accountMarkup).toContain("Acme");
+        expect(firstAccountIndex).toBeGreaterThan(-1);
+        expect(firstAccountIndex).toBeLessThan(secondAccountIndex);
         expect(accountMarkup).toContain("最終更新者");
         expect(accountMarkup).toContain("Admin User");
-        expect(accountMarkup).toContain("1 個の項目");
+        expect(accountMarkup).toContain("2 個の項目");
         expect(accountMarkup).not.toContain("数秒前に更新されました");
         expect(accountMarkup).toContain("slds-card__body playground-list-view__body");
         expect(accountMarkup).toContain("このリストを検索...");
@@ -93,9 +110,11 @@ describe("record list smoke rendering", () => {
         expect(accountMarkup).not.toContain("slds-row-number");
         expect(accountMarkup).not.toContain("data-label=\"行番号\"");
         expect(contactMarkup).toContain("Taro Yamada");
+        expect(firstContactIndex).toBeGreaterThan(-1);
+        expect(firstContactIndex).toBeLessThan(secondContactIndex);
         expect(contactMarkup).toContain("最終更新者");
         expect(contactMarkup).toContain("Sales User");
-        expect(contactMarkup).toContain("1 個の項目");
+        expect(contactMarkup).toContain("2 個の項目");
         expect(contactMarkup).toContain("Manager");
         expect(contactMarkup).toContain("aria-label=\"表示中の取引先責任者をすべて選択\"");
         expect(contactMarkup).toContain("aria-label=\"選択した取引先責任者を削除\"");
@@ -103,9 +122,15 @@ describe("record list smoke rendering", () => {
     });
 
     it("renders recycle bin list with mixed object restore controls", () => {
+        const newerRecycleBinItem = {
+            ...recycleBinItem,
+            id: "001xx000003DGbZ",
+            name: "Zenith",
+            deletedAt: "2026-06-01T10:00:00.000Z"
+        };
         const markup = renderToStaticMarkup(
             createElement(RecycleBinPanel, {
-                items: [recycleBinItem],
+                items: [recycleBinItem, newerRecycleBinItem],
                 loading: false,
                 onRestore: noop,
                 onRestoreEmpty: noop,
@@ -114,17 +139,29 @@ describe("record list smoke rendering", () => {
         );
         const objectIconIndex = markup.indexOf("slds-icon-standard-account");
         const objectLabelIndex = markup.indexOf("title=\"取引先\">取引先");
+        const deletedAtHeaderIndex = markup.indexOf("削除日時");
+        const deletedByHeaderIndex = markup.indexOf("削除したユーザー");
+        const objectTypeHeaderIndex = markup.indexOf("種別");
+        const recordNameHeaderIndex = markup.indexOf("レコード名");
+        const newerRecordIndex = markup.indexOf("Zenith");
+        const olderRecordIndex = markup.indexOf("Acme");
 
         expect(markup).toContain("最近削除された項目");
         expect(markup).not.toContain("完全に削除");
         expect(markup).not.toContain("Recycle Bin に残っている Account / Contact を表示します。");
         expect(markup).toContain("復元");
-        expect(markup).toContain("1 個の項目");
+        expect(markup).toContain("2 個の項目");
         expect(markup).toContain("aria-label=\"更新\"");
         expect(markup).not.toContain("このリストを検索");
         expect(markup).toContain("aria-label=\"表示中の項目をすべて選択\"");
         expect(markup).toContain("ごみ箱の項目一覧");
         expect(markup).toContain("取引先");
+        expect(markup).toContain("レコード名");
+        expect(markup).not.toContain(">名前<");
+        expect(deletedAtHeaderIndex).toBeLessThan(deletedByHeaderIndex);
+        expect(deletedByHeaderIndex).toBeLessThan(objectTypeHeaderIndex);
+        expect(objectTypeHeaderIndex).toBeLessThan(recordNameHeaderIndex);
+        expect(newerRecordIndex).toBeLessThan(olderRecordIndex);
         expect(objectIconIndex).toBeGreaterThan(-1);
         expect(objectIconIndex).toBeLessThan(objectLabelIndex);
         expect(markup).toContain("Acme");
