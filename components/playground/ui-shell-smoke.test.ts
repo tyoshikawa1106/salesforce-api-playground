@@ -3,11 +3,15 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { GlobalHeader } from "./GlobalHeader";
+import { GlobalHeaderActions } from "./GlobalHeaderActions";
 import { HomePanel } from "./HomePanel";
 import { IntegrationPanel } from "./IntegrationPanel";
 import { LoginPage, SessionLoadingPage } from "./LoginPage";
-import { AppNavigation } from "./Navigation";
+import { AppNavigation, getVisibleNavigationCount } from "./Navigation";
 import { ObjectHomeHeader } from "./ObjectHome";
+import { RecordModals } from "./RecordModals";
+import { getDefaultEventForm, getDefaultTaskForm } from "./activity-task-form";
+import { blankAccount, blankContact } from "./record-forms";
 import { noop } from "./test-fixtures";
 
 describe("playground shell smoke rendering", () => {
@@ -67,6 +71,14 @@ describe("playground shell smoke rendering", () => {
 
         expect(markup).toContain("ごみ箱");
         expect(markup).toContain("aria-current=\"page\"");
+        expect(markup).not.toContain("連携 のサブメニューを開く");
+        expect(markup).not.toContain("ごみ箱 のサブメニューを開く");
+    });
+
+    it("calculates visible navigation items with an overflow menu reservation", () => {
+        expect(getVisibleNavigationCount(500, [80, 110, 140], 120)).toBe(3);
+        expect(getVisibleNavigationCount(329, [80, 110, 140], 120)).toBe(2);
+        expect(getVisibleNavigationCount(190, [80, 110, 140], 120)).toBe(0);
     });
 
     it("renders the Integration tab account create form", () => {
@@ -142,14 +154,112 @@ describe("playground shell smoke rendering", () => {
         const markup = renderToStaticMarkup(createElement(GlobalHeader, { connected: true }));
 
         expect(markup).toContain("aria-controls=\"global-action-popover\"");
+        expect(markup).toContain("aria-controls=\"global-guidance-popover\"");
         expect(markup).toContain("aria-controls=\"global-help-popover\"");
         expect(markup).toContain("aria-controls=\"global-settings-popover\"");
         expect(markup).toContain("aria-haspopup=\"dialog\"");
-        expect(markup).toContain("aria-controls=\"profile-menu\"");
         expect(markup).toContain("aria-haspopup=\"menu\"");
-        expect(markup).toContain("id=\"profile-menu\"");
-        expect(markup).toContain("role=\"menu\"");
-        expect(markup).toContain("role=\"menuitem\"");
-        expect(markup).toContain("role=\"presentation\"");
+        expect(markup).toContain("slds-nubbin_top-right");
+        expect(markup).toContain("slds-text-body_regular");
+        expect(markup).toContain("新規行動");
+        expect(markup).toContain("新規ToDo");
+        expect(markup).toContain("aria-controls=\"profile-menu\"");
+        expect(markup).toContain("aria-haspopup=\"dialog\"");
     });
+
+    it("renders the Salesforce-style profile panel when open", () => {
+        const markup = renderToStaticMarkup(
+            createElement(GlobalHeaderActions, {
+                activeActionPopover: null,
+                cancelActionPopoverClose: noop,
+                cancelProfileMenuClose: noop,
+                instanceUrl: "https://example.my.salesforce.com",
+                profileMenuOpen: true,
+                scheduleActionPopoverClose: noop,
+                scheduleProfileMenuClose: noop,
+                showNotificationBadge: false,
+                toggleActionPopover: noop,
+                toggleNotificationBadge: noop,
+                toggleProfileMenu: noop,
+                userName: "Admin User"
+            })
+        );
+
+        const profilePanelStart = markup.indexOf("id=\"profile-menu\"");
+        const profilePanelEnd = markup.indexOf("</section>", profilePanelStart);
+        const profilePanelMarkup = markup.slice(profilePanelStart, profilePanelEnd);
+
+        expect(profilePanelStart).toBeGreaterThanOrEqual(0);
+        expect(profilePanelEnd).toBeGreaterThan(profilePanelStart);
+        expect(profilePanelMarkup).toContain("id=\"profile-menu\"");
+        expect(profilePanelMarkup).toContain("role=\"dialog\"");
+        expect(profilePanelMarkup).toContain("ログアウト");
+        expect(profilePanelMarkup).not.toContain("表示密度");
+        expect(profilePanelMarkup).not.toContain("カンファタブル");
+        expect(profilePanelMarkup).not.toContain("コンパクト");
+        expect(profilePanelMarkup).not.toContain("設定");
+    });
+
+    it("renders GlobalHeader icons with SLDS global action classes", () => {
+        const markup = renderToStaticMarkup(createElement(GlobalHeader, { connected: true }));
+
+        expect(markup).toContain("aria-pressed=\"false\"");
+        expect(markup).toContain("slds-icon-text-default");
+        expect(markup).toContain("slds-global-actions__task");
+        expect(markup).toContain("slds-global-actions__guidance");
+        expect(markup).toContain("slds-icon-standard-event");
+        expect(markup).toContain("slds-icon-standard-task");
+        expect(markup).toContain("slds-global-actions__help");
+        expect(markup).toContain("slds-global-actions__setup");
+        expect(markup).toContain("slds-global-actions__notifications");
+        expect(markup).toContain("slds-avatar_profile-image-medium");
+        expect(markup).toContain("slds-global-header__logo");
+        expect(markup).not.toContain("playground-global-header-container");
+        expect(markup).not.toContain("slds-show_medium");
+        expect(markup).not.toContain("playground-global-search-icon");
+        expect(markup).not.toContain("playground-global-action-icon");
+        expect(markup).not.toContain("playground-global-action");
+        expect(markup).not.toContain("playground-menu-icon");
+    });
+
+    it("renders global activity create actions as docked composers", () => {
+        const markup = renderToStaticMarkup(
+            createElement(RecordModals, {
+                forms: {
+                    accountForm: blankAccount,
+                    accountOptions: [],
+                    activityLookups: {},
+                    contactForm: blankContact,
+                    eventForm: getDefaultEventForm(),
+                    taskForm: getDefaultTaskForm(),
+                    onAccountFormChange: noop,
+                    onActivityLookupsChange: noop,
+                    onContactFormChange: noop,
+                    onEventFormChange: noop,
+                    onTaskFormChange: noop
+                },
+                state: {
+                    deleteState: null,
+                    modal: { type: "activity", mode: "create", activityType: "task" },
+                    restoreState: null,
+                    saving: false
+                },
+                actions: {
+                    onCancelDelete: noop,
+                    onCancelRestore: noop,
+                    onCloseRecordModal: noop,
+                    onConfirmDelete: noop,
+                    onConfirmRestore: noop,
+                    onSaveAccount: noop,
+                    onSaveActivity: noop,
+                    onSaveContact: noop
+                }
+            })
+        );
+
+        expect(markup).toContain("slds-docked-composer");
+        expect(markup).toContain("新規ToDo");
+        expect(markup).not.toContain("slds-modal__container");
+    });
+
 });

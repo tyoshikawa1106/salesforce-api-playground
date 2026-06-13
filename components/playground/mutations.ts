@@ -13,6 +13,10 @@ import type { AccountForm, ContactForm } from "@/lib/salesforce/records";
 import type { ActivityLookupState, EventForm, TaskForm } from "./activity-task-form";
 import { buildActivityLookupPayload } from "./activity-task-form";
 import { apiRequest } from "./api";
+import {
+    buildEventActivityCreateRequest,
+    buildTaskActivityCreateRequest
+} from "./activity-create-helpers";
 import type { DeleteState, ModalState, RecycleBinItem } from "./types";
 
 type RecordModalType = Extract<ModalState["type"], "account" | "contact">;
@@ -106,6 +110,22 @@ export async function saveActivityMutation(
 ): Promise<string> {
     if (modal?.type !== "activity") {
         throw new Error("活動の編集対象が選択されていません。");
+    }
+
+    if (modal.mode === "create") {
+        if (modal.activityType === "task") {
+            await apiRequest(buildTaskActivityCreateRequest({
+                activityLookups: lookups,
+                form: form as TaskForm
+            }));
+            return "ToDo を作成しました。";
+        }
+
+        await apiRequest(buildEventActivityCreateRequest({
+            activityLookups: lookups,
+            form: form as EventForm
+        }));
+        return "行動を作成しました。";
     }
 
     const path = modal.record.type === "task"

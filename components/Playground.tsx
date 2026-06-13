@@ -144,8 +144,16 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         <div>
             <EnvironmentLabelBanner environmentLabel={environmentLabel} />
             {notice ? <NoticeBanner notice={notice} /> : null}
-            <GlobalHeader connected={session.connected} onSelectSearchResult={openSearchResult} />
-            <AppNavigation activeTab={activeTab} connected={session.connected} onChange={changeTab} />
+            <GlobalHeader
+                connected={session.connected}
+                instanceUrl={session.instanceUrl}
+                onCreateEvent={() => recordMutations.openActivityCreateModal("event", { userId: session.userId, userName: session.userName })}
+                onCreateTask={() => recordMutations.openActivityCreateModal("task", { userId: session.userId, userName: session.userName })}
+                userName={session.userName}
+                onSelectSearchResult={openSearchResult}
+            >
+                <AppNavigation activeTab={activeTab} connected={session.connected} onChange={changeTab} />
+            </GlobalHeader>
 
             <PlaygroundWorkspace {...workspaceProps} />
 

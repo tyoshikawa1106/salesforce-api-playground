@@ -98,7 +98,7 @@ export function getActivitySaveRequest({
         return null;
     }
 
-    const isTask = modal.record.type === "task";
+    const isTask = modal.mode === "create" ? modal.activityType === "task" : modal.record.type === "task";
     const validationErrors = isTask
         ? validateTaskForm(taskForm, activityLookups.assigned?.label)
         : validateEventForm(eventForm, activityLookups.assigned?.label);
@@ -200,7 +200,7 @@ export function useRecordMutationActions({
             showNotice,
             onSuccess: async () => {
                 setModal(null);
-                if (onActivitySaved) {
+                if (activitySave.modal.mode === "edit" && onActivitySaved) {
                     await onActivitySaved(activitySave.modal.record);
                 } else {
                     await loadAll();

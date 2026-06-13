@@ -1,6 +1,7 @@
 import type { SaveResult } from "jsforce";
 import type {
     ActivityParent,
+    ActivityCreateParent,
     ActivityTimelineItem,
     EventActivityInput,
     EventActivityRecord,
@@ -61,10 +62,17 @@ function buildActivityRelationFields({
     parentType,
     WhatId,
     WhoId
-}: ActivityParent & {
+}: ActivityCreateParent & {
     WhatId?: string;
     WhoId?: string;
 }) {
+    if (!parentId || !parentType) {
+        return {
+            ...(WhoId ? { WhoId } : {}),
+            ...(WhatId ? { WhatId } : {})
+        };
+    }
+
     const relationField = activityRelationField(parentType);
 
     return {

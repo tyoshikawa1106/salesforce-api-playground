@@ -5,7 +5,12 @@ export type ActivityParent = {
     parentId: string;
 };
 
-export type TaskActivityInput = ActivityParent & {
+export type ActivityCreateParent = {
+    parentType?: ActivityParentType;
+    parentId?: string;
+};
+
+export type TaskActivityInput = ActivityCreateParent & {
     Subject: string;
     ActivityDate?: string;
     OwnerId?: string;
@@ -28,7 +33,7 @@ export type TaskActivityUpdateInput = {
     WhoId?: string | null;
 };
 
-export type EventActivityInput = ActivityParent & {
+export type EventActivityInput = ActivityCreateParent & {
     Subject: string;
     StartDateTime: string;
     EndDateTime: string;

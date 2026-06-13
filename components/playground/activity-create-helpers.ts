@@ -22,7 +22,7 @@ export type ActivityCreateResponse = {
 type ActivityCreateRequestOptions<TForm> = {
     activityLookups: ActivityLookupState;
     form: TForm;
-    parentPayload: ActivityParentPayload;
+    parentPayload?: ActivityParentPayload;
 };
 
 export function buildTaskActivityCreateRequest({
@@ -33,7 +33,7 @@ export function buildTaskActivityCreateRequest({
     return buildPlaygroundApiRequest(playgroundApiPaths.activityTasks, {
         method: "POST",
         body: {
-            ...parentPayload,
+            ...(parentPayload ?? {}),
             ...compactActivityPayload(form),
             ...buildActivityLookupPayload(activityLookups)
         }
@@ -48,7 +48,7 @@ export function buildEventActivityCreateRequest({
     return buildPlaygroundApiRequest(playgroundApiPaths.activityEvents, {
         method: "POST",
         body: {
-            ...parentPayload,
+            ...(parentPayload ?? {}),
             ...compactEventActivityPayload(form),
             ...buildActivityLookupPayload(activityLookups)
         }

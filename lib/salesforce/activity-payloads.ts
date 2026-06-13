@@ -1,5 +1,6 @@
 import type {
     ActivityParent,
+    ActivityCreateParent,
     ActivityParentType,
     EventActivityInput,
     EventActivityUpdateInput,
@@ -72,9 +73,17 @@ function readOptionalPicklistValue(body: Record<string, unknown>, key: string, v
     return value;
 }
 
-function readParent(body: Record<string, unknown>): ActivityParent {
-    const parentType = readRequiredString(body, "parentType");
-    const parentId = readRequiredString(body, "parentId");
+function readOptionalParent(body: Record<string, unknown>): ActivityCreateParent {
+    const parentType = readOptionalString(body, "parentType");
+    const parentId = readOptionalString(body, "parentId");
+
+    if (!parentType && !parentId) {
+        return {};
+    }
+
+    if (!parentType || !parentId) {
+        throw badPayload("parentType and parentId must be provided together.");
+    }
 
     if (!activityParentTypes.has(parentType as ActivityParentType)) {
         throw badPayload("parentType must be account or contact.");
@@ -153,7 +162,7 @@ export async function readTaskActivityCreatePayload(request: JsonRequest): Promi
     const lookupIds = readActivityLookupIds(body);
 
     return {
-        ...readParent(body),
+        ...readOptionalParent(body),
         Subject: readRequiredString(body, "Subject"),
         ActivityDate: readOptionalString(body, "ActivityDate"),
         ...lookupIds,
@@ -183,7 +192,7 @@ export async function readEventActivityCreatePayload(request: JsonRequest): Prom
     const lookupIds = readActivityLookupIds(body);
 
     return {
-        ...readParent(body),
+        ...readOptionalParent(body),
         Subject: readRequiredString(body, "Subject"),
         StartDateTime: readRequiredString(body, "StartDateTime"),
         EndDateTime: readRequiredString(body, "EndDateTime"),

@@ -1,30 +1,67 @@
 "use client";
 
-import { type MouseEvent } from "react";
-import { UtilityIcon, type UtilityIconName } from "./SldsIcon";
+import { type MouseEvent, useState } from "react";
+import { StandardIcon, UtilityIcon, type StandardIconName, type UtilityIconName } from "./SldsIcon";
 import { actionPopoverIds, type ActionPopoverLabel } from "./useGlobalHeaderMenus";
 
-const actionPopoverButtons: { icon: UtilityIconName; label: ActionPopoverLabel }[] = [
-    { icon: "add", label: "グローバルアクション" },
-    { icon: "help", label: "ヘルプ" },
-    { icon: "settings", label: "設定" }
+const actionPopoverButtons: { actionClassName: string; icon: UtilityIconName; iconClassName: string; label: ActionPopoverLabel }[] = [
+    {
+        actionClassName: "slds-global-actions__guidance",
+        icon: "trailhead_alt",
+        iconClassName: "slds-button__icon slds-global-header__icon",
+        label: "ガイダンスセンター"
+    },
+    {
+        actionClassName: "slds-global-actions__help",
+        icon: "help",
+        iconClassName: "slds-button__icon slds-global-header__icon",
+        label: "ヘルプ"
+    },
+    {
+        actionClassName: "slds-global-actions__setup",
+        icon: "setup",
+        iconClassName: "slds-button__icon slds-global-header__icon",
+        label: "設定"
+    }
+];
+
+const globalTaskMenuItems: { icon: StandardIconName; iconClassName: string; label: string; onSelect: "event" | "task" }[] = [
+    {
+        icon: "event",
+        iconClassName: "slds-icon-standard-event",
+        label: "新規行動",
+        onSelect: "event"
+    },
+    {
+        icon: "task",
+        iconClassName: "slds-icon-standard-task",
+        label: "新規ToDo",
+        onSelect: "task"
+    }
 ];
 
 export function GlobalHeaderActions({
     activeActionPopover,
     cancelActionPopoverClose,
     cancelProfileMenuClose,
+    instanceUrl,
+    onCreateEvent,
+    onCreateTask,
     profileMenuOpen,
     scheduleActionPopoverClose,
     scheduleProfileMenuClose,
     showNotificationBadge,
     toggleActionPopover,
     toggleNotificationBadge,
-    toggleProfileMenu
+    toggleProfileMenu,
+    userName
 }: {
     activeActionPopover: ActionPopoverLabel | null;
     cancelActionPopoverClose: () => void;
     cancelProfileMenuClose: () => void;
+    instanceUrl?: string;
+    onCreateEvent?: () => void;
+    onCreateTask?: () => void;
     profileMenuOpen: boolean;
     scheduleActionPopoverClose: () => void;
     scheduleProfileMenuClose: () => void;
@@ -32,13 +69,25 @@ export function GlobalHeaderActions({
     toggleActionPopover: (label: ActionPopoverLabel) => void;
     toggleNotificationBadge: () => void;
     toggleProfileMenu: () => void;
+    userName?: string;
 }) {
     return (
         <ul className="slds-global-actions" aria-label="グローバルアクション">
-            {actionPopoverButtons.map(({ icon, label }) => (
+            <GlobalFavoritesActions />
+            <GlobalTaskMenuButton
+                open={activeActionPopover === "グローバルアクション"}
+                onCreateEvent={onCreateEvent}
+                onCreateTask={onCreateTask}
+                onMouseEnter={cancelActionPopoverClose}
+                onMouseLeave={scheduleActionPopoverClose}
+                onToggle={() => toggleActionPopover("グローバルアクション")}
+            />
+            {actionPopoverButtons.map(({ actionClassName, icon, iconClassName, label }) => (
                 <GlobalActionButton
                     key={label}
+                    actionClassName={actionClassName}
                     icon={icon}
+                    iconClassName={iconClassName}
                     label={label}
                     popupId={actionPopoverIds[label]}
                     popupMessage={label}
@@ -49,7 +98,9 @@ export function GlobalHeaderActions({
                 />
             ))}
             <GlobalActionButton
+                actionClassName="slds-global-actions__notifications"
                 icon="notification"
+                iconClassName="slds-button__icon slds-global-header__icon"
                 label="通知"
                 notificationCount={showNotificationBadge ? 1 : undefined}
                 pressed={showNotificationBadge}
@@ -59,7 +110,9 @@ export function GlobalHeaderActions({
                 }}
             />
             <GlobalProfileMenu
+                instanceUrl={instanceUrl}
                 open={profileMenuOpen}
+                userName={userName}
                 onMouseEnter={cancelProfileMenuClose}
                 onMouseLeave={scheduleProfileMenuClose}
                 onToggle={toggleProfileMenu}
@@ -68,8 +121,125 @@ export function GlobalHeaderActions({
     );
 }
 
+function GlobalTaskMenuButton({
+    onCreateEvent,
+    onCreateTask,
+    onMouseEnter,
+    onMouseLeave,
+    onToggle,
+    open
+}: {
+    onCreateEvent?: () => void;
+    onCreateTask?: () => void;
+    onMouseEnter: () => void;
+    onMouseLeave: () => void;
+    onToggle: () => void;
+    open: boolean;
+}) {
+    function runAction(action?: () => void) {
+        action?.();
+        onToggle();
+    }
+
+    return (
+        <li className="slds-global-actions__item slds-m-right_small">
+            <div
+                className={`slds-dropdown-trigger slds-dropdown-trigger_click ${open ? "slds-is-open" : ""}`}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
+                <button
+                    className="slds-button slds-button_icon slds-button_icon-container slds-button_icon-small slds-global-actions__item-action slds-global-actions__task slds-m-top_xxx-small"
+                    type="button"
+                    title="グローバルアクション"
+                    aria-controls={actionPopoverIds["グローバルアクション"]}
+                    aria-haspopup="menu"
+                    aria-expanded={open}
+                    onClick={onToggle}
+                >
+                    <UtilityIcon className="slds-button__icon" name="add" />
+                    <span className="slds-assistive-text">グローバルアクション</span>
+                </button>
+                <div id={actionPopoverIds["グローバルアクション"]} className="slds-dropdown slds-dropdown_right slds-nubbin_top-right" style={{ transform: "translate(0.375rem, 0.25rem)" }}>
+                    <ul className="slds-dropdown__list" role="menu" aria-label="グローバルアクション">
+                        <li className="slds-dropdown__item slds-p-horizontal_small slds-p-vertical_x-small" role="presentation">
+                            <span className="slds-text-body_regular">グローバルアクション</span>
+                        </li>
+                        {globalTaskMenuItems.map((item) => (
+                            <li className="slds-dropdown__item" role="presentation" key={item.label}>
+                                <a
+                                    href="#"
+                                    role="menuitem"
+                                    tabIndex={0}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        runAction(item.onSelect === "event" ? onCreateEvent : onCreateTask);
+                                    }}
+                                >
+                                    <span className="slds-media slds-media_center">
+                                        <span className="slds-media__figure">
+                                            <span className={`slds-icon_container ${item.iconClassName}`} title={item.label}>
+                                                <StandardIcon className="slds-icon slds-icon_small" name={item.icon} />
+                                            </span>
+                                        </span>
+                                        <span className="slds-media__body">
+                                            <span className="slds-truncate slds-text-link" title={item.label}>{item.label}</span>
+                                        </span>
+                                    </span>
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </li>
+    );
+}
+
+function GlobalFavoritesActions() {
+    const [favoriteSelected, setFavoriteSelected] = useState(false);
+    const favoriteLabel = favoriteSelected ? "お気に入りから削除" : "お気に入りに追加";
+    const favoriteClassName = [
+        "slds-button",
+        "slds-button_icon",
+        "slds-global-actions__favorites-action",
+        "slds-button_icon-border",
+        "slds-button_icon-small",
+        favoriteSelected ? "slds-is-selected" : ""
+    ].filter(Boolean).join(" ");
+
+    return (
+        <li className="slds-global-actions__item slds-dropdown-trigger slds-dropdown-trigger_click slds-grid">
+            <div className="slds-global-actions__favorites slds-dropdown-trigger slds-dropdown-trigger_click" role="group">
+                <div className="slds-button-group">
+                    <button
+                        className={favoriteClassName}
+                        type="button"
+                        title={favoriteLabel}
+                        aria-pressed={favoriteSelected}
+                        onClick={() => setFavoriteSelected((selected) => !selected)}
+                    >
+                        <UtilityIcon className="slds-button__icon" name="favorite" />
+                        <span className="slds-assistive-text">{favoriteLabel}</span>
+                    </button>
+                    <button
+                        className="slds-button slds-button_icon slds-global-actions__favorites-more slds-button_icon-border slds-button_icon-small"
+                        type="button"
+                        title="お気に入りを表示"
+                    >
+                        <UtilityIcon className="slds-button__icon slds-button__icon_small slds-m-top_xx-small" name="down" />
+                        <span className="slds-assistive-text">お気に入りを表示</span>
+                    </button>
+                </div>
+            </div>
+        </li>
+    );
+}
+
 function GlobalActionButton({
+    actionClassName,
     icon,
+    iconClassName,
     label,
     notificationCount,
     onClick,
@@ -80,7 +250,9 @@ function GlobalActionButton({
     popupOpen = false,
     pressed
 }: {
+    actionClassName: string;
     icon: UtilityIconName;
+    iconClassName: string;
     label: string;
     notificationCount?: number;
     onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
@@ -99,7 +271,9 @@ function GlobalActionButton({
                 onMouseLeave={onMouseLeave}
             >
                 <button
-                    className="slds-button slds-button_icon slds-button_icon-container slds-global-actions__item-action playground-global-action"
+                    className={`slds-button slds-button_icon slds-button_icon-container slds-button_icon-small slds-global-actions__item-action ${actionClassName} ${
+                        notificationCount ? "slds-incoming-notification" : ""
+                    }`}
                     type="button"
                     title={label}
                     aria-controls={popupMessage ? popupId : undefined}
@@ -108,12 +282,16 @@ function GlobalActionButton({
                     aria-pressed={pressed}
                     onClick={onClick}
                 >
-                    <UtilityIcon className="slds-button__icon" name={icon} />
-                    {notificationCount ? <span className="slds-notification-badge slds-show-notification">{notificationCount}</span> : null}
+                    <UtilityIcon className={iconClassName} name={icon} />
                     <span className="slds-assistive-text">{label}</span>
                 </button>
+                {notificationCount ? (
+                    <span className="slds-notification-badge slds-incoming-notification slds-show-notification" aria-hidden="true">
+                        {notificationCount}
+                    </span>
+                ) : null}
                 {popupMessage ? (
-                    <div id={popupId} className="slds-dropdown slds-dropdown_right slds-dropdown_small">
+                    <div id={popupId} className="slds-dropdown slds-dropdown_right slds-dropdown_small slds-nubbin_top-right" style={{ transform: "translate(0.375rem, 0.25rem)" }}>
                         <div className="slds-p-around_small slds-text-body_regular">{popupMessage}</div>
                     </div>
                 ) : null}
@@ -123,16 +301,23 @@ function GlobalActionButton({
 }
 
 function GlobalProfileMenu({
+    instanceUrl,
     open,
+    userName,
     onMouseEnter,
     onMouseLeave,
     onToggle
 }: {
+    instanceUrl?: string;
     open: boolean;
+    userName?: string;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
     onToggle: () => void;
 }) {
+    const displayName = userName || "Salesforce ユーザー";
+    const organizationLabel = instanceUrl || "接続済みの組織";
+
     return (
         <li className="slds-global-actions__item">
             <div
@@ -145,35 +330,57 @@ function GlobalProfileMenu({
                     type="button"
                     title="ユーザープロファイル"
                     aria-controls="profile-menu"
-                    aria-haspopup="menu"
+                    aria-haspopup="dialog"
                     aria-expanded={open}
                     onClick={onToggle}
                 >
-                    <span className="slds-avatar slds-avatar_circle slds-avatar_medium">
-                        <UtilityIcon className="slds-icon" name="user" />
+                    <span className="slds-avatar slds-avatar_circle slds-avatar_medium slds-avatar_profile-image-medium">
+                        <span className="slds-assistive-text">ユーザー</span>
                     </span>
                     <span className="slds-assistive-text">ユーザープロファイル</span>
                 </button>
-                <div id="profile-menu" className="slds-dropdown slds-dropdown_right slds-dropdown_actions slds-dropdown_small">
-                    <ul className="slds-dropdown__list" role="menu" aria-label="ユーザープロファイルメニュー">
-                        <li className="slds-dropdown__item" role="presentation">
-                            <form action="/api/auth/logout" method="post" role="presentation">
-                                <button
-                                    className="slds-button_reset slds-size_full slds-p-vertical_x-small slds-p-horizontal_small playground-logout-action"
-                                    type="submit"
-                                    role="menuitem"
-                                >
-                                    <span className="slds-icon_container slds-icon-utility-logout slds-m-right_x-small">
-                                        <UtilityIcon className="slds-icon slds-icon_x-small" name="logout" />
+                {open ? (
+                    <section
+                        id="profile-menu"
+                        className="slds-popover slds-nubbin_top-right playground-profile-popover"
+                        role="dialog"
+                        aria-label="ユーザープロファイル"
+                    >
+                        <button
+                            className="slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close"
+                            type="button"
+                            title="閉じる"
+                            onClick={onToggle}
+                        >
+                            <UtilityIcon className="slds-button__icon" name="close" />
+                            <span className="slds-assistive-text">閉じる</span>
+                        </button>
+                        <div className="slds-popover__body slds-p-around_none">
+                            <div className="slds-media slds-p-around_medium">
+                                <div className="slds-media__figure">
+                                    <span className="slds-avatar slds-avatar_circle slds-avatar_large slds-avatar_profile-image-large">
+                                        <span className="slds-assistive-text">ユーザー</span>
                                     </span>
-                                    <span className="slds-truncate" title="ログアウト">
-                                        ログアウト
-                                    </span>
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                                </div>
+                                <div className="slds-media__body">
+                                    <div className="slds-text-heading_medium slds-truncate" title={displayName}>
+                                        {displayName}
+                                    </div>
+                                    <div className="slds-text-body_regular slds-truncate" title={organizationLabel}>
+                                        {organizationLabel}
+                                    </div>
+                                    <div className="slds-m-top_x-small">
+                                        <form className="slds-display_inline" action="/api/auth/logout" method="post">
+                                            <button className="slds-button_reset slds-text-link" type="submit">
+                                                ログアウト
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                ) : null}
             </div>
         </li>
     );
