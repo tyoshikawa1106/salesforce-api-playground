@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentProps } from "react";
+import { useEffect, type ComponentProps } from "react";
 import { usePathname } from "next/navigation";
 import type { EnvironmentLabel } from "@/lib/environment-label";
 import { getVisibleComponentLogGroups } from "./playground/component-logs";
@@ -19,11 +19,6 @@ import { useRecordMutations } from "./playground/records/useRecordMutations";
 
 export default function Playground({ environmentLabel = null }: { environmentLabel?: EnvironmentLabel | null }) {
     const pathname = usePathname();
-
-    return <PlaygroundContent key={pathname} environmentLabel={environmentLabel} />;
-}
-
-function PlaygroundContent({ environmentLabel = null }: { environmentLabel?: EnvironmentLabel | null }) {
     const { notice, showNotice } = useNotice();
     const {
         accountOptions,
@@ -54,6 +49,14 @@ function PlaygroundContent({ environmentLabel = null }: { environmentLabel?: Env
         onActivitySaved: refreshActivity,
         showNotice
     });
+    const { setDeleteState, setModal, setRestoreState } = recordMutations;
+
+    useEffect(() => {
+        setDeleteState(null);
+        setModal(null);
+        setRestoreState(null);
+    }, [pathname, setDeleteState, setModal, setRestoreState]);
+
     const connected = session?.connected === true;
     const picklists = usePlaygroundPicklists({
         accountForm: recordMutations.accountForm,
