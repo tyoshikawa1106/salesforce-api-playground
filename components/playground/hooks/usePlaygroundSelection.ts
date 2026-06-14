@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
     buildPlaygroundViewUrl,
     defaultPlaygroundViewState,
@@ -17,11 +18,19 @@ export function usePlaygroundSelection({
     accounts,
     contacts
 }: UsePlaygroundSelectionOptions) {
-    const [activeTab, setActiveTab] = useState<ActiveTab>(defaultPlaygroundViewState.activeTab);
-    const [selectedAccountId, setSelectedAccountId] = useState<string | null>(defaultPlaygroundViewState.selectedAccountId);
+    const pathname = usePathname();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const currentSearch = searchParams.toString() ? `?${searchParams.toString()}` : "";
+    const initialViewState = useMemo(
+        () => getPlaygroundViewStateFromLocation(pathname, currentSearch),
+        [currentSearch, pathname]
+    );
+    const [activeTab, setActiveTab] = useState<ActiveTab>(initialViewState.activeTab);
+    const [selectedAccountId, setSelectedAccountId] = useState<string | null>(initialViewState.selectedAccountId);
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
-    const [selectedContactId, setSelectedContactId] = useState<string | null>(defaultPlaygroundViewState.selectedContactId);
-    const viewStateRef = useRef<PlaygroundViewState>(defaultPlaygroundViewState);
+    const [selectedContactId, setSelectedContactId] = useState<string | null>(initialViewState.selectedContactId);
+    const viewStateRef = useRef<PlaygroundViewState>(initialViewState);
 
     const accountOptions = useMemo(
         () => [...accounts].sort((a, b) => a.Name.localeCompare(b.Name, "ja")),
@@ -46,41 +55,25 @@ export function usePlaygroundSelection({
 
     const resetConnectedSelection = useCallback(() => {
         applyViewState(defaultPlaygroundViewState);
-        if (typeof window !== "undefined") {
-            window.history.replaceState(
-                { playgroundView: defaultPlaygroundViewState },
-                "",
-                buildPlaygroundViewUrl(window.location.search, defaultPlaygroundViewState)
-            );
-        }
-    }, [applyViewState]);
+        router.replace(buildPlaygroundViewUrl(currentSearch, defaultPlaygroundViewState), { scroll: false });
+    }, [applyViewState, currentSearch, router]);
 
-    const writeViewHistory = useCallback((state: PlaygroundViewState, mode: "pushState" | "replaceState" = "pushState") => {
+    const navigateToView = useCallback((state: PlaygroundViewState, mode: "push" | "replace" = "push") => {
         viewStateRef.current = state;
-
-        if (typeof window === "undefined") {
-            return;
-        }
-
-        window.history[mode](
-            { playgroundView: state },
-            "",
-            buildPlaygroundViewUrl(window.location.search, state)
-        );
-    }, []);
+        router[mode](buildPlaygroundViewUrl(currentSearch, state), { scroll: false });
+    }, [currentSearch, router]);
 
     useEffect(() => {
-        const currentState = getPlaygroundViewStateFromLocation(window.location.pathname, window.location.search);
+        const currentState = getPlaygroundViewStateFromLocation(pathname, currentSearch);
+        const canonicalUrl = buildPlaygroundViewUrl(currentSearch, currentState);
+        const currentUrl = `${pathname}${currentSearch}`;
+
         applyViewState(currentState);
-        writeViewHistory(currentState, "replaceState");
 
-        function handlePopState() {
-            applyViewState(getPlaygroundViewStateFromLocation(window.location.pathname, window.location.search));
+        if (canonicalUrl !== currentUrl) {
+            router.replace(canonicalUrl, { scroll: false });
         }
-
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, [applyViewState, writeViewHistory]);
+    }, [applyViewState, currentSearch, pathname, router]);
 
     const changeTab = useCallback((nextTab: ActiveTab) => {
         const nextState = {
@@ -90,8 +83,8 @@ export function usePlaygroundSelection({
         };
 
         applyViewState(nextState);
-        writeViewHistory(nextState);
-    }, [applyViewState, writeViewHistory]);
+        navigateToView(nextState);
+    }, [applyViewState, navigateToView]);
 
     const keepSelectionForData = useCallback((nextAccounts: Account[], nextContacts: Contact[]) => {
         setSelectedAccountId((currentId) => keepSelectedRecordId(currentId, nextAccounts));
@@ -106,8 +99,8 @@ export function usePlaygroundSelection({
         };
 
         applyViewState(nextState);
-        writeViewHistory(nextState);
-    }, [applyViewState, writeViewHistory]);
+        navigateToView(nextState);
+    }, [applyViewState, navigateToView]);
 
     const openContact = useCallback((contactId: string) => {
         const nextState = {
@@ -117,8 +110,8 @@ export function usePlaygroundSelection({
         };
 
         applyViewState(nextState);
-        writeViewHistory(nextState);
-    }, [applyViewState, writeViewHistory]);
+        navigateToView(nextState);
+    }, [applyViewState, navigateToView]);
 
     const openActivity = useCallback((activity: Activity) => {
         const nextState = {
@@ -132,8 +125,8 @@ export function usePlaygroundSelection({
         setSelectedContactId(null);
         setSelectedActivity(activity);
         setActiveTab("activities");
-        writeViewHistory(nextState);
-    }, [writeViewHistory]);
+        navigateToView(nextState);
+    }, [navigateToView]);
 
     const closeActivity = useCallback(() => {
         const nextState = {
@@ -143,8 +136,8 @@ export function usePlaygroundSelection({
         };
 
         applyViewState(nextState);
-        writeViewHistory(nextState);
-    }, [applyViewState, writeViewHistory]);
+        navigateToView(nextState);
+    }, [applyViewState, navigateToView]);
 
     return {
         accountOptions,
