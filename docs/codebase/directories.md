@@ -9,6 +9,11 @@
 | `.github/scripts` | GitHub Actions や npm scripts から呼ぶ補助スクリプトを置く。 |
 | `.github/workflows` | GitHub Actions workflow を置く。 |
 | `app` | Next.js App Router のページ、レイアウト、グローバル CSS、API Route を置く。 |
+| `app/accounts` | 取引先一覧と取引先詳細のページ入口を置く。 |
+| `app/contacts` | 取引先責任者一覧と取引先責任者詳細のページ入口を置く。 |
+| `app/activities` | 活動詳細ページの入口を置く。 |
+| `app/integration` | 連携ページの入口を置く。 |
+| `app/recycle-bin` | ごみ箱ページの入口を置く。 |
 | `app/api` | HTTP API の Route Handler と API route テストを置く。 |
 | `app/api/accounts` | Account API の Route Handler を置く。 |
 | `app/api/accounts/[id]` | Account 単体操作の Route Handler を置く。 |
@@ -56,18 +61,28 @@
 
 | パス | 役割 |
 | --- | --- |
-| `app/page.tsx` | `Playground` コンポーネントを表示するトップページ |
+| `app/page.tsx` | `/` のトップページ入口 |
+| `app/playground-page.tsx` | Playground 共通ページ入口 |
+| `app/accounts/page.tsx` | `/accounts` のページ入口 |
+| `app/accounts/[id]/page.tsx` | `/accounts/<取引先ID>` のページ入口 |
+| `app/contacts/page.tsx` | `/contacts` のページ入口 |
+| `app/contacts/[id]/page.tsx` | `/contacts/<取引先責任者ID>` のページ入口 |
+| `app/activities/page.tsx` | `/activities` のページ入口 |
+| `app/integration/page.tsx` | `/integration` のページ入口 |
+| `app/recycle-bin/page.tsx` | `/recycle-bin` のページ入口 |
 | `app/layout.tsx` | アプリ全体の layout と metadata |
 | `app/globals.css` | SLDS CSS の読み込みとアプリ全体の CSS |
 | `app/api/**/route.ts` | API Routes |
 | `app/api/*-routes.test.ts` | API Routes の Vitest テスト |
 | `app/api/test-helpers.ts` | API route テスト用 helper |
 
+`app/page.tsx` と各画面 page は、URL とブラウザ履歴の入口として扱います。実際の Playground UI は `app/playground-page.tsx` から `components/Playground.tsx` へ渡します。
+
 `app/api` は HTTP メソッドごとの入口として扱います。Salesforce OAuth、session、入力検証、共通エラーハンドリングは `lib/salesforce`、Salesforce への実データ操作は `services/salesforce` に委譲します。
 
 ## `components`
 
-`components` は UI 実装の置き場です。`components/Playground.tsx` が接続状態、データ取得、タブ遷移、作成 / 更新 / 削除、通知、モーダル状態を束ね、`components/playground` 配下の部品を組み立てます。
+`components` は UI 実装の置き場です。`components/Playground.tsx` が接続状態、データ取得、ページ選択、作成 / 更新 / 削除、通知、モーダル状態を束ね、`components/playground` 配下の部品を組み立てます。
 
 | パス | 役割 |
 | --- | --- |

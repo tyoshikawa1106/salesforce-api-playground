@@ -14,3 +14,16 @@
 - [活動削除](activity-delete.md)
 - [連携](integration.md)
 - [ごみ箱](recycle-bin.md)
+
+## ページ扱い
+
+- ホーム: `/`
+- 取引先一覧: `/accounts`
+- 取引先詳細: `/accounts/<取引先ID>`
+- 取引先責任者一覧: `/contacts`
+- 取引先責任者詳細: `/contacts/<取引先責任者ID>`
+- 活動詳細: `/activities`
+- 連携: `/integration`
+- ごみ箱: `/recycle-bin`
+
+編集、削除、作成は同じページ内の操作として扱う。

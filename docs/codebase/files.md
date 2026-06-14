@@ -47,7 +47,15 @@
 | --- | --- |
 | `app/globals.css` | SLDS CSS 読み込みとアプリ全体の CSS を定義する。 |
 | `app/layout.tsx` | アプリ全体の HTML layout と metadata を定義する。 |
-| `app/page.tsx` | Playground 画面を表示するトップページを定義する。 |
+| `app/page.tsx` | `/` のトップページ入口を定義する。 |
+| `app/playground-page.tsx` | 各ページ入口から共有する Playground 表示処理を定義する。 |
+| `app/accounts/page.tsx` | `/accounts` のページ入口を定義する。 |
+| `app/accounts/[id]/page.tsx` | `/accounts/<取引先ID>` のページ入口を定義する。 |
+| `app/contacts/page.tsx` | `/contacts` のページ入口を定義する。 |
+| `app/contacts/[id]/page.tsx` | `/contacts/<取引先責任者ID>` のページ入口を定義する。 |
+| `app/activities/page.tsx` | `/activities` のページ入口を定義する。 |
+| `app/integration/page.tsx` | `/integration` のページ入口を定義する。 |
+| `app/recycle-bin/page.tsx` | `/recycle-bin` のページ入口を定義する。 |
 
 ## `app/api`
 
