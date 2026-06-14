@@ -1,7 +1,7 @@
 import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import type { ActivityRecordContext } from "./activity-task-form";
 import { buildDateValue } from "./activity-date-utils";
-import { formatDate } from "../utils/formatting";
+import { formatDateOnly } from "../utils/formatting";
 
 export type TaskStatusOverride = {
     previousStatus: string;
@@ -106,7 +106,7 @@ export function formatTaskDueDate(value?: string): string {
         return "昨日";
     }
 
-    return formatDate(value);
+    return formatDateOnly(value);
 }
 
 export function getTaskSummary(

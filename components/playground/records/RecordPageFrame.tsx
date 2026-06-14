@@ -16,6 +16,7 @@ type RecordPageFrameProps<Record extends object> = {
     tab: ActiveTab;
     objectLabel: string;
     title: string;
+    headerIcon?: ReactNode;
     activityRelatedName?: string;
     activityNameLookupOptions?: ActivityLookupOption[];
     onOpenActivity?: (activity: Activity) => void;
@@ -42,6 +43,7 @@ export function RecordPageFrame<Record extends object>({
     tab,
     objectLabel,
     title,
+    headerIcon,
     activityRelatedName,
     activityNameLookupOptions,
     onOpenActivity,
@@ -69,6 +71,7 @@ export function RecordPageFrame<Record extends object>({
                 tab={tab}
                 objectLabel={objectLabel}
                 title={title}
+                headerIcon={headerIcon}
                 loading={loading}
                 onDelete={() => onDelete(record)}
                 onEdit={() => onEdit(record)}
