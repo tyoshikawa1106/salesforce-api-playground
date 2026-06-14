@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { AccountRecordPage, ActivityRecordPage, ContactRecordPage } from "./RecordPages";
+import { RelatedContactsCard } from "./RecordRelatedCards";
 import {
     accountFixture as account,
     activityFixture as activity,
@@ -18,7 +19,9 @@ describe("record page smoke rendering", () => {
                 contacts: [contact],
                 loading: false,
                 onDelete: noop,
+                onDeleteContact: noop,
                 onEdit: noop,
+                onEditContact: noop,
                 onOpenContact: noop,
                 onRefresh: noop
             })
@@ -97,6 +100,34 @@ describe("record page smoke rendering", () => {
         expect(activityMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
     });
 
+    it("renders related contacts as SLDS card tiles", () => {
+        const contacts = Array.from({ length: 6 }, (_, index) => ({
+            ...contact,
+            Id: `${contact.Id}-${index}`,
+            FirstName: `Taro${index + 1}`,
+            LastName: "Yamada"
+        }));
+        const markup = renderToStaticMarkup(
+            createElement(RelatedContactsCard, {
+                contacts,
+                onDeleteContact: noop,
+                onEditContact: noop,
+                onOpenContact: noop
+            })
+        );
+
+        expect(markup).toContain("取引先責任者 (6)");
+        expect(markup).toContain("slds-grid slds-wrap slds-grid_pull-padded");
+        expect(markup).toContain("slds-tile slds-media slds-card__tile slds-hint-parent");
+        expect(markup).toContain("slds-list_horizontal slds-wrap");
+        expect(markup).toContain("aria-label=\"Taro1 Yamada の操作\"");
+        expect(markup).toContain("Taro5 Yamada");
+        expect(markup).not.toContain("Taro6 Yamada");
+        expect(markup).toContain("role=\"menuitem\"");
+        expect(markup).toContain("class=\"slds-card__footer-action\" href=\"#\" aria-disabled=\"true\"");
+        expect(markup).toContain("View All");
+    });
+
     it("renders activity detail header icons by activity type", () => {
         const eventMarkup = renderToStaticMarkup(
             createElement(ActivityRecordPage, {
@@ -146,7 +177,9 @@ describe("record page smoke rendering", () => {
                 contacts: [contact],
                 loading: true,
                 onDelete: noop,
+                onDeleteContact: noop,
                 onEdit: noop,
+                onEditContact: noop,
                 onOpenContact: noop,
                 onRefresh: noop
             })

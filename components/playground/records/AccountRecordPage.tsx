@@ -14,9 +14,11 @@ export function AccountRecordPage({
     contacts,
     loading,
     onDelete,
-    onEdit,
     onDeleteActivity,
+    onDeleteContact,
+    onEdit,
     onEditActivity,
+    onEditContact,
     onOpenActivity,
     onOpenContact,
     onRefresh,
@@ -28,9 +30,11 @@ export function AccountRecordPage({
     contacts: Contact[];
     loading: boolean;
     onDelete: (record: Account) => void;
-    onEdit: (record: Account) => void;
     onDeleteActivity?: (activity: Activity, afterDelete?: () => Promise<void> | void) => void;
+    onDeleteContact: (record: Contact) => void;
+    onEdit: (record: Account) => void;
     onEditActivity?: (activity: Activity) => void;
+    onEditContact: (record: Contact) => void;
     onOpenActivity?: (activity: Activity) => void;
     onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
@@ -76,7 +80,12 @@ export function AccountRecordPage({
                 </>
             }
             relatedContent={
-                <RelatedContactsCard contacts={contacts} onOpenContact={onOpenContact} />
+                <RelatedContactsCard
+                    contacts={contacts}
+                    onDeleteContact={onDeleteContact}
+                    onEditContact={onEditContact}
+                    onOpenContact={onOpenContact}
+                />
             }
             detailFields={[
                 ["取引先名", account.Name],

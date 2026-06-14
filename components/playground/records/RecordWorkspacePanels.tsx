@@ -87,6 +87,7 @@ export function AccountDetailWorkspace({
     onDeleteRecord,
     onEdit,
     onEditActivity,
+    onEditContact,
     onOpenActivity,
     onOpenContact,
     onRefresh,
@@ -100,6 +101,7 @@ export function AccountDetailWorkspace({
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Account) => void;
     onEditActivity: (record: Activity) => void;
+    onEditContact: (record: Contact) => void;
     onOpenActivity: (activity: Activity) => void;
     onOpenContact: (record: Contact) => void;
     onRefresh: () => void;
@@ -113,8 +115,10 @@ export function AccountDetailWorkspace({
             contacts={contacts.filter((contact) => contact.AccountId === account.Id)}
             onDelete={(record) => onDeleteRecord(accountDeleteState([record], record.Name))}
             onDeleteActivity={(record, afterDelete) => onDeleteRecord(activityDeleteState(record, afterDelete))}
+            onDeleteContact={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
             onEdit={onEdit}
             onEditActivity={onEditActivity}
+            onEditContact={onEditContact}
             onOpenActivity={onOpenActivity}
             onOpenContact={onOpenContact}
             onRefresh={onRefresh}

@@ -137,6 +137,7 @@ export function PlaygroundWorkspace({
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditAccount}
                         onEditActivity={recordActions.onEditActivity}
+                        onEditContact={recordActions.onEditContact}
                         onOpenActivity={recordActions.onOpenActivity}
                         onOpenContact={recordActions.onOpenContact}
                         onRefresh={recordActions.onRefresh}
