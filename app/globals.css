@@ -228,12 +228,48 @@ body {
     z-index: var(--playground-utility-bar-z-index);
 }
 
+.playground-utility-bar__list {
+    max-width: 100vw;
+    overflow-x: auto;
+}
+
+.playground-utility-bar__item {
+    flex: 0 0 auto;
+}
+
 .playground-utility-panel {
     bottom: var(--playground-utility-bar-height);
     left: var(--slds-g-spacing-4, 1rem);
     max-height: calc(100vh - var(--playground-content-offset) - var(--playground-utility-bar-height));
     max-width: calc(100vw - (var(--slds-g-spacing-4, 1rem) * 2));
     right: auto;
+}
+
+.playground-utility-panel_logs {
+    width: min(44rem, calc(100vw - (var(--slds-g-spacing-4, 1rem) * 2)));
+}
+
+.playground-component-logs__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slds-g-spacing-1, 0.25rem);
+}
+
+.playground-component-logs__path {
+    color: var(--slds-g-color-neutral-base-30, #444);
+    font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+    overflow-wrap: anywhere;
+}
+
+.playground-component-logs__description {
+    color: var(--slds-g-color-neutral-base-30, #444);
+    line-height: var(--slds-g-font-lineheight-2, 1.25);
+}
+
+.playground-component-logs__self {
+    display: flex;
+    flex-direction: column;
+    gap: var(--slds-g-spacing-1, 0.25rem);
 }
 
 .playground-task-composer {
