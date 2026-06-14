@@ -101,7 +101,7 @@ describe("Salesforce activity lookup services", () => {
 
         expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "Contact", "queryable");
         expect(query).toHaveBeenCalledWith(
-            "SELECT Id, Name, Account.Name FROM Contact WHERE Name LIKE '%Edge%' ESCAPE '\\\\' OR Account.Name LIKE '%Edge%' ESCAPE '\\\\' ORDER BY Name ASC LIMIT 5"
+            "SELECT Id, Name, Account.Name FROM Contact WHERE Name LIKE '%Edge%' OR Account.Name LIKE '%Edge%' ORDER BY Name ASC LIMIT 5"
         );
     });
 
@@ -120,7 +120,7 @@ describe("Salesforce activity lookup services", () => {
         });
 
         expect(query).toHaveBeenCalledWith(
-            "SELECT Id, Name FROM Account WHERE Name LIKE '%O\\'Hara\\\\\\_100\\%%' ESCAPE '\\\\' ORDER BY Name ASC LIMIT 5"
+            "SELECT Id, Name FROM Account WHERE Name LIKE '%O\\'Hara\\\\\\_100\\%%' ORDER BY Name ASC LIMIT 5"
         );
     });
 
@@ -154,8 +154,28 @@ describe("Salesforce activity lookup services", () => {
 
         expect(assertObjectPermissionMock).toHaveBeenCalledWith(connection, "User", "queryable");
         expect(query).toHaveBeenCalledWith(
-            "SELECT Id, Name FROM User WHERE Name LIKE '%Yoshikawa%' ESCAPE '\\\\' AND IsActive = true ORDER BY Name ASC LIMIT 5"
+            "SELECT Id, Name FROM User WHERE Name LIKE '%Yoshikawa%' AND IsActive = true ORDER BY Name ASC LIMIT 5"
         );
+    });
+
+    it("does not emit unsupported SOQL ESCAPE clauses", async () => {
+        const query = vi.fn().mockResolvedValue({ records: [] });
+        const connection = { query };
+
+        withStandardObjectConnectionMock.mockImplementation(async (operation) => ({
+            data: await operation(connection as never, session),
+            session
+        }));
+
+        await listActivityLookupOptions({ object: "account", query: "Sales" });
+        await listActivityLookupOptions({ object: "contact", query: "Sales" });
+        await listActivityLookupOptions({ object: "user", query: "Sales" });
+
+        expect(query.mock.calls.map(([soql]) => soql)).toEqual([
+            expect.not.stringContaining(" ESCAPE "),
+            expect.not.stringContaining(" ESCAPE "),
+            expect.not.stringContaining(" ESCAPE ")
+        ]);
     });
 
     it("reads and trims lookup request params", () => {
