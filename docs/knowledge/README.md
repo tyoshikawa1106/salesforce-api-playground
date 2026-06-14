@@ -25,6 +25,7 @@
 - [URL ベースのクライアントサイドルーティング](spa-page-routing.md)
 - [Next.js 開発の進め方](nextjs-development.md)
 - [TypeScript 開発の進め方](typescript-development.md)
+- [Salesforce Lightning Experience の考え方](salesforce-lightning-experience-architecture.md)
 - [Salesforce Lightning Design System 開発の進め方](slds-development.md)
 
 ## Heroku
