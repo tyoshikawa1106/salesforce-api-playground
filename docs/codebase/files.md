@@ -61,6 +61,7 @@
 | `app/api/activities/route.ts` | 活動タイムライン取得 API を定義する。 |
 | `app/api/activities/tasks/[id]/route.ts` | ToDo 単体の更新、削除 API を定義する。 |
 | `app/api/activities/tasks/route.ts` | ToDo 一覧取得、作成 API を定義する。 |
+| `app/api/activity-counts/route.ts` | 活動件数 API を定義する。 |
 | `app/api/activity-lookups-routes.test.ts` | 活動入力用 lookup API Route の挙動を確認する。 |
 | `app/api/activity-lookups/route.ts` | 活動入力で使う関連先候補取得 API を定義する。 |
 | `app/api/auth-routes.test.ts` | Salesforce OAuth 関連 API Route の挙動を確認する。 |
@@ -77,6 +78,7 @@
 | `app/api/integration/ui/accounts/route.ts` | UI から外部連携 Account API を試すための中継 API を定義する。 |
 | `app/api/picklist-values-routes.test.ts` | 選択リスト値 API Route の挙動を確認する。 |
 | `app/api/picklist-values/route.ts` | 画面入力で使う Salesforce 選択リスト値の取得 API を定義する。 |
+| `app/api/record-counts/route.ts` | Account / Contact 件数 API を定義する。 |
 | `app/api/recycle-bin-routes.test.ts` | Recycle Bin API Route の挙動を確認する。 |
 | `app/api/recycle-bin/route.ts` | Recycle Bin 内レコード取得 API を定義する。 |
 | `app/api/recycle-bin/undelete/route.ts` | Recycle Bin からの復元 API を定義する。 |
@@ -84,6 +86,7 @@
 | `app/api/search/route.ts` | Salesforce グローバル検索 API を定義する。 |
 | `app/api/session/route.ts` | 現在の Salesforce session 状態を返す API を定義する。 |
 | `app/api/test-helpers.ts` | API Route テストで使う request / mock helper を定義する。 |
+| `app/api/user-counts/route.ts` | Salesforce ユーザー件数 API を定義する。 |
 
 ## `components`
 
@@ -145,14 +148,17 @@
 | `services/salesforce/activities.ts` | ToDo / 行動の SOQL、作成、更新、削除、活動タイムライン取得を行う。 |
 | `services/salesforce/activity-lookups.ts` | 活動入力用の関連先候補を Salesforce から取得する。 |
 | `services/salesforce/client.ts` | `jsforce.Connection` 作成、未接続検出、access token refresh 後の再試行、連携用 Connection 作成を行う。 |
+| `services/salesforce/count-results.ts` | 件数取得 API の結果整形を行う。 |
 | `services/salesforce/current-user.ts` | Salesforce の現在ユーザー情報を取得する。 |
 | `services/salesforce/object-mutations.ts` | Salesforce オブジェクトの作成、更新、削除処理を共通化する。 |
 | `services/salesforce/object-permissions.ts` | CRUD 実行前の Salesforce オブジェクト権限確認を行う。 |
 | `services/salesforce/picklist-values.ts` | Salesforce describe から画面入力用の選択リスト値を取得する。 |
+| `services/salesforce/record-counts.ts` | Account / Contact の件数を取得する。 |
 | `services/salesforce/record-queries.ts` | Account / Contact の SOQL query 組み立てを定義する。 |
 | `services/salesforce/records.ts` | Account / Contact の SOQL、create、update、delete、検索を行う。 |
 | `services/salesforce/recycle-bin-helpers.ts` | Recycle Bin レコードの整形や復元 helper を定義する。 |
 | `services/salesforce/recycle-bin.ts` | Recycle Bin 内レコード取得と復元を行う。 |
+| `services/salesforce/users.ts` | Salesforce ユーザー件数を取得する。 |
 
 ## `docs`
 

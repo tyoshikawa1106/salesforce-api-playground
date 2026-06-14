@@ -11,6 +11,7 @@ import {
 } from "./RecordLists";
 import { RecordTableActions } from "./RecordListTableParts";
 import { RecycleBinPanel } from "../recycle-bin/RecycleBinPanel";
+import { filterAndSortRecords } from "./record-list-state";
 import {
     accountFixture as account,
     contactFixture as contact,
@@ -271,6 +272,24 @@ describe("record list smoke rendering", () => {
         expect(filterAccounts([account, anotherAccount], " TOKYO ")).toEqual([account]);
         expect(filterContacts([contact, anotherContact], "designer")).toEqual([anotherContact]);
         expect(filterContacts([contact, anotherContact], "acme")).toEqual([contact]);
+    });
+
+    it("filters and sorts visible records through the shared list helper", () => {
+        const records = [
+            { Id: "2", Name: "Zeta", City: "Tokyo" },
+            { Id: "1", Name: "Alpha", City: "Tokyo" },
+            { Id: "3", Name: "Beta", City: "Osaka" }
+        ];
+
+        expect(filterAndSortRecords(
+            records,
+            "tokyo",
+            (record) => [record.Name, record.City],
+            (record) => record.Name
+        )).toEqual([
+            { Id: "1", Name: "Alpha", City: "Tokyo" },
+            { Id: "2", Name: "Zeta", City: "Tokyo" }
+        ]);
     });
 
     it("reports visible list selection state for checked and mixed header checkboxes", () => {
