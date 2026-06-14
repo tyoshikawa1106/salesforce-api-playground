@@ -60,6 +60,7 @@ describe("record list smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
+                onOpen: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop,
                 onRefresh: noop
@@ -72,6 +73,8 @@ describe("record list smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
+                onOpen: noop,
+                onOpenAccountById: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop,
                 onRefresh: noop
@@ -161,6 +164,7 @@ describe("record list smoke rendering", () => {
                 loading: true,
                 onDelete: noop,
                 onEdit: noop,
+                onOpen: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop,
                 onRefresh: noop

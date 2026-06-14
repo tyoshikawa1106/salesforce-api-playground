@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
     buildPlaygroundViewUrl,
     defaultPlaygroundViewState,
@@ -18,14 +17,7 @@ export function usePlaygroundSelection({
     accounts,
     contacts
 }: UsePlaygroundSelectionOptions) {
-    const pathname = usePathname();
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const currentSearch = searchParams.toString() ? `?${searchParams.toString()}` : "";
-    const initialViewState = useMemo(
-        () => getPlaygroundViewStateFromLocation(pathname, currentSearch),
-        [currentSearch, pathname]
-    );
+    const initialViewState = getInitialPlaygroundViewState();
     const [activeTab, setActiveTab] = useState<ActiveTab>(initialViewState.activeTab);
     const [selectedAccountId, setSelectedAccountId] = useState<string | null>(initialViewState.selectedAccountId);
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
@@ -55,36 +47,36 @@ export function usePlaygroundSelection({
 
     const resetConnectedSelection = useCallback(() => {
         applyViewState(defaultPlaygroundViewState);
-        router.replace(buildPlaygroundViewUrl(currentSearch, defaultPlaygroundViewState), { scroll: false });
-    }, [applyViewState, currentSearch, router]);
+        replaceViewHistory(defaultPlaygroundViewState);
+    }, [applyViewState]);
 
-    const navigateToView = useCallback((state: PlaygroundViewState, mode: "push" | "replace" = "push") => {
+    const navigateToView = useCallback((state: PlaygroundViewState) => {
         viewStateRef.current = state;
-        router[mode](buildPlaygroundViewUrl(currentSearch, state), { scroll: false });
-    }, [currentSearch, router]);
+        pushViewHistory(state);
+        applyViewState(state);
+    }, [applyViewState]);
 
     useEffect(() => {
-        const currentState = getPlaygroundViewStateFromLocation(pathname, currentSearch);
-        const canonicalUrl = buildPlaygroundViewUrl(currentSearch, currentState);
-        const currentUrl = `${pathname}${currentSearch}`;
+        const currentState = getCurrentPlaygroundViewState();
 
         applyViewState(currentState);
+        replaceViewHistory(currentState);
 
-        if (canonicalUrl !== currentUrl) {
-            router.replace(canonicalUrl, { scroll: false });
+        function handlePopState() {
+            applyViewState(getCurrentPlaygroundViewState());
         }
-    }, [applyViewState, currentSearch, pathname, router]);
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [applyViewState]);
 
     const changeTab = useCallback((nextTab: ActiveTab) => {
-        const nextState = {
+        navigateToView({
             activeTab: nextTab,
             selectedAccountId: null,
             selectedContactId: null
-        };
-
-        applyViewState(nextState);
-        navigateToView(nextState);
-    }, [applyViewState, navigateToView]);
+        });
+    }, [navigateToView]);
 
     const keepSelectionForData = useCallback((nextAccounts: Account[], nextContacts: Contact[]) => {
         setSelectedAccountId((currentId) => keepSelectedRecordId(currentId, nextAccounts));
@@ -92,26 +84,20 @@ export function usePlaygroundSelection({
     }, []);
 
     const openAccount = useCallback((accountId: string) => {
-        const nextState = {
+        navigateToView({
             activeTab: "accounts" as const,
             selectedAccountId: accountId,
             selectedContactId: null
-        };
-
-        applyViewState(nextState);
-        navigateToView(nextState);
-    }, [applyViewState, navigateToView]);
+        });
+    }, [navigateToView]);
 
     const openContact = useCallback((contactId: string) => {
-        const nextState = {
+        navigateToView({
             activeTab: "contacts" as const,
             selectedAccountId: null,
             selectedContactId: contactId
-        };
-
-        applyViewState(nextState);
-        navigateToView(nextState);
-    }, [applyViewState, navigateToView]);
+        });
+    }, [navigateToView]);
 
     const openActivity = useCallback((activity: Activity) => {
         const nextState = {
@@ -121,12 +107,12 @@ export function usePlaygroundSelection({
         };
 
         viewStateRef.current = nextState;
+        pushViewHistory(nextState);
         setSelectedAccountId(null);
         setSelectedContactId(null);
         setSelectedActivity(activity);
         setActiveTab("activities");
-        navigateToView(nextState);
-    }, [navigateToView]);
+    }, []);
 
     const closeActivity = useCallback(() => {
         const nextState = {
@@ -150,10 +136,52 @@ export function usePlaygroundSelection({
         openContact,
         resetConnectedSelection,
         selectedAccount,
+        selectedAccountId,
         selectedActivity,
         selectedContact,
+        selectedContactId,
         setSelectedActivity,
         setSelectedAccountId,
         setSelectedContactId
     };
+}
+
+function getInitialPlaygroundViewState() {
+    if (typeof window === "undefined") {
+        return defaultPlaygroundViewState;
+    }
+
+    return getCurrentPlaygroundViewState();
+}
+
+function getCurrentPlaygroundViewState() {
+    return getPlaygroundViewStateFromLocation(window.location.pathname, window.location.search);
+}
+
+function getCurrentSearch() {
+    return typeof window === "undefined" ? "" : window.location.search;
+}
+
+function pushViewHistory(state: PlaygroundViewState) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    window.history.pushState(
+        { playgroundView: state },
+        "",
+        buildPlaygroundViewUrl(getCurrentSearch(), state)
+    );
+}
+
+function replaceViewHistory(state: PlaygroundViewState) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    window.history.replaceState(
+        { playgroundView: state },
+        "",
+        buildPlaygroundViewUrl(getCurrentSearch(), state)
+    );
 }

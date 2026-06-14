@@ -27,6 +27,7 @@ type RecordPanelProps<Record extends { Id: string }> = {
     records: Record[];
     loading: boolean;
     connected: boolean;
+    onOpen: (record: Record) => void;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
     onBulkDelete: (records: Record[]) => void;
@@ -83,7 +84,7 @@ const contactListConfig: RecordListConfig<Contact> = {
     getRecordPath: (contact) => `/contacts/${encodeURIComponent(contact.Id)}`
 };
 
-function renderAccountNameLink(contact: Contact) {
+function renderAccountNameLink(contact: Contact, onOpenAccountById: (accountId: string) => void) {
     const accountId = contact.AccountId;
 
     if (!accountId) {
@@ -91,7 +92,17 @@ function renderAccountNameLink(contact: Contact) {
     }
 
     return (
-        <a className="slds-text-link" href={`/accounts/${encodeURIComponent(accountId)}`}>
+        <a
+            className="slds-text-link"
+            href={`/accounts/${encodeURIComponent(accountId)}`}
+            onClick={(event) => {
+                if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                    return;
+                }
+                event.preventDefault();
+                onOpenAccountById(accountId);
+            }}
+        >
             {contact.Account?.Name || accountId}
         </a>
     );
@@ -102,6 +113,7 @@ function RecordPanel<Record extends { Id: string }>({
     records,
     loading,
     connected,
+    onOpen,
     onEdit,
     onDelete,
     onBulkDelete,
@@ -123,6 +135,7 @@ function RecordPanel<Record extends { Id: string }>({
             filterListRecords={config.filterListRecords}
             getRecordLabel={config.getRecordLabel}
             getRecordPath={config.getRecordPath}
+            onOpen={onOpen}
             onEdit={onEdit}
             onDelete={onDelete}
             onBulkDelete={onBulkDelete}
@@ -143,16 +156,18 @@ export function AccountPanel({
 
 export function ContactPanel({
     contacts,
+    onOpenAccountById,
     ...props
 }: Omit<RecordPanelProps<Contact>, "records"> & {
     contacts: Contact[];
+    onOpenAccountById: (accountId: string) => void;
 }) {
     return (
         <RecordPanel
             config={{
                 ...contactListConfig,
                 columns: [
-                    { label: "取引先名", getValue: renderAccountNameLink },
+                    { label: "取引先名", getValue: (contact) => renderAccountNameLink(contact, onOpenAccountById) },
                     ...contactListConfig.columns
                 ]
             }}

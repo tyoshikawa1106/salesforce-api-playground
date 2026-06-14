@@ -49,6 +49,7 @@ type PlaygroundWorkspaceProps = {
         onEditAccount: (record: Account) => void;
         onEditContact: (record: Contact) => void;
         onOpenActivity: (record: Activity) => void;
+        onOpenAccount: (record: Account) => void;
         onOpenAccountById: (accountId: string) => void;
         onOpenContact: (record: Contact) => void;
         onOpenContactById: (contactId: string) => void;
@@ -121,6 +122,7 @@ export function PlaygroundWorkspace({
                         onCreate={recordActions.onCreateAccount}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditAccount}
+                        onOpen={recordActions.onOpenAccount}
                         onRefresh={recordActions.onRefresh}
                     />
                 ) : null}
@@ -151,6 +153,8 @@ export function PlaygroundWorkspace({
                         onCreate={recordActions.onCreateContact}
                         onDeleteRecord={recordActions.onDeleteRecord}
                         onEdit={recordActions.onEditContact}
+                        onOpenAccount={recordActions.onOpenAccountById}
+                        onOpen={recordActions.onOpenContact}
                         onRefresh={recordActions.onRefresh}
                     />
                 ) : null}

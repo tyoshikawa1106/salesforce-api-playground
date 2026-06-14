@@ -44,6 +44,7 @@ export function AccountListWorkspace({
     onCreate,
     onDeleteRecord,
     onEdit,
+    onOpen,
     onRefresh
 }: {
     accounts: Account[];
@@ -53,6 +54,7 @@ export function AccountListWorkspace({
     onCreate: () => void;
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Account) => void;
+    onOpen: (record: Account) => void;
     onRefresh: () => void;
 }) {
     return (
@@ -65,6 +67,7 @@ export function AccountListWorkspace({
                 accounts={accounts}
                 loading={loading}
                 connected={connected}
+                onOpen={onOpen}
                 onEdit={onEdit}
                 onDelete={(record) => onDeleteRecord(accountDeleteState([record], record.Name))}
                 onBulkDelete={(records) => onDeleteRecord(accountDeleteState(records, accountBulkDeleteLabel(records)))}
@@ -129,6 +132,8 @@ export function ContactListWorkspace({
     onCreate,
     onDeleteRecord,
     onEdit,
+    onOpenAccount,
+    onOpen,
     onRefresh
 }: {
     connected: boolean;
@@ -138,6 +143,8 @@ export function ContactListWorkspace({
     onCreate: () => void;
     onDeleteRecord: (deleteState: DeleteState) => void;
     onEdit: (record: Contact) => void;
+    onOpenAccount: (accountId: string) => void;
+    onOpen: (record: Contact) => void;
     onRefresh: () => void;
 }) {
     return (
@@ -150,6 +157,8 @@ export function ContactListWorkspace({
                 contacts={contacts}
                 loading={loading}
                 connected={connected}
+                onOpen={onOpen}
+                onOpenAccountById={onOpenAccount}
                 onEdit={onEdit}
                 onDelete={(record) => onDeleteRecord(contactDeleteState([record], contactDeleteLabel(record)))}
                 onBulkDelete={(records) => onDeleteRecord(contactDeleteState(records, contactBulkDeleteLabel(records)))}
