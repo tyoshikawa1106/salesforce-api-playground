@@ -99,7 +99,7 @@ function buildLookupWhereClause(object: ActivityLookupObject, query: string): st
 
     const likeValue = `%${escapeSoqlLikeValue(query)}%`;
     const searchConditions = config.searchFields
-        .map((field) => `${field} LIKE '${likeValue}' ESCAPE '\\\\'`)
+        .map((field) => `${field} LIKE '${likeValue}'`)
         .join(" OR ");
 
     return ["WHERE", searchConditions, config.searchWhereSuffix].filter(Boolean).join(" ");
