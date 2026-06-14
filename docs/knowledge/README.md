@@ -10,6 +10,7 @@
 - [GitHub Flow 開発手法](github-flow.md)
 - [GitHub 関連機能の基礎](github-platform-concepts.md)
 - [GitHub 関連機能の応用](github-platform-advanced.md)
+- [GitHub に置く画像ファイルの考え方](github-image-assets.md)
 
 ## AI コーディング
 
