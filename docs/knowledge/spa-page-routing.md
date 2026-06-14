@@ -30,6 +30,8 @@ React で作る画面でも、すべてを 1 つの URL に閉じ込める必要
 
 一覧から詳細へ移動した場合や、取引先詳細から取引先責任者詳細へ移動した場合は、ブラウザ履歴に積む。
 
+主要タブ、一覧のレコード名、詳細間の移動リンクは通常の `href` を持つリンクとして実装する。クリック時に `preventDefault()` で React state だけを先に切り替えない。
+
 ## 同じページ内で扱うもの
 
 - 新規作成
@@ -63,7 +65,7 @@ React で作る画面でも、すべてを 1 つの URL に閉じ込める必要
 - 共通の Playground 表示処理は `app/playground-page.tsx` に寄せる。
 - 画面の現在地は URL から復元する。
 - 表示の組み立ては `components/Playground.tsx` と `components/playground/PlaygroundWorkspace.tsx` で行う。
-- ナビゲーションリンクは `href` に実 URL を持たせる。
-- 通常クリックは SPA 遷移として扱い、別タブやリンクコピーは通常リンクとして扱えるようにする。
+- ページ扱いのナビゲーションやレコードリンクは `href` に実 URL を持たせ、通常のページ読み込みで移動する。
+- 編集、削除確認、作成、候補 popup などの一時操作だけを component state で扱う。
 
 React state はページ内の状態に使い、ページそのものの現在地は URL に置く。
