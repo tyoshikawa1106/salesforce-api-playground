@@ -4,6 +4,7 @@
 
 | 追加したいもの | 置き場所 |
 | --- | --- |
+| URL として復元したい新しい画面 | `app/<path>/page.tsx` |
 | 新しい画面部品 | `components/playground/<役割別サブフォルダ>` |
 | 画面全体の状態管理変更 | `components/Playground.tsx` または `components/playground/hooks` |
 | ブラウザから呼ぶ新しい API | `app/api/**/route.ts` |

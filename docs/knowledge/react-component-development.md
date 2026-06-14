@@ -11,6 +11,8 @@ Playground 画面の大きな流れは、次の順番で読む。
 ```text
 app/page.tsx
   ↓
+app/playground-page.tsx
+  ↓
 components/Playground.tsx
   ↓
 components/playground/PlaygroundWorkspace.tsx
@@ -18,7 +20,7 @@ components/playground/PlaygroundWorkspace.tsx
 components/playground/<役割別サブフォルダ> 配下の各コンポーネント
 ```
 
-`app/page.tsx` は Next.js の画面入口で、実際の画面本体は `components/Playground.tsx` に委譲している。
+`app/page.tsx` や `app/accounts/page.tsx` は Next.js の画面入口で、実際の画面本体は `components/Playground.tsx` に委譲している。
 
 `components/Playground.tsx` は Playground 画面の司令塔として、session、選択中のタブ、Account / Contact の一覧、通知、保存や削除などの mutation を扱う。ここを読むと、どの状態をどの子コンポーネントへ渡しているかが分かる。
 
@@ -193,3 +195,5 @@ API request がどこで起きるか分からない
 ```
 
 React のファイル数が多く見える時ほど、全部を一度に理解しようとしない。入口、props、役割、テストの順で追えば、必要な範囲から少しずつ理解できる。
+
+URL として復元したい画面は React state だけで持たず、Next.js のページとして扱う。詳しくは [SPA とページ分割の考え方](spa-page-routing.md) を参照する。
