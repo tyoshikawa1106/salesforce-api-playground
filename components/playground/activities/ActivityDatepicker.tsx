@@ -80,6 +80,7 @@ export function QuickActionDatepicker({
                             id={inputId}
                             type="text"
                             autoComplete="off"
+                            inputMode="numeric"
                             aria-describedby={formatHelpId}
                             value={formatDateInputValue(value)}
                             onBlur={() => {

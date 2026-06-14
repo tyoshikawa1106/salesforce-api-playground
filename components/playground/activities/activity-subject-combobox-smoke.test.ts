@@ -37,6 +37,7 @@ describe("activity subject combobox smoke rendering", () => {
 
         expect(markup).toContain("slds-form-element slds-size_1-of-1 slds-has-error");
         expect(markup).toContain("aria-describedby=\"activity-text-件名-error\"");
+        expect(markup).toContain("autoComplete=\"off\"");
         expect(markup).toContain("id=\"activity-text-件名-error\"");
         expect(controlEnd).toBeGreaterThanOrEqual(0);
         expect(markup).toContain("件名は必須です。");
@@ -59,6 +60,8 @@ describe("activity subject combobox smoke rendering", () => {
 
         expect(markup).toContain("<fieldset class=\"slds-form-element slds-size_1-of-1 slds-has-error\"");
         expect(markup).toContain("aria-describedby=\"event-start-error\"");
+        expect(markup).toContain("inputMode=\"numeric\"");
+        expect(markup).toContain("autoComplete=\"off\"");
         expect(legendStart).toBeGreaterThanOrEqual(0);
         expect(controlStart).toBeGreaterThan(legendStart);
         expect(helpStart).toBeGreaterThan(controlStart);
