@@ -38,7 +38,7 @@ export function QuickActionDatepicker({
     const todayValue = buildDateValue(new Date());
     const displayDate = new Date(displayYear, displayMonth, 1);
     const yearOptions = Array.from({ length: 201 }, (_, index) => new Date().getFullYear() - 100 + index);
-    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget, shouldCloseOnBlur } = useInputPopupPlacement(open);
+    const { containerRef, popupClassName, popupRef, popupStyle, portalTarget, shouldCloseOnBlur } = useInputPopupPlacement(open, { constrainHeight: false });
 
     function setVisibleMonth(nextDate: Date) {
         setDisplayYear(nextDate.getFullYear());
