@@ -20,13 +20,13 @@ type RecordListConfig<Record extends { Id: string }> = {
     columns: Array<RecordListColumn<Record>>;
     filterListRecords: (records: Record[], searchTerm: string) => Record[];
     getRecordLabel: (record: Record) => string;
+    getRecordPath: (record: Record) => string;
 };
 
 type RecordPanelProps<Record extends { Id: string }> = {
     records: Record[];
     loading: boolean;
     connected: boolean;
-    onOpen: (record: Record) => void;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
     onBulkDelete: (records: Record[]) => void;
@@ -55,7 +55,8 @@ const accountListConfig: RecordListConfig<Account> = {
         { label: "最終更新者", hideOnMobile: true, getValue: (account) => account.LastModifiedBy?.Name }
     ],
     filterListRecords: filterAccounts,
-    getRecordLabel: (account) => account.Name
+    getRecordLabel: (account) => account.Name,
+    getRecordPath: (account) => `/accounts/${encodeURIComponent(account.Id)}`
 };
 
 const contactListConfig: RecordListConfig<Contact> = {
@@ -78,10 +79,11 @@ const contactListConfig: RecordListConfig<Contact> = {
         { label: "最終更新者", hideOnMobile: true, getValue: (contact) => contact.LastModifiedBy?.Name }
     ],
     filterListRecords: filterContacts,
-    getRecordLabel: getContactName
+    getRecordLabel: getContactName,
+    getRecordPath: (contact) => `/contacts/${encodeURIComponent(contact.Id)}`
 };
 
-function renderAccountNameLink(contact: Contact, onOpenAccountById: (accountId: string) => void) {
+function renderAccountNameLink(contact: Contact) {
     const accountId = contact.AccountId;
 
     if (!accountId) {
@@ -89,13 +91,9 @@ function renderAccountNameLink(contact: Contact, onOpenAccountById: (accountId: 
     }
 
     return (
-        <button
-            className="slds-button_reset slds-text-link"
-            type="button"
-            onClick={() => onOpenAccountById(accountId)}
-        >
+        <a className="slds-text-link" href={`/accounts/${encodeURIComponent(accountId)}`}>
             {contact.Account?.Name || accountId}
-        </button>
+        </a>
     );
 }
 
@@ -104,7 +102,6 @@ function RecordPanel<Record extends { Id: string }>({
     records,
     loading,
     connected,
-    onOpen,
     onEdit,
     onDelete,
     onBulkDelete,
@@ -125,7 +122,7 @@ function RecordPanel<Record extends { Id: string }>({
             columns={config.columns}
             filterListRecords={config.filterListRecords}
             getRecordLabel={config.getRecordLabel}
-            onOpen={onOpen}
+            getRecordPath={config.getRecordPath}
             onEdit={onEdit}
             onDelete={onDelete}
             onBulkDelete={onBulkDelete}
@@ -146,18 +143,16 @@ export function AccountPanel({
 
 export function ContactPanel({
     contacts,
-    onOpenAccountById,
     ...props
 }: Omit<RecordPanelProps<Contact>, "records"> & {
     contacts: Contact[];
-    onOpenAccountById: (accountId: string) => void;
 }) {
     return (
         <RecordPanel
             config={{
                 ...contactListConfig,
                 columns: [
-                    { label: "取引先名", getValue: (contact) => renderAccountNameLink(contact, onOpenAccountById) },
+                    { label: "取引先名", getValue: renderAccountNameLink },
                     ...contactListConfig.columns
                 ]
             }}

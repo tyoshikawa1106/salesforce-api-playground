@@ -18,20 +18,20 @@ export function RecordListTable<Record extends { Id: string }>({
     ariaLabel,
     columns,
     getRecordLabel,
+    getRecordPath,
     listState,
     primaryColumnLabel,
     selectAllLabel,
-    onOpen,
     onEdit,
     onDelete
 }: {
     ariaLabel: string;
     columns: Array<RecordListColumn<Record>>;
     getRecordLabel: (record: Record) => string;
+    getRecordPath: (record: Record) => string;
     listState: RecordListState<Record>;
     primaryColumnLabel: string;
     selectAllLabel: string;
-    onOpen: (record: Record) => void;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
 }) {
@@ -75,9 +75,9 @@ export function RecordListTable<Record extends { Id: string }>({
                             />
                             <th className="slds-cell_action-mode" scope="row" data-label={primaryColumnLabel}>
                                 <div className="slds-truncate" title={recordLabel}>
-                                    <button className="slds-button_reset slds-text-link" type="button" onClick={() => onOpen(record)}>
+                                    <a className="slds-text-link" href={getRecordPath(record)}>
                                         {recordLabel}
-                                    </button>
+                                    </a>
                                 </div>
                             </th>
                             {columns.map((column) => {

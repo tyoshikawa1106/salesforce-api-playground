@@ -60,7 +60,6 @@ describe("record list smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
-                onOpen: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop,
                 onRefresh: noop
@@ -73,8 +72,6 @@ describe("record list smoke rendering", () => {
                 loading: false,
                 onDelete: noop,
                 onEdit: noop,
-                onOpen: noop,
-                onOpenAccountById: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop,
                 onRefresh: noop
@@ -148,6 +145,8 @@ describe("record list smoke rendering", () => {
         expect(contactAccountHeaderIndex).toBeLessThan(contactTitleHeaderIndex);
         expect(contactMarkup).toContain("Sales User");
         expect(contactMarkup).toContain("2 個の項目");
+        expect(accountMarkup).toContain("href=\"/accounts/001xx000003DGbA\"");
+        expect(contactMarkup).toContain("href=\"/contacts/003xx000004TmiA\"");
         expect(contactMarkup).toContain("Manager");
         expect(contactMarkup).toContain("aria-label=\"表示中の取引先責任者をすべて選択\"");
         expect(contactMarkup).toContain("aria-label=\"選択した取引先責任者を削除\"");
@@ -162,7 +161,6 @@ describe("record list smoke rendering", () => {
                 loading: true,
                 onDelete: noop,
                 onEdit: noop,
-                onOpen: noop,
                 onBulkDelete: noop,
                 onBulkDeleteEmpty: noop,
                 onRefresh: noop
