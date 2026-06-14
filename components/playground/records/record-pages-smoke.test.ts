@@ -8,6 +8,7 @@ import {
     contactFixture as contact,
     noop
 } from "../utils/test-fixtures";
+import type { Activity } from "../utils/types";
 
 describe("record page smoke rendering", () => {
     it("renders account and contact record pages with detail sections", () => {
@@ -82,6 +83,9 @@ describe("record page smoke rendering", () => {
         expect(contactMarkup).not.toContain("新規ケース");
         expect(activityMarkup).toContain("ToDo");
         expect(activityMarkup).toContain("slds-button_reset slds-text-link");
+        expect(activityMarkup).toContain("2026/06/08");
+        expect(activityMarkup).not.toContain("2026/06/08 9:00");
+        expect(activityMarkup).toContain("slds-icon-standard-task");
         expect(activityMarkup).toContain("Taro Yamada");
         expect(activityMarkup).toContain("Acme");
         expect(activityMarkup).toContain("システム情報");
@@ -91,6 +95,46 @@ describe("record page smoke rendering", () => {
         expect(activityMarkup).not.toContain("slds-large-size_4-of-12");
         expect(activityMarkup).not.toContain("新規ToDo");
         expect(activityMarkup).not.toContain("aria-controls=\"activity-related-panel\"");
+    });
+
+    it("renders activity detail header icons by activity type", () => {
+        const eventMarkup = renderToStaticMarkup(
+            createElement(ActivityRecordPage, {
+                activity: {
+                    ...activity,
+                    type: "event",
+                    id: "00Uxx0000012345",
+                    startDateTime: "2026-06-08T10:00:00.000Z",
+                    endDateTime: "2026-06-08T11:00:00.000Z",
+                    location: "Online"
+                },
+                loading: false,
+                onDelete: noop,
+                onEdit: noop,
+                onOpenAccountById: noop,
+                onOpenContactById: noop,
+                onRefresh: noop
+            })
+        );
+        const callMarkup = renderToStaticMarkup(
+            createElement(ActivityRecordPage, {
+                activity: {
+                    ...(activity as Extract<Activity, { type: "task" }>),
+                    taskSubtype: "Call"
+                },
+                loading: false,
+                onDelete: noop,
+                onEdit: noop,
+                onOpenAccountById: noop,
+                onOpenContactById: noop,
+                onRefresh: noop
+            })
+        );
+
+        expect(eventMarkup).toContain("slds-icon-standard-event");
+        expect(eventMarkup).not.toContain("slds-icon-standard-task");
+        expect(callMarkup).toContain("slds-icon-standard-log-a-call");
+        expect(callMarkup).not.toContain("slds-icon-standard-event");
     });
 
     it("disables record edit and delete actions while loading", () => {

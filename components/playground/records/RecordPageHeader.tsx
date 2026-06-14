@@ -21,6 +21,7 @@ export function RecordPageHeader({
     tab,
     objectLabel,
     title,
+    headerIcon,
     loading,
     onDelete,
     onEdit,
@@ -30,6 +31,7 @@ export function RecordPageHeader({
     tab: ActiveTab;
     objectLabel: string;
     title: string;
+    headerIcon?: ReactNode;
     loading: boolean;
     onDelete: () => void;
     onEdit: () => void;
@@ -42,7 +44,7 @@ export function RecordPageHeader({
                 <div className="slds-page-header__col-title">
                     <div className="slds-media">
                         <div className="slds-media__figure">
-                            <StandardPageHeaderIcon tab={tab} label={objectLabel} />
+                            {headerIcon ?? <StandardPageHeaderIcon tab={tab} label={objectLabel} />}
                         </div>
                         <div className="slds-media__body">
                             <div className="slds-page-header__name">
