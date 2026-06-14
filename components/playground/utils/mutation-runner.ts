@@ -1,28 +1,37 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { Notice } from "./types";
 
-export type MutationRunnerOptions = {
-    runMutation: () => Promise<string>;
+export type MutationRunnerResult = string | {
+    message: string;
+};
+
+export type MutationRunnerOptions<TResult extends MutationRunnerResult = string> = {
+    runMutation: () => Promise<TResult>;
     fallbackErrorMessage: string;
-    onSuccess?: () => Promise<void> | void;
+    onSuccess?: (result: TResult) => Promise<void> | void;
     onError?: () => Promise<void> | void;
 };
 
-export async function runMutationWithNotice({
+function getMutationMessage(result: MutationRunnerResult) {
+    return typeof result === "string" ? result : result.message;
+}
+
+export async function runMutationWithNotice<TResult extends MutationRunnerResult = string>({
     fallbackErrorMessage,
     onError,
     onSuccess,
     runMutation,
     setSaving,
     showNotice
-}: MutationRunnerOptions & {
+}: MutationRunnerOptions<TResult> & {
     setSaving: Dispatch<SetStateAction<boolean>>;
     showNotice: (notice: Notice) => void;
 }) {
     setSaving(true);
     try {
-        showNotice({ tone: "success", message: await runMutation() });
-        await onSuccess?.();
+        const result = await runMutation();
+        showNotice({ tone: "success", message: getMutationMessage(result) });
+        await onSuccess?.(result);
     } catch (error) {
         showNotice({
             tone: "error",

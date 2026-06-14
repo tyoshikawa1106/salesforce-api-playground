@@ -35,6 +35,8 @@ type UseRecordMutationActionsOptions = {
     modal: ModalState | null;
     onActivityDeleted?: () => void;
     onActivitySaved?: (activity: Activity) => Promise<void>;
+    onAccountCreated?: (accountId: string) => void;
+    onContactCreated?: (contactId: string) => void;
     restoreState: RestoreState | null;
     setIntegrationAccountForm: Dispatch<SetStateAction<AccountForm>>;
     setModal: Dispatch<SetStateAction<ModalState | null>>;
@@ -49,8 +51,9 @@ type SaveRecordFormOptions = {
     event: FormEvent<HTMLFormElement>;
     formIsValid: boolean;
     requiredMessage: string;
-    runMutation: () => Promise<string>;
+    runMutation: () => ReturnType<typeof saveAccountMutation> | ReturnType<typeof saveContactMutation>;
     fallbackErrorMessage: string;
+    onCreated?: (recordId: string) => void;
 };
 
 type ActivitySaveRequest = {
@@ -121,6 +124,8 @@ export function useRecordMutationActions({
     modal,
     onActivityDeleted,
     onActivitySaved,
+    onAccountCreated,
+    onContactCreated,
     restoreState,
     setIntegrationAccountForm,
     setModal,
@@ -134,6 +139,7 @@ export function useRecordMutationActions({
         event,
         fallbackErrorMessage,
         formIsValid,
+        onCreated,
         requiredMessage,
         runMutation
     }: SaveRecordFormOptions) {
@@ -148,9 +154,12 @@ export function useRecordMutationActions({
             fallbackErrorMessage,
             setSaving,
             showNotice,
-            onSuccess: async () => {
+            onSuccess: async (result) => {
                 setModal(null);
                 await loadAll();
+                if (result.createdId) {
+                    onCreated?.(result.createdId);
+                }
             }
         });
     }
@@ -161,7 +170,8 @@ export function useRecordMutationActions({
             formIsValid: Boolean(accountForm.Name.trim()),
             requiredMessage: accountNameRequiredMessage,
             runMutation: () => saveAccountMutation(modal, accountForm),
-            fallbackErrorMessage: "取引先の保存に失敗しました。"
+            fallbackErrorMessage: "取引先の保存に失敗しました。",
+            onCreated: onAccountCreated
         });
     }
 
@@ -171,7 +181,8 @@ export function useRecordMutationActions({
             formIsValid: Boolean(contactForm.LastName.trim()),
             requiredMessage: contactLastNameRequiredMessage,
             runMutation: () => saveContactMutation(modal, contactForm),
-            fallbackErrorMessage: "取引先責任者の保存に失敗しました。"
+            fallbackErrorMessage: "取引先責任者の保存に失敗しました。",
+            onCreated: onContactCreated
         });
     }
 
