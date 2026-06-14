@@ -10,6 +10,7 @@ import { HomeCounts, HomePanel } from "../home/HomePanel";
 import type { HomeCountValues } from "../home/HomePanel";
 import { IntegrationPanel } from "../integration/IntegrationPanel";
 import { LoginPage, SessionLoadingPage } from "./LoginPage";
+import { shouldReplaceLoginNavigation } from "./LoginLink";
 import { Modal, ModalFooter } from "./Modal";
 import { AppNavigation, getVisibleNavigationCount } from "./Navigation";
 import { ObjectHomeHeader } from "../records/ObjectHome";
@@ -80,6 +81,30 @@ describe("playground shell smoke rendering", () => {
         expect(markup).not.toContain("slds-spinner");
         expect(markup).not.toContain("/api/auth/login");
         expect(markup).not.toContain("Salesforce に接続");
+    });
+
+    it("replaces browser history only for normal login clicks", () => {
+        expect(shouldReplaceLoginNavigation({
+            button: 0,
+            ctrlKey: false,
+            defaultPrevented: false,
+            metaKey: false,
+            shiftKey: false
+        })).toBe(true);
+        expect(shouldReplaceLoginNavigation({
+            button: 0,
+            ctrlKey: false,
+            defaultPrevented: false,
+            metaKey: true,
+            shiftKey: false
+        })).toBe(false);
+        expect(shouldReplaceLoginNavigation({
+            button: 1,
+            ctrlKey: false,
+            defaultPrevented: false,
+            metaKey: false,
+            shiftKey: false
+        })).toBe(false);
     });
 
     it("renders connected navigation with the recycle bin tab", () => {

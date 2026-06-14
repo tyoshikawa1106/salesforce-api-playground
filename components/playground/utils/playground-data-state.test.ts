@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { getSearchResultStatePatch, keepSelectedRecordId, upsertRecordById } from "./playground-data-state";
+import {
+    buildPlaygroundViewUrl,
+    getPlaygroundViewStateFromLocation,
+    getSearchResultStatePatch,
+    keepSelectedRecordId,
+    upsertRecordById
+} from "./playground-data-state";
 import { accountFixture, contactFixture } from "./test-fixtures";
 
 describe("playground data state helpers", () => {
@@ -12,6 +18,57 @@ describe("playground data state helpers", () => {
     it("upserts records at the front without duplicating ids", () => {
         expect(upsertRecordById([{ ...accountFixture, Name: "Old Acme" }], accountFixture)).toEqual([accountFixture]);
         expect(upsertRecordById([], accountFixture)).toEqual([accountFixture]);
+    });
+
+    it("reads playground view state from URL paths", () => {
+        expect(getPlaygroundViewStateFromLocation("/accounts", "")).toEqual({
+            activeTab: "accounts",
+            selectedAccountId: null,
+            selectedContactId: null
+        });
+        expect(getPlaygroundViewStateFromLocation("/accounts/001xx000003DGbY", "")).toEqual({
+            activeTab: "accounts",
+            selectedAccountId: "001xx000003DGbY",
+            selectedContactId: null
+        });
+        expect(getPlaygroundViewStateFromLocation("/contacts/003xx000004TmiQ", "")).toEqual({
+            activeTab: "contacts",
+            selectedAccountId: null,
+            selectedContactId: "003xx000004TmiQ"
+        });
+        expect(getPlaygroundViewStateFromLocation("/integration", "")).toEqual({
+            activeTab: "integration",
+            selectedAccountId: null,
+            selectedContactId: null
+        });
+        expect(getPlaygroundViewStateFromLocation("/unknown", "?view=accounts&accountId=001xx000003DGbY")).toEqual({
+            activeTab: "accounts",
+            selectedAccountId: "001xx000003DGbY",
+            selectedContactId: null
+        });
+        expect(getPlaygroundViewStateFromLocation("/unknown", "")).toEqual({
+            activeTab: "home",
+            selectedAccountId: null,
+            selectedContactId: null
+        });
+    });
+
+    it("builds playground view URLs without keeping transient auth params", () => {
+        expect(buildPlaygroundViewUrl("?auth=connected", {
+            activeTab: "accounts",
+            selectedAccountId: "001xx000003DGbY",
+            selectedContactId: null
+        })).toBe("/accounts/001xx000003DGbY");
+        expect(buildPlaygroundViewUrl("?view=accounts&accountId=001xx000003DGbY", {
+            activeTab: "contacts",
+            selectedAccountId: null,
+            selectedContactId: "003xx000004TmiQ"
+        })).toBe("/contacts/003xx000004TmiQ");
+        expect(buildPlaygroundViewUrl("?view=contacts&contactId=003xx000004TmiQ", {
+            activeTab: "home",
+            selectedAccountId: null,
+            selectedContactId: null
+        })).toBe("/");
     });
 
     it("builds account search result state patches", () => {

@@ -1,6 +1,8 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { getPlaygroundViewPath } from "../utils/playground-data-state";
 import type { ActiveTab } from "../utils/types";
 import { getStandardIconName, StandardIcon, UtilityIcon, type UtilityIconName } from "./SldsIcon";
 
@@ -43,6 +45,24 @@ export function getVisibleNavigationCount(containerWidth: number, itemWidths: nu
     }
 
     return itemWidths.length;
+}
+
+function getNavigationPath(tab: ActiveTab) {
+    return getPlaygroundViewPath({
+        activeTab: tab,
+        selectedAccountId: null,
+        selectedContactId: null
+    });
+}
+
+function shouldHandleNavigationClick(event: MouseEvent<HTMLAnchorElement>) {
+    return !event.defaultPrevented
+        && event.button === 0
+        && !event.metaKey
+        && !event.ctrlKey
+        && !event.shiftKey
+        && !event.altKey
+        && (!event.currentTarget.target || event.currentTarget.target === "_self");
 }
 
 export function AppNavigation({
@@ -164,6 +184,7 @@ export function AppNavigation({
                             label={item.label}
                             menuId={item.menuId}
                             open={openMenuTab === item.tab}
+                            path={getNavigationPath(item.tab)}
                             onSelect={() => changeNavigationTab(item.tab)}
                             onPrimaryAction={() => runPrimaryAction(item.tab)}
                             onToggleMenu={() => toggleNavigationMenu(item.tab)}
@@ -285,6 +306,7 @@ function NavigationItem({
     hasMenu = false,
     label,
     menuId,
+    path,
     onSelect,
     onPrimaryAction,
     onToggleMenu,
@@ -294,6 +316,7 @@ function NavigationItem({
     hasMenu?: boolean;
     label: string;
     menuId?: string;
+    path: string;
     onSelect: () => void;
     onPrimaryAction?: () => void;
     onToggleMenu?: () => void;
@@ -311,11 +334,14 @@ function NavigationItem({
     return (
         <li className={itemClassName}>
             <a
-                href="#"
+                href={path}
                 className="slds-context-bar__label-action"
                 title={label}
                 aria-current={active ? "page" : undefined}
                 onClick={(event) => {
+                    if (!shouldHandleNavigationClick(event)) {
+                        return;
+                    }
                     event.preventDefault();
                     onSelect();
                 }}
@@ -366,10 +392,13 @@ function NavigationItem({
                                     </li>
                                     <li className="slds-dropdown__item" role="presentation">
                                         <a
-                                            href="#"
+                                            href={path}
                                             role="menuitem"
                                             tabIndex={open ? 0 : -1}
                                             onClick={(event) => {
+                                                if (!shouldHandleNavigationClick(event)) {
+                                                    return;
+                                                }
                                                 event.preventDefault();
                                                 onSelect();
                                             }}
@@ -439,10 +468,13 @@ function OverflowNavigationItem({
                     {items.map((item) => (
                         <li className="slds-dropdown__item" role="presentation" key={item.tab}>
                             <a
-                                href="#"
+                                href={getNavigationPath(item.tab)}
                                 role="menuitem"
                                 tabIndex={open ? 0 : -1}
                                 onClick={(event) => {
+                                    if (!shouldHandleNavigationClick(event)) {
+                                        return;
+                                    }
                                     event.preventDefault();
                                     onSelect(item.tab);
                                 }}

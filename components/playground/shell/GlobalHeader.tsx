@@ -6,6 +6,7 @@ import type { SearchResultItem } from "@/lib/salesforce/records";
 import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { GlobalHeaderActions } from "./GlobalHeaderActions";
 import { GlobalSearch } from "./GlobalSearch";
+import { LoginLink } from "./LoginLink";
 import { useGlobalHeaderMenus } from "./useGlobalHeaderMenus";
 
 type GlobalHeaderProps = {
@@ -66,9 +67,9 @@ export function GlobalHeader({ children, connected, environmentLabel = null, ins
                             userName={userName}
                         />
                     ) : (
-                        <a className="slds-button slds-button_brand" href="/api/auth/login">
+                        <LoginLink className="slds-button slds-button_brand">
                             Salesforce に接続
-                        </a>
+                        </LoginLink>
                     )}
                 </div>
             </div>

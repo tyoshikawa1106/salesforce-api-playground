@@ -1,4 +1,4 @@
-import { PlaygroundPage } from "./playground-page";
+import { PlaygroundPage } from "../../playground-page";
 
 export const dynamic = "force-dynamic";
 

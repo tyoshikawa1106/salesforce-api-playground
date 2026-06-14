@@ -1,5 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
-import { keepSelectedRecordId } from "../utils/playground-data-state";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+    buildPlaygroundViewUrl,
+    defaultPlaygroundViewState,
+    getPlaygroundViewStateFromLocation,
+    keepSelectedRecordId
+} from "../utils/playground-data-state";
+import type { PlaygroundViewState } from "../utils/playground-data-state";
 import type { Account, ActiveTab, Activity, Contact } from "../utils/types";
 
 type UsePlaygroundSelectionOptions = {
@@ -11,10 +17,11 @@ export function usePlaygroundSelection({
     accounts,
     contacts
 }: UsePlaygroundSelectionOptions) {
-    const [activeTab, setActiveTab] = useState<ActiveTab>("home");
-    const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<ActiveTab>(defaultPlaygroundViewState.activeTab);
+    const [selectedAccountId, setSelectedAccountId] = useState<string | null>(defaultPlaygroundViewState.selectedAccountId);
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
-    const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
+    const [selectedContactId, setSelectedContactId] = useState<string | null>(defaultPlaygroundViewState.selectedContactId);
+    const viewStateRef = useRef<PlaygroundViewState>(defaultPlaygroundViewState);
 
     const accountOptions = useMemo(
         () => [...accounts].sort((a, b) => a.Name.localeCompare(b.Name, "ja")),
@@ -29,21 +36,62 @@ export function usePlaygroundSelection({
         [contacts, selectedContactId]
     );
 
-    const clearSelectedRecords = useCallback(() => {
-        setSelectedAccountId(null);
+    const applyViewState = useCallback((state: PlaygroundViewState) => {
+        viewStateRef.current = state;
+        setActiveTab(state.activeTab);
+        setSelectedAccountId(state.selectedAccountId);
         setSelectedActivity(null);
-        setSelectedContactId(null);
+        setSelectedContactId(state.selectedContactId);
     }, []);
 
     const resetConnectedSelection = useCallback(() => {
-        setActiveTab("home");
-        clearSelectedRecords();
-    }, [clearSelectedRecords]);
+        applyViewState(defaultPlaygroundViewState);
+        if (typeof window !== "undefined") {
+            window.history.replaceState(
+                { playgroundView: defaultPlaygroundViewState },
+                "",
+                buildPlaygroundViewUrl(window.location.search, defaultPlaygroundViewState)
+            );
+        }
+    }, [applyViewState]);
+
+    const writeViewHistory = useCallback((state: PlaygroundViewState, mode: "pushState" | "replaceState" = "pushState") => {
+        viewStateRef.current = state;
+
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        window.history[mode](
+            { playgroundView: state },
+            "",
+            buildPlaygroundViewUrl(window.location.search, state)
+        );
+    }, []);
+
+    useEffect(() => {
+        const currentState = getPlaygroundViewStateFromLocation(window.location.pathname, window.location.search);
+        applyViewState(currentState);
+        writeViewHistory(currentState, "replaceState");
+
+        function handlePopState() {
+            applyViewState(getPlaygroundViewStateFromLocation(window.location.pathname, window.location.search));
+        }
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [applyViewState, writeViewHistory]);
 
     const changeTab = useCallback((nextTab: ActiveTab) => {
-        setActiveTab(nextTab);
-        clearSelectedRecords();
-    }, [clearSelectedRecords]);
+        const nextState = {
+            activeTab: nextTab,
+            selectedAccountId: null,
+            selectedContactId: null
+        };
+
+        applyViewState(nextState);
+        writeViewHistory(nextState);
+    }, [applyViewState, writeViewHistory]);
 
     const keepSelectionForData = useCallback((nextAccounts: Account[], nextContacts: Contact[]) => {
         setSelectedAccountId((currentId) => keepSelectedRecordId(currentId, nextAccounts));
@@ -51,30 +99,52 @@ export function usePlaygroundSelection({
     }, []);
 
     const openAccount = useCallback((accountId: string) => {
-        setSelectedActivity(null);
-        setSelectedContactId(null);
-        setSelectedAccountId(accountId);
-        setActiveTab("accounts");
-    }, []);
+        const nextState = {
+            activeTab: "accounts" as const,
+            selectedAccountId: accountId,
+            selectedContactId: null
+        };
+
+        applyViewState(nextState);
+        writeViewHistory(nextState);
+    }, [applyViewState, writeViewHistory]);
 
     const openContact = useCallback((contactId: string) => {
-        setSelectedActivity(null);
-        setSelectedAccountId(null);
-        setSelectedContactId(contactId);
-        setActiveTab("contacts");
-    }, []);
+        const nextState = {
+            activeTab: "contacts" as const,
+            selectedAccountId: null,
+            selectedContactId: contactId
+        };
+
+        applyViewState(nextState);
+        writeViewHistory(nextState);
+    }, [applyViewState, writeViewHistory]);
 
     const openActivity = useCallback((activity: Activity) => {
+        const nextState = {
+            activeTab: "activities" as const,
+            selectedAccountId: null,
+            selectedContactId: null
+        };
+
+        viewStateRef.current = nextState;
         setSelectedAccountId(null);
         setSelectedContactId(null);
         setSelectedActivity(activity);
         setActiveTab("activities");
-    }, []);
+        writeViewHistory(nextState);
+    }, [writeViewHistory]);
 
     const closeActivity = useCallback(() => {
-        setSelectedActivity(null);
-        setActiveTab("accounts");
-    }, []);
+        const nextState = {
+            activeTab: "accounts" as const,
+            selectedAccountId: null,
+            selectedContactId: null
+        };
+
+        applyViewState(nextState);
+        writeViewHistory(nextState);
+    }, [applyViewState, writeViewHistory]);
 
     return {
         accountOptions,
