@@ -158,6 +158,26 @@ describe("Salesforce activity lookup services", () => {
         );
     });
 
+    it("does not emit unsupported SOQL ESCAPE clauses", async () => {
+        const query = vi.fn().mockResolvedValue({ records: [] });
+        const connection = { query };
+
+        withStandardObjectConnectionMock.mockImplementation(async (operation) => ({
+            data: await operation(connection as never, session),
+            session
+        }));
+
+        await listActivityLookupOptions({ object: "account", query: "Sales" });
+        await listActivityLookupOptions({ object: "contact", query: "Sales" });
+        await listActivityLookupOptions({ object: "user", query: "Sales" });
+
+        expect(query.mock.calls.map(([soql]) => soql)).toEqual([
+            expect.not.stringContaining(" ESCAPE "),
+            expect.not.stringContaining(" ESCAPE "),
+            expect.not.stringContaining(" ESCAPE ")
+        ]);
+    });
+
     it("reads and trims lookup request params", () => {
         const request = new Request("https://app.example.test/api/activity-lookups?object=contact&q=%20Gonzalez%20");
 
