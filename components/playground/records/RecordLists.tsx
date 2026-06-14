@@ -3,7 +3,7 @@
 import type { Account, Contact } from "../utils/types";
 import { getAccountBilling, getContactName, formatDate } from "../utils/formatting";
 import { RecordListPanel } from "./RecordListPanel";
-import { filterRecords } from "./record-list-state";
+import { filterAndSortRecords } from "./record-list-state";
 import { renderEmailLink, renderPhoneLink, renderWebsiteLink } from "./RecordValueLinks";
 import type { RecordListColumn } from "./record-list-types";
 import type { RecordListMessages } from "./record-list-types";
@@ -168,25 +168,31 @@ export function ContactPanel({
 }
 
 export function filterAccounts(accounts: Account[], searchTerm: string) {
-    return sortRecordsByLabel(filterRecords(accounts, searchTerm, (account) => [
-        account.Name,
-        account.Phone,
-        account.Website,
-        account.Industry,
-        getAccountBilling(account)
-    ]), (account) => account.Name);
+    return filterAndSortRecords(
+        accounts,
+        searchTerm,
+        (account) => [
+            account.Name,
+            account.Phone,
+            account.Website,
+            account.Industry,
+            getAccountBilling(account)
+        ],
+        (account) => account.Name
+    );
 }
 
 export function filterContacts(contacts: Contact[], searchTerm: string) {
-    return sortRecordsByLabel(filterRecords(contacts, searchTerm, (contact) => [
-        getContactName(contact),
-        contact.Title,
-        contact.Account?.Name,
-        contact.Email,
-        contact.Phone
-    ]), getContactName);
-}
-
-function sortRecordsByLabel<Record>(records: Record[], getLabel: (record: Record) => string) {
-    return [...records].sort((a, b) => getLabel(a).localeCompare(getLabel(b), "ja"));
+    return filterAndSortRecords(
+        contacts,
+        searchTerm,
+        (contact) => [
+            getContactName(contact),
+            contact.Title,
+            contact.Account?.Name,
+            contact.Email,
+            contact.Phone
+        ],
+        getContactName
+    );
 }

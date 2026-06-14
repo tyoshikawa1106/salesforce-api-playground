@@ -107,6 +107,16 @@ export function filterRecords<Record>(
     );
 }
 
+export function filterAndSortRecords<Record>(
+    records: Record[],
+    searchTerm: string,
+    getSearchValues: (record: Record) => Array<string | undefined>,
+    getLabel: (record: Record) => string
+) {
+    return [...filterRecords(records, searchTerm, getSearchValues)]
+        .sort((a, b) => getLabel(a).localeCompare(getLabel(b), "ja"));
+}
+
 export function getSelectedVisibleRecords<Record extends { Id: string }>(visibleRecords: Record[], selectedIds: Set<string>) {
     return visibleRecords.filter((record) => selectedIds.has(record.Id));
 }

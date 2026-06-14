@@ -9,6 +9,7 @@
 | ブラウザから呼ぶ新しい API | `app/api/**/route.ts` |
 | API request payload の検証 | `lib/salesforce/request-payloads.ts` または関連する `lib/salesforce/*` |
 | Salesforce の新しい CRUD / SOQL | `services/salesforce` |
+| Salesforce の件数取得 | `services/salesforce`、HTTP 入口は `app/api/*-counts/route.ts` |
 | Salesforce describe や選択リスト値取得 | `services/salesforce`、共通型は `lib/salesforce` |
 | Salesforce OAuth / session / config の共通処理 | `lib/salesforce` |
 | UI と API の request / response 型や path | `lib/playground-api.ts` |
