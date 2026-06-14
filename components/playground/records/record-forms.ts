@@ -14,12 +14,13 @@ export type TextFieldDefinition<TFieldName extends string> = {
     label: string;
     autoComplete?: string;
     inputMode?: TextFieldInputMode;
+    normalizeInput?: (value: string) => string;
     requiredMessage?: string;
     required?: boolean;
     type?: string;
 };
 
-type TextFieldMetadata<TFieldName extends string> = Partial<Pick<TextFieldDefinition<TFieldName>, "autoComplete" | "inputMode" | "type">>;
+type TextFieldMetadata<TFieldName extends string> = Partial<Pick<TextFieldDefinition<TFieldName>, "autoComplete" | "inputMode" | "normalizeInput" | "type">>;
 
 const accountFieldLabels: Record<AccountFieldName, string> = {
     Name: "取引先名",
@@ -41,10 +42,17 @@ const contactFieldLabels: Record<ContactFieldName, string> = {
     AccountId: "取引先"
 };
 
+export function normalizeAsciiLowercaseInput(value: string): string {
+    return value
+        .normalize("NFKC")
+        .toLowerCase()
+        .replace(/[^\x00-\x7F]/g, "");
+}
+
 const accountInputMetaByField: Partial<Record<AccountFieldName, TextFieldMetadata<AccountFieldName>>> = {
     Name: { autoComplete: "organization" },
     Phone: { autoComplete: "tel", inputMode: "tel", type: "tel" },
-    Website: { autoComplete: "url", inputMode: "url", type: "url" },
+    Website: { autoComplete: "url", inputMode: "url", normalizeInput: normalizeAsciiLowercaseInput, type: "url" },
     BillingCity: { autoComplete: "address-level2" },
     BillingCountry: { autoComplete: "country-name" }
 };
@@ -52,7 +60,7 @@ const accountInputMetaByField: Partial<Record<AccountFieldName, TextFieldMetadat
 const contactInputMetaByField: Record<Exclude<ContactFieldName, "AccountId">, TextFieldMetadata<Exclude<ContactFieldName, "AccountId">>> = {
     FirstName: { autoComplete: "given-name" },
     LastName: { autoComplete: "family-name" },
-    Email: { autoComplete: "email", inputMode: "email", type: "email" },
+    Email: { autoComplete: "email", inputMode: "email", normalizeInput: normalizeAsciiLowercaseInput, type: "email" },
     Phone: { autoComplete: "tel", inputMode: "tel", type: "tel" },
     Title: { autoComplete: "organization-title" },
     Department: { autoComplete: "off" }

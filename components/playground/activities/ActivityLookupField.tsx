@@ -35,16 +35,17 @@ export function QuickActionLookup({
     const {
         activeIndex,
         changeQuery,
+        closeResolvedOptions,
         clearValue,
         filteredOptions,
         handleKeyDown,
         loadingOptions,
+        openResolvedOptions,
         open,
         query,
         remoteMessage,
         selectOption,
-        setActiveIndex,
-        setOpen
+        setActiveIndex
     } = useQuickActionLookupState({ objectLabel, onChange, options, value });
     const { iconClassName, iconName } = getLookupIconMeta(objectLabel);
     const defaultIdPrefix = objectLabel === "取引先" ? "task-related-account" : objectLabel === "取引先責任者" ? "task-name-contact" : "task-assigned-user";
@@ -90,7 +91,7 @@ export function QuickActionLookup({
                             role="combobox"
                             onBlur={(event) => {
                                 if (shouldCloseOnBlur(event.relatedTarget)) {
-                                    setOpen(false);
+                                    closeResolvedOptions();
                                 }
                             }}
                         >
@@ -115,8 +116,8 @@ export function QuickActionLookup({
                                     aria-invalid={Boolean(error)}
                                     value={query}
                                     onChange={(event) => changeQuery(event.target.value)}
-                                    onClick={() => setOpen(true)}
-                                    onFocus={() => setOpen(true)}
+                                    onClick={openResolvedOptions}
+                                    onFocus={openResolvedOptions}
                                     onKeyDown={handleKeyDown}
                                 />
                                 <UtilityIcon className="slds-input__icon slds-input__icon_right slds-icon-text-default" name="search" />

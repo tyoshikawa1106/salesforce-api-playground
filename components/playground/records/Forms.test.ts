@@ -10,7 +10,8 @@ import {
     contactAccountField,
     contactRecordToForm,
     contactTextFields,
-    getRequiredFieldMessage
+    getRequiredFieldMessage,
+    normalizeAsciiLowercaseInput
 } from "./record-forms";
 import { accountFixture, noop } from "../utils/test-fixtures";
 
@@ -74,7 +75,8 @@ describe("record form builders", () => {
         expect(accountTextFields.find((field) => field.key === "Website")).toMatchObject({
             type: "url",
             inputMode: "url",
-            autoComplete: "url"
+            autoComplete: "url",
+            normalizeInput: normalizeAsciiLowercaseInput
         });
         expect(contactTextFields.find((field) => field.key === "LastName")).toMatchObject({
             id: "contact-last-name",
@@ -84,7 +86,8 @@ describe("record form builders", () => {
         expect(contactTextFields.find((field) => field.key === "Email")).toMatchObject({
             type: "email",
             inputMode: "email",
-            autoComplete: "email"
+            autoComplete: "email",
+            normalizeInput: normalizeAsciiLowercaseInput
         });
         expect(contactTextFields.find((field) => field.key === "Phone")).toMatchObject({
             type: "tel",
@@ -218,5 +221,11 @@ describe("record form builders", () => {
         expect(contactMarkup).toContain("autoComplete=\"email\"");
         expect(contactMarkup).toContain("id=\"contact-phone\"");
         expect(contactMarkup).toContain("type=\"tel\"");
+    });
+
+    it("normalizes URL and email input to lowercase ASCII", () => {
+        expect(normalizeAsciiLowercaseInput("ＨＴＴＰＳ://ＥＸＡＭＰＬＥ.test/ＡＢＣ?Q=ＴＥＳＴ")).toBe("https://example.test/abc?q=test");
+        expect(normalizeAsciiLowercaseInput("ＴＡＲＯ@ＥＸＡＭＰＬＥ.test")).toBe("taro@example.test");
+        expect(normalizeAsciiLowercaseInput("https://example.test/日本語")).toBe("https://example.test/");
     });
 });

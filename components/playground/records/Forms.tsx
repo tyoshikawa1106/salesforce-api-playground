@@ -51,6 +51,7 @@ export function AccountFormFields({
                         id={field.id}
                         inputMode={field.inputMode}
                         label={field.label}
+                        normalizeInput={field.normalizeInput}
                         required={field.required}
                         type={field.type}
                         value={fieldValue}
@@ -87,6 +88,7 @@ export function ContactFormFields({
                     id={field.id}
                     inputMode={field.inputMode}
                     label={field.label}
+                    normalizeInput={field.normalizeInput}
                     required={field.required}
                     type={field.type}
                     value={value[field.key]}
@@ -134,6 +136,7 @@ function TextField({
     id,
     inputMode,
     label,
+    normalizeInput,
     value,
     onChange,
     type = "text",
@@ -144,6 +147,7 @@ function TextField({
     id: string;
     inputMode?: "email" | "search" | "tel" | "text" | "url" | "none" | "numeric" | "decimal";
     label: string;
+    normalizeInput?: (value: string) => string;
     value: string;
     onChange: (value: string) => void;
     type?: string;
@@ -167,7 +171,7 @@ function TextField({
                     aria-describedby={errorId}
                     aria-invalid={Boolean(error)}
                     value={value}
-                    onChange={(event) => onChange(event.target.value)}
+                    onChange={(event) => onChange(normalizeInput ? normalizeInput(event.target.value) : event.target.value)}
                 />
             </div>
             {error ? <div className="slds-form-element__help" id={errorId}>{error}</div> : null}
