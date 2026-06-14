@@ -10,6 +10,7 @@
 - [GitHub Flow 開発手法](github-flow.md)
 - [GitHub 関連機能の基礎](github-platform-concepts.md)
 - [GitHub 関連機能の応用](github-platform-advanced.md)
+- [GitHub Connector 利用の考え方](github-connector-usage.md)
 - [GitHub に置く画像ファイルの考え方](github-image-assets.md)
 
 ## AI コーディング
@@ -21,9 +22,10 @@
 - [技術スタック説明](technology-stack.md)
 - [React コンポーネント開発の進め方](react-component-development.md)
 - [React コンポーネント配置の考え方](react-component-organization.md)
-- [SPA とページ分割の考え方](spa-page-routing.md)
+- [URL ベースのクライアントサイドルーティング](spa-page-routing.md)
 - [Next.js 開発の進め方](nextjs-development.md)
 - [TypeScript 開発の進め方](typescript-development.md)
+- [Salesforce Lightning Experience の考え方](salesforce-lightning-experience-architecture.md)
 - [Salesforce Lightning Design System 開発の進め方](slds-development.md)
 
 ## Heroku
