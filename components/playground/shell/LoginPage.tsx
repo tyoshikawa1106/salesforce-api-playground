@@ -1,3 +1,5 @@
+import { LoginLink } from "./LoginLink";
+
 export function SessionLoadingPage() {
     return (
         <main className="slds-template_default slds-theme_shade playground-login-page" aria-busy="true" />
@@ -21,12 +23,11 @@ export function LoginPage() {
 
                     <div className="slds-p-around_large">
                         <div className="slds-m-vertical_x-large">
-                            <a
+                            <LoginLink
                                 className="slds-button slds-button_brand slds-button_stretch"
-                                href="/api/auth/login"
                             >
                                 Salesforce に接続
-                            </a>
+                            </LoginLink>
                         </div>
                     </div>
                 </div>
