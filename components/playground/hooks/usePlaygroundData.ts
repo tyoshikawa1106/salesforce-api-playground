@@ -146,8 +146,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
 
     const changeTab = useCallback((nextTab: ActiveTab) => {
         selectTab(nextTab);
-        void loadAll();
-    }, [loadAll, selectTab]);
+    }, [selectTab]);
 
     const openSearchResult = useCallback((result: SearchResultItem) => {
         const patch = getSearchResultStatePatch(result, accounts, contacts);
