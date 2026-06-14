@@ -19,7 +19,7 @@ export function RecordListPanel<Record extends { Id: string }>({
     columns,
     filterListRecords,
     getRecordLabel,
-    onOpen,
+    getRecordPath,
     onEdit,
     onDelete,
     onBulkDelete,
@@ -38,7 +38,7 @@ export function RecordListPanel<Record extends { Id: string }>({
     columns: Array<RecordListColumn<Record>>;
     filterListRecords: (records: Record[], searchTerm: string) => Record[];
     getRecordLabel: (record: Record) => string;
-    onOpen: (record: Record) => void;
+    getRecordPath: (record: Record) => string;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
     onBulkDelete: (records: Record[]) => void;
@@ -85,12 +85,12 @@ export function RecordListPanel<Record extends { Id: string }>({
                         ariaLabel={ariaLabel}
                         columns={columns}
                         getRecordLabel={getRecordLabel}
+                        getRecordPath={getRecordPath}
                         listState={listState}
                         primaryColumnLabel={primaryColumnLabel}
                         selectAllLabel={selectAllLabel}
                         onDelete={onDelete}
                         onEdit={onEdit}
-                        onOpen={onOpen}
                     />
                 ) : null}
             </div>

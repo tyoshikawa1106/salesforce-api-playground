@@ -25,7 +25,6 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         accounts,
         activeTab,
         activityCounts,
-        changeTab,
         closeActivity,
         contacts,
         loading,
@@ -115,7 +114,6 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             onEditAccount: recordMutations.openAccountModal,
             onEditContact: recordMutations.openContactModal,
             onOpenActivity: openActivity,
-            onOpenAccount: (record) => openAccount(record.Id),
             onOpenAccountById: openAccount,
             onOpenContact: (record) => openContact(record.Id),
             onOpenContactById: openContact,
@@ -208,7 +206,6 @@ export default function Playground({ environmentLabel = null }: { environmentLab
                     connected={session.connected}
                     onCreateAccount={() => recordMutations.openAccountModal()}
                     onCreateContact={() => recordMutations.openContactModal()}
-                    onChange={changeTab}
                 />
             </GlobalHeader>
 

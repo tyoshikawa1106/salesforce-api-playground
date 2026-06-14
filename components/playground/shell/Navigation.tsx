@@ -1,6 +1,5 @@
 "use client";
 
-import type { MouseEvent } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { getPlaygroundViewPath } from "../utils/playground-data-state";
 import type { ActiveTab } from "../utils/types";
@@ -55,28 +54,16 @@ function getNavigationPath(tab: ActiveTab) {
     });
 }
 
-function shouldHandleNavigationClick(event: MouseEvent<HTMLAnchorElement>) {
-    return !event.defaultPrevented
-        && event.button === 0
-        && !event.metaKey
-        && !event.ctrlKey
-        && !event.shiftKey
-        && !event.altKey
-        && (!event.currentTarget.target || event.currentTarget.target === "_self");
-}
-
 export function AppNavigation({
     activeTab,
     connected,
     onCreateAccount,
-    onCreateContact,
-    onChange
+    onCreateContact
 }: {
     activeTab: ActiveTab;
     connected: boolean;
     onCreateAccount?: () => void;
     onCreateContact?: () => void;
-    onChange: (tab: ActiveTab) => void;
 }) {
     const [visibleTabCount, setVisibleTabCount] = useState(baseNavigationTabs.length);
     const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
@@ -132,12 +119,6 @@ export function AppNavigation({
         }
     }, [overflowTabs.length]);
 
-    function changeNavigationTab(tab: ActiveTab) {
-        setOpenMenuTab(null);
-        setOverflowMenuOpen(false);
-        onChange(tab);
-    }
-
     function toggleNavigationMenu(tab: ActiveTab) {
         setOverflowMenuOpen(false);
         setOpenMenuTab((currentTab) => currentTab === tab ? null : tab);
@@ -185,7 +166,6 @@ export function AppNavigation({
                             menuId={item.menuId}
                             open={openMenuTab === item.tab}
                             path={getNavigationPath(item.tab)}
-                            onSelect={() => changeNavigationTab(item.tab)}
                             onPrimaryAction={() => runPrimaryAction(item.tab)}
                             onToggleMenu={() => toggleNavigationMenu(item.tab)}
                         />
@@ -196,7 +176,6 @@ export function AppNavigation({
                             items={overflowTabs}
                             open={overflowMenuOpen}
                             selectedTab={activeTab}
-                            onSelect={changeNavigationTab}
                             onToggle={() => {
                                 setOpenMenuTab(null);
                                 setOverflowMenuOpen((open) => !open);
@@ -307,7 +286,6 @@ function NavigationItem({
     label,
     menuId,
     path,
-    onSelect,
     onPrimaryAction,
     onToggleMenu,
     open = false
@@ -317,7 +295,6 @@ function NavigationItem({
     label: string;
     menuId?: string;
     path: string;
-    onSelect: () => void;
     onPrimaryAction?: () => void;
     onToggleMenu?: () => void;
     open?: boolean;
@@ -338,13 +315,6 @@ function NavigationItem({
                 className="slds-context-bar__label-action"
                 title={label}
                 aria-current={active ? "page" : undefined}
-                onClick={(event) => {
-                    if (!shouldHandleNavigationClick(event)) {
-                        return;
-                    }
-                    event.preventDefault();
-                    onSelect();
-                }}
             >
                 {active ? <span className="slds-assistive-text">Current Page:</span> : null}
                 <span className="slds-truncate" title={label}>
@@ -395,13 +365,6 @@ function NavigationItem({
                                             href={path}
                                             role="menuitem"
                                             tabIndex={open ? 0 : -1}
-                                            onClick={(event) => {
-                                                if (!shouldHandleNavigationClick(event)) {
-                                                    return;
-                                                }
-                                                event.preventDefault();
-                                                onSelect();
-                                            }}
                                         >
                                             <span title={`${label} を表示`}>{label} を表示</span>
                                         </a>
@@ -419,14 +382,12 @@ function NavigationItem({
 function OverflowNavigationItem({
     active,
     items,
-    onSelect,
     onToggle,
     open,
     selectedTab
 }: {
     active: boolean;
     items: NavigationTab[];
-    onSelect: (tab: ActiveTab) => void;
     onToggle: () => void;
     open: boolean;
     selectedTab: ActiveTab;
@@ -471,13 +432,6 @@ function OverflowNavigationItem({
                                 href={getNavigationPath(item.tab)}
                                 role="menuitem"
                                 tabIndex={open ? 0 : -1}
-                                onClick={(event) => {
-                                    if (!shouldHandleNavigationClick(event)) {
-                                        return;
-                                    }
-                                    event.preventDefault();
-                                    onSelect(item.tab);
-                                }}
                             >
                                 <span title={item.label}>
                                     {item.tab === selectedTab ? <UtilityIcon className="slds-icon slds-icon_x-small slds-icon-text-default slds-m-right_x-small" name="check" /> : null}

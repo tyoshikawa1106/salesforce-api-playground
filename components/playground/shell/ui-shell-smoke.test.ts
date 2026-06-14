@@ -111,8 +111,7 @@ describe("playground shell smoke rendering", () => {
         const markup = renderToStaticMarkup(
             createElement(AppNavigation, {
                 activeTab: "recycleBin",
-                connected: true,
-                onChange: noop
+                connected: true
             })
         );
 
@@ -268,7 +267,6 @@ describe("playground shell smoke rendering", () => {
                     onEditAccount: noop,
                     onEditActivity: noop,
                     onEditContact: noop,
-                    onOpenAccount: noop,
                     onOpenAccountById: noop,
                     onOpenActivity: noop,
                     onOpenContact: noop,
