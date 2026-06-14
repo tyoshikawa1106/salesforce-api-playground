@@ -18,6 +18,21 @@ export function shouldCloseInputPopupOnBlur(relatedTarget: EventTarget | null, c
     return !isInputPopupTargetWithin(relatedTarget, container, popup);
 }
 
+export function clampInputPopupLeft({
+    containerLeft,
+    popupWidth,
+    viewportWidth
+}: {
+    containerLeft: number;
+    popupWidth: number;
+    viewportWidth: number;
+}) {
+    const viewportMargin = 8;
+    const maxLeft = Math.max(viewportMargin, viewportWidth - popupWidth - viewportMargin);
+
+    return Math.min(Math.max(viewportMargin, containerLeft), maxLeft);
+}
+
 export function useInputPopupPlacement(open: boolean) {
     const containerRef = useRef<HTMLDivElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
@@ -65,16 +80,26 @@ export function useInputPopupPlacement(open: boolean) {
             const nextOpenAbove = popupHeight > spaceBelow && spaceAbove > spaceBelow;
             const availableHeight = Math.max(80, nextOpenAbove ? spaceAbove : spaceBelow);
             const height = Math.min(popupHeight, availableHeight);
+            const isListboxPopup = measuredPopup.classList.contains("slds-listbox");
+            const measuredPopupWidth = isListboxPopup ? 192 : Math.max(popupRect.width, measuredPopup.scrollWidth);
+            const popupWidth = Math.min(
+                Math.max(containerRect.width, measuredPopupWidth),
+                window.innerWidth - 16
+            );
 
             setOpenAbove(nextOpenAbove);
             setPopupStyle({
-                left: containerRect.left,
+                left: clampInputPopupLeft({
+                    containerLeft: containerRect.left,
+                    popupWidth,
+                    viewportWidth: window.innerWidth
+                }),
                 maxHeight: availableHeight,
                 overflowY: "auto",
                 position: "fixed",
                 top: nextOpenAbove ? Math.max(8, containerRect.top - height - 4) : containerRect.bottom + 4,
                 visibility: "visible",
-                width: containerRect.width,
+                width: popupWidth,
                 zIndex: "var(--playground-input-popup-z-index)"
             });
         }

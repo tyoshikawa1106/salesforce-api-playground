@@ -16,9 +16,11 @@
     --playground-list-search-mobile-width: 11rem;
     --playground-overlay-backdrop-z-index: 6990;
     --playground-overlay-z-index: 7000;
+    --playground-fixed-panel-bottom-offset: max(var(--playground-visual-viewport-bottom-offset), var(--playground-focused-input-bottom-offset));
+    --playground-focused-input-bottom-offset: 0px;
     --playground-template-gutter: var(--slds-g-spacing-3, 0.75rem);
-    --playground-task-composer-max-height: calc(100vh - 8rem);
-    --playground-task-composer-max-height-dynamic: calc(var(--playground-visual-viewport-height) - 8rem);
+    --playground-task-composer-max-height: calc(100vh - 7rem);
+    --playground-task-composer-max-height-dynamic: calc(var(--playground-visual-viewport-height) - var(--playground-focused-input-bottom-offset) - 7rem);
     --playground-task-composer-width: min(24rem, calc(100vw - 2rem));
     --playground-utility-bar-height: 2.5rem;
     --playground-utility-bar-z-index: 6500;
@@ -222,7 +224,7 @@ body {
 }
 
 .playground-activity-docked-container {
-    bottom: calc(var(--playground-utility-bar-height) + var(--playground-visual-viewport-bottom-offset) + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--playground-utility-bar-height) + var(--playground-fixed-panel-bottom-offset) + env(safe-area-inset-bottom, 0px));
     height: auto;
     justify-content: flex-end;
     padding: 0;
@@ -239,9 +241,9 @@ body {
 }
 
 .playground-utility-panel {
-    bottom: calc(var(--playground-utility-bar-height) + var(--playground-visual-viewport-bottom-offset) + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--playground-utility-bar-height) + var(--playground-fixed-panel-bottom-offset) + env(safe-area-inset-bottom, 0px));
     left: var(--slds-g-spacing-4, 1rem);
-    max-height: calc(var(--playground-visual-viewport-height) - var(--playground-content-offset) - var(--playground-utility-bar-height) - env(safe-area-inset-bottom, 0px));
+    max-height: calc(var(--playground-visual-viewport-height) - var(--playground-content-offset) - var(--playground-utility-bar-height) - var(--playground-focused-input-bottom-offset) - env(safe-area-inset-bottom, 0px));
     max-width: calc(100vw - (var(--slds-g-spacing-4, 1rem) * 2));
     right: auto;
 }

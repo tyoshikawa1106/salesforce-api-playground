@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { calculateVisualViewportBottomOffset } from "./useVisualViewportBottomOffset";
+import {
+    calculateVisualViewportBottomOffset,
+    isKeyboardEditableElement
+} from "./useVisualViewportBottomOffset";
 
 describe("calculateVisualViewportBottomOffset", () => {
     it("returns the covered bottom area when the visual viewport shrinks", () => {
@@ -24,5 +27,10 @@ describe("calculateVisualViewportBottomOffset", () => {
             innerHeight: 844,
             offsetTop: 24
         })).toBe(0);
+    });
+
+    it("treats missing or non-DOM targets as not keyboard editable", () => {
+        expect(isKeyboardEditableElement(new EventTarget())).toBe(false);
+        expect(isKeyboardEditableElement(null)).toBe(false);
     });
 });
