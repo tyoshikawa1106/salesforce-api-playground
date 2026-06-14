@@ -16,16 +16,11 @@
     --playground-list-search-mobile-width: 11rem;
     --playground-overlay-backdrop-z-index: 6990;
     --playground-overlay-z-index: 7000;
-    --playground-fixed-panel-bottom-offset: max(var(--playground-visual-viewport-bottom-offset), var(--playground-focused-input-bottom-offset));
-    --playground-focused-input-bottom-offset: 0px;
     --playground-template-gutter: var(--slds-g-spacing-3, 0.75rem);
     --playground-task-composer-max-height: calc(100vh - 7rem);
-    --playground-task-composer-max-height-dynamic: calc(var(--playground-visual-viewport-height) - var(--playground-focused-input-bottom-offset) - 7rem);
-    --playground-task-composer-width: min(24rem, calc(100vw - 2rem));
+    --playground-task-composer-width: 30rem;
     --playground-utility-bar-height: 2.5rem;
     --playground-utility-bar-z-index: 6500;
-    --playground-visual-viewport-bottom-offset: 0px;
-    --playground-visual-viewport-height: 100dvh;
 }
 
 html,
@@ -224,14 +219,7 @@ body {
 }
 
 .playground-activity-docked-container {
-    bottom: calc(var(--playground-utility-bar-height) + var(--playground-fixed-panel-bottom-offset) + env(safe-area-inset-bottom, 0px));
-    height: auto;
-    justify-content: flex-end;
-    padding: 0;
-    position: fixed;
-    right: var(--slds-g-spacing-4, 1rem);
-    top: auto;
-    width: var(--playground-task-composer-width);
+    bottom: var(--playground-utility-bar-height);
     z-index: var(--playground-overlay-z-index);
 }
 
@@ -241,18 +229,15 @@ body {
 }
 
 .playground-utility-panel {
-    bottom: calc(var(--playground-utility-bar-height) + var(--playground-fixed-panel-bottom-offset) + env(safe-area-inset-bottom, 0px));
+    bottom: var(--playground-utility-bar-height);
     left: var(--slds-g-spacing-4, 1rem);
-    max-height: calc(var(--playground-visual-viewport-height) - var(--playground-content-offset) - var(--playground-utility-bar-height) - var(--playground-focused-input-bottom-offset) - env(safe-area-inset-bottom, 0px));
+    max-height: calc(100vh - var(--playground-content-offset) - var(--playground-utility-bar-height));
     max-width: calc(100vw - (var(--slds-g-spacing-4, 1rem) * 2));
     right: auto;
 }
 
 .playground-task-composer {
-    height: 80vh;
-    height: 80dvh;
     max-height: var(--playground-task-composer-max-height);
-    max-height: var(--playground-task-composer-max-height-dynamic);
     overflow: hidden;
     transition: height 0.12s ease-out, box-shadow 0.12s ease-out;
     width: var(--playground-task-composer-width);
@@ -305,9 +290,7 @@ body {
 
 .playground-task-composer_expanded {
     height: min(38rem, var(--playground-task-composer-max-height));
-    height: min(38rem, var(--playground-task-composer-max-height-dynamic));
     max-height: var(--playground-task-composer-max-height);
-    max-height: var(--playground-task-composer-max-height-dynamic);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -331,6 +314,10 @@ body {
 }
 
 @media (max-width: 767px) {
+    :root {
+        --playground-task-composer-width: calc(100vw - (var(--slds-g-spacing-4, 1rem) * 2));
+    }
+
     .playground-record-detail-block:nth-child(n + 3) {
         display: none;
     }
@@ -373,6 +360,10 @@ body {
 
     .playground-global-actions__profile {
         margin-left: var(--slds-g-spacing-1, 0.25rem);
+    }
+
+    .playground-activity-docked-container {
+        padding-inline: var(--slds-g-spacing-4, 1rem);
     }
 
     .playground-record-table__cell_mobile-hidden {
