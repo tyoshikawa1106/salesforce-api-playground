@@ -72,6 +72,7 @@ export function QuickActionTimepicker({
                         className="slds-combobox__input slds-input"
                         id={inputId}
                         type="text"
+                        inputMode="numeric"
                         role="combobox"
                         aria-autocomplete="list"
                         aria-controls={listboxId}

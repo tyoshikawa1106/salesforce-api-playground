@@ -66,10 +66,30 @@ describe("record form builders", () => {
             id: "account-billing-city",
             label: "請求先市区郡"
         });
+        expect(accountTextFields.find((field) => field.key === "Phone")).toMatchObject({
+            type: "tel",
+            inputMode: "tel",
+            autoComplete: "tel"
+        });
+        expect(accountTextFields.find((field) => field.key === "Website")).toMatchObject({
+            type: "url",
+            inputMode: "url",
+            autoComplete: "url"
+        });
         expect(contactTextFields.find((field) => field.key === "LastName")).toMatchObject({
             id: "contact-last-name",
             required: true,
             requiredMessage: "取引先責任者の姓は必須です。"
+        });
+        expect(contactTextFields.find((field) => field.key === "Email")).toMatchObject({
+            type: "email",
+            inputMode: "email",
+            autoComplete: "email"
+        });
+        expect(contactTextFields.find((field) => field.key === "Phone")).toMatchObject({
+            type: "tel",
+            inputMode: "tel",
+            autoComplete: "tel"
         });
         expect(contactTextFields.find((field) => field.key === "Department")).toMatchObject({
             id: "contact-department",
@@ -169,5 +189,34 @@ describe("record form builders", () => {
         expect(markup).toContain("<abbr class=\"slds-required\" title=\"required\" aria-hidden=\"true\">* </abbr>");
         expect(markup).not.toContain("required=\"\"");
         expect(markup).not.toContain("required=\"required\"");
+    });
+
+    it("renders mobile-friendly input metadata for typed record fields", () => {
+        const accountMarkup = renderToStaticMarkup(
+            createElement(AccountFormFields, {
+                value: blankAccount,
+                onChange: noop
+            })
+        );
+        const contactMarkup = renderToStaticMarkup(
+            createElement(ContactFormFields, {
+                accounts: [],
+                value: blankContact,
+                onChange: noop
+            })
+        );
+
+        expect(accountMarkup).toContain("id=\"account-phone\"");
+        expect(accountMarkup).toContain("type=\"tel\"");
+        expect(accountMarkup).toContain("autoComplete=\"tel\"");
+        expect(accountMarkup).toContain("inputMode=\"tel\"");
+        expect(accountMarkup).toContain("id=\"account-website\"");
+        expect(accountMarkup).toContain("type=\"url\"");
+        expect(accountMarkup).toContain("autoComplete=\"url\"");
+        expect(contactMarkup).toContain("id=\"contact-email\"");
+        expect(contactMarkup).toContain("type=\"email\"");
+        expect(contactMarkup).toContain("autoComplete=\"email\"");
+        expect(contactMarkup).toContain("id=\"contact-phone\"");
+        expect(contactMarkup).toContain("type=\"tel\"");
     });
 });

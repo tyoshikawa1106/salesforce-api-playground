@@ -1,6 +1,6 @@
 "use client";
 
-import { type KeyboardEvent, type ReactNode, useEffect, useState } from "react";
+import { type InputHTMLAttributes, type KeyboardEvent, type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
     getEventFormErrorLabels,
@@ -110,16 +110,22 @@ export function QuickActionFieldShell({
 }
 
 export function QuickActionTextInput({
+    autoComplete = "off",
     error,
+    inputMode,
     label,
     onChange,
     required = false,
+    type = "text",
     value
 }: {
+    autoComplete?: string;
     error?: string;
+    inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
     label: string;
     onChange: (value: string) => void;
     required?: boolean;
+    type?: InputHTMLAttributes<HTMLInputElement>["type"];
     value: string;
 }) {
     const inputId = `activity-text-${label}`;
@@ -137,7 +143,9 @@ export function QuickActionTextInput({
                 <input
                     className="slds-input"
                     id={inputId}
-                    type="text"
+                    type={type}
+                    autoComplete={autoComplete}
+                    inputMode={inputMode}
                     aria-describedby={errorId}
                     aria-invalid={Boolean(error)}
                     maxLength={255}

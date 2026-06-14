@@ -46,8 +46,10 @@ export function AccountFormFields({
                 return (
                     <TextField
                         error={fieldErrors[field.key]}
+                        autoComplete={field.autoComplete}
                         key={field.key}
                         id={field.id}
+                        inputMode={field.inputMode}
                         label={field.label}
                         required={field.required}
                         type={field.type}
@@ -80,8 +82,10 @@ export function ContactFormFields({
             {contactTextFields.map((field) => (
                 <TextField
                     error={fieldErrors[field.key]}
+                    autoComplete={field.autoComplete}
                     key={field.key}
                     id={field.id}
+                    inputMode={field.inputMode}
                     label={field.label}
                     required={field.required}
                     type={field.type}
@@ -125,16 +129,20 @@ function buildCurrentAccountLookup(accountId: string): ActivityLookupOption | un
 }
 
 function TextField({
+    autoComplete = "off",
     error,
     id,
+    inputMode,
     label,
     value,
     onChange,
     type = "text",
     required = false
 }: {
+    autoComplete?: string;
     error?: string;
     id: string;
+    inputMode?: "email" | "search" | "tel" | "text" | "url" | "none" | "numeric" | "decimal";
     label: string;
     value: string;
     onChange: (value: string) => void;
@@ -154,6 +162,8 @@ function TextField({
                     id={id}
                     className="slds-input"
                     type={type}
+                    autoComplete={autoComplete}
+                    inputMode={inputMode}
                     aria-describedby={errorId}
                     aria-invalid={Boolean(error)}
                     value={value}
