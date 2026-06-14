@@ -3,6 +3,12 @@
 import { type CSSProperties, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 type PopupBoundary = Pick<Node, "contains"> | null;
+type InputPopupPlacementOptions = {
+    constrainHeight?: boolean;
+};
+
+const inputPopupVisibleOptionCount = 5;
+const inputPopupMinimumVisibleHeight = 80;
 
 export function isInputPopupTargetWithin(target: EventTarget | null, container: PopupBoundary, popup: PopupBoundary) {
     if (!target) {
@@ -33,7 +39,42 @@ export function clampInputPopupLeft({
     return Math.min(Math.max(viewportMargin, containerLeft), maxLeft);
 }
 
-export function useInputPopupPlacement(open: boolean) {
+export function isListboxInputPopup(popup: Element) {
+    return popup.classList.contains("slds-listbox") || Boolean(popup.querySelector(".slds-listbox"));
+}
+
+export function getInputPopupVisibleOptionsHeight(popup: Element) {
+    const listbox = popup.classList.contains("slds-listbox") ? popup : popup.querySelector(".slds-listbox");
+
+    if (!listbox) {
+        return undefined;
+    }
+
+    const optionElements = Array.from(listbox.children)
+        .filter((element) => (
+            element.classList.contains("slds-listbox__item")
+            || element.getAttribute("role") === "option"
+        ))
+        .slice(0, inputPopupVisibleOptionCount);
+
+    if (optionElements.length === 0) {
+        return undefined;
+    }
+
+    return optionElements.reduce((total, element) => total + element.getBoundingClientRect().height, 0);
+}
+
+export function shouldOpenInputPopupAbove({
+    spaceAbove,
+    spaceBelow
+}: {
+    spaceAbove: number;
+    spaceBelow: number;
+}) {
+    return spaceBelow < inputPopupMinimumVisibleHeight && spaceAbove > spaceBelow;
+}
+
+export function useInputPopupPlacement(open: boolean, { constrainHeight = true }: InputPopupPlacementOptions = {}) {
     const containerRef = useRef<HTMLDivElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
     const [openAbove, setOpenAbove] = useState(false);
@@ -71,21 +112,27 @@ export function useInputPopupPlacement(open: boolean) {
         function updatePlacement() {
             const containerRect = measuredContainer.getBoundingClientRect();
             const popupRect = measuredPopup.getBoundingClientRect();
-            const footer = measuredContainer.closest(".playground-task-composer, .slds-modal__container")?.querySelector(".playground-task-composer__footer, .playground-activity-modal-footer, .slds-modal__footer");
-            const footerTop = footer ? footer.getBoundingClientRect().top : window.innerHeight;
-            const lowerBoundary = Math.min(window.innerHeight - 8, footerTop - 4);
+            const lowerBoundary = window.innerHeight - 8;
             const popupHeight = Math.max(popupRect.height, measuredPopup.scrollHeight);
             const spaceBelow = lowerBoundary - containerRect.bottom - 4;
             const spaceAbove = containerRect.top - 12;
-            const nextOpenAbove = popupHeight > spaceBelow && spaceAbove > spaceBelow;
-            const availableHeight = Math.max(80, nextOpenAbove ? spaceAbove : spaceBelow);
-            const height = Math.min(popupHeight, availableHeight);
-            const isListboxPopup = measuredPopup.classList.contains("slds-listbox");
-            const measuredPopupWidth = isListboxPopup ? 192 : Math.max(popupRect.width, measuredPopup.scrollWidth);
-            const popupWidth = Math.min(
-                Math.max(containerRect.width, measuredPopupWidth),
-                window.innerWidth - 16
+            const nextOpenAbove = shouldOpenInputPopupAbove({ spaceAbove, spaceBelow });
+            const availableHeight = Math.max(inputPopupMinimumVisibleHeight, nextOpenAbove ? spaceAbove : spaceBelow);
+            const isListboxPopup = isListboxInputPopup(measuredPopup);
+            const visibleOptionsHeight = getInputPopupVisibleOptionsHeight(measuredPopup);
+            const constrainedMaxHeight = Math.min(
+                availableHeight,
+                visibleOptionsHeight ?? popupHeight
             );
+            const maxHeight = constrainHeight ? constrainedMaxHeight : popupHeight;
+            const height = Math.min(popupHeight, maxHeight);
+            const measuredPopupWidth = Math.max(popupRect.width, measuredPopup.scrollWidth);
+            const popupWidth = isListboxPopup
+                ? Math.min(containerRect.width, window.innerWidth - 16)
+                : Math.min(
+                    Math.max(containerRect.width, measuredPopupWidth),
+                    window.innerWidth - 16
+                );
 
             setOpenAbove(nextOpenAbove);
             setPopupStyle({
@@ -94,8 +141,10 @@ export function useInputPopupPlacement(open: boolean) {
                     popupWidth,
                     viewportWidth: window.innerWidth
                 }),
-                maxHeight: availableHeight,
-                overflowY: "auto",
+                maxHeight: constrainHeight ? maxHeight : undefined,
+                maxWidth: isListboxPopup ? popupWidth : undefined,
+                minWidth: isListboxPopup ? popupWidth : undefined,
+                overflowY: constrainHeight ? "auto" : undefined,
                 position: "fixed",
                 top: nextOpenAbove ? Math.max(8, containerRect.top - height - 4) : containerRect.bottom + 4,
                 visibility: "visible",
@@ -110,13 +159,19 @@ export function useInputPopupPlacement(open: boolean) {
         const resizeObserver = new ResizeObserver(updatePlacement);
         resizeObserver.observe(measuredContainer);
         resizeObserver.observe(measuredPopup);
+        const mutationObserver = new MutationObserver(updatePlacement);
+        mutationObserver.observe(measuredPopup, {
+            childList: true,
+            subtree: true
+        });
 
         return () => {
             window.removeEventListener("resize", updatePlacement);
             scrollContainer?.removeEventListener("scroll", updatePlacement);
+            mutationObserver.disconnect();
             resizeObserver.disconnect();
         };
-    }, [open, portalTarget]);
+    }, [constrainHeight, open, portalTarget]);
 
     const isTargetWithinPopup = useCallback((target: EventTarget | null) => (
         isInputPopupTargetWithin(target, containerRef.current, popupRef.current)
