@@ -45,8 +45,10 @@ export default function Playground({ environmentLabel = null }: { environmentLab
     } = usePlaygroundData({ showNotice });
     const recordMutations = useRecordMutations({
         loadAll,
+        onAccountCreated: openAccount,
         onActivityDeleted: closeActivity,
         onActivitySaved: refreshActivity,
+        onContactCreated: openContact,
         showNotice
     });
     const { setDeleteState, setModal, setRestoreState } = recordMutations;

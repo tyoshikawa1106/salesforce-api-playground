@@ -20,6 +20,14 @@ import {
 import type { DeleteState, ModalState, RecycleBinItem } from "../utils/types";
 
 type RecordModalType = Extract<ModalState["type"], "account" | "contact">;
+type CreatedRecordResponse = {
+    id: string;
+    success: true;
+};
+export type SaveRecordMutationResult = {
+    message: string;
+    createdId?: string;
+};
 
 type RecordMutationConfig<TType extends RecordModalType, TForm extends AccountForm | ContactForm> = {
     type: TType;
@@ -52,23 +60,26 @@ async function saveRecordMutation<TType extends RecordModalType, TForm extends A
     modal: ModalState | null,
     form: TForm,
     config: RecordMutationConfig<TType, TForm>
-): Promise<string> {
+): Promise<SaveRecordMutationResult> {
     if (modal?.type === config.type && modal.mode === "edit") {
         const payload = config.buildUpdatePayload(form);
         await apiRequest(buildUpdateRecordRequest(config.resource, modal.record.Id, payload));
-        return config.updateMessage;
+        return { message: config.updateMessage };
     }
 
     const payload = config.buildCreatePayload(form);
-    await apiRequest(buildCreateRecordRequest(config.resource, payload));
-    return config.createMessage;
+    const result = await apiRequest<CreatedRecordResponse>(buildCreateRecordRequest(config.resource, payload));
+    return {
+        message: config.createMessage,
+        createdId: result.id
+    };
 }
 
-export async function saveAccountMutation(modal: ModalState | null, accountForm: AccountForm): Promise<string> {
+export async function saveAccountMutation(modal: ModalState | null, accountForm: AccountForm): Promise<SaveRecordMutationResult> {
     return saveRecordMutation(modal, accountForm, accountMutationConfig);
 }
 
-export async function saveContactMutation(modal: ModalState | null, contactForm: ContactForm): Promise<string> {
+export async function saveContactMutation(modal: ModalState | null, contactForm: ContactForm): Promise<SaveRecordMutationResult> {
     return saveRecordMutation(modal, contactForm, contactMutationConfig);
 }
 

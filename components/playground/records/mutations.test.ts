@@ -14,8 +14,8 @@ afterEach(() => {
     vi.unstubAllGlobals();
 });
 
-function stubSuccessfulFetch() {
-    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async () => Response.json({ ok: true }));
+function stubSuccessfulFetch(id = "001xx000003DGbY") {
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async () => Response.json({ id, success: true }));
     vi.stubGlobal("fetch", fetchMock);
     return fetchMock;
 }
@@ -24,10 +24,15 @@ describe("playground record mutations", () => {
     it("creates and updates accounts through the expected API routes", async () => {
         const fetchMock = stubSuccessfulFetch();
 
-        await expect(saveAccountMutation(null, { ...blankAccount, Name: "Acme" })).resolves.toBe("取引先を作成しました。");
+        await expect(saveAccountMutation(null, { ...blankAccount, Name: "Acme" })).resolves.toEqual({
+            message: "取引先を作成しました。",
+            createdId: "001xx000003DGbY"
+        });
 
         const editModal: ModalState = { type: "account", mode: "edit", record: accountFixture };
-        await expect(saveAccountMutation(editModal, { ...blankAccount, Name: "Updated Acme" })).resolves.toBe("取引先を更新しました。");
+        await expect(saveAccountMutation(editModal, { ...blankAccount, Name: "Updated Acme" })).resolves.toEqual({
+            message: "取引先を更新しました。"
+        });
 
         expect(fetchMock).toHaveBeenNthCalledWith(
             1,
@@ -42,12 +47,17 @@ describe("playground record mutations", () => {
     });
 
     it("creates and updates contacts through the expected API routes", async () => {
-        const fetchMock = stubSuccessfulFetch();
+        const fetchMock = stubSuccessfulFetch("003xx000004TmiQ");
 
-        await expect(saveContactMutation(null, { ...blankContact, LastName: "Yamada" })).resolves.toBe("取引先責任者を作成しました。");
+        await expect(saveContactMutation(null, { ...blankContact, LastName: "Yamada" })).resolves.toEqual({
+            message: "取引先責任者を作成しました。",
+            createdId: "003xx000004TmiQ"
+        });
 
         const editModal: ModalState = { type: "contact", mode: "edit", record: contactFixture };
-        await expect(saveContactMutation(editModal, { ...blankContact, LastName: "Suzuki" })).resolves.toBe("取引先責任者を更新しました。");
+        await expect(saveContactMutation(editModal, { ...blankContact, LastName: "Suzuki" })).resolves.toEqual({
+            message: "取引先責任者を更新しました。"
+        });
 
         expect(fetchMock).toHaveBeenNthCalledWith(
             1,
