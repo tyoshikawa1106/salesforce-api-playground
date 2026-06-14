@@ -133,6 +133,8 @@ describe("record page smoke rendering", () => {
 
         expect(eventMarkup).toContain("slds-icon-standard-event");
         expect(eventMarkup).not.toContain("slds-icon-standard-task");
+        expect(eventMarkup.indexOf("開始")).toBeLessThan(eventMarkup.indexOf("名前"));
+        expect(eventMarkup.indexOf("名前")).toBeLessThan(eventMarkup.indexOf("終了"));
         expect(callMarkup).toContain("slds-icon-standard-log-a-call");
         expect(callMarkup).not.toContain("slds-icon-standard-event");
     });

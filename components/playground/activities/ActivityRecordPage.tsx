@@ -45,8 +45,9 @@ export function ActivityRecordPage({
         : [
             commonFields[0],
             ["開始", formatDate(activity.startDateTime)] as [string, ReactNode],
+            commonFields[1],
             ["終了", formatDate(activity.endDateTime)] as [string, ReactNode],
-            ...commonFields.slice(1),
+            ...commonFields.slice(2),
             ["場所", activity.location] as [string, ReactNode],
             ["説明", activity.description] as [string, ReactNode]
         ];
@@ -76,8 +77,8 @@ export function ActivityRecordPage({
                 ) : (
                     <>
                         <DetailBlock label="開始" value={formatDate(activity.startDateTime) || "-"} />
-                        <DetailBlock label="終了" value={formatDate(activity.endDateTime) || "-"} />
                         <DetailBlock label="名前" value={whoLink || "-"} />
+                        <DetailBlock label="終了" value={formatDate(activity.endDateTime) || "-"} />
                         <DetailBlock label="関連先" value={whatLink || "-"} />
                         <DetailBlock label="割り当て先" value={activity.ownerName || "-"} />
                     </>
