@@ -407,3 +407,18 @@ body {
     }
 
 }
+
+@media (max-width: 767px), (pointer: coarse) {
+    .playground-task-composer-modal {
+        align-items: stretch;
+        inset: 0;
+        padding: var(--slds-g-spacing-4, 1rem);
+        top: 0;
+    }
+
+    .playground-task-composer-modal .playground-task-composer {
+        border-radius: 0;
+        height: calc(100dvh - (var(--slds-g-spacing-4, 1rem) * 2));
+        max-height: calc(100dvh - (var(--slds-g-spacing-4, 1rem) * 2));
+    }
+}

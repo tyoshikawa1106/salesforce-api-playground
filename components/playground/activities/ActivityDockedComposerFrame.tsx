@@ -1,5 +1,30 @@
-import { type FormEvent, type ReactNode } from "react";
+"use client";
+
+import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import { StandardIcon, type StandardIconName, UtilityIcon } from "../shell/SldsIcon";
+
+const mobileModalMediaQuery = "(max-width: 767px), (pointer: coarse)";
+
+function useActivityComposerMobileModal() {
+    const [mobileModal, setMobileModal] = useState(false);
+
+    useEffect(() => {
+        const mediaQueryList = window.matchMedia(mobileModalMediaQuery);
+
+        function syncMobileModal() {
+            setMobileModal(mediaQueryList.matches);
+        }
+
+        syncMobileModal();
+        mediaQueryList.addEventListener("change", syncMobileModal);
+
+        return () => {
+            mediaQueryList.removeEventListener("change", syncMobileModal);
+        };
+    }, []);
+
+    return mobileModal;
+}
 
 export function ActivityDockedComposerFrame({
     bodyId,
@@ -28,17 +53,21 @@ export function ActivityDockedComposerFrame({
     onToggleExpanded: () => void;
     onToggleMinimized: () => void;
 }) {
-    const composerStateClass = minimized ? "slds-is-closed" : "slds-is-open";
-    const minimizeTitle = minimized ? "復元" : "最小化";
+    const mobileModal = useActivityComposerMobileModal();
+    const renderAsModal = expanded || mobileModal;
+    const effectiveMinimized = mobileModal ? false : minimized;
+    const composerStateClass = effectiveMinimized ? "slds-is-closed" : "slds-is-open";
+    const minimizeTitle = effectiveMinimized ? "復元" : "最小化";
     const expandTitle = expanded ? "復元" : "最大化";
     const composer = (
         <form
             className={`slds-docked-composer slds-grid slds-grid_vertical ${composerStateClass} playground-task-composer ${
-                expanded ? "playground-task-composer_expanded" : ""
+                renderAsModal ? "playground-task-composer_expanded" : ""
             }`}
             onSubmit={onSubmit}
             noValidate
             role="dialog"
+            aria-modal={renderAsModal ? true : undefined}
             aria-labelledby={titleId}
             aria-describedby={bodyId}
         >
@@ -55,14 +84,18 @@ export function ActivityDockedComposerFrame({
                     </div>
                 </div>
                 <div className="slds-col_bump-left slds-shrink-none">
-                    <button className="slds-button slds-button_icon slds-button_icon-bare slds-p-around_xx-small" type="button" title={minimizeTitle} onClick={onToggleMinimized}>
-                        <UtilityIcon className="slds-button__icon" name="minimize_window" />
-                        <span className="slds-assistive-text">{minimizeTitle}</span>
-                    </button>
-                    <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title={expandTitle} onClick={onToggleExpanded}>
-                        <UtilityIcon className="slds-button__icon" name={expanded ? "contract_alt" : "expand_alt"} />
-                        <span className="slds-assistive-text">{expandTitle}</span>
-                    </button>
+                    {mobileModal ? null : (
+                        <>
+                            <button className="slds-button slds-button_icon slds-button_icon-bare slds-p-around_xx-small" type="button" title={minimizeTitle} onClick={onToggleMinimized}>
+                                <UtilityIcon className="slds-button__icon" name="minimize_window" />
+                                <span className="slds-assistive-text">{minimizeTitle}</span>
+                            </button>
+                            <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title={expandTitle} onClick={onToggleExpanded}>
+                                <UtilityIcon className="slds-button__icon" name={expanded ? "contract_alt" : "expand_alt"} />
+                                <span className="slds-assistive-text">{expandTitle}</span>
+                            </button>
+                        </>
+                    )}
                     <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title="閉じる" onClick={onCancel}>
                         <UtilityIcon className="slds-button__icon" name="close" />
                         <span className="slds-assistive-text">閉じる</span>
@@ -81,7 +114,7 @@ export function ActivityDockedComposerFrame({
         </form>
     );
 
-    if (expanded) {
+    if (renderAsModal) {
         return (
             <>
                 <div className="slds-backdrop slds-backdrop_open playground-task-composer-backdrop" />

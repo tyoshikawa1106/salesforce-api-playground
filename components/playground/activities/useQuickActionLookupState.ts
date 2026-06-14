@@ -30,29 +30,36 @@ export function useQuickActionLookupState({
     const [loadingOptions, setLoadingOptions] = useState(false);
     const requestIdRef = useRef(0);
     const lookupObject = getLookupApiObject(objectLabel);
+    const normalizedQuery = query.trim();
     const availableOptions = remoteOptions ?? options;
     const filteredOptions = availableOptions.filter((option) => {
-        const normalizedQuery = query.trim().toLowerCase();
         if (!normalizedQuery) {
-            return true;
+            return false;
         }
 
-        return [option.label, option.meta].some((text) => text?.toLowerCase().includes(normalizedQuery));
+        return [option.label, option.meta].some((text) => text?.toLowerCase().includes(normalizedQuery.toLowerCase()));
     });
 
     useEffect(() => {
-        if (!open || value) {
+        if (value || !normalizedQuery) {
+            requestIdRef.current += 1;
+            setOpen(false);
+            setLoadingOptions(false);
+            setRemoteMessage("");
+            setRemoteOptions(null);
             return;
         }
 
         const requestId = requestIdRef.current + 1;
         requestIdRef.current = requestId;
+        setOpen(false);
         setLoadingOptions(true);
         setRemoteMessage("");
+        setRemoteOptions(null);
 
         const timeoutId = window.setTimeout(() => {
             apiRequest<ActivityLookupApiResponse>(
-                buildPlaygroundApiRequest(playgroundApiPaths.activityLookups(lookupObject, query))
+                buildPlaygroundApiRequest(playgroundApiPaths.activityLookups(lookupObject, normalizedQuery))
             )
                 .then((data) => {
                     if (requestIdRef.current !== requestId) {
@@ -65,6 +72,8 @@ export function useQuickActionLookupState({
                         meta: option.meta,
                         objectLabel: getLookupObjectLabel(option.object)
                     })));
+                    setLoadingOptions(false);
+                    setOpen(true);
                 })
                 .catch((error) => {
                     if (requestIdRef.current !== requestId) {
@@ -73,28 +82,27 @@ export function useQuickActionLookupState({
 
                     setRemoteOptions([]);
                     setRemoteMessage(error instanceof Error ? error.message : "候補を取得できませんでした。");
-                })
-                .finally(() => {
-                    if (requestIdRef.current === requestId) {
-                        setLoadingOptions(false);
-                    }
+                    setLoadingOptions(false);
+                    setOpen(true);
                 });
-        }, query.trim() ? 250 : 0);
+        }, 250);
 
         return () => window.clearTimeout(timeoutId);
-    }, [lookupObject, open, query, value]);
+    }, [lookupObject, normalizedQuery, value]);
 
     useEffect(() => {
         setActiveIndex((current) => Math.min(current, Math.max(filteredOptions.length - 1, 0)));
     }, [filteredOptions.length]);
 
     function selectOption(option: ActivityLookupOption) {
+        requestIdRef.current += 1;
         onChange(option);
         setQuery("");
         setOpen(false);
     }
 
     function clearValue() {
+        requestIdRef.current += 1;
         onChange(undefined);
         setQuery("");
         setActiveIndex(0);
@@ -103,22 +111,54 @@ export function useQuickActionLookupState({
     }
 
     function changeQuery(nextQuery: string) {
+        requestIdRef.current += 1;
         setQuery(nextQuery);
         setActiveIndex(0);
+        setRemoteOptions(null);
+        setRemoteMessage("");
+        setLoadingOptions(false);
+        setOpen(false);
+    }
+
+    function openResolvedOptions() {
+        if (normalizedQuery && remoteOptions !== null && !loadingOptions) {
+            setOpen(true);
+        }
+    }
+
+    function closeResolvedOptions() {
+        setOpen(false);
+    }
+
+    function hasResolvedOptions() {
+        return Boolean(normalizedQuery && remoteOptions !== null && !loadingOptions);
+    }
+
+    function openResolvedOptionsFromKeyboard() {
+        if (!hasResolvedOptions()) {
+            return false;
+        }
+
         setOpen(true);
+
+        return true;
     }
 
     function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
         if (event.key === "ArrowDown") {
             event.preventDefault();
-            setOpen(true);
+            if (!openResolvedOptionsFromKeyboard()) {
+                return;
+            }
             setActiveIndex((current) => Math.min(current + 1, Math.max(filteredOptions.length - 1, 0)));
             return;
         }
 
         if (event.key === "ArrowUp") {
             event.preventDefault();
-            setOpen(true);
+            if (!openResolvedOptionsFromKeyboard()) {
+                return;
+            }
             setActiveIndex((current) => Math.max(current - 1, 0));
             return;
         }
@@ -137,15 +177,16 @@ export function useQuickActionLookupState({
     return {
         activeIndex,
         changeQuery,
+        closeResolvedOptions,
         clearValue,
         filteredOptions,
         handleKeyDown,
         loadingOptions,
+        openResolvedOptions,
         open,
         query,
         remoteMessage,
         selectOption,
-        setActiveIndex,
-        setOpen
+        setActiveIndex
     };
 }
