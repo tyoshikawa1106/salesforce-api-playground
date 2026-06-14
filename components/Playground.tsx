@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, type ComponentProps } from "react";
-import { usePathname } from "next/navigation";
 import type { EnvironmentLabel } from "@/lib/environment-label";
 import { getVisibleComponentLogGroups } from "./playground/component-logs";
 import { EnvironmentLabelBanner } from "./playground/shell/EnvironmentLabelBanner";
@@ -18,13 +17,13 @@ import { usePlaygroundPicklists } from "./playground/hooks/usePlaygroundPicklist
 import { useRecordMutations } from "./playground/records/useRecordMutations";
 
 export default function Playground({ environmentLabel = null }: { environmentLabel?: EnvironmentLabel | null }) {
-    const pathname = usePathname();
     const { notice, showNotice } = useNotice();
     const {
         accountOptions,
         accounts,
         activeTab,
         activityCounts,
+        changeTab,
         closeActivity,
         contacts,
         loading,
@@ -37,8 +36,10 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         recordCounts,
         recycleBinItems,
         selectedAccount,
+        selectedAccountId,
         selectedActivity,
         selectedContact,
+        selectedContactId,
         session,
         userCounts,
     } = usePlaygroundData({ showNotice });
@@ -49,12 +50,18 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         showNotice
     });
     const { setDeleteState, setModal, setRestoreState } = recordMutations;
+    const viewKey = [
+        activeTab,
+        selectedAccountId ?? "",
+        selectedActivity?.id ?? "",
+        selectedContactId ?? ""
+    ].join(":");
 
     useEffect(() => {
         setDeleteState(null);
         setModal(null);
         setRestoreState(null);
-    }, [pathname, setDeleteState, setModal, setRestoreState]);
+    }, [setDeleteState, setModal, setRestoreState, viewKey]);
 
     const connected = session?.connected === true;
     const picklists = usePlaygroundPicklists({
@@ -114,6 +121,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             onEditAccount: recordMutations.openAccountModal,
             onEditContact: recordMutations.openContactModal,
             onOpenActivity: openActivity,
+            onOpenAccount: (record) => openAccount(record.Id),
             onOpenAccountById: openAccount,
             onOpenContact: (record) => openContact(record.Id),
             onOpenContactById: openContact,
@@ -206,6 +214,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
                     connected={session.connected}
                     onCreateAccount={() => recordMutations.openAccountModal()}
                     onCreateContact={() => recordMutations.openContactModal()}
+                    onChange={changeTab}
                 />
             </GlobalHeader>
 

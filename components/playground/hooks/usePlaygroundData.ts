@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { buildPlaygroundApiRequest, playgroundApiPaths } from "@/lib/playground-api";
 import { createEmptyHomeRecordCounts } from "@/lib/playground-record-counts";
 import type { HomeRecordCounts } from "@/lib/playground-record-counts";
@@ -70,6 +70,54 @@ async function loadConnectedPlaygroundData(): Promise<ConnectedPlaygroundData> {
     };
 }
 
+async function loadHomeData(): Promise<Pick<ConnectedPlaygroundData, "activityCounts" | "recordCounts" | "recycleBinItems" | "userCounts">> {
+    const [activityCountResult, recordCountResult, recycleBinResult, userCountResult] = await Promise.all([
+        apiRequest<{ activityCounts: ConnectedPlaygroundData["activityCounts"] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.activityCounts)
+        ),
+        apiRequest<{ recordCounts: ConnectedPlaygroundData["recordCounts"] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.recordCounts)
+        ),
+        apiRequest<{ items: RecycleBinItem[] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.recycleBin)
+        ),
+        apiRequest<{ userCounts: ConnectedPlaygroundData["userCounts"] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.userCounts)
+        )
+    ]);
+
+    return {
+        activityCounts: activityCountResult.activityCounts,
+        recordCounts: recordCountResult.recordCounts,
+        recycleBinItems: recycleBinResult.items,
+        userCounts: userCountResult.userCounts
+    };
+}
+
+async function loadRecordViewData() {
+    const [accountResult, contactResult] = await Promise.all([
+        apiRequest<{ accounts: Account[] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.accounts)
+        ),
+        apiRequest<{ contacts: Contact[] }>(
+            buildPlaygroundApiRequest(playgroundApiPaths.contacts)
+        )
+    ]);
+
+    return {
+        accounts: accountResult.accounts,
+        contacts: contactResult.contacts
+    };
+}
+
+async function loadRecycleBinData() {
+    const recycleBinResult = await apiRequest<{ items: RecycleBinItem[] }>(
+        buildPlaygroundApiRequest(playgroundApiPaths.recycleBin)
+    );
+
+    return recycleBinResult.items;
+}
+
 export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const [session, setSession] = useState<SessionInfo | null>(null);
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -79,6 +127,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const [recycleBinItems, setRecycleBinItems] = useState<RecycleBinItem[]>([]);
     const [userCounts, setUserCounts] = useState<ConnectedPlaygroundData["userCounts"]>({ active: 0 });
     const [loading, setLoading] = useState(true);
+    const previousViewKeyRef = useRef<string | null>(null);
     const {
         accountOptions,
         activeTab,
@@ -90,8 +139,10 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         openContact,
         resetConnectedSelection,
         selectedAccount,
+        selectedAccountId,
         selectedActivity,
         selectedContact,
+        selectedContactId,
         setSelectedAccountId,
         setSelectedActivity,
         setSelectedContactId
@@ -120,6 +171,22 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         keepSelectionForData(data.accounts, data.contacts);
     }, [keepSelectionForData]);
 
+    const applyRecordViewData = useCallback((data: { accounts: Account[]; contacts: Contact[] }) => {
+        setAccounts(data.accounts);
+        setContacts(data.contacts);
+        keepSelectionForData(data.accounts, data.contacts);
+    }, [keepSelectionForData]);
+
+    const handleLoadError = useCallback((error: unknown) => {
+        if (error instanceof PlaygroundApiError && error.status === 401) {
+            resetConnectedState();
+        }
+        showNotice({
+            tone: "error",
+            message: error instanceof Error ? error.message : "Salesforce データを読み込めませんでした。"
+        });
+    }, [resetConnectedState, showNotice]);
+
     const loadAll = useCallback(async () => {
         setLoading(true);
         try {
@@ -132,17 +199,43 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
 
             applyConnectedData(await loadConnectedPlaygroundData());
         } catch (error) {
-            if (error instanceof PlaygroundApiError && error.status === 401) {
-                resetConnectedState();
-            }
-            showNotice({
-                tone: "error",
-                message: error instanceof Error ? error.message : "Salesforce データを読み込めませんでした。"
-            });
+            handleLoadError(error);
         } finally {
             setLoading(false);
         }
-    }, [applyConnectedData, resetConnectedState, showNotice]);
+    }, [applyConnectedData, handleLoadError, resetConnectedState]);
+
+    const refreshActiveView = useCallback(async () => {
+        setLoading(true);
+        try {
+            if (activeTab === "home") {
+                const data = await loadHomeData();
+                setActivityCounts(data.activityCounts);
+                setRecordCounts(data.recordCounts);
+                setRecycleBinItems(data.recycleBinItems);
+                setUserCounts(data.userCounts);
+                return;
+            }
+
+            if (activeTab === "accounts") {
+                applyRecordViewData(await loadRecordViewData());
+                return;
+            }
+
+            if (activeTab === "contacts") {
+                applyRecordViewData(await loadRecordViewData());
+                return;
+            }
+
+            if (activeTab === "recycleBin") {
+                setRecycleBinItems(await loadRecycleBinData());
+            }
+        } catch (error) {
+            handleLoadError(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [activeTab, applyRecordViewData, handleLoadError]);
 
     const changeTab = useCallback((nextTab: ActiveTab) => {
         selectTab(nextTab);
@@ -176,6 +269,27 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         void loadAll();
     }, [loadAll]);
 
+    const viewKey = `${activeTab}:${selectedAccountId ?? ""}:${selectedContactId ?? ""}`;
+
+    useEffect(() => {
+        if (!session?.connected) {
+            previousViewKeyRef.current = null;
+            return;
+        }
+
+        if (previousViewKeyRef.current === null) {
+            previousViewKeyRef.current = viewKey;
+            return;
+        }
+
+        if (previousViewKeyRef.current === viewKey) {
+            return;
+        }
+
+        previousViewKeyRef.current = viewKey;
+        void refreshActiveView();
+    }, [refreshActiveView, session?.connected, viewKey]);
+
     return {
         accountOptions,
         accounts,
@@ -193,8 +307,10 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
         recordCounts,
         recycleBinItems,
         selectedAccount,
+        selectedAccountId,
         selectedActivity,
         selectedContact,
+        selectedContactId,
         refreshActivity,
         session,
         userCounts,

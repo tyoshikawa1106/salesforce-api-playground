@@ -1,5 +1,6 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import {
     DataTable,
     DataTableColumnHeader,
@@ -22,6 +23,7 @@ export function RecordListTable<Record extends { Id: string }>({
     listState,
     primaryColumnLabel,
     selectAllLabel,
+    onOpen,
     onEdit,
     onDelete
 }: {
@@ -32,6 +34,7 @@ export function RecordListTable<Record extends { Id: string }>({
     listState: RecordListState<Record>;
     primaryColumnLabel: string;
     selectAllLabel: string;
+    onOpen: (record: Record) => void;
     onEdit: (record: Record) => void;
     onDelete: (record: Record) => void;
 }) {
@@ -75,7 +78,17 @@ export function RecordListTable<Record extends { Id: string }>({
                             />
                             <th className="slds-cell_action-mode" scope="row" data-label={primaryColumnLabel}>
                                 <div className="slds-truncate" title={recordLabel}>
-                                    <a className="slds-text-link" href={getRecordPath(record)}>
+                                    <a
+                                        className="slds-text-link"
+                                        href={getRecordPath(record)}
+                                        onClick={(event) => {
+                                            if (!shouldHandleRecordLinkClick(event)) {
+                                                return;
+                                            }
+                                            event.preventDefault();
+                                            onOpen(record);
+                                        }}
+                                    >
                                         {recordLabel}
                                     </a>
                                 </div>
@@ -104,4 +117,14 @@ export function RecordListTable<Record extends { Id: string }>({
             </tbody>
         </DataTable>
     );
+}
+
+function shouldHandleRecordLinkClick(event: MouseEvent<HTMLAnchorElement>) {
+    return !event.defaultPrevented
+        && event.button === 0
+        && !event.metaKey
+        && !event.ctrlKey
+        && !event.shiftKey
+        && !event.altKey
+        && (!event.currentTarget.target || event.currentTarget.target === "_self");
 }
