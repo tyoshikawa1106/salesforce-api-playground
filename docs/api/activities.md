@@ -19,6 +19,13 @@
 | `DELETE /api/activities/events/[id]` | 行動を削除する |
 | `GET /api/activity-lookups` | 活動入力で使う候補を検索する |
 
+## `GET /api/activity-lookups`
+
+| query | 値 |
+| --- | --- |
+| `object` | `account`、`contact`、`user` |
+| `q` | 検索語。未指定の場合は最近参照または最近更新された候補を最大 5 件返す |
+
 ## 実行例
 
 取引先に紐づく活動を取得する:

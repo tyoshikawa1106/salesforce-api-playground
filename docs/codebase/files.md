@@ -170,6 +170,7 @@
 | `docs/codebase/files.md` | 主要ファイル一覧を示す。 |
 | `docs/codebase/placement.md` | 新しい実装やドキュメントの配置判断を示す。 |
 | `docs/api/index.md` | API docs の入口を定義する。 |
+| `docs/api/counts.md` | 件数 API の仕様を示す。 |
 | `docs/api/picklist-values.md` | 選択リスト値 API の仕様を示す。 |
 | `docs/deployment/index.md` | deployment docs の入口を定義する。 |
 | `docs/setup/index.md` | 開発・運用 docs の入口を定義する。 |
