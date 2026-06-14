@@ -2,6 +2,7 @@
 
 import type { ComponentProps } from "react";
 import type { EnvironmentLabel } from "@/lib/environment-label";
+import { getVisibleComponentLogGroups } from "./playground/component-logs";
 import { EnvironmentLabelBanner } from "./playground/shell/EnvironmentLabelBanner";
 import { AppNavigation } from "./playground/shell/Navigation";
 import { GlobalHeader } from "./playground/shell/GlobalHeader";
@@ -173,6 +174,12 @@ export default function Playground({ environmentLabel = null }: { environmentLab
         "playground-shell_has-utility-bar",
         environmentLabel ? "playground-shell_has-environment-label" : ""
     ].filter(Boolean).join(" ");
+    const componentLogGroups = getVisibleComponentLogGroups({
+        activeTab,
+        hasSelectedAccount: selectedAccount !== null,
+        hasSelectedActivity: selectedActivity !== null,
+        hasSelectedContact: selectedContact !== null
+    });
 
     return (
         <div className={shellClassName}>
@@ -198,7 +205,7 @@ export default function Playground({ environmentLabel = null }: { environmentLab
             <PlaygroundWorkspace {...workspaceProps} />
 
             <RecordModals {...recordModalProps} />
-            <UtilityBar />
+            <UtilityBar componentLogGroups={componentLogGroups} />
         </div>
     );
 }

@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createEmptyHomeRecordCounts } from "@/lib/playground-record-counts";
+import { getVisibleComponentLogGroups } from "../component-logs";
 import { EnvironmentLabelBanner } from "./EnvironmentLabelBanner";
 import { GlobalHeader } from "./GlobalHeader";
 import { GlobalHeaderActions } from "./GlobalHeaderActions";
@@ -436,9 +437,73 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("Call");
         expect(markup).toContain("History");
         expect(markup).toContain("Notes");
-        expect(markup).toContain("Omni-Channel");
+        expect(markup).toContain("Logs");
         expect(markup).toContain("aria-pressed=\"false\"");
+        expect(markup).not.toContain("Omni-Channel");
+        expect(markup).not.toContain("Online");
         expect(markup).not.toContain("slds-utility-panel");
+    });
+
+    it("lists visible component files for the Home workspace logs", () => {
+        const groups = getVisibleComponentLogGroups({
+            activeTab: "home",
+            hasSelectedAccount: false,
+            hasSelectedActivity: false,
+            hasSelectedContact: false
+        });
+
+        expect(groups.map((group) => group.label)).toEqual(["表示中の画面", "共通レイアウト"]);
+        expect(groups).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                label: "共通レイアウト",
+                entries: expect.arrayContaining([
+                    expect.objectContaining({
+                        name: "UtilityBar",
+                        filePath: "components/playground/shell/UtilityBar.tsx"
+                    })
+                ])
+            }),
+            expect.objectContaining({
+                label: "表示中の画面",
+                entries: expect.arrayContaining([
+                    expect.objectContaining({
+                        description: "ホーム画面のヘッダーを表示する。",
+                        name: "HomePanel",
+                        filePath: "components/playground/home/HomePanel.tsx"
+                    }),
+                    expect.objectContaining({
+                        name: "HomeCounts",
+                        filePath: "components/playground/home/HomePanel.tsx"
+                    })
+                ])
+            })
+        ]));
+    });
+
+    it("switches component file logs for record detail workspaces", () => {
+        const groups = getVisibleComponentLogGroups({
+            activeTab: "accounts",
+            hasSelectedAccount: true,
+            hasSelectedActivity: false,
+            hasSelectedContact: false
+        });
+        const workspaceGroup = groups.find((group) => group.label === "表示中の画面");
+
+        expect(workspaceGroup?.entries).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                name: "AccountDetailWorkspace",
+                filePath: "components/playground/records/RecordWorkspacePanels.tsx"
+            }),
+            expect.objectContaining({
+                name: "AccountRecordPage",
+                filePath: "components/playground/records/RecordPages.tsx"
+            })
+        ]));
+        expect(workspaceGroup?.entries).not.toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                name: "AccountListWorkspace"
+            })
+        ]));
     });
 
     it("renders global activity create actions as docked composers", () => {
