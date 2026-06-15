@@ -71,4 +71,4 @@
 - `gh issue create` / `gh pr create` / `gh pr edit` の後は、`gh issue view --json body` / `gh pr view --json body` で保存結果を確認し、GitHub 上に `\n` が文字列として残っていないことを確認する。
 - PR 作成時は、既存 label から内容に合うものを 1 つ以上付ける。迷う場合は `type:*` と必要に応じて `area:*` を選ぶ。
 - PR 作成後は、`gh pr view --json labels,milestone,projectItems` などで label、milestone、Project の設定漏れがないか確認する。Project は対象 item を直接確認できない場合、追加コマンドの成功結果と未確認理由を記録する。
-- PR body に `\n` が文字列として残っている場合や、PR label が空の場合は GitHub Actions の metadata check が失敗するため、ready for review や merge の前に修正する。
+- PR body に `\n` が文字列として繰り返し残っている場合や、PR label が空の場合は GitHub Actions の metadata check が失敗するため、ready for review や merge の前に修正する。

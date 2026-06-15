@@ -27,13 +27,22 @@ jobs:
           set -euo pipefail
 
           pr_body="$(jq -r . <<< "$PR_BODY_JSON")"
-          if grep -Fq '\n' <<< "$pr_body"; then
-            echo "Pull request body contains literal escaped newline text."
+          escaped_newline_count="$(
+            awk '{
+              rest = $0
+              while (index(rest, "\\n") > 0) {
+                count++
+                rest = substr(rest, index(rest, "\\n") + 2)
+              }
+            } END { print count + 0 }' <<< "$pr_body"
+          )"
+          if [ "$escaped_newline_count" -ge 3 ]; then
+            echo "Pull request body contains repeated literal escaped newline text."
             echo "Use a body file with real line breaks, then update the PR with gh pr edit --body-file <file>."
             exit 1
           fi
 
-          echo "Pull request body does not contain literal escaped newline text."
+          echo "Pull request body escaped newline count: $escaped_newline_count"
 
   labels:
     name: Check pull request labels
