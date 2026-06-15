@@ -8,7 +8,7 @@ import { GlobalHeader } from "./GlobalHeader";
 import { GlobalHeaderActions } from "./GlobalHeaderActions";
 import { HomeCounts, HomePanel } from "../home/HomePanel";
 import type { HomeCountValues } from "../home/HomePanel";
-import { IntegrationPanel } from "../integration/IntegrationPanel";
+import { IntegrationPanel, shouldResetAccountCreateValidation } from "../integration/IntegrationPanel";
 import { LoginPage, SessionLoadingPage } from "./LoginPage";
 import { shouldReplaceLoginNavigation } from "./LoginLink";
 import { Modal, ModalFooter } from "./Modal";
@@ -186,6 +186,7 @@ describe("playground shell smoke rendering", () => {
         expect(markup).not.toContain("slds-page-header__meta-text");
         expect(markup).toContain("取引先を作成");
         expect(markup).toContain("取引先名");
+        expect(markup).toContain("autoComplete=\"off\"");
         expect(markup).toContain("noValidate=\"\"");
         expect(markup).toContain("slds-m-top_small\"><form");
         expect(markup).not.toContain("slds-p-around_medium\"><form");
@@ -206,6 +207,29 @@ describe("playground shell smoke rendering", () => {
 
         expect(markup).toContain("type=\"submit\" disabled=\"\"");
         expect(markup).toContain("取引先を作成");
+    });
+
+    it("resets Integration account validation only after a completed blank-form save", () => {
+        expect(shouldResetAccountCreateValidation({
+            accountName: "",
+            previousSaving: true,
+            saving: false
+        })).toBe(true);
+        expect(shouldResetAccountCreateValidation({
+            accountName: "",
+            previousSaving: false,
+            saving: false
+        })).toBe(false);
+        expect(shouldResetAccountCreateValidation({
+            accountName: "Acme",
+            previousSaving: true,
+            saving: false
+        })).toBe(false);
+        expect(shouldResetAccountCreateValidation({
+            accountName: "",
+            previousSaving: true,
+            saving: true
+        })).toBe(false);
     });
 
     it("renders list view page header with the standard list view title", () => {
@@ -641,6 +665,8 @@ describe("playground shell smoke rendering", () => {
 
         expect(accountMarkup).toContain("noValidate=\"\"");
         expect(contactMarkup).toContain("noValidate=\"\"");
+        expect(accountMarkup).toContain("autoComplete=\"off\"");
+        expect(contactMarkup).toContain("autoComplete=\"off\"");
         expect(accountMarkup).not.toContain("required=\"\"");
         expect(contactMarkup).not.toContain("required=\"\"");
     });

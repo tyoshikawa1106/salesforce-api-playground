@@ -1,9 +1,21 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import type { AccountForm } from "@/lib/salesforce/records";
 import { AccountFormFields } from "../records/Forms";
 import { PageHeader, PageHeaderControl, RefreshButton } from "../shell/PageHeader";
 import type { PicklistOptionsByField } from "../utils/picklist-options";
 import { accountTextFields, getRequiredFieldMessage } from "../records/record-forms";
+
+export function shouldResetAccountCreateValidation({
+    accountName,
+    previousSaving,
+    saving
+}: {
+    accountName: string;
+    previousSaving: boolean;
+    saving: boolean;
+}) {
+    return previousSaving && !saving && !accountName.trim();
+}
 
 export function IntegrationPanel({
     accountForm,
@@ -27,9 +39,22 @@ export function IntegrationPanel({
     onRefresh: () => void;
 }) {
     const [showValidation, setShowValidation] = useState(false);
+    const previousSaving = useRef(saving);
     const fieldErrors = showValidation && !accountForm.Name.trim()
         ? { Name: getRequiredFieldMessage(accountTextFields, "Name") }
         : {};
+
+    useEffect(() => {
+        if (shouldResetAccountCreateValidation({
+            accountName: accountForm.Name,
+            previousSaving: previousSaving.current,
+            saving
+        })) {
+            setShowValidation(false);
+        }
+
+        previousSaving.current = saving;
+    }, [accountForm.Name, saving]);
 
     function createAccount(event: FormEvent<HTMLFormElement>) {
         setShowValidation(true);
@@ -51,7 +76,7 @@ export function IntegrationPanel({
             />
 
             <div className="slds-m-top_small">
-                <form className="slds-box slds-theme_default" onSubmit={createAccount} noValidate>
+                <form className="slds-box slds-theme_default" onSubmit={createAccount} autoComplete="off" noValidate>
                     <div className="slds-text-heading_small slds-m-bottom_medium">新規取引先</div>
                     <AccountFormFields
                         fieldErrors={fieldErrors}

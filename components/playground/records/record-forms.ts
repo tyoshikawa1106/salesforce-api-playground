@@ -50,7 +50,7 @@ export function normalizeAsciiLowercaseInput(value: string): string {
 }
 
 const accountInputMetaByField: Partial<Record<AccountFieldName, TextFieldMetadata<AccountFieldName>>> = {
-    Name: { autoComplete: "organization" },
+    Name: { autoComplete: "off" },
     Phone: { autoComplete: "tel", inputMode: "tel", type: "tel" },
     Website: { autoComplete: "url", inputMode: "url", normalizeInput: normalizeAsciiLowercaseInput, type: "url" },
     BillingCity: { autoComplete: "address-level2" },
