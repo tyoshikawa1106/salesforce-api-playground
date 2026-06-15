@@ -55,6 +55,7 @@ export function RecycleBinPanel({
                                 className="slds-button slds-button_neutral"
                                 type="button"
                                 onClick={restoreSelectedItems}
+                                disabled={loading}
                             >
                                 復元
                             </button>
