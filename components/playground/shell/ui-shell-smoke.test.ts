@@ -8,7 +8,11 @@ import { GlobalHeader } from "./GlobalHeader";
 import { GlobalHeaderActions } from "./GlobalHeaderActions";
 import { HomeCounts, HomePanel } from "../home/HomePanel";
 import type { HomeCountValues } from "../home/HomePanel";
-import { IntegrationPanel, shouldResetAccountCreateValidation } from "../integration/IntegrationPanel";
+import {
+    IntegrationPanel,
+    shouldResetAccountCreateValidation,
+    shouldShowAccountCreateNameError
+} from "../integration/IntegrationPanel";
 import { LoginPage, SessionLoadingPage } from "./LoginPage";
 import { shouldReplaceLoginNavigation } from "./LoginLink";
 import { Modal, ModalFooter } from "./Modal";
@@ -229,6 +233,29 @@ describe("playground shell smoke rendering", () => {
             accountName: "",
             previousSaving: true,
             saving: true
+        })).toBe(false);
+    });
+
+    it("suppresses transient Integration account validation while saving resets the form", () => {
+        expect(shouldShowAccountCreateNameError({
+            accountName: "",
+            saving: false,
+            showValidation: true
+        })).toBe(true);
+        expect(shouldShowAccountCreateNameError({
+            accountName: "",
+            saving: true,
+            showValidation: true
+        })).toBe(false);
+        expect(shouldShowAccountCreateNameError({
+            accountName: "Acme",
+            saving: false,
+            showValidation: true
+        })).toBe(false);
+        expect(shouldShowAccountCreateNameError({
+            accountName: "",
+            saving: false,
+            showValidation: false
         })).toBe(false);
     });
 

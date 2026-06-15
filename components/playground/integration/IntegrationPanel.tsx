@@ -17,6 +17,18 @@ export function shouldResetAccountCreateValidation({
     return previousSaving && !saving && !accountName.trim();
 }
 
+export function shouldShowAccountCreateNameError({
+    accountName,
+    saving,
+    showValidation
+}: {
+    accountName: string;
+    saving: boolean;
+    showValidation: boolean;
+}) {
+    return showValidation && !saving && !accountName.trim();
+}
+
 export function IntegrationPanel({
     accountForm,
     loading,
@@ -40,7 +52,11 @@ export function IntegrationPanel({
 }) {
     const [showValidation, setShowValidation] = useState(false);
     const previousSaving = useRef(saving);
-    const fieldErrors = showValidation && !accountForm.Name.trim()
+    const fieldErrors = shouldShowAccountCreateNameError({
+        accountName: accountForm.Name,
+        saving,
+        showValidation
+    })
         ? { Name: getRequiredFieldMessage(accountTextFields, "Name") }
         : {};
 
