@@ -196,6 +196,7 @@ describe("record list smoke rendering", () => {
         expect(markup).toContain("slds-is-relative");
         expect(markup).toContain("ごみ箱を読み込んでいます...");
         expect(markup).toContain("slds-assistive-text");
+        expect(markup).toContain("type=\"button\" disabled=\"\">復元</button>");
         expect(markup).not.toContain(">ごみ箱を読み込んでいます...</div>");
     });
 
