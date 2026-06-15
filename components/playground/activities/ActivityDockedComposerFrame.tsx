@@ -86,17 +86,17 @@ export function ActivityDockedComposerFrame({
                 <div className="slds-col_bump-left slds-shrink-none">
                     {mobileModal ? null : (
                         <>
-                            <button className="slds-button slds-button_icon slds-button_icon-bare slds-p-around_xx-small" type="button" title={minimizeTitle} onClick={onToggleMinimized}>
+                            <button className="slds-button slds-button_icon slds-button_icon-bare slds-p-around_xx-small" type="button" title={minimizeTitle} onClick={onToggleMinimized} disabled={saving}>
                                 <UtilityIcon className="slds-button__icon" name="minimize_window" />
                                 <span className="slds-assistive-text">{minimizeTitle}</span>
                             </button>
-                            <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title={expandTitle} onClick={onToggleExpanded}>
+                            <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title={expandTitle} onClick={onToggleExpanded} disabled={saving}>
                                 <UtilityIcon className="slds-button__icon" name={expanded ? "contract_alt" : "expand_alt"} />
                                 <span className="slds-assistive-text">{expandTitle}</span>
                             </button>
                         </>
                     )}
-                    <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title="閉じる" onClick={onCancel}>
+                    <button className="slds-button slds-button_icon slds-button_icon-bare slds-m-left_xx-small slds-p-around_xx-small" type="button" title="閉じる" onClick={onCancel} disabled={saving}>
                         <UtilityIcon className="slds-button__icon" name="close" />
                         <span className="slds-assistive-text">閉じる</span>
                     </button>

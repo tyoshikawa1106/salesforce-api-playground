@@ -29,6 +29,7 @@ export function useRecordMutations({
         onActivitySaved,
         onAccountCreated,
         onContactCreated,
+        saving,
         setSaving,
         showNotice
     });

@@ -104,6 +104,15 @@ describe("activity timeline smoke rendering", () => {
         expect(eventMarkup).toContain("id=\"new-event-composer-title\" title=\"新規行動\">新規行動");
     });
 
+    it("disables docked composer controls while saving", () => {
+        const markup = renderActivityPanel({ activeComposer: "task", saving: true });
+
+        expect(markup).toContain("title=\"最小化\" disabled=\"\"");
+        expect(markup).toContain("title=\"最大化\" disabled=\"\"");
+        expect(markup).toContain("title=\"閉じる\" disabled=\"\"");
+        expect(markup).toContain("type=\"submit\" disabled=\"\">保存</button>");
+    });
+
     it("renders activity timeline entries with record action menus", () => {
         const callActivity = { ...activity, taskSubtype: "Call" } as Extract<Activity, { type: "task" }>;
 

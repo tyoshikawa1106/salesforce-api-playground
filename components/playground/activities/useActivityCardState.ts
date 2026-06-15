@@ -66,6 +66,7 @@ export function useActivityCardState({
         parentId,
         parentPayload,
         parentType,
+        savingActivity,
         setActivities,
         setActivityMessage,
         setEventForm: composerState.setEventForm,

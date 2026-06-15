@@ -142,6 +142,9 @@ export function RecordModals({
         ? modal.mode === "create" ? modal.activityType : modal.record.type
         : null;
     const activityModalLabel = activityModalType === "task" ? "ToDo" : "行動";
+    const closeRecordModal = saving ? () => undefined : actions.onCloseRecordModal;
+    const cancelDelete = saving ? () => undefined : actions.onCancelDelete;
+    const cancelRestore = saving ? () => undefined : actions.onCancelRestore;
 
     useEffect(() => {
         setActivityComposerExpanded(false);
@@ -168,7 +171,7 @@ export function RecordModals({
     return (
         <>
             {modal?.type === "account" ? (
-                <Modal title={modal.mode === "create" ? "新規取引先" : "取引先を編集"} onClose={actions.onCloseRecordModal}>
+                <Modal title={modal.mode === "create" ? "新規取引先" : "取引先を編集"} onClose={closeRecordModal}>
                     <form onSubmit={saveAccount} noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
                             <AccountFormFields
@@ -180,18 +183,18 @@ export function RecordModals({
                                 onChange={onAccountFormChange}
                             />
                         </div>
-                        <ModalFooter saving={saving} onCancel={actions.onCloseRecordModal} />
+                        <ModalFooter saving={saving} onCancel={closeRecordModal} />
                     </form>
                 </Modal>
             ) : null}
 
             {modal?.type === "contact" ? (
-                <Modal title={modal.mode === "create" ? "新規取引先責任者" : "取引先責任者を編集"} onClose={actions.onCloseRecordModal}>
+                <Modal title={modal.mode === "create" ? "新規取引先責任者" : "取引先責任者を編集"} onClose={closeRecordModal}>
                     <form onSubmit={saveContact} noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
                             <ContactFormFields fieldErrors={contactErrors} value={contactForm} accounts={accountOptions} onChange={onContactFormChange} />
                         </div>
-                        <ModalFooter saving={saving} onCancel={actions.onCloseRecordModal} />
+                        <ModalFooter saving={saving} onCancel={closeRecordModal} />
                     </form>
                 </Modal>
             ) : null}
@@ -206,7 +209,7 @@ export function RecordModals({
                     minimized={activityComposerMinimized}
                     saving={saving}
                     statusOptions={picklists?.taskStatusOptions}
-                    onCancel={actions.onCloseRecordModal}
+                    onCancel={closeRecordModal}
                     onChange={onTaskFormChange}
                     onLookupChange={onActivityLookupsChange}
                     onSubmit={saveActivity}
@@ -224,7 +227,7 @@ export function RecordModals({
                     lookups={activityLookups}
                     minimized={activityComposerMinimized}
                     saving={saving}
-                    onCancel={actions.onCloseRecordModal}
+                    onCancel={closeRecordModal}
                     onChange={onEventFormChange}
                     onLookupChange={onActivityLookupsChange}
                     onSubmit={saveActivity}
@@ -234,7 +237,7 @@ export function RecordModals({
             ) : null}
 
             {modal?.type === "activity" && modal.mode === "edit" ? (
-                <Modal title={`${activityModalLabel}を編集`} onClose={actions.onCloseRecordModal}>
+                <Modal title={`${activityModalLabel}を編集`} onClose={closeRecordModal}>
                     <form onSubmit={saveActivity} noValidate>
                         <div className="slds-modal__content slds-p-around_medium playground-activity-modal-content">
                             {activityModalType === "task" ? (
@@ -278,20 +281,20 @@ export function RecordModals({
                                 </div>
                             )}
                         </div>
-                        <ModalFooter className="playground-activity-modal-footer" saving={saving} onCancel={actions.onCloseRecordModal} />
+                        <ModalFooter className="playground-activity-modal-footer" saving={saving} onCancel={closeRecordModal} />
                     </form>
                 </Modal>
             ) : null}
 
             {deleteState ? (
-                <Modal title="削除の確認" onClose={actions.onCancelDelete} narrow>
+                <Modal title="削除の確認" onClose={cancelDelete} narrow>
                     <div className="slds-modal__content slds-p-around_medium">
                         <p>
                             <strong>{deleteState.label}</strong> を削除しますか？ Salesforce からレコードを直接削除します。
                         </p>
                     </div>
                     <div className="slds-modal__footer">
-                        <button className="slds-button slds-button_neutral" type="button" onClick={actions.onCancelDelete}>
+                        <button className="slds-button slds-button_neutral" type="button" onClick={cancelDelete} disabled={saving}>
                             キャンセル
                         </button>
                         <button className="slds-button slds-button_destructive" type="button" onClick={actions.onConfirmDelete} disabled={saving}>
@@ -302,14 +305,14 @@ export function RecordModals({
             ) : null}
 
             {restoreState ? (
-                <Modal title="復元の確認" onClose={actions.onCancelRestore} narrow>
+                <Modal title="復元の確認" onClose={cancelRestore} narrow>
                     <div className="slds-modal__content slds-p-around_medium">
                         <p>
                             <strong>{restoreState.label}</strong> をごみ箱から復元しますか？
                         </p>
                     </div>
                     <div className="slds-modal__footer">
-                        <button className="slds-button slds-button_neutral" type="button" onClick={actions.onCancelRestore}>
+                        <button className="slds-button slds-button_neutral" type="button" onClick={cancelRestore} disabled={saving}>
                             キャンセル
                         </button>
                         <button className="slds-button slds-button_brand" type="button" onClick={actions.onConfirmRestore} disabled={saving}>

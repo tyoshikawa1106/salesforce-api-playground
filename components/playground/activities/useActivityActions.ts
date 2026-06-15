@@ -32,6 +32,7 @@ type UseActivityActionsOptions = {
     parentId: string;
     parentPayload: { parentId: string; parentType: "account" | "contact" };
     parentType: "account" | "contact";
+    savingActivity: boolean;
     taskForm: TaskForm;
     taskStatusOverrides: Record<string, TaskStatusOverride>;
     closeComposer: () => void;
@@ -54,6 +55,7 @@ export function useActivityActions({
     parentId,
     parentPayload,
     parentType,
+    savingActivity,
     setActivities,
     setActivityMessage,
     setEventForm,
@@ -126,6 +128,10 @@ export function useActivityActions({
         }
     ) {
         event.preventDefault();
+        if (savingActivity) {
+            return;
+        }
+
         const validationErrors = options.validate();
 
         options.setFormErrors(validationErrors);
