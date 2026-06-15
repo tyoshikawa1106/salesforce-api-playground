@@ -210,6 +210,8 @@ describe("record form builders", () => {
         );
 
         expect(accountMarkup).toContain("id=\"account-phone\"");
+        expect(accountMarkup).toContain("id=\"account-name\"");
+        expect(accountMarkup).toContain("autoComplete=\"off\"");
         expect(accountMarkup).toContain("type=\"tel\"");
         expect(accountMarkup).toContain("autoComplete=\"tel\"");
         expect(accountMarkup).toContain("inputMode=\"tel\"");

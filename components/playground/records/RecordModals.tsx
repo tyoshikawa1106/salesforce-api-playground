@@ -172,7 +172,7 @@ export function RecordModals({
         <>
             {modal?.type === "account" ? (
                 <Modal title={modal.mode === "create" ? "新規取引先" : "取引先を編集"} onClose={closeRecordModal}>
-                    <form onSubmit={saveAccount} noValidate>
+                    <form onSubmit={saveAccount} autoComplete="off" noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
                             <AccountFormFields
                                 fieldErrors={accountErrors}
@@ -190,7 +190,7 @@ export function RecordModals({
 
             {modal?.type === "contact" ? (
                 <Modal title={modal.mode === "create" ? "新規取引先責任者" : "取引先責任者を編集"} onClose={closeRecordModal}>
-                    <form onSubmit={saveContact} noValidate>
+                    <form onSubmit={saveContact} autoComplete="off" noValidate>
                         <div className="slds-modal__content slds-p-around_medium">
                             <ContactFormFields fieldErrors={contactErrors} value={contactForm} accounts={accountOptions} onChange={onContactFormChange} />
                         </div>
