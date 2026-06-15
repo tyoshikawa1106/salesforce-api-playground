@@ -15,6 +15,7 @@
 | Salesforce OAuth / session / config の共通処理 | `lib/salesforce` |
 | UI と API の request / response 型や path | `lib/playground-api.ts` |
 | 画面仕様や UI 操作の説明 | `docs/ui` |
+| 実装時のチェック観点、開発時の実務確認 | `docs/development` |
 | 開発手順や CI | `docs/setup` |
 | リポジトリ全体の構成や責務境界 | `docs/repository-guide.md`、`docs/codebase/` |
 | token、secret、実 URL、placeholder の扱い | `AGENTS.md`、`docs/setup/local-development.md` |
