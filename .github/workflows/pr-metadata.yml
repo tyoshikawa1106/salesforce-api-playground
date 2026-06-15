@@ -15,6 +15,26 @@ permissions:
   pull-requests: read
 
 jobs:
+  body:
+    name: Check pull request body
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Reject literal escaped newlines
+        env:
+          PR_BODY_JSON: ${{ toJson(github.event.pull_request.body || '') }}
+        run: |
+          set -euo pipefail
+
+          pr_body="$(jq -r . <<< "$PR_BODY_JSON")"
+          if grep -Fq '\n' <<< "$pr_body"; then
+            echo "Pull request body contains literal escaped newline text."
+            echo "Use a body file with real line breaks, then update the PR with gh pr edit --body-file <file>."
+            exit 1
+          fi
+
+          echo "Pull request body does not contain literal escaped newline text."
+
   labels:
     name: Check pull request labels
     runs-on: ubuntu-latest
