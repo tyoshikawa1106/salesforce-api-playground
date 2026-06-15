@@ -113,6 +113,20 @@ describe("activity timeline smoke rendering", () => {
         expect(markup).toContain("type=\"submit\" disabled=\"\">保存</button>");
     });
 
+    it("disables task completion checkbox while status update is pending", () => {
+        const markup = renderActivityPanel({
+            taskStatusOverrides: {
+                [activity.id]: {
+                    pending: true,
+                    previousStatus: "Not Started",
+                    status: "Completed"
+                }
+            }
+        });
+
+        expect(markup).toContain(`id="activity-checkbox-${activity.id}" type="checkbox" disabled="" checked=""`);
+    });
+
     it("renders activity timeline entries with record action menus", () => {
         const callActivity = { ...activity, taskSubtype: "Call" } as Extract<Activity, { type: "task" }>;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { type Dispatch, type FormEvent, type SetStateAction, useCallback } from "react";
+import { type Dispatch, type FormEvent, type SetStateAction, useCallback, useRef } from "react";
 import { buildPlaygroundApiRequest, playgroundApiPaths, type PlaygroundApiRequest } from "@/lib/playground-api";
 import type { ActivityTimelineItem } from "@/lib/salesforce/activities";
 import { apiRequest } from "../utils/api";
@@ -68,6 +68,7 @@ export function useActivityActions({
     taskForm,
     taskStatusOverrides
 }: UseActivityActionsOptions) {
+    const pendingTaskStatusIds = useRef(new Set<string>());
     const loadActivities = useCallback(async () => {
         setLoadingActivities(true);
         try {
@@ -172,6 +173,11 @@ export function useActivityActions({
 
     async function toggleTaskCompleted(activity: Extract<ActivityTimelineItem, { type: "task" }>) {
         const override = taskStatusOverrides[activity.id];
+        if (override?.pending || pendingTaskStatusIds.current.has(activity.id)) {
+            return;
+        }
+
+        pendingTaskStatusIds.current.add(activity.id);
         const currentStatus = override?.status ?? activity.status ?? "Not Started";
         const completed = currentStatus === "Completed";
         const previousStatus = override?.previousStatus ?? activity.status ?? "Not Started";
@@ -180,6 +186,7 @@ export function useActivityActions({
         setTaskStatusOverrides((current) => ({
             ...current,
             [activity.id]: {
+                pending: true,
                 previousStatus,
                 status: nextStatus
             }
@@ -195,6 +202,20 @@ export function useActivityActions({
                     }
                 })
             );
+            setTaskStatusOverrides((current) => {
+                const currentOverride = current[activity.id];
+                if (!currentOverride) {
+                    return current;
+                }
+
+                return {
+                    ...current,
+                    [activity.id]: {
+                        ...currentOverride,
+                        pending: false
+                    }
+                };
+            });
         } catch (error) {
             setTaskStatusOverrides((current) => {
                 const next = { ...current };
@@ -202,6 +223,8 @@ export function useActivityActions({
                 return next;
             });
             setActivityMessage(error instanceof Error ? error.message : "ToDo の状況更新に失敗しました。");
+        } finally {
+            pendingTaskStatusIds.current.delete(activity.id);
         }
     }
 
