@@ -38,6 +38,7 @@ type UseRecordMutationActionsOptions = {
     onAccountCreated?: (accountId: string) => void;
     onContactCreated?: (contactId: string) => void;
     restoreState: RestoreState | null;
+    saving: boolean;
     setIntegrationAccountForm: Dispatch<SetStateAction<AccountForm>>;
     setModal: Dispatch<SetStateAction<ModalState | null>>;
     setDeleteState: Dispatch<SetStateAction<DeleteState | null>>;
@@ -127,6 +128,7 @@ export function useRecordMutationActions({
     onAccountCreated,
     onContactCreated,
     restoreState,
+    saving,
     setIntegrationAccountForm,
     setModal,
     setDeleteState,
@@ -144,6 +146,10 @@ export function useRecordMutationActions({
         runMutation
     }: SaveRecordFormOptions) {
         event.preventDefault();
+        if (saving) {
+            return;
+        }
+
         if (!formIsValid) {
             showNotice({ tone: "error", message: requiredMessage });
             return;
@@ -188,6 +194,9 @@ export function useRecordMutationActions({
 
     async function saveActivity(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (saving) {
+            return;
+        }
 
         const activitySave = getActivitySaveRequest({
             activityLookups,
@@ -222,6 +231,10 @@ export function useRecordMutationActions({
 
     async function createIntegrationAccount(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (saving) {
+            return;
+        }
+
         if (!integrationAccountForm.Name.trim()) {
             showNotice({ tone: "error", message: accountNameRequiredMessage });
             return;
@@ -240,7 +253,7 @@ export function useRecordMutationActions({
     }
 
     async function confirmDelete() {
-        if (!deleteState) {
+        if (!deleteState || saving) {
             return;
         }
 
@@ -266,7 +279,7 @@ export function useRecordMutationActions({
     }
 
     async function confirmRestore() {
-        if (!restoreState) {
+        if (!restoreState || saving) {
             return;
         }
 

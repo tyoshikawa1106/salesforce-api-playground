@@ -675,4 +675,16 @@ describe("playground shell smoke rendering", () => {
         expect(markup).toContain("aria-label=\"キャンセルして閉じる\"");
     });
 
+    it("disables modal footer actions while saving", () => {
+        const markup = renderToStaticMarkup(
+            createElement(ModalFooter, {
+                saving: true,
+                onCancel: noop
+            })
+        );
+
+        expect(markup).toContain("aria-label=\"キャンセルして閉じる\" disabled=\"\"");
+        expect(markup).toContain("type=\"submit\" disabled=\"\">保存中...");
+    });
+
 });

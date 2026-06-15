@@ -153,7 +153,7 @@ export function Modal({
 export function ModalFooter({ className = "", saving, onCancel }: { className?: string; saving: boolean; onCancel: () => void }) {
     return (
         <div className={`slds-modal__footer ${className}`.trim()}>
-            <button className="slds-button slds-button_neutral" type="button" aria-label="キャンセルして閉じる" onClick={onCancel}>
+            <button className="slds-button slds-button_neutral" type="button" aria-label="キャンセルして閉じる" onClick={onCancel} disabled={saving}>
                 キャンセル
             </button>
             <button className="slds-button slds-button_brand" type="submit" disabled={saving}>
