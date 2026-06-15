@@ -1,0 +1,66 @@
+name: PR metadata
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - ready_for_review
+      - synchronize
+      - labeled
+      - unlabeled
+
+permissions:
+  pull-requests: read
+
+jobs:
+  body:
+    name: Check pull request body
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Reject literal escaped newlines
+        env:
+          PR_BODY_JSON: ${{ toJson(github.event.pull_request.body || '') }}
+        run: |
+          set -euo pipefail
+
+          pr_body="$(jq -r . <<< "$PR_BODY_JSON")"
+          escaped_newline_count="$(
+            awk '{
+              rest = $0
+              while (index(rest, "\\n") > 0) {
+                count++
+                rest = substr(rest, index(rest, "\\n") + 2)
+              }
+            } END { print count + 0 }' <<< "$pr_body"
+          )"
+          if [ "$escaped_newline_count" -ge 3 ]; then
+            echo "Pull request body contains repeated literal escaped newline text."
+            echo "Use a body file with real line breaks, then update the PR with gh pr edit --body-file <file>."
+            exit 1
+          fi
+
+          echo "Pull request body escaped newline count: $escaped_newline_count"
+
+  labels:
+    name: Check pull request labels
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Require at least one label
+        env:
+          LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
+        run: |
+          set -euo pipefail
+
+          label_count="$(jq 'length' <<< "$LABELS_JSON")"
+          if [ "$label_count" -eq 0 ]; then
+            echo "Pull requests must have at least one label before review or merge."
+            echo "Add an existing type:* or area:* label that matches the change."
+            exit 1
+          fi
+
+          echo "Pull request labels:"
+          jq -r '.[].name | "- " + .' <<< "$LABELS_JSON"
