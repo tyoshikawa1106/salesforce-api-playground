@@ -1,0 +1,37 @@
+name: PR metadata
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - ready_for_review
+      - synchronize
+      - labeled
+      - unlabeled
+
+permissions:
+  pull-requests: read
+
+jobs:
+  labels:
+    name: Check pull request labels
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Require at least one label
+        env:
+          LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
+        run: |
+          set -euo pipefail
+
+          label_count="$(jq 'length' <<< "$LABELS_JSON")"
+          if [ "$label_count" -eq 0 ]; then
+            echo "Pull requests must have at least one label before review or merge."
+            echo "Add an existing type:* or area:* label that matches the change."
+            exit 1
+          fi
+
+          echo "Pull request labels:"
+          jq -r '.[].name | "- " + .' <<< "$LABELS_JSON"
