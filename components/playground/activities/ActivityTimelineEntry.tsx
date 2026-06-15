@@ -45,6 +45,7 @@ export function ActivityTimelineEntry({
     const effectiveTaskStatus = isTask ? statusOverride?.status ?? activity.status ?? "" : "";
     const isCompletedTask = effectiveTaskStatus === "Completed";
     const showTaskCheckbox = isTask && !history;
+    const taskStatusPending = Boolean(statusOverride?.pending);
     const date = isTask ? formatTaskDueDate(activity.date) : formatDate(activity.startDateTime);
     const title = activity.subject || (isTask ? "ToDo" : "行動");
     const itemClassName = isTask ? "slds-timeline__item_task" : "slds-timeline__item_event";
@@ -87,7 +88,7 @@ export function ActivityTimelineEntry({
                                             id={`activity-checkbox-${activity.id}`}
                                             type="checkbox"
                                             checked={isCompletedTask}
-                                            disabled={preview}
+                                            disabled={preview || taskStatusPending}
                                             onChange={() => onToggleTaskCompleted(activity)}
                                         />
                                         <label className="slds-checkbox__label" htmlFor={`activity-checkbox-${activity.id}`}>

@@ -4,6 +4,7 @@ import { buildDateValue } from "./activity-date-utils";
 import { formatDateOnly } from "../utils/formatting";
 
 export type TaskStatusOverride = {
+    pending?: boolean;
     previousStatus: string;
     status: string;
 };
