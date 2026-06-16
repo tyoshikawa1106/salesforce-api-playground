@@ -40,6 +40,7 @@
 | `.github/scripts/write-coverage-summary.mjs` | coverage 結果を GitHub Actions summary 向けに整形する。 |
 | `.github/workflows/auto-assign.yml` | Issue / PR の自動 assign workflow を定義する。 |
 | `.github/workflows/ci.yml` | lint、SLDS lint、typecheck、test、build などの CI workflow を定義する。 |
+| `.github/workflows/pr-metadata.yml` | PR 本文の escaped newline と label 設定を検査する workflow を定義する。 |
 
 ## `app`
 
@@ -172,15 +173,72 @@
 
 | ファイル | 用途 |
 | --- | --- |
+| `docs/_config.yml` | GitHub Pages / Jekyll 用設定を定義する。 |
 | `docs/index.md` | GitHub Pages ドキュメントサイトの入口を定義する。 |
 | `docs/repository-guide.md` | リポジトリ全体の入口と主要ディレクトリを示す。 |
 | `docs/codebase/directories.md` | ディレクトリ構成と責務を示す。 |
 | `docs/codebase/files.md` | 主要ファイル一覧を示す。 |
 | `docs/codebase/placement.md` | 新しい実装やドキュメントの配置判断を示す。 |
 | `docs/api/index.md` | API docs の入口を定義する。 |
+| `docs/api/accounts.md` | Account API の仕様を示す。 |
+| `docs/api/activities.md` | 活動 API の仕様を示す。 |
+| `docs/api/auth.md` | Salesforce OAuth / session API の仕様を示す。 |
+| `docs/api/common.md` | API 共通仕様を示す。 |
+| `docs/api/contacts.md` | Contact API の仕様を示す。 |
 | `docs/api/counts.md` | 件数 API の仕様を示す。 |
+| `docs/api/integration.md` | 外部連携 API の仕様を示す。 |
 | `docs/api/picklist-values.md` | 選択リスト値 API の仕様を示す。 |
+| `docs/api/recycle-bin.md` | Recycle Bin API の仕様を示す。 |
+| `docs/api/search.md` | Salesforce 検索 API の仕様を示す。 |
 | `docs/deployment/index.md` | deployment docs の入口を定義する。 |
+| `docs/deployment/heroku.md` | Heroku デプロイと運用確認を示す。 |
+| `docs/development/index.md` | 開発 docs の入口を定義する。 |
+| `docs/development/checklist.md` | 実装時に確認する開発チェックリストを示す。 |
 | `docs/setup/index.md` | 開発・運用 docs の入口を定義する。 |
+| `docs/setup/ci.md` | CI workflow とローカル確認の選び方を示す。 |
+| `docs/setup/cli-commands.md` | よく使う CLI コマンドを示す。 |
+| `docs/setup/github.md` | Issue、PR、Project、merge、Release notes の GitHub 運用を示す。 |
+| `docs/setup/heroku-cli.md` | Heroku CLI の確認コマンドを示す。 |
+| `docs/setup/local-development.md` | ローカル開発環境の準備を示す。 |
+| `docs/setup/salesforce-cli.md` | Salesforce CLI の準備と使い方を示す。 |
 | `docs/setup/salesforce-integration-client-credentials.md` | Client Credentials Flow 用の Integration ユーザー設定を示す。 |
 | `docs/ui/index.md` | 画面 docs の入口を定義する。 |
+| `docs/ui/account-delete.md` | Account 削除画面の仕様を示す。 |
+| `docs/ui/account-edit.md` | Account 編集画面の仕様を示す。 |
+| `docs/ui/account-list.md` | Account 一覧画面の仕様を示す。 |
+| `docs/ui/account-record.md` | Account 詳細画面の仕様を示す。 |
+| `docs/ui/activity-delete.md` | 活動削除画面の仕様を示す。 |
+| `docs/ui/activity-edit.md` | 活動編集画面の仕様を示す。 |
+| `docs/ui/activity-record.md` | 活動詳細画面の仕様を示す。 |
+| `docs/ui/contact-delete.md` | Contact 削除画面の仕様を示す。 |
+| `docs/ui/contact-edit.md` | Contact 編集画面の仕様を示す。 |
+| `docs/ui/contact-list.md` | Contact 一覧画面の仕様を示す。 |
+| `docs/ui/contact-record.md` | Contact 詳細画面の仕様を示す。 |
+| `docs/ui/home.md` | Home 画面の仕様を示す。 |
+| `docs/ui/integration.md` | Integration 画面の仕様を示す。 |
+| `docs/ui/recycle-bin.md` | Recycle Bin 画面の仕様を示す。 |
+| `docs/knowledge/README.md` | 開発ナレッジの入口を定義する。 |
+| `docs/knowledge/ai-agent-instructions.md` | AI エージェント向け指示の考え方を示す。 |
+| `docs/knowledge/git-flow.md` | Git-flow の概念を示す。 |
+| `docs/knowledge/github-connector-usage.md` | GitHub Connector の使いどころを示す。 |
+| `docs/knowledge/github-flow.md` | GitHub Flow の概念を示す。 |
+| `docs/knowledge/github-image-assets.md` | GitHub 上で扱う画像 asset の考え方を示す。 |
+| `docs/knowledge/github-platform-advanced.md` | GitHub Platform の発展的な概念を示す。 |
+| `docs/knowledge/github-platform-concepts.md` | GitHub Platform の基本概念を示す。 |
+| `docs/knowledge/github-pr-metadata.md` | PR body と label metadata の崩れを防ぐ考え方を示す。 |
+| `docs/knowledge/heroku-button.md` | Heroku Button の概念を示す。 |
+| `docs/knowledge/heroku-ci.md` | Heroku CI の概念を示す。 |
+| `docs/knowledge/heroku-pipeline.md` | Heroku Pipeline の概念を示す。 |
+| `docs/knowledge/heroku-slugignore.md` | `.slugignore` の考え方を示す。 |
+| `docs/knowledge/nextjs-development.md` | Next.js 開発の考え方を示す。 |
+| `docs/knowledge/production-readiness.md` | production readiness の観点を示す。 |
+| `docs/knowledge/project-setup-guide.md` | プロジェクト初期構築の考え方を示す。 |
+| `docs/knowledge/react-component-development.md` | React コンポーネント開発の考え方を示す。 |
+| `docs/knowledge/react-component-organization.md` | React コンポーネント整理の考え方を示す。 |
+| `docs/knowledge/repository-ignore-rules.md` | `.gitignore` / ignore ルールの考え方を示す。 |
+| `docs/knowledge/repository-text-normalization.md` | リポジトリ内テキスト正規化の考え方を示す。 |
+| `docs/knowledge/salesforce-lightning-experience-architecture.md` | Lightning Experience の画面構造理解を示す。 |
+| `docs/knowledge/slds-development.md` | SLDS 開発の考え方を示す。 |
+| `docs/knowledge/spa-page-routing.md` | SPA 風画面遷移と URL routing の考え方を示す。 |
+| `docs/knowledge/technology-stack.md` | 技術スタックの概念整理を示す。 |
+| `docs/knowledge/typescript-development.md` | TypeScript 開発の考え方を示す。 |
