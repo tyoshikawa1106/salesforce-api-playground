@@ -17,7 +17,7 @@ describe("next security headers", () => {
         expect(getHeaderValue(route.headers, "Permissions-Policy")).toBe("camera=(), geolocation=(), microphone=()");
     });
 
-    it("sets a CSP that preserves Next and SLDS browser compatibility", async () => {
+    it("sets a CSP that preserves Next and SLDS browser compatibility without production unsafe eval", async () => {
         const routes = await nextConfig.headers();
         const route = routes.find((candidate) => candidate.source === "/:path*");
         const csp = getHeaderValue(route.headers, "Content-Security-Policy");
@@ -28,6 +28,7 @@ describe("next security headers", () => {
         expect(csp).toContain("frame-ancestors 'none'");
         expect(csp).toContain("img-src 'self' data: blob:");
         expect(csp).toContain("style-src 'self' 'unsafe-inline'");
-        expect(csp).toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+        expect(csp).toContain("script-src 'self' 'unsafe-inline'");
+        expect(csp).not.toContain("'unsafe-eval'");
     });
 });
