@@ -18,6 +18,8 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 - `docs:` や `fix:` などの prefix は付けない。
 - 作業対象、現状、困っていること、期待する状態が分かるように書く。
 - PRがIssueを完了する場合は、PR本文に `Closes #<番号>` を書く。
+- 作成時に既存 label から内容に合うものを付ける。
+- 複数行本文を CLI から作成・更新する場合は、実改行を書いた本文ファイルを `--body-file` で渡す。
 
 ## PR
 
@@ -25,6 +27,7 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 - type は `feat`、`fix`、`docs`、`test`、`refactor`、`style`、`ci`、`chore` から選ぶ。
 - 通常開発ではローカルコミットまで行い、PR はユーザーが明示した場合だけ作成する。
 - PR を作成する場合は draft PR を作成する。
+- PR 作成時に既存 label から内容に合うものを 1 つ以上付ける。
 - CI が pass したら Ready for review にする。
 - CI が fail した場合は draft のまま修正する。
 
@@ -39,6 +42,10 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 
 確認結果は、実行したコマンドと結果を表で書きます。
 
+複数行 Markdown 本文は、shell 引数の `\n` で組み立てず、実改行を書いた本文ファイルを `--body-file` で渡します。作成・更新後は `gh pr view --json body` などで保存結果を確認し、GitHub 上で `\n` が文字列として繰り返し残っていないことを確認します。
+
+PR body に `\n` が文字列として繰り返し残っている場合や、PR label が空の場合は、`PR metadata` workflow が失敗します。Ready for review や merge の前に本文または label を修正します。
+
 ## Labels
 
 | 種類 | 例 |
@@ -46,6 +53,8 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 | 種別 | `documentation`, `enhancement`, `bug` |
 | 領域 | `area:docs`, `area:ui`, `area:salesforce`, `area:github` |
 | 作業 | `type:refactor`, `type:test`, `type:maintenance` |
+
+PR は label が 1 つもない状態にしません。迷う場合は `type:*` と、必要に応じて `area:*` を優先して選びます。適切な既存 label がない場合は、新規 label を作る前に確認します。
 
 ## Milestone
 
@@ -61,8 +70,8 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 - Issue / PR は Project `Salesforce API Playground` に追加する。
 - Issue と PR の milestone は揃える。
 - Project 追加に失敗した場合は、最終報告に未設定理由を書く。
-- Project 追加状況を確認する場合は、対象 Issue / PR の番号、URL、node ID から対象 item だけを直接確認する。Project 全件またはそれに近い件数を取得してから絞り込む確認は行わない。
-- 対象 item を直接確認できない場合は、`gh project item-add 1 --owner @me --url <URL>` の成功結果をもって追加操作済みとし、一覧での厳密確認は未実施として報告する。
+- エージェントが手動で Project 追加状況を確認する場合は、対象 Issue / PR の番号、URL、node ID から対象 item だけを直接確認する。Project 全件またはそれに近い件数を取得してから絞り込む確認は行わない。
+- エージェントの手動確認で対象 item を直接確認できない場合は、`gh project item-add 1 --owner @me --url <URL>` の成功結果をもって追加操作済みとし、一覧での厳密確認は未実施として報告する。
 
 ## Codex作業
 
