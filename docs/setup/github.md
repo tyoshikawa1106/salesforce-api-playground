@@ -70,6 +70,7 @@ PR は label が 1 つもない状態にしません。迷う場合は `type:*` 
 - Issue / PR は Project `Salesforce API Playground` に追加する。
 - Issue と PR の milestone は揃える。
 - Project 追加に失敗した場合は、最終報告に未設定理由を書く。
+- workflow の Done 更新は `gh project item-add --format json` の戻り値から対象 item id を取得し、Project 全体の一覧取得に依存しない。
 - エージェントが手動で Project 追加状況を確認する場合は、対象 Issue / PR の番号、URL、node ID から対象 item だけを直接確認する。Project 全件またはそれに近い件数を取得してから絞り込む確認は行わない。
 - エージェントの手動確認で対象 item を直接確認できない場合は、`gh project item-add 1 --owner @me --url <URL>` の成功結果をもって追加操作済みとし、一覧での厳密確認は未実施として報告する。
 

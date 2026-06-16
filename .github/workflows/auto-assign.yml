@@ -111,11 +111,7 @@ jobs:
       - name: Mark issue as Done
         if: env.GH_TOKEN != ''
         run: |
-          item_id="$(gh project item-list "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --format json --limit 1000 --jq ".items[] | select(.content.url == \"$ISSUE_URL\") | .id" | head -n 1)"
-
-          if [ -z "$item_id" ]; then
-            item_id="$(gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL" --format json --jq ".id")"
-          fi
+          item_id="$(gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL" --format json --jq ".id")"
 
           gh project item-edit \
             --id "$item_id" \
@@ -143,11 +139,7 @@ jobs:
       - name: Mark pull request as Done
         if: env.GH_TOKEN != ''
         run: |
-          item_id="$(gh project item-list "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --format json --limit 1000 --jq ".items[] | select(.content.url == \"$PR_URL\") | .id" | head -n 1)"
-
-          if [ -z "$item_id" ]; then
-            item_id="$(gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$PR_URL" --format json --jq ".id")"
-          fi
+          item_id="$(gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$PR_URL" --format json --jq ".id")"
 
           gh project item-edit \
             --id "$item_id" \
