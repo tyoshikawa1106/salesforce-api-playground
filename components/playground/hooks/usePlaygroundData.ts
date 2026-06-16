@@ -6,6 +6,7 @@ import type { SessionInfo } from "@/lib/playground-api";
 import type { SearchResultItem } from "@/lib/salesforce/records";
 import { apiRequest, PlaygroundApiError } from "../utils/api";
 import { getSearchResultStatePatch } from "../utils/playground-data-state";
+import { createLatestRequestTracker } from "../utils/latest-request";
 import type { Account, ActiveTab, Activity, Contact, Notice, RecycleBinItem } from "../utils/types";
 import { usePlaygroundSelection } from "./usePlaygroundSelection";
 
@@ -127,6 +128,7 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     const [recycleBinItems, setRecycleBinItems] = useState<RecycleBinItem[]>([]);
     const [userCounts, setUserCounts] = useState<ConnectedPlaygroundData["userCounts"]>({ active: 0 });
     const [loading, setLoading] = useState(true);
+    const [requestTracker] = useState(createLatestRequestTracker);
     const previousViewKeyRef = useRef<string | null>(null);
     const {
         accountOptions,
@@ -188,28 +190,47 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
     }, [resetConnectedState, showNotice]);
 
     const loadAll = useCallback(async () => {
+        const request = requestTracker.start();
         setLoading(true);
         try {
             const nextSession = await loadSession();
+            if (!request.isCurrent()) {
+                return;
+            }
+
             if (!nextSession.connected) {
                 resetConnectedState();
                 return;
             }
             setSession(nextSession);
 
-            applyConnectedData(await loadConnectedPlaygroundData());
+            const data = await loadConnectedPlaygroundData();
+            if (!request.isCurrent()) {
+                return;
+            }
+
+            applyConnectedData(data);
         } catch (error) {
-            handleLoadError(error);
+            if (request.isCurrent()) {
+                handleLoadError(error);
+            }
         } finally {
-            setLoading(false);
+            if (request.isCurrent()) {
+                setLoading(false);
+            }
         }
-    }, [applyConnectedData, handleLoadError, resetConnectedState]);
+    }, [applyConnectedData, handleLoadError, requestTracker, resetConnectedState]);
 
     const refreshActiveView = useCallback(async () => {
+        const request = requestTracker.start();
         setLoading(true);
         try {
             if (activeTab === "home") {
                 const data = await loadHomeData();
+                if (!request.isCurrent()) {
+                    return;
+                }
+
                 setActivityCounts(data.activityCounts);
                 setRecordCounts(data.recordCounts);
                 setRecycleBinItems(data.recycleBinItems);
@@ -218,24 +239,43 @@ export function usePlaygroundData({ showNotice }: UsePlaygroundDataOptions) {
             }
 
             if (activeTab === "accounts") {
-                applyRecordViewData(await loadRecordViewData());
+                const data = await loadRecordViewData();
+                if (!request.isCurrent()) {
+                    return;
+                }
+
+                applyRecordViewData(data);
                 return;
             }
 
             if (activeTab === "contacts") {
-                applyRecordViewData(await loadRecordViewData());
+                const data = await loadRecordViewData();
+                if (!request.isCurrent()) {
+                    return;
+                }
+
+                applyRecordViewData(data);
                 return;
             }
 
             if (activeTab === "recycleBin") {
-                setRecycleBinItems(await loadRecycleBinData());
+                const items = await loadRecycleBinData();
+                if (!request.isCurrent()) {
+                    return;
+                }
+
+                setRecycleBinItems(items);
             }
         } catch (error) {
-            handleLoadError(error);
+            if (request.isCurrent()) {
+                handleLoadError(error);
+            }
         } finally {
-            setLoading(false);
+            if (request.isCurrent()) {
+                setLoading(false);
+            }
         }
-    }, [activeTab, applyRecordViewData, handleLoadError]);
+    }, [activeTab, applyRecordViewData, handleLoadError, requestTracker]);
 
     const changeTab = useCallback((nextTab: ActiveTab) => {
         selectTab(nextTab);
