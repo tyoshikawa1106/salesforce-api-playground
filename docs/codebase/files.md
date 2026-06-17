@@ -194,10 +194,10 @@
 | `docs/deployment/heroku-rules.md` | Heroku デプロイと運用確認ルールを示す。 |
 | `docs/development/index.md` | 開発 docs の入口を定義する。 |
 | `docs/development/checklist.md` | 実装時に確認する開発チェックリストを示す。 |
+| `docs/development/github-rules.md` | Issue、PR、Project、merge、Release notes の GitHub 運用ルールを示す。 |
 | `docs/setup/index.md` | 開発・運用 docs の入口を定義する。 |
 | `docs/setup/ci.md` | CI workflow とローカル確認の選び方を示す。 |
 | `docs/setup/cli-commands.md` | よく使う CLI コマンドを示す。 |
-| `docs/development/github-rules.md` | Issue、PR、Project、merge、Release notes の GitHub 運用ルールを示す。 |
 | `docs/setup/heroku-cli.md` | Heroku CLI の確認コマンドを示す。 |
 | `docs/setup/local-development.md` | ローカル開発環境の準備を示す。 |
 | `docs/setup/salesforce-cli.md` | Salesforce CLI の準備と使い方を示す。 |
