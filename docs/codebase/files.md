@@ -38,9 +38,7 @@
 | `.github/release.yml` | GitHub Releases の自動生成設定を定義する。 |
 | `.github/scripts/scan-sensitive-values.mjs` | 秘密情報らしい値が混入していないか検査する。 |
 | `.github/scripts/write-coverage-summary.mjs` | coverage 結果を GitHub Actions summary 向けに整形する。 |
-| `.github/workflows/auto-assign.yml` | Issue / PR の自動 assign workflow を定義する。 |
 | `.github/workflows/ci.yml` | lint、SLDS lint、typecheck、test、build などの CI workflow を定義する。 |
-| `.github/workflows/pr-metadata.yml` | PR 本文の escaped newline と label 設定を検査する workflow を定義する。 |
 
 ## `app`
 
