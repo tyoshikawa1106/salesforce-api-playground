@@ -13,7 +13,6 @@ changelog:
     - title: テスト / 品質
       labels:
         - area:testing
-        - type:test
     - title: UI / SLDS
       labels:
         - area:ui
@@ -26,7 +25,7 @@ changelog:
     - title: GitHub / 保守
       labels:
         - area:github
-        - type:maintenance
+        - maintenance
         - chore
     - title: その他
       labels:

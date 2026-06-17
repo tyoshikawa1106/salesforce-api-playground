@@ -54,11 +54,13 @@ PR body に `\n` が文字列として繰り返し残っている場合や、PR 
 
 | 種類 | 例 |
 | --- | --- |
-| 種別 | `documentation`, `enhancement`, `bug` |
+| 種別 | `bug`, `enhancement`, `documentation`, `question` |
 | 領域 | `area:docs`, `area:ui`, `area:salesforce`, `area:github` |
-| 作業 | `type:refactor`, `type:test`, `type:maintenance` |
+| 作業 | `maintenance`, `refactor`, `chore` |
 
-PR は label が 1 つもない状態にしません。迷う場合は `type:*` と、必要に応じて `area:*` を優先して選びます。適切な既存 label がない場合は、新規 label を作る前に確認します。
+`area:*` は対象領域を表す場合だけ付けます。`documentation` と `area:docs` のように種別と領域が重なる場合は、主目的が種別の分類なら `documentation`、対象領域を明示したい場合だけ `area:docs` を追加します。
+
+PR は label が 1 つもない状態にしません。迷う場合は GitHub 標準 label または `maintenance` から主目的に合うものを 1 つ選び、対象領域が明確な場合だけ `area:*` を追加します。適切な既存 label がない場合は、新規 label を作る前に確認します。
 
 ## Milestone
 
