@@ -96,7 +96,7 @@ Authorization Code Flow の接続 API は [接続と認証](docs/api/auth.md)、
 
 ## デプロイ方法
 
-Heroku は GitHub `main` への merge を起点に Staging へ反映し、確認後に Heroku Pipeline で Production へ promote する運用です。詳細は [Heroku デプロイ](docs/deployment/heroku.md) を参照します。
+Heroku は GitHub `main` への merge を起点に Staging へ反映し、確認後に Heroku Pipeline で Production へ promote する運用です。詳細は [Heroku ルール](docs/deployment/heroku-rules.md) を参照します。
 
 README 先頭の Heroku Button は、通常開発のデプロイ導線ではなく、このリポジトリを自分の Heroku アカウントで試すための初回作成用です。
 

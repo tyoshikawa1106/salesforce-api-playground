@@ -12,9 +12,8 @@
 
 ### Workflow
 
-- [GitHub](github.md)
 - [CI](ci.md)
 
 ### Deploy
 
-- [Heroku デプロイ](../deployment/heroku.md)
+- [Heroku ルール](../deployment/heroku-rules.md)

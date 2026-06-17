@@ -31,19 +31,25 @@
 - Salesforce record id、object API name、field API name などを受け取る API は、既存の request security helper や allowlist を優先する。
 - 外部入力は形式検証、権限確認、エラーの sanitize を処理前に行う。
 - 権限不足や validation error は、ユーザーが次に何を確認すればよいかが分かる文言にする。ただし秘密情報、内部例外、Salesforce の token / endpoint 実値は表示しない。
+- URL の query / path に外部入力や Salesforce record id を入れる場合は、`URLSearchParams` または `encodeURIComponent` でエンコードする。
+- OAuth / Salesforce endpoint URL は検証済みの HTTPS origin を使う。
 
 ## Salesforce CRUD
 
+- Salesforce API 呼び出しは原則 `jsforce` を利用し、Salesforce 認証と API 呼び出しは `jsforce.Connection` で一元化する。
+- Salesforce のデータ操作は `services/salesforce` 配下に集約する。OAuth、session、config、型定義などの共通処理は `lib/salesforce` 配下に置く。
 - CRUD / SOQL / SOSL を追加または変更する場合は、処理前に対象オブジェクト権限を `describe()` などで確認する。
 - CRUD では、オブジェクト権限だけでなく、対象フィールドの参照、作成、更新可否も field metadata などで確認する。
 - クライアントから送られた field、record id、object API name、payload をそのまま信用しない。
 - SOQL / SOSL は Salesforce がサポートする構文だけを使い、SQL 由来の未確認構文を混ぜない。
+- SOQL / SOSL の unit test は、生成文字列の期待値だけでなく、Salesforce で使えない構文を出さない観点も必要に応じて追加する。
 - 実 Salesforce 接続が必要な確認は Codex が秘密情報を読まず、ユーザー側の手動確認項目として扱う。
 
 ## CSS / SLDS
 
 - CSS / UI 実装は SLDS1 のコンポーネントとユーティリティを優先する。
 - SLDS 構造が不明な場合は、まずローカルの `@salesforce-ux/design-system` と既存実装を確認する。
+- 標準の HTML 構造、クラス名、アクセシビリティ属性が不明な場合のみ、公式サイト `https://v1.lightningdesignsystem.com` の Component Blueprints / 該当コンポーネントページを必要最小限参照する。
 - Normalize CSS、CSS reset、global element selector など全体に影響する CSS 初期化は、必要性、影響範囲、導入位置、確認方法を整理してから扱う。
 - CSS 初期化のために新しい dependency を追加する場合は、事前にユーザー承認を得る。
 - `app/globals.css` に追加する CSS は、広すぎる selector を避け、`playground-*` や `heroku-*` など用途が分かるクラスに絞る。

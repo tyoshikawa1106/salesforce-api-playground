@@ -43,7 +43,7 @@ docs/knowledge/
 | `components/` | UI コンポーネント、hooks、画面側の状態管理 |
 | `lib/` | 設定、session、validation、共通 utility、型 |
 | `services/` | 外部 API、DB、業務データ操作など副作用を持つ処理 |
-| `docs/setup/` | ローカル開発、GitHub、CI、外部サービス、デプロイ |
+| `docs/setup/` | ローカル開発、CI、外部サービス設定 |
 | `docs/knowledge/` | 技術理解、比較、再利用する開発ナレッジ |
 | `.github/` | workflow、Issue template、PR template |
 
@@ -67,7 +67,7 @@ docs/knowledge/
 | `docs/index.md` | docs 全体の入口 |
 | `docs/repository-guide.md` | ディレクトリと主要ファイルの用途 |
 | `docs/setup/local-development.md` | ローカル環境、起動、確認コマンド |
-| `docs/setup/github.md` | GitHub Flow、Issue、PR、Project、milestone |
+| `docs/development/github-rules.md` | GitHub Flow、Issue、PR、Project、milestone |
 | `docs/setup/ci.md` | CI の確認内容とローカル確認 |
 | `docs/knowledge/README.md` | 開発ナレッジの入口 |
 | `.github/workflows/ci.yml` | docs-only とコード変更の確認を分ける |
@@ -158,7 +158,7 @@ README は入口として簡潔に保ち、詳細は `docs` へ置きます。
 | `AGENTS.md` | Codex / 開発エージェントが従う作業ルール |
 | `docs/index.md` | docs 全体の入口 |
 | `docs/repository-guide.md` | リポジトリ構成、責務境界、配置判断 |
-| `docs/setup/*.md` | ローカル開発、外部サービス設定、GitHub、CI、手動確認 |
+| `docs/setup/*.md` | ローカル開発、外部サービス設定、CI、手動確認 |
 | `docs/knowledge/*.md` | 技術理解、比較、再利用する開発ナレッジ |
 
 ## GitHub Flow と CI
