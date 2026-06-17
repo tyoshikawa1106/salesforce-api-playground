@@ -205,7 +205,7 @@ Release notes は、merge 履歴の全文ではなく、利用者や運用者が
 
 GitHub の自動 Release notes は、PR の label によってカテゴリ分けできます。
 
-このリポジトリでは `.github/release.yml` で、`documentation`、`area:docs`、`area:github`、`type:maintenance` などをカテゴリに対応させています。
+このリポジトリでは `.github/release.yml` で、`documentation`、`area:docs`、`area:github`、`maintenance` などをカテゴリに対応させています。
 
 そのため、PR 作成時点で適切な label を付けておくことが Release notes の品質につながります。Release 作成時に分類を直すより、PR の段階で意味のある label を付ける方が安定します。
 

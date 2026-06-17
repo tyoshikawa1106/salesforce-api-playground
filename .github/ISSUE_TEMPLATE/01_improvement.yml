@@ -2,7 +2,6 @@ name: 機能・改善
 description: 機能追加、UI、ドキュメント、運用の改善を記録する
 labels:
   - enhancement
-  - type:improvement
 body:
   - type: textarea
     id: memo

@@ -14,7 +14,7 @@ Pull Request は差分だけでなく、title、body、label、milestone、Proje
 
 Label は、PR の種類や影響範囲を一覧で判別するための軽い分類である。title や body を読めば分かる情報でも、label があると review queue、Project、release note、後日の検索で扱いやすくなる。
 
-PR に label がない状態は、分類が未完了であることを示す。特に小さな変更でも、`type:*` のような変更種別や `area:*` のような影響領域を付けておくと、後から変更履歴を見たときに判断しやすい。
+PR に label がない状態は、分類が未完了であることを示す。特に小さな変更でも、GitHub 標準 label や `maintenance` で主目的を示し、必要に応じて `area:*` で対象領域を示しておくと、後から変更履歴を見たときに判断しやすい。
 
 ## 確認の考え方
 
