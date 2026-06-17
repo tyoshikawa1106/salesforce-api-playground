@@ -9,6 +9,7 @@
 | `.editorconfig` | エディタ間の文字コード、改行、インデントを揃える。 |
 | `.gitattributes` | Git の属性設定を管理する。 |
 | `.gitignore` | Git 管理しないローカル生成物や秘密情報ファイルを定義する。 |
+| `.slugignore` | Heroku slug に含めないファイルやディレクトリを定義する。 |
 | `.env.example` | ローカル環境変数のサンプルと必要な設定名を示す。 |
 | `AGENTS.md` | Codex / エージェント作業時の共通ルールを定義する。 |
 | `LICENSE` | リポジトリのライセンスを示す。 |
@@ -16,7 +17,6 @@
 | `README.md` | プロジェクト概要、セットアップ、運用入口を示す。 |
 | `app.json` | Heroku Button でアプリを作成するための設定を定義する。 |
 | `eslint.config.mjs` | ESLint の設定を定義する。 |
-| `next-env.d.ts` | Next.js が生成、利用する TypeScript 型参照を置く。 |
 | `next.config.mjs` | Next.js の設定を定義する。 |
 | `next.config.test.mjs` | Next.js 設定の headers などを確認するテストを定義する。 |
 | `package-lock.json` | npm 依存関係の解決結果を固定する。 |
@@ -45,6 +45,7 @@
 | ファイル | 用途 |
 | --- | --- |
 | `app/globals.css` | SLDS CSS 読み込みとアプリ全体の CSS を定義する。 |
+| `app/icon.svg` | アプリの favicon / icon を定義する。 |
 | `app/layout.tsx` | アプリ全体の HTML layout と metadata を定義する。 |
 | `app/page.tsx` | `/` のトップページ入口を定義する。 |
 | `app/playground-page.tsx` | 各ページ入口から共有する Playground 表示処理を定義する。 |
@@ -85,6 +86,7 @@
 | `app/api/integration/ui/accounts/route.ts` | UI から外部連携 Account API を試すための中継 API を定義する。 |
 | `app/api/picklist-values-routes.test.ts` | 選択リスト値 API Route の挙動を確認する。 |
 | `app/api/picklist-values/route.ts` | 画面入力で使う Salesforce 選択リスト値の取得 API を定義する。 |
+| `app/api/record-counts-routes.test.ts` | Account / Contact 件数 API Route の挙動を確認する。 |
 | `app/api/record-counts/route.ts` | Account / Contact 件数 API を定義する。 |
 | `app/api/recycle-bin-routes.test.ts` | Recycle Bin API Route の挙動を確認する。 |
 | `app/api/recycle-bin/route.ts` | Recycle Bin 内レコード取得 API を定義する。 |
@@ -93,6 +95,7 @@
 | `app/api/search/route.ts` | Salesforce グローバル検索 API を定義する。 |
 | `app/api/session/route.ts` | 現在の Salesforce session 状態を返す API を定義する。 |
 | `app/api/test-helpers.ts` | API Route テストで使う request / mock helper を定義する。 |
+| `app/api/user-counts-routes.test.ts` | Salesforce ユーザー件数 API Route の挙動を確認する。 |
 | `app/api/user-counts/route.ts` | Salesforce ユーザー件数 API を定義する。 |
 
 ## `components`
@@ -223,7 +226,7 @@
 | `docs/knowledge/github-image-assets.md` | GitHub 上で扱う画像 asset の考え方を示す。 |
 | `docs/knowledge/github-platform-advanced.md` | GitHub Platform の発展的な概念を示す。 |
 | `docs/knowledge/github-platform-concepts.md` | GitHub Platform の基本概念を示す。 |
-| `docs/knowledge/github-pr-metadata.md` | PR body と label metadata の崩れを防ぐ考え方を示す。 |
+| `docs/knowledge/github-pr-metadata.md` | PR body、assignee、label metadata の崩れを防ぐ考え方を示す。 |
 | `docs/knowledge/heroku-button.md` | Heroku Button の概念を示す。 |
 | `docs/knowledge/heroku-ci.md` | Heroku CI の概念を示す。 |
 | `docs/knowledge/heroku-pipeline.md` | Heroku Pipeline の概念を示す。 |
