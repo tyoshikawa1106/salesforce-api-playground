@@ -4,25 +4,16 @@ on:
   issues:
     types:
       - opened
-      - closed
   pull_request:
     types:
       - opened
-      - closed
 
 permissions:
   issues: write
   pull-requests: write
 
 env:
-  # Repository-specific GitHub Projects v2 settings.
-  # If the Project, Status field, or Done option is recreated, update these values
-  # together with docs/setup/github.md.
-  PROJECT_OWNER: tyoshikawa1106
-  PROJECT_NUMBER: 1
-  PROJECT_ID: PVT_kwHOAB_d_84BZFlX
-  PROJECT_STATUS_FIELD_ID: PVTSSF_lAHOAB_d_84BZFlXzhUGxVc
-  PROJECT_DONE_OPTION_ID: 98236657
+  ASSIGNEE: ${{ github.repository_owner }}
 
 jobs:
   assign-issue:
@@ -30,14 +21,11 @@ jobs:
     if: github.event_name == 'issues' && github.event.action == 'opened'
     runs-on: ubuntu-latest
 
-    env:
-      ASSIGNEE: tyoshikawa1106
-      GH_TOKEN: ${{ github.token }}
-
     steps:
       - name: Assign issue
         run: gh issue edit "$ISSUE_NUMBER" --repo "$REPOSITORY" --add-assignee "$ASSIGNEE"
         env:
+          GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           REPOSITORY: ${{ github.repository }}
 
@@ -46,111 +34,10 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action == 'opened'
     runs-on: ubuntu-latest
 
-    env:
-      ASSIGNEE: tyoshikawa1106
-      GH_TOKEN: ${{ github.token }}
-
     steps:
       - name: Assign pull request
         run: gh issue edit "$PR_NUMBER" --repo "$REPOSITORY" --add-assignee "$ASSIGNEE"
         env:
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPOSITORY: ${{ github.repository }}
-
-  add-issue-to-project:
-    name: Add issue to project
-    if: github.event_name == 'issues' && github.event.action == 'opened'
-    runs-on: ubuntu-latest
-
-    env:
-      GH_TOKEN: ${{ secrets.GH_PROJECT_TOKEN }}
-
-    steps:
-      - name: Add issue to project
-        if: env.GH_TOKEN != ''
-        run: gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL"
-        env:
-          ISSUE_URL: ${{ github.event.issue.html_url }}
-
-      - name: Skip project assignment
-        if: env.GH_TOKEN == ''
-        run: |
-          echo "Normal skip: Project assignment requires GH_PROJECT_TOKEN, and the secret is not configured."
-          echo "Project assignment was skipped because GH_PROJECT_TOKEN is not configured." >> "$GITHUB_STEP_SUMMARY"
-
-  add-pull-request-to-project:
-    name: Add pull request to project
-    if: github.event_name == 'pull_request' && github.event.action == 'opened'
-    runs-on: ubuntu-latest
-
-    env:
-      GH_TOKEN: ${{ secrets.GH_PROJECT_TOKEN }}
-
-    steps:
-      - name: Add pull request to project
-        if: env.GH_TOKEN != ''
-        run: gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-
-      - name: Skip project assignment
-        if: env.GH_TOKEN == ''
-        run: |
-          echo "Normal skip: Project assignment requires GH_PROJECT_TOKEN, and the secret is not configured."
-          echo "Project assignment was skipped because GH_PROJECT_TOKEN is not configured." >> "$GITHUB_STEP_SUMMARY"
-
-  mark-issue-done:
-    name: Mark issue project status done
-    if: github.event_name == 'issues' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-
-    env:
-      GH_TOKEN: ${{ secrets.GH_PROJECT_TOKEN }}
-
-    steps:
-      - name: Mark issue as Done
-        if: env.GH_TOKEN != ''
-        run: |
-          item_id="$(gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL" --format json --jq ".id")"
-
-          gh project item-edit \
-            --id "$item_id" \
-            --project-id "$PROJECT_ID" \
-            --field-id "$PROJECT_STATUS_FIELD_ID" \
-            --single-select-option-id "$PROJECT_DONE_OPTION_ID"
-        env:
-          ISSUE_URL: ${{ github.event.issue.html_url }}
-
-      - name: Skip project status update
-        if: env.GH_TOKEN == ''
-        run: |
-          echo "Normal skip: Project status update requires GH_PROJECT_TOKEN, and the secret is not configured."
-          echo "Project status update was skipped because GH_PROJECT_TOKEN is not configured." >> "$GITHUB_STEP_SUMMARY"
-
-  mark-pull-request-done:
-    name: Mark pull request project status done
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-
-    env:
-      GH_TOKEN: ${{ secrets.GH_PROJECT_TOKEN }}
-
-    steps:
-      - name: Mark pull request as Done
-        if: env.GH_TOKEN != ''
-        run: |
-          item_id="$(gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$PR_URL" --format json --jq ".id")"
-
-          gh project item-edit \
-            --id "$item_id" \
-            --project-id "$PROJECT_ID" \
-            --field-id "$PROJECT_STATUS_FIELD_ID" \
-            --single-select-option-id "$PROJECT_DONE_OPTION_ID"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-
-      - name: Skip project status update
-        if: env.GH_TOKEN == ''
-        run: |
-          echo "Normal skip: Project status update requires GH_PROJECT_TOKEN, and the secret is not configured."
-          echo "Project status update was skipped because GH_PROJECT_TOKEN is not configured." >> "$GITHUB_STEP_SUMMARY"

@@ -104,18 +104,18 @@ Project には、原則として Issue と PR の両方を載せます。
 
 Issue だけを載せると、実際の変更がどこまで進んだか追いにくくなります。PR だけを載せると、なぜその変更が必要かを追いにくくなります。
 
-### 自動化と手動確認
+### Project と手動確認
 
-Project 自動追加や status 更新は便利ですが、workflow が success でも実際の Project 操作が skip されることがあります。
+Project 自動追加や status 更新は便利ですが、Project 操作のためだけに GitHub Actions へ追加の token を持たせると、運用が複雑になります。
 
-このリポジトリでは、`GH_PROJECT_TOKEN` が未設定の場合、Project 追加や Done 更新は正常に skip されます。そのため、Project automation は以下の2段階で確認します。
+このリポジトリでは、GitHub Actions で Project 追加や status 更新を行いません。Issue / PR を Project に追加する場合は、エージェントまたはユーザーが `gh project item-add` で明示的に行います。
 
 | 観点 | 見るもの |
 | --- | --- |
-| workflow として動いたか | GitHub Actions の job / step 結果 |
+| 追加操作を行ったか | 実行した `gh project item-add` |
 | Project item が存在するか | Project 画面、または `gh project item-list` |
 
-自動化は「人が必ず見るべき状態を減らす」ために使います。自動化が成功した前提で運用すると、token 未設定や権限不足に気づきにくくなります。
+Project は作業状態を整理する場所です。追加漏れに気づいた場合は、対象 Issue / PR を確認してから Project に追加します。
 
 ## GitHub Actions 設計の応用
 
