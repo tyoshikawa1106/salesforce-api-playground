@@ -76,6 +76,22 @@ Issue が「作業の内容」を表すのに対して、Project は「作業が
 
 Project はコードそのものには影響しません。レビューやリリース判断のために、作業状態を整理する管理情報として使います。
 
+## GitHub Milestone
+
+GitHub Milestone は、複数の Issue や Pull Request を「特定の完了目標」にまとめるための単位です。
+
+Milestone は、領域分類ではなく、期限やリリース境界があるまとまりに向いています。
+
+| 向いている用途 | 例 |
+| --- | --- |
+| リリース単位 | `v1.0`、`2026-07 release` |
+| 期限付きの到達点 | `β版公開まで`、`Production Ready` |
+| 大きな完了条件 | `認証機能リリース` |
+
+一方で、`area:ui` や `documentation` のような種類・領域の分類は label に任せます。現在の状態は Project、公開済みの履歴は tag と Release notes で扱います。
+
+このリポジトリでは、通常運用では Milestone を使いません。必要になった場合だけ、期間やリリース単位の完了目標として作成します。
+
 ## GitHub Actions
 
 GitHub Actions は、GitHub 上で workflow を実行する仕組みです。
