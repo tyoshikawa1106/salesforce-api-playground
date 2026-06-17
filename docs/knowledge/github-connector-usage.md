@@ -4,7 +4,7 @@ GitHub Connector は、Codex / ChatGPT から GitHub の情報を扱うための
 
 そのため、GitHub Connector は通常の GitHub 操作を置き換えるための道具ではなく、探索や横断調査を助けるための道具として扱う。
 
-このリポジトリの通常開発では、Issue、Pull Request、checks、merge、Release、label、milestone、Project などの定型操作は `gh` CLI を使う。GitHub Connector には使用上限があるため、`gh` CLI で十分に実行できる操作では使わない。
+このリポジトリの通常開発では、Issue、Pull Request、checks、merge、Release、label、Project などの定型操作は `gh` CLI を使う。GitHub Connector には使用上限があるため、`gh` CLI で十分に実行できる操作では使わない。
 
 ## 基本方針
 
@@ -23,7 +23,7 @@ GitHub Connector は、Codex / ChatGPT から GitHub の情報を扱うための
 - checks / CI 状態確認
 - merge
 - Release 作成
-- label / milestone 操作
+- label 操作
 - Project 更新
 - repository が明確な検索や状態確認
 - その他の定型的な GitHub 書き込み操作
@@ -58,7 +58,7 @@ GitHub Connector の使い分けは、Codex などのエージェントが毎回
 追加するときは、次の内容を含める。
 
 - 通常の GitHub 操作は `gh` CLI を優先する。
-- Issue、Pull Request、checks / CI、merge、Release、label、milestone、Project などの定型操作では GitHub Connector を使わない。
+- Issue、Pull Request、checks / CI、merge、Release、label、Project などの定型操作では GitHub Connector を使わない。
 - GitHub Connector は、複数リポジトリ横断、組織全体の分析、対象リポジトリ不明の探索などに限る。
 - GitHub Connector には使用上限があるため、通常開発では利用を最小限にする。
 - GitHub Connector を使う前に、`gh` CLI で実現できない理由を説明する。
@@ -66,7 +66,7 @@ GitHub Connector の使い分けは、Codex などのエージェントが毎回
 例:
 
 ```md
-- GitHub の通常操作は `gh` CLI を優先する。Issue 作成・更新・クローズ、Pull Request 作成・更新、checks / CI 状態確認、merge、Release 作成、label / milestone 操作、Project 更新、その他の定型的な GitHub 書き込み操作では GitHub Connector を使用しない。
+- GitHub の通常操作は `gh` CLI を優先する。Issue 作成・更新・クローズ、Pull Request 作成・更新、checks / CI 状態確認、merge、Release 作成、label 操作、Project 更新、その他の定型的な GitHub 書き込み操作では GitHub Connector を使用しない。
 - GitHub Connector は、複数リポジトリを横断した調査、組織全体の分析、Issue / PR / Discussion を含む横断検索、関連リポジトリや情報の探索、傾向分析や影響調査、対象リポジトリが不明な状態での調査に限って使用する。
 - GitHub Connector には使用上限があるため、通常の開発作業では利用を最小限にする。GitHub Connector が利用できない場合は、まず `gh` CLI で代替可能か検討する。
 - GitHub Connector を利用する前に、`gh` CLI で実現できない理由を説明する。
@@ -80,7 +80,7 @@ GitHub Connector の使い分けは、Codex などのエージェントが毎回
 - 作業ブランチから Pull Request を作る。
 - PR の CI を watch する。
 - PR を merge する。
-- milestone と Project を設定する。
+- Project を設定する。
 
 GitHub Connector を検討する例:
 

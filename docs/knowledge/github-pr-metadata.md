@@ -1,6 +1,6 @@
 # GitHub PR メタデータの考え方
 
-Pull Request は差分だけでなく、title、body、label、milestone、Project、linked Issue などのメタデータもレビュー対象になる。本文が読みにくい、label がない、Issue との対応が分からない状態では、変更の意図や影響範囲を後から追いにくくなる。
+Pull Request は差分だけでなく、title、body、label、Project、linked Issue などのメタデータもレビュー対象になる。本文が読みにくい、label がない、Issue との対応が分からない状態では、変更の意図や影響範囲を後から追いにくくなる。
 
 ## 複数行 Markdown 本文
 

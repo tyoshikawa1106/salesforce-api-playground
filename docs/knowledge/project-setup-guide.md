@@ -15,7 +15,7 @@
 | 外部サービス | API、認証、DB、ストレージ、メール配信など |
 | 認証 / 認可 | session、Cookie、token、権限境界 |
 | 環境 | Local、Staging、Production の分け方 |
-| GitHub | branch、Issue、PR、CI、Project、milestone |
+| GitHub | branch、Issue、PR、CI、Project、Release |
 | docs | README、docs/setup、docs/knowledge、AGENTS.md の分担 |
 
 未確定の内容を README や docs に仕様として固定しません。必要な確認内容は Issue、PR コメント、または作業メモに残します。
@@ -67,7 +67,7 @@ docs/knowledge/
 | `docs/index.md` | docs 全体の入口 |
 | `docs/repository-guide.md` | ディレクトリと主要ファイルの用途 |
 | `docs/setup/local-development.md` | ローカル環境、起動、確認コマンド |
-| `docs/development/github-rules.md` | GitHub Flow、Issue、PR、Project、milestone |
+| `docs/development/github-rules.md` | GitHub Flow、Issue、PR、Project、Release |
 | `docs/setup/ci.md` | CI の確認内容とローカル確認 |
 | `docs/knowledge/README.md` | 開発ナレッジの入口 |
 | `.github/workflows/ci.yml` | docs-only とコード変更の確認を分ける |
