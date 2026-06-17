@@ -10,7 +10,7 @@
 - [Salesforce CLI](salesforce-cli.md)
 - [Heroku CLI](heroku-cli.md)
 
-### Workflow
+### CI
 
 - [CI](ci.md)
 
