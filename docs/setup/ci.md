@@ -13,8 +13,6 @@ workflow の job 名は `Lint, typecheck, and build` です。変更内容によ
 
 同じ Pull Request または branch で新しい CI run が始まった場合、古い進行中の run は自動 cancel します。push を重ねたときに古い commit の確認結果が残り続けないようにするためです。
 
-`.github/workflows/pr-metadata.yml` は Pull Request の metadata を確認します。PR body に `\n` が文字列として繰り返し残っている場合や、PR label が空の場合に失敗します。label を追加した場合や PR 本文を編集した場合も再実行されます。
-
 ## 変更範囲の判定
 
 CI は `Detect change scope` step で変更ファイルを調べ、`docs_only` と `ui_related` を判定します。
@@ -89,7 +87,6 @@ GitHub Actions / PR checks は、push、PR 作成、Ready for review、merge な
 | --- | --- |
 | docs / template のみ | `git diff --check` |
 | workflow | `npm run workflows:check` と、変更内容に応じた full check |
-| PR metadata workflow | `npm run workflows:check` と、必要に応じて body / label 条件の手動確認 |
 | TypeScript / React / API / services | targeted test, `npm run typecheck`, 必要に応じて `npm run lint` / `npm run test:coverage` |
 | UI / CSS / SLDS 構造 | targeted test, `npm run typecheck`, 必要に応じて `npm run slds:lint` / `npm run lint` / `npm run test:coverage` |
 | build 設定、依存関係、環境変数、広範囲な UI | full check |

@@ -48,7 +48,7 @@ Issue、PR、CI、merge、release notes を GitHub Flow で扱うための運用
 
 複数行 Markdown 本文は、shell 引数の `\n` で組み立てず、実改行を書いた本文ファイルを `--body-file` で渡します。作成・更新後は `gh pr view --json body` などで保存結果を確認し、GitHub 上で `\n` が文字列として繰り返し残っていないことを確認します。
 
-PR body に `\n` が文字列として繰り返し残っている場合や、PR label が空の場合は、`PR metadata` workflow が失敗します。Ready for review や merge の前に本文または label を修正します。
+PR body に `\n` が文字列として繰り返し残っている場合や、PR label が空の場合は、Ready for review や merge の前に本文または label を修正します。
 
 ## Labels
 
@@ -78,6 +78,11 @@ PR は label が 1 つもない状態にしません。迷う場合は `type:*` 
 - Project 追加に失敗した場合は、最終報告に未設定理由を書く。
 - エージェントが Project 追加状況を確認する場合は、対象 Issue / PR の番号、URL、node ID から対象 item だけを直接確認する。Project 全件またはそれに近い件数を取得してから絞り込む確認は行わない。
 - 対象 item を直接確認できない場合は、`gh project item-add 1 --owner @me --url <URL>` の成功結果をもって追加操作済みとし、一覧での厳密確認は未実施として報告する。
+
+## GitHub Actions
+
+- GitHub Actions は CI、静的解析、secret scan など、変更内容の品質確認に使う。
+- assignee、label、milestone、Project 追加、Project status 更新などの運用メタデータ整理は Actions で自動化せず、エージェントまたはユーザーが明示的に行う。
 
 ## GitHub CLI
 
