@@ -75,6 +75,7 @@
 
 - Issue、PR、Release notes、長文コメントなどの複数行 Markdown 本文は、shell 引数の `\n` で組み立てず、実改行を書いた本文ファイルを `--body-file` で渡す。
 - `gh issue create` / `gh pr create` / `gh pr edit` の後は、`gh issue view --json body` / `gh pr view --json body` で保存結果を確認し、GitHub 上に `\n` が文字列として残っていないことを確認する。
+- Issue / PR 作成時は assignee を設定する。特別な指定がない場合は repository owner を assignee にする。
 - PR 作成時は、既存 label から内容に合うものを 1 つ以上付ける。迷う場合は GitHub 標準 label または `maintenance` から主目的に合うものを選び、対象領域が明確な場合だけ `area:*` を追加する。
-- PR 作成後は、`gh pr view --json labels,projectItems` などで label、Project の設定漏れがないか確認する。Project は対象 item を直接確認できない場合、追加コマンドの成功結果と未確認理由を記録する。
+- PR 作成後は、`gh pr view --json assignees,labels,projectItems` などで assignee、label、Project の設定漏れがないか確認する。Project は対象 item を直接確認できない場合、追加コマンドの成功結果と未確認理由を記録する。
 - PR body に `\n` が文字列として繰り返し残っている場合や、PR label が空の場合は、ready for review や merge の前に修正する。
