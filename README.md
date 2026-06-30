@@ -35,7 +35,7 @@ Salesforce OAuth と REST API を試すための Next.js アプリです。
 - Next.js 16
 - TypeScript
 - React 19
-- Node.js 24
+- Node.js 26
 - jsforce
 - Salesforce Lightning Design System
 - SLDS Linter
@@ -46,7 +46,7 @@ Salesforce OAuth と REST API を試すための Next.js アプリです。
 ローカルで動かすには、以下が必要です。
 
 - Git
-- Node.js 24
+- Node.js 26
 - npm 10 以上
 - Salesforce 外部クライアントアプリケーションの設定値
 
