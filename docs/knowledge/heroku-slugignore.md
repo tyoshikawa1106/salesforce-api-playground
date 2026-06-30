@@ -49,7 +49,7 @@ Heroku は rollback などのために release や slug を保持する場合が
 | `tsconfig.typecheck.json` | typecheck を Heroku CI で明示実行する場合に必要 |
 | lint / build / typecheck に必要な設定 | full check 相当を動かす余地を残す |
 | `package.json` | buildpack と npm scripts が参照する |
-| `package-lock.json` | npm install の再現性に必要 |
+| `package-lock.json` | `npm ci` の再現性に必要 |
 | `Procfile` | Heroku の起動コマンドを定義する |
 | `next.config.mjs` | Next.js build / runtime 設定 |
 | `tsconfig.json` | TypeScript / Next.js が参照する |
