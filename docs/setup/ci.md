@@ -52,7 +52,7 @@ full check で実行するもの:
 | --- | --- |
 | `npm run workflows:check` | workflow YAML の parse 確認 |
 | sensitive-value scan | 秘密情報らしい値の混入確認 |
-| Node.js setup | Node.js 26 と npm cache を設定 |
+| Node.js setup | Node.js 24 と npm cache を設定 |
 | `npm ci` | lockfile に基づく依存関係 install |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript 型チェック |
