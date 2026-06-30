@@ -47,7 +47,7 @@ Salesforce OAuth と REST API を試すための Next.js アプリです。
 
 - Git
 - Node.js 26
-- npm 10 以上
+- npm 11 以上
 - Salesforce 外部クライアントアプリケーションの設定値
 
 ## セットアップ手順

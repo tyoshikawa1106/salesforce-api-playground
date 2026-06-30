@@ -6,15 +6,15 @@
 
 ## 前提
 
-- Node.js と npm が使える。
-- 依存関係を `npm install` 済み。
+- Node.js 26 と npm 11 以上が使える。
+- 依存関係を `npm ci` でインストール済み。
 - Salesforce 接続を確認する場合は、OAuth 設定と環境変数を用意済み。
 - Codex 作業では `.env` や実 token を読まない。
 
 ## 初回セットアップ
 
 ```bash
-npm install
+npm ci
 cp .env.example .env.local
 ```
 
