@@ -20,7 +20,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@salesforce-ux/design-system": "^2.30.4",
+    "@salesforce-ux/design-system": "^2.30.7",
     "jsforce": "^3.10.16",
     "next": "^16.2.9",
     "react": "^19.2.6",
