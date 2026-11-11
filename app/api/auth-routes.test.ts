@@ -175,7 +175,7 @@ describe("Login API route", () => {
         expect(authorizeUrl.searchParams.get("response_type")).toBe("code");
         expect(authorizeUrl.searchParams.get("client_id")).toBe(dummySalesforceConfig.clientId);
         expect(authorizeUrl.searchParams.get("redirect_uri")).toBe(dummySalesforceConfig.redirectUri);
-        expect(authorizeUrl.searchParams.get("scope")).toBe("api refresh_token");
+        expect(authorizeUrl.searchParams.get("scope")).toBe("api");
         expect(authorizeUrl.searchParams.get("state")).toBe("generated-state");
     });
 

@@ -90,7 +90,7 @@ npm run start
 
 必要な環境変数は [.env.example](.env.example) にまとめています。各値の意味、必須条件、Sandbox / My Domain URL の使い分けは [ローカル環境設定](docs/setup/local-development.md) で確認できます。
 
-Authorization Code Flow の接続 API は [接続と認証](docs/api/auth.md)、Client Credentials Flow の設定手順は [Integration ユーザー設定](docs/setup/salesforce-integration-client-credentials.md) に整理しています。
+本人認証では、Salesforce のアクセストークンが失効したら「Salesforce に接続」から再認証します。Authorization Code Flow の接続 API は [接続と認証](docs/api/auth.md)、Client Credentials Flow の設定手順は [Integration ユーザー設定](docs/setup/salesforce-integration-client-credentials.md) に整理しています。
 
 `SESSION_SECRET` は Cookie 暗号化用のランダム文字列です。Salesforce の値ではありません。
 

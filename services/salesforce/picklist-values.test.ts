@@ -42,8 +42,7 @@ vi.mock("@/lib/salesforce/client", () => {
     }
 
     return {
-        SalesforceApiError,
-        refreshAccessToken: vi.fn()
+        SalesforceApiError
     };
 });
 

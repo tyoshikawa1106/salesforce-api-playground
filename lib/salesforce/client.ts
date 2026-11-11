@@ -4,7 +4,6 @@ import {
     buildAuthorizationCodeTokenParams,
     buildClientCredentialsTokenEndpointUrl,
     buildClientCredentialsTokenParams,
-    buildRefreshTokenRequest,
     buildRevokeEndpointUrl,
     buildRevokeParams,
     buildRevokeRequestInit,
@@ -12,7 +11,6 @@ import {
     extractSalesforceErrorMessage,
     readSalesforceErrorDetails,
     selectRevokeToken,
-    tokenResponseToRefreshedSession,
     tokenResponseToSession
 } from "./client-core";
 import type { TokenResponse } from "./client-core";
@@ -89,23 +87,6 @@ export async function revokeSalesforceSession(session: SalesforceSession): Promi
     if (!response.ok) {
         throw await salesforceApiErrorFromResponse(response);
     }
-}
-
-export async function refreshAccessToken(session: SalesforceSession): Promise<SalesforceSession> {
-    if (!session.refreshToken) {
-        throw new SalesforceApiError("Salesforce session expired. Please connect again.", 401);
-    }
-
-    const config = getSalesforceConfig();
-    const request = buildRefreshTokenRequest(config, session.refreshToken);
-    const response = await fetch(request.url, request.init);
-
-    if (!response.ok) {
-        throw await salesforceApiErrorFromResponse(response);
-    }
-
-    const token = (await response.json()) as TokenResponse;
-    return tokenResponseToRefreshedSession(session, token);
 }
 
 export function jsonWithSession<T>(data: T, session: SalesforceSession, status = 200): NextResponse {

@@ -5,7 +5,6 @@ import {
     exchangeClientCredentialsForToken,
     exchangeCodeForToken,
     jsonWithSession,
-    refreshAccessToken,
     revokeSalesforceSession,
     salesforceApiErrorFromResponse,
     salesforceErrorResponse
@@ -122,7 +121,6 @@ describe("exchangeCodeForToken", () => {
 
         await expect(exchangeCodeForToken("oauth-code", "test-verifier")).resolves.toEqual({
             accessToken: "access-token",
-            refreshToken: "refresh-token",
             instanceUrl: "https://example.my.salesforce.com",
             issuedAt: 200,
             userId: "005xx0000012345",
@@ -238,69 +236,6 @@ describe("revokeSalesforceSession", () => {
 
         await expect(revokeSalesforceSession(salesforceSession)).rejects.toMatchObject({
             message: "Bad Request",
-            status: 400,
-            details
-        });
-    });
-});
-
-describe("refreshAccessToken", () => {
-    it("refreshes the access token and preserves the existing session context", async () => {
-        getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-            Response.json({
-                access_token: "refreshed-token",
-                instance_url: "https://new.example.my.salesforce.com",
-                issued_at: "200"
-            })
-        );
-        vi.stubGlobal("fetch", fetchMock);
-
-        await expect(refreshAccessToken(salesforceSession)).resolves.toEqual({
-            accessToken: "refreshed-token",
-            refreshToken: "refresh-token",
-            instanceUrl: "https://new.example.my.salesforce.com",
-            issuedAt: 200
-        });
-        expect(fetchMock).toHaveBeenCalledWith(
-            "https://login.salesforce.com/services/oauth2/token",
-            expect.objectContaining({
-                method: "POST",
-                headers: {
-                    "content-type": "application/x-www-form-urlencoded"
-                },
-                cache: "no-store"
-            })
-        );
-    });
-
-    it("fails before calling Salesforce when the session has no refresh token", async () => {
-        const fetchMock = vi.fn<typeof fetch>();
-        vi.stubGlobal("fetch", fetchMock);
-
-        await expect(
-            refreshAccessToken({
-                accessToken: "access-token",
-                instanceUrl: "https://example.my.salesforce.com",
-                issuedAt: 100
-            })
-        ).rejects.toMatchObject({
-            message: "Salesforce session expired. Please connect again.",
-            status: 401
-        });
-        expect(fetchMock).not.toHaveBeenCalled();
-    });
-
-    it("returns Salesforce refresh errors", async () => {
-        getSalesforceConfigMock.mockReturnValue(salesforceConfig);
-        const details = [{ message: "expired refresh token", errorCode: "invalid_grant" }];
-        const fetchMock = vi
-            .fn<typeof fetch>()
-            .mockResolvedValue(Response.json(details, { status: 400, statusText: "Bad Request" }));
-        vi.stubGlobal("fetch", fetchMock);
-
-        await expect(refreshAccessToken(salesforceSession)).rejects.toMatchObject({
-            message: "expired refresh token",
             status: 400,
             details
         });

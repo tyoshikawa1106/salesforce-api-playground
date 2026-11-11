@@ -8,6 +8,7 @@ export const STATE_COOKIE = "sf_playground_oauth_state";
 
 export type SalesforceSession = {
     accessToken: string;
+    // 旧セッションのログアウト時に Salesforce 側で無効化するために使用する。
     refreshToken?: string;
     instanceUrl: string;
     issuedAt: number;

@@ -69,8 +69,7 @@ vi.mock("@/lib/salesforce/client", () => {
 
     return {
         SalesforceApiError,
-        exchangeClientCredentialsForToken: vi.fn(),
-        refreshAccessToken: vi.fn()
+        exchangeClientCredentialsForToken: vi.fn()
     };
 });
 
@@ -140,13 +139,6 @@ describe("Salesforce record services", () => {
             accessToken: "access-token",
             instanceUrl: "https://example.my.salesforce.com",
             loginUrl: "https://login.salesforce.com",
-            oauth2: {
-                clientId: "client-id",
-                clientSecret: "client-secret",
-                loginUrl: "https://login.salesforce.com",
-                redirectUri: "https://app.example.test/api/auth/callback"
-            },
-            refreshToken: "refresh-token",
             version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
         });
         expect(jsforceMocks.query).toHaveBeenCalledWith(

@@ -8,9 +8,6 @@ import {
     buildAuthorizationEndpointUrl,
     buildAuthorizationUrl,
     buildAuthorizationUrlParams,
-    buildRefreshTokenEndpointUrl,
-    buildRefreshTokenParams,
-    buildRefreshTokenRequest,
     buildRevokeEndpointUrl,
     buildRevokeParams,
     buildRevokeRequestInit,
@@ -18,7 +15,6 @@ import {
     extractSalesforceErrorMessage,
     readSalesforceErrorDetails,
     selectRevokeToken,
-    tokenResponseToRefreshedSession,
     tokenResponseToSession
 } from "./client-core";
 import type { SalesforceSession } from "./session";
@@ -56,13 +52,13 @@ describe("buildAuthorizationUrlParams", () => {
             response_type: "code",
             client_id: "client-id",
             redirect_uri: "https://app.example.test/api/auth/callback",
-            scope: "api refresh_token",
+            scope: "api",
             state: "oauth-state",
             code_challenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
             code_challenge_method: "S256"
         });
         expect(params.toString()).toBe(
-            "response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api+refresh_token&state=oauth-state&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
+            "response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api&state=oauth-state&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
         );
     });
 });
@@ -70,7 +66,7 @@ describe("buildAuthorizationUrlParams", () => {
 describe("buildAuthorizationUrl", () => {
     it("builds the final OAuth authorization URL", () => {
         expect(buildAuthorizationUrl(salesforceConfig, "oauth-state", "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")).toBe(
-            "https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api+refresh_token&state=oauth-state&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
+            "https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api&state=oauth-state&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
         );
     });
 });
@@ -98,46 +94,6 @@ describe("buildAuthorizationCodeTokenParams", () => {
         expect(params.toString()).toBe(
             "grant_type=authorization_code&code=auth-code&code_verifier=test-verifier&client_id=client-id&client_secret=client-secret&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback"
         );
-    });
-});
-
-describe("buildRefreshTokenEndpointUrl", () => {
-    it("builds the token endpoint URL for refresh token requests", () => {
-        expect(buildRefreshTokenEndpointUrl(salesforceConfig)).toBe(
-            "https://login.salesforce.com/services/oauth2/token"
-        );
-    });
-});
-
-describe("buildRefreshTokenParams", () => {
-    it("builds form params for refresh token requests", () => {
-        const params = buildRefreshTokenParams(salesforceConfig, "refresh-token");
-
-        expect(Object.fromEntries(params)).toEqual({
-            grant_type: "refresh_token",
-            refresh_token: "refresh-token",
-            client_id: "client-id",
-            client_secret: "client-secret"
-        });
-        expect(params.toString()).toBe(
-            "grant_type=refresh_token&refresh_token=refresh-token&client_id=client-id&client_secret=client-secret"
-        );
-    });
-});
-
-describe("buildRefreshTokenRequest", () => {
-    it("builds the refresh token endpoint and form-encoded request init together", () => {
-        expect(buildRefreshTokenRequest(salesforceConfig, "refresh-token")).toEqual({
-            url: "https://login.salesforce.com/services/oauth2/token",
-            init: {
-                method: "POST",
-                headers: {
-                    "content-type": "application/x-www-form-urlencoded"
-                },
-                body: "grant_type=refresh_token&refresh_token=refresh-token&client_id=client-id&client_secret=client-secret",
-                cache: "no-store"
-            }
-        });
     });
 });
 
@@ -290,7 +246,7 @@ describe("readSalesforceErrorDetails", () => {
 });
 
 describe("tokenResponseToSession", () => {
-    it("maps an OAuth token response to a session", () => {
+    it("maps an OAuth token response without storing a refresh token", () => {
         expect(
             tokenResponseToSession(
                 {
@@ -304,7 +260,6 @@ describe("tokenResponseToSession", () => {
             )
         ).toEqual({
             accessToken: "access-token",
-            refreshToken: "refresh-token",
             instanceUrl: "https://example.my.salesforce.com",
             issuedAt: 1714350000000,
             userId: "005xx0000012345",
@@ -334,61 +289,6 @@ describe("tokenResponseToSession", () => {
             issuedAt: 456,
             userId: undefined,
             organizationId: undefined
-        });
-    });
-});
-
-describe("tokenResponseToRefreshedSession", () => {
-    it("updates token fields while preserving existing session fields", () => {
-        const session: SalesforceSession = {
-            accessToken: "old-access-token",
-            refreshToken: "refresh-token",
-            instanceUrl: "https://old.example.my.salesforce.com",
-            issuedAt: 100,
-            userId: "005xx0000012345",
-            organizationId: "00Dxx0000000001"
-        };
-
-        expect(
-            tokenResponseToRefreshedSession(
-                session,
-                {
-                    access_token: "new-access-token",
-                    instance_url: "https://new.example.my.salesforce.com"
-                },
-                789
-            )
-        ).toEqual({
-            accessToken: "new-access-token",
-            refreshToken: "refresh-token",
-            instanceUrl: "https://new.example.my.salesforce.com",
-            issuedAt: 789,
-            userId: "005xx0000012345",
-            organizationId: "00Dxx0000000001"
-        });
-    });
-
-    it("keeps the current instance URL and uses the fallback issued time when omitted", () => {
-        const session: SalesforceSession = {
-            accessToken: "old-access-token",
-            refreshToken: "refresh-token",
-            instanceUrl: "https://old.example.my.salesforce.com",
-            issuedAt: 100
-        };
-
-        expect(
-            tokenResponseToRefreshedSession(
-                session,
-                {
-                    access_token: "new-access-token"
-                } as Parameters<typeof tokenResponseToRefreshedSession>[1],
-                789
-            )
-        ).toEqual({
-            accessToken: "new-access-token",
-            refreshToken: "refresh-token",
-            instanceUrl: "https://old.example.my.salesforce.com",
-            issuedAt: 789
         });
     });
 });
