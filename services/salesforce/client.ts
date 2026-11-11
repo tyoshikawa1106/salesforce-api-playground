@@ -63,11 +63,6 @@ async function createIntegrationConnection(): Promise<Connection> {
         accessToken: session.accessToken,
         instanceUrl: session.instanceUrl,
         loginUrl: config.loginUrl,
-        oauth2: {
-            clientId: config.clientId,
-            clientSecret: config.clientSecret,
-            loginUrl: config.loginUrl
-        },
         version: toJsforceApiVersion(config.apiVersion)
     });
 }

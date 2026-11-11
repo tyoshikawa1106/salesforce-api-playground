@@ -489,11 +489,6 @@ describe("Salesforce record services", () => {
             accessToken: "integration-access-token",
             instanceUrl: "https://example.my.salesforce.com",
             loginUrl: "https://login.salesforce.com",
-            oauth2: {
-                clientId: "integration-client-id",
-                clientSecret: "integration-client-secret",
-                loginUrl: "https://login.salesforce.com"
-            },
             version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
         });
         expect(jsforceMocks.create).toHaveBeenCalledWith({ Name: "Integration Acme" });
