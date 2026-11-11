@@ -50,25 +50,27 @@ describe("buildAuthorizationEndpointUrl", () => {
 
 describe("buildAuthorizationUrlParams", () => {
     it("builds query params for starting the OAuth authorization flow", () => {
-        const params = buildAuthorizationUrlParams(salesforceConfig, "oauth-state");
+        const params = buildAuthorizationUrlParams(salesforceConfig, "oauth-state", "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk");
 
         expect(Object.fromEntries(params)).toEqual({
             response_type: "code",
             client_id: "client-id",
             redirect_uri: "https://app.example.test/api/auth/callback",
             scope: "api refresh_token",
-            state: "oauth-state"
+            state: "oauth-state",
+            code_challenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+            code_challenge_method: "S256"
         });
         expect(params.toString()).toBe(
-            "response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api+refresh_token&state=oauth-state"
+            "response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api+refresh_token&state=oauth-state&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
         );
     });
 });
 
 describe("buildAuthorizationUrl", () => {
     it("builds the final OAuth authorization URL", () => {
-        expect(buildAuthorizationUrl(salesforceConfig, "oauth-state")).toBe(
-            "https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api+refresh_token&state=oauth-state"
+        expect(buildAuthorizationUrl(salesforceConfig, "oauth-state", "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")).toBe(
+            "https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=client-id&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback&scope=api+refresh_token&state=oauth-state&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
         );
     });
 });
@@ -83,17 +85,18 @@ describe("buildAuthorizationCodeTokenEndpointUrl", () => {
 
 describe("buildAuthorizationCodeTokenParams", () => {
     it("builds form params for authorization code exchange", () => {
-        const params = buildAuthorizationCodeTokenParams(salesforceConfig, "auth-code");
+        const params = buildAuthorizationCodeTokenParams(salesforceConfig, "auth-code", "test-verifier");
 
         expect(Object.fromEntries(params)).toEqual({
             grant_type: "authorization_code",
             code: "auth-code",
+            code_verifier: "test-verifier",
             client_id: "client-id",
             client_secret: "client-secret",
             redirect_uri: "https://app.example.test/api/auth/callback"
         });
         expect(params.toString()).toBe(
-            "grant_type=authorization_code&code=auth-code&client_id=client-id&client_secret=client-secret&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback"
+            "grant_type=authorization_code&code=auth-code&code_verifier=test-verifier&client_id=client-id&client_secret=client-secret&redirect_uri=https%3A%2F%2Fapp.example.test%2Fapi%2Fauth%2Fcallback"
         );
     });
 });

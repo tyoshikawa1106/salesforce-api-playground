@@ -120,7 +120,7 @@ describe("exchangeCodeForToken", () => {
         );
         vi.stubGlobal("fetch", fetchMock);
 
-        await expect(exchangeCodeForToken("oauth-code")).resolves.toEqual({
+        await expect(exchangeCodeForToken("oauth-code", "test-verifier")).resolves.toEqual({
             accessToken: "access-token",
             refreshToken: "refresh-token",
             instanceUrl: "https://example.my.salesforce.com",
@@ -138,7 +138,10 @@ describe("exchangeCodeForToken", () => {
                 cache: "no-store"
             })
         );
-        expect(fetchMock.mock.calls[0]?.[0]).not.toContain(salesforceConfig.clientSecret);
+        const [url, request] = fetchMock.mock.calls[0]!;
+        expect(url).not.toContain(salesforceConfig.clientSecret);
+        expect(url).not.toContain("test-verifier");
+        expect(new URLSearchParams(String(request?.body)).get("code_verifier")).toBe("test-verifier");
     });
 
     it("returns Salesforce OAuth errors when code exchange fails", async () => {
@@ -149,7 +152,7 @@ describe("exchangeCodeForToken", () => {
             .mockResolvedValue(Response.json(details, { status: 400, statusText: "Bad Request" }));
         vi.stubGlobal("fetch", fetchMock);
 
-        await expect(exchangeCodeForToken("oauth-code")).rejects.toMatchObject({
+        await expect(exchangeCodeForToken("oauth-code", "test-verifier")).rejects.toMatchObject({
             message: "Bad Request",
             status: 400,
             details

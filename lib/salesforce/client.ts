@@ -44,9 +44,12 @@ export async function salesforceApiErrorFromResponse(response: Response): Promis
     return new SalesforceApiError(message || "Salesforce API request failed.", response.status, details);
 }
 
-export async function exchangeCodeForToken(code: string): Promise<SalesforceSession> {
+export async function exchangeCodeForToken(
+    code: string,
+    codeVerifier: string
+): Promise<SalesforceSession> {
     const config = getSalesforceConfig();
-    const params = buildAuthorizationCodeTokenParams(config, code);
+    const params = buildAuthorizationCodeTokenParams(config, code, codeVerifier);
     const response = await fetch(
         buildAuthorizationCodeTokenEndpointUrl(config),
         buildTokenRequestInit(params)

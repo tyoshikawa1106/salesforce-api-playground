@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { SalesforceSession } from "./session";
 import { normalizeHttpsOriginUrl } from "./url-security";
 
@@ -71,23 +72,27 @@ export function buildAuthorizationEndpointUrl(
 
 export function buildAuthorizationUrlParams(
     config: AuthorizationUrlParamsConfig,
-    state: string
+    state: string,
+    codeVerifier: string
 ): URLSearchParams {
     return new URLSearchParams({
         response_type: "code",
         client_id: config.clientId,
         redirect_uri: config.redirectUri,
         scope: "api refresh_token",
-        state
+        state,
+        code_challenge: createHash("sha256").update(codeVerifier).digest("base64url"),
+        code_challenge_method: "S256"
     });
 }
 
 export function buildAuthorizationUrl(
     config: AuthorizationEndpointConfig & AuthorizationUrlParamsConfig,
-    state: string
+    state: string,
+    codeVerifier: string
 ): string {
     const authorizeUrl = new URL(buildAuthorizationEndpointUrl(config));
-    authorizeUrl.search = buildAuthorizationUrlParams(config, state).toString();
+    authorizeUrl.search = buildAuthorizationUrlParams(config, state, codeVerifier).toString();
 
     return authorizeUrl.toString();
 }
@@ -100,11 +105,13 @@ export function buildAuthorizationCodeTokenEndpointUrl(
 
 export function buildAuthorizationCodeTokenParams(
     config: AuthorizationCodeTokenParamsConfig,
-    code: string
+    code: string,
+    codeVerifier: string
 ): URLSearchParams {
     return new URLSearchParams({
         grant_type: "authorization_code",
         code,
+        code_verifier: codeVerifier,
         client_id: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: config.redirectUri
