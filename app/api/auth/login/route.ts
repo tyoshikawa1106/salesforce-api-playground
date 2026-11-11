@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { buildAuthorizationUrl } from "@/lib/salesforce/client-core";
 import { getSalesforceConfig } from "@/lib/salesforce/config";
@@ -9,10 +10,11 @@ export async function GET() {
     try {
         const config = getSalesforceConfig();
         const state = createOauthState();
-        const authorizeUrl = buildAuthorizationUrl(config, state);
+        const codeVerifier = randomBytes(32).toString("base64url");
+        const authorizeUrl = buildAuthorizationUrl(config, state, codeVerifier);
 
         const response = NextResponse.redirect(authorizeUrl);
-        setStateCookie(response, state);
+        setStateCookie(response, [state, codeVerifier].join("."));
         return response;
     } catch (error) {
         return NextResponse.json(

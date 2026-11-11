@@ -9,8 +9,7 @@ import {
 } from "@/lib/salesforce/config";
 import {
     SalesforceApiError,
-    exchangeClientCredentialsForToken,
-    refreshAccessToken
+    exchangeClientCredentialsForToken
 } from "@/lib/salesforce/client";
 import { getSession } from "@/lib/salesforce/session";
 import type { SalesforceSession } from "@/lib/salesforce/session";
@@ -52,8 +51,7 @@ vi.mock("@/lib/salesforce/client", () => {
 
     return {
         SalesforceApiError,
-        exchangeClientCredentialsForToken: vi.fn(),
-        refreshAccessToken: vi.fn()
+        exchangeClientCredentialsForToken: vi.fn()
     };
 });
 
@@ -65,7 +63,6 @@ const getSessionMock = vi.mocked(getSession);
 const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
 const getSalesforceIntegrationConfigMock = vi.mocked(getSalesforceIntegrationConfig);
 const exchangeClientCredentialsForTokenMock = vi.mocked(exchangeClientCredentialsForToken);
-const refreshAccessTokenMock = vi.mocked(refreshAccessToken);
 
 const session: SalesforceSession = {
     accessToken: "access-token",
@@ -73,12 +70,6 @@ const session: SalesforceSession = {
     issuedAt: 1700000000000,
     refreshToken: "refresh-token",
     userId: "005xx0000012345"
-};
-
-const refreshedSession: SalesforceSession = {
-    ...session,
-    accessToken: "refreshed-access-token",
-    issuedAt: 1700000001000
 };
 
 beforeEach(() => {
@@ -104,7 +95,6 @@ beforeEach(() => {
         issuedAt: 1700000000000,
         userId: "005xx0000099999"
     });
-    refreshAccessTokenMock.mockResolvedValue(refreshedSession);
 });
 
 describe("Salesforce service connection helpers", () => {
@@ -117,44 +107,23 @@ describe("Salesforce service connection helpers", () => {
         });
     });
 
-    it("refreshes the session once when a standard operation receives an invalid session error", async () => {
+    it.each([
+        { errorCode: "INVALID_SESSION_ID" },
+        { statusCode: 401 }
+    ])("requires a new login when a legacy session expires (%j)", async (error) => {
         getSessionMock.mockResolvedValue(session);
-        const operation = vi
-            .fn()
-            .mockRejectedValueOnce({ errorCode: "INVALID_SESSION_ID" })
-            .mockResolvedValueOnce("ok");
+        const operation = vi.fn().mockRejectedValue(error);
 
-        await expect(withStandardObjectConnection(operation)).resolves.toEqual({
-            data: "ok",
-            session: refreshedSession
+        await expect(withStandardObjectConnection(operation)).rejects.toMatchObject({
+            message: "Salesforce session expired. Please connect again.",
+            status: 401
         });
 
-        expect(refreshAccessTokenMock).toHaveBeenCalledWith(session);
-        expect(operation).toHaveBeenCalledTimes(2);
-        expect(jsforceMocks.connection).toHaveBeenNthCalledWith(1, {
+        expect(operation).toHaveBeenCalledTimes(1);
+        expect(jsforceMocks.connection).toHaveBeenCalledExactlyOnceWith({
             accessToken: "access-token",
             instanceUrl: "https://example.my.salesforce.com",
             loginUrl: "https://login.salesforce.com",
-            oauth2: {
-                clientId: "client-id",
-                clientSecret: "client-secret",
-                loginUrl: "https://login.salesforce.com",
-                redirectUri: "https://app.example.test/api/auth/callback"
-            },
-            refreshToken: "refresh-token",
-            version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
-        });
-        expect(jsforceMocks.connection).toHaveBeenNthCalledWith(2, {
-            accessToken: "refreshed-access-token",
-            instanceUrl: "https://example.my.salesforce.com",
-            loginUrl: "https://login.salesforce.com",
-            oauth2: {
-                clientId: "client-id",
-                clientSecret: "client-secret",
-                loginUrl: "https://login.salesforce.com",
-                redirectUri: "https://app.example.test/api/auth/callback"
-            },
-            refreshToken: "refresh-token",
             version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
         });
     });
@@ -182,11 +151,6 @@ describe("Salesforce service connection helpers", () => {
             accessToken: "integration-access-token",
             instanceUrl: "https://example.my.salesforce.com",
             loginUrl: "https://login.salesforce.com",
-            oauth2: {
-                clientId: "integration-client-id",
-                clientSecret: "integration-client-secret",
-                loginUrl: "https://login.salesforce.com"
-            },
             version: toJsforceApiVersion(DEFAULT_SALESFORCE_API_VERSION)
         });
     });

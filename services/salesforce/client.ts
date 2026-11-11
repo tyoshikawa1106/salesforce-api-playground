@@ -7,8 +7,7 @@ import {
 } from "@/lib/salesforce/config";
 import {
     SalesforceApiError,
-    exchangeClientCredentialsForToken,
-    refreshAccessToken
+    exchangeClientCredentialsForToken
 } from "@/lib/salesforce/client";
 import type { SalesforceSession } from "@/lib/salesforce/session";
 import { getSession } from "@/lib/salesforce/session";
@@ -32,25 +31,12 @@ async function requireSalesforceSession(): Promise<SalesforceSession> {
 }
 
 function createConnection(session: SalesforceSession): Connection {
-    const {
-        apiVersion,
-        clientId,
-        clientSecret,
-        loginUrl,
-        redirectUri
-    } = getSalesforceConfig();
+    const { apiVersion, loginUrl } = getSalesforceConfig();
 
     return new Connection({
         accessToken: session.accessToken,
         instanceUrl: session.instanceUrl,
         loginUrl,
-        oauth2: {
-            clientId,
-            clientSecret,
-            loginUrl,
-            redirectUri
-        },
-        refreshToken: session.refreshToken,
         version: toJsforceApiVersion(apiVersion)
     });
 }
@@ -63,11 +49,6 @@ async function createIntegrationConnection(): Promise<Connection> {
         accessToken: session.accessToken,
         instanceUrl: session.instanceUrl,
         loginUrl: config.loginUrl,
-        oauth2: {
-            clientId: config.clientId,
-            clientSecret: config.clientSecret,
-            loginUrl: config.loginUrl
-        },
         version: toJsforceApiVersion(config.apiVersion)
     });
 }
@@ -118,17 +99,11 @@ async function withSalesforceConnection<T>(
         const data = await operation(createConnection(session), session);
         return { data, session };
     } catch (error) {
-        if (!isUnauthorizedSalesforceError(error)) {
-            throw salesforceErrorFromUnknown(error);
+        if (isUnauthorizedSalesforceError(error)) {
+            throw new SalesforceApiError("Salesforce session expired. Please connect again.", 401);
         }
 
-        const refreshedSession = await refreshAccessToken(session);
-        try {
-            const data = await operation(createConnection(refreshedSession), refreshedSession);
-            return { data, session: refreshedSession };
-        } catch (retryError) {
-            throw salesforceErrorFromUnknown(retryError);
-        }
+        throw salesforceErrorFromUnknown(error);
     }
 }
 

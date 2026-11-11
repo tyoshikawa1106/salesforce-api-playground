@@ -1,10 +1,10 @@
+import { createHash } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as loginRoute from "./auth/login/route";
 import * as callbackRoute from "./auth/callback/route";
 import * as logoutRoute from "./auth/logout/route";
 import * as sessionRoute from "./session/route";
 import { exchangeCodeForToken, revokeSalesforceSession, salesforceErrorResponse } from "@/lib/salesforce/client";
-import { buildAuthorizationUrl } from "@/lib/salesforce/client-core";
 import { getSalesforceConfig } from "@/lib/salesforce/config";
 import { getConfiguredAppOrigin } from "@/lib/salesforce/urls";
 import {
@@ -32,21 +32,6 @@ vi.mock("next/headers", () => ({
 
 vi.mock("@/lib/salesforce/config", () => ({
     getSalesforceConfig: vi.fn()
-}));
-
-vi.mock("@/lib/salesforce/client-core", () => ({
-    buildAuthorizationUrl: vi.fn((config: { clientId: string; redirectUri: string; loginUrl: string }, state: string) => {
-        const authorizeUrl = new URL(`${config.loginUrl}/services/oauth2/authorize`);
-        authorizeUrl.search = new URLSearchParams({
-            response_type: "code",
-            client_id: config.clientId,
-            redirect_uri: config.redirectUri,
-            scope: "api refresh_token",
-            state
-        }).toString();
-
-        return authorizeUrl.toString();
-    })
 }));
 
 vi.mock("@/lib/salesforce/client", () => ({
@@ -114,7 +99,7 @@ const cookiesMock = vi.mocked(cookies);
 const exchangeCodeForTokenMock = vi.mocked(exchangeCodeForToken);
 const revokeSalesforceSessionMock = vi.mocked(revokeSalesforceSession);
 const salesforceErrorResponseMock = vi.mocked(salesforceErrorResponse);
-const buildAuthorizationUrlMock = vi.mocked(buildAuthorizationUrl);
+const codeVerifier = "a".repeat(43);
 const getSalesforceConfigMock = vi.mocked(getSalesforceConfig);
 const getConfiguredAppOriginMock = vi.mocked(getConfiguredAppOrigin);
 const clearSessionCookieMock = vi.mocked(clearSessionCookie);
@@ -132,7 +117,7 @@ function setDefaultMocks() {
     getSalesforceConfigMock.mockReturnValue(dummySalesforceConfig);
     createOauthStateMock.mockReturnValue("generated-state");
     getConfiguredAppOriginMock.mockReturnValue("https://app.example.test");
-    setOauthStateCookie("generated-state");
+    setOauthStateCookie(`generated-state.${codeVerifier}`);
 }
 
 afterEach(() => {
@@ -177,13 +162,20 @@ describe("Login API route", () => {
         expect(response.status).toBe(307);
         expect(getSalesforceConfigMock).toHaveBeenCalled();
         expect(createOauthStateMock).toHaveBeenCalled();
-        expect(buildAuthorizationUrlMock).toHaveBeenCalledWith(dummySalesforceConfig, "generated-state");
-        expect(setStateCookieMock).toHaveBeenCalledWith(response, "generated-state");
+        const savedAttempt = setStateCookieMock.mock.calls[0]?.[1] ?? "";
+        const [savedState, savedVerifier] = savedAttempt.split(".");
+        expect(savedState).toBe("generated-state");
+        expect(savedVerifier).toMatch(/^[A-Za-z0-9_-]{43}$/);
+        expect(authorizeUrl.searchParams.get("code_challenge")).toBe(
+            createHash("sha256").update(savedVerifier).digest("base64url")
+        );
+        expect(authorizeUrl.searchParams.get("code_challenge_method")).toBe("S256");
+        expect(authorizeUrl.searchParams.has("code_verifier")).toBe(false);
         expect(authorizeUrl.origin).toBe("https://login.example.test");
         expect(authorizeUrl.searchParams.get("response_type")).toBe("code");
         expect(authorizeUrl.searchParams.get("client_id")).toBe(dummySalesforceConfig.clientId);
         expect(authorizeUrl.searchParams.get("redirect_uri")).toBe(dummySalesforceConfig.redirectUri);
-        expect(authorizeUrl.searchParams.get("scope")).toBe("api refresh_token");
+        expect(authorizeUrl.searchParams.get("scope")).toBe("api");
         expect(authorizeUrl.searchParams.get("state")).toBe("generated-state");
     });
 
@@ -236,7 +228,7 @@ describe("Callback API route", () => {
 
         const response = await callbackRoute.GET(request);
 
-        expect(exchangeCodeForTokenMock).toHaveBeenCalledWith("valid-code");
+        expect(exchangeCodeForTokenMock).toHaveBeenCalledWith("valid-code", codeVerifier);
         expect(clearStateCookieMock).toHaveBeenCalledWith(response);
         expect(setSessionCookieMock).toHaveBeenCalledWith(response, dummySalesforceSession);
         expect(response.status).toBe(307);
@@ -246,8 +238,20 @@ describe("Callback API route", () => {
 
     it("does not exchange the code when saved state and query state do not match", async () => {
         setDefaultMocks();
-        setOauthStateCookie("saved-state");
+        setOauthStateCookie(`saved-state.${codeVerifier}`);
         const request = nextRequest("https://app.example.test/api/auth/callback?code=valid-code&state=query-state");
+
+        const response = await callbackRoute.GET(request);
+
+        expect(exchangeCodeForTokenMock).not.toHaveBeenCalled();
+        expect(clearStateCookieMock).toHaveBeenCalledWith(response);
+        expect(response.headers.get("location")).toBe("https://app.example.test/?auth=state_error");
+    });
+
+    it("requires a fresh login for a state cookie issued before PKCE", async () => {
+        setDefaultMocks();
+        setOauthStateCookie("generated-state");
+        const request = nextRequest("https://app.example.test/api/auth/callback?code=valid-code&state=generated-state");
 
         const response = await callbackRoute.GET(request);
 
@@ -276,6 +280,7 @@ describe("Callback API route", () => {
         const response = await callbackRoute.GET(request);
 
         expect(salesforceErrorResponseMock).toHaveBeenCalledWith(error);
+        expect(clearStateCookieMock).toHaveBeenCalledWith(response);
         await expectJson(response, { error: "Token exchange failed" });
     });
 });

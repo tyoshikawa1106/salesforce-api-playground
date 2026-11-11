@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { SalesforceSession } from "./session";
 import { normalizeHttpsOriginUrl } from "./url-security";
 
@@ -34,11 +35,6 @@ type AuthorizationCodeTokenParamsConfig = {
     redirectUri: string;
 };
 
-type RefreshTokenParamsConfig = {
-    clientId: string;
-    clientSecret: string;
-};
-
 type ClientCredentialsTokenParamsConfig = {
     clientId: string;
     clientSecret: string;
@@ -46,11 +42,6 @@ type ClientCredentialsTokenParamsConfig = {
 
 type RevokeEndpointConfig = {
     instanceUrl: string;
-};
-
-export type SalesforceRequest = {
-    url: string;
-    init: RequestInit;
 };
 
 function buildSalesforceTokenEndpointUrl(config: TokenEndpointConfig): string {
@@ -71,23 +62,27 @@ export function buildAuthorizationEndpointUrl(
 
 export function buildAuthorizationUrlParams(
     config: AuthorizationUrlParamsConfig,
-    state: string
+    state: string,
+    codeVerifier: string
 ): URLSearchParams {
     return new URLSearchParams({
         response_type: "code",
         client_id: config.clientId,
         redirect_uri: config.redirectUri,
-        scope: "api refresh_token",
-        state
+        scope: "api",
+        state,
+        code_challenge: createHash("sha256").update(codeVerifier).digest("base64url"),
+        code_challenge_method: "S256"
     });
 }
 
 export function buildAuthorizationUrl(
     config: AuthorizationEndpointConfig & AuthorizationUrlParamsConfig,
-    state: string
+    state: string,
+    codeVerifier: string
 ): string {
     const authorizeUrl = new URL(buildAuthorizationEndpointUrl(config));
-    authorizeUrl.search = buildAuthorizationUrlParams(config, state).toString();
+    authorizeUrl.search = buildAuthorizationUrlParams(config, state, codeVerifier).toString();
 
     return authorizeUrl.toString();
 }
@@ -100,43 +95,17 @@ export function buildAuthorizationCodeTokenEndpointUrl(
 
 export function buildAuthorizationCodeTokenParams(
     config: AuthorizationCodeTokenParamsConfig,
-    code: string
+    code: string,
+    codeVerifier: string
 ): URLSearchParams {
     return new URLSearchParams({
         grant_type: "authorization_code",
         code,
+        code_verifier: codeVerifier,
         client_id: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: config.redirectUri
     });
-}
-
-export function buildRefreshTokenEndpointUrl(config: TokenEndpointConfig): string {
-    return buildSalesforceTokenEndpointUrl(config);
-}
-
-export function buildRefreshTokenParams(
-    config: RefreshTokenParamsConfig,
-    refreshToken: string
-): URLSearchParams {
-    return new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-        client_id: config.clientId,
-        client_secret: config.clientSecret
-    });
-}
-
-export function buildRefreshTokenRequest(
-    config: TokenEndpointConfig & RefreshTokenParamsConfig,
-    refreshToken: string
-): SalesforceRequest {
-    const params = buildRefreshTokenParams(config, refreshToken);
-
-    return {
-        url: buildRefreshTokenEndpointUrl(config),
-        init: buildTokenRequestInit(params)
-    };
 }
 
 export function buildClientCredentialsTokenEndpointUrl(
@@ -224,23 +193,9 @@ export function tokenResponseToSession(
 
     return {
         accessToken: token.access_token,
-        refreshToken: token.refresh_token,
         instanceUrl: normalizeHttpsOriginUrl(token.instance_url, "Salesforce instance URL"),
         issuedAt: token.issued_at ? Number(token.issued_at) : issuedAtFallback,
         userId,
         organizationId
-    };
-}
-
-export function tokenResponseToRefreshedSession(
-    session: SalesforceSession,
-    token: TokenResponse,
-    issuedAtFallback = Date.now()
-): SalesforceSession {
-    return {
-        ...session,
-        accessToken: token.access_token,
-        instanceUrl: token.instance_url ?? session.instanceUrl,
-        issuedAt: token.issued_at ? Number(token.issued_at) : issuedAtFallback
     };
 }
